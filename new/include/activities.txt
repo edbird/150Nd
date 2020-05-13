@@ -1,0 +1,74 @@
+nd150_rot_2n2b_m4       0.345e-3	0.345e-3
+nd150_rot_2b2n_m4	    0.345e-3	0.345e-3
+
+bi214_int_rot           0.29e-3     0.29e-3
+pb214_int_rot           0.29e-3     0.29e-3
+tl208_int_rot           0.62e-3     0.62e-3
+ac228_int_rot           1.72e-3     1.72e-3
+bi212_int_rot           1.72e-3     1.72e-3
+bi207_int_rot           5.66e-3     5.66e-3
+eu152_int_rot           2.98e-3     2.98e-3
+eu154_int_rot           1.08e-3     1.08e-3
+k40_int_rot             10.14e-3    10.14e-3
+pa234m_int_rot          1.54e-3     1.54e-3
+
+bi214_mylar             1.6e-3      1.6e-3
+pb214_mylar             1.6e-3      1.6e-3
+
+
+mo100_99_rot_2n2b_m14	4.86e-3	    4.86e-3
+mo100_99_rot_k40        5.27e-3     5.27e-3
+mo100_99_rot_pa234m     0.73e-3     0.73e-3
+mo100_99_rot_bi214      0.135e-3    0.135e-3
+
+zr96_rot_2n2b_m4	    0.051e-3	0.051e-3
+zr96_rot_k40            19.7e-3     19.7e-3
+zr96_rot_pa234m         0.49e-3     0.49e-3
+zr96_rot_bi214          0.19e-3     0.19e-3
+
+ca48_63_rot_2n2b_m4	    0.031e-3	0.031e-3
+ca48_63_rot_y90	        29.6e-3	    29.6e-3
+ca48_63_rot_pa234m      0.3e-3      0.3e-3
+ca48_63_rot_bi214       0.08e-3     0.08e-3
+ca48_63_rot_k40         0.          0.
+
+bi214_sfoil_rot         8.5e-3      1.8e-3
+bi214_sfoil             8.5e-3	    1.8e-3
+pb214_sfoil	            8.5e-3	    1.8e-3
+bi214_sfoil_In	        8.5e-3      1.4e-3
+pb214_sfoil_In	        8.5e-3      1.4e-3
+bi214_sfoil_Out	        5.3e-3      1.8e-3
+pb214_sfoil_Out	        5.3e-3      1.8e-3
+
+bi214_swire             857.5e-3    101.3e-3
+pb214_swire             857.5e-3    101.3e-3
+bi214_swire_InL0	    15.3e-3     1.2e-3
+pb214_swire_InL0	    15.3e-3     1.2e-3
+bi214_swire_OutL0	    29.9e-3     0.4e-3
+pb214_swire_OutL0	    29.9e-3     0.4e-3
+bi214_swire_Lg0	        857.5e-3	101.3e-3
+pb214_swire_Lg0	        857.5e-3	101.3e-3
+
+bi210_swire             11.7e-3     11.7e-3
+bi210_sfoil             1.3e-3      1.3e-3
+bi210_sscin	            34.0		34.0
+
+bi214_air               557.        0.
+pb214_air               557.        0.
+tl208_air               9.          0.
+
+bi214_pmt	            186.	    186.
+bi214_feShield	        9295.	    9295.
+ac228_pmt	            36.		    36. 
+ac228_feShield	        1090.       1090.
+tl208_pmt	            36.         36.
+tl208_feShield	        1090.	    1090.
+pa234m_sscin            3.1         3.1
+co60_cuTower	        60.		    60.
+k40_pmt		            1124.	    1124.
+k40_scintIN             16.         16.
+k40_scintOUT            16.         16.
+k40_scintPET            16.         16.
+
+tl208_swire             0.          0.
+tl208_sfoil             0.          0.
