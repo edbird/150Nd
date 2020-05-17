@@ -1,3 +1,6 @@
+#ifndef NEWLOGLIKFITTER_H
+#define NEWLOGLIKFITTER_H
+
 #include "TH1F.h"
 #include "TFractionFitter.h"
 #include "TArray.h"
@@ -377,3 +380,4 @@ TString NeighbourNames[nNeighbours] =
 
 #endif
 
+#endif

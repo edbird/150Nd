@@ -33,10 +33,6 @@
 #include "../include/fit_2e.h"
 
 
-// TODO: enable this at some point
-//#include "InputFiles.h"
-//
-
 // TODO:
 //
 // - change to double precision floating point
@@ -46,7 +42,7 @@
 //----------------------------------------
 void loadFiles();
 
-void makeHistograms(TString thePath, TString sampleName, std::ofstream &ofile_cutcount, Int_t mode_flag);
+void makeHistograms(TString thePath, TString sampleName, std::ofstream &ofile_cutcount, const Int_t mode_flag);
 //void  makeHistograms(TTree *tree, TString sampleName, Int_t isotope);
 void fitHistograms();
 void drawPlots(TH1F *data,TH1F *mc, THStack *hs);
@@ -162,11 +158,16 @@ void loadFiles()
 //                to hold histogram data, may wish to change behaviour
 //                depending on value of the flag such that the NAMES
 //                and pointers are always unique (surpress root warnings)
-void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cutcount, Int_t mode_flag = 0)
+void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cutcount, const Int_t mode_flag = 0)
 {
 
+    // enable / disable additional cuts
+    // by default the basic cuts are enabled
+    // this includes sector and phase cut
     const Int_t mode_flag_2 = 1;
 
+    // swap between raw mode and processed mode
+    // raw mode disables all cuts
     TString name_append;
     if(mode_flag == 0)
     {
@@ -266,7 +267,8 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
 
     hTotalE                 = new TH1F("hTotalE_" + sampleName + name_append,
                                        "Phase " + Phase + " " + sampleName + name_append + " total energy; #SigmaE_{e} (MeV)",
-                                       50, 0.0, 4.0); // 0.0, 2.2
+                                       50, 0.0, 5.0); // 0.0, 2.2
+                                       // TODO was 4.0
 
     hInternalPullee         = new TH1F("hInternalPullee_" + sampleName + name_append,
                                        "Phase " + Phase + " " + sampleName + name_append + " internal hypothesis; ee Pull",
@@ -306,7 +308,8 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
 
     hEeMax                  = new TH1F("hEeMax_" + sampleName + name_append,
                                        "Phase " + Phase + " " + sampleName + name_append + " higher energy Ee; E_{e} (MeV)"              ,
-                                       50, 0.0, 4.0); // limits ok
+                                       50, 0.0, 5.0); // limits ok
+                                       // TODO was 4.0
 
     hElectronLengthMax      = new TH1F("hElectronLengthMax_" + sampleName + name_append,
                                        "Phase " + Phase + " " + sampleName + name_append + " higher energy e^{-} track length;  track length (cm)",
@@ -488,6 +491,13 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
 
     ///////////////////////////////////////////////////////////////////////////
 
+
+    // map for data structure for raw data
+    std::map<TString, TH1*> histogramPointers_rawdata;
+    // map for data structure for processed data
+    std::map<TString, TH1*> histogramPointers;
+
+
     std::map<TString, TH1*> *hpmap_p = nullptr;
     if(mode_flag == 0)
     {
@@ -615,8 +625,10 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
     TTree *theTree = (TTree*)aFile->Get("Nd150_2eNg/Nd150_2eNg");
 
     #if TRUTH_ENABLE
-        TFile *outputFile = nullptr;
-        TTree *outputTree = nullptr;
+    TFile *outputFile = nullptr;
+    TTree *outputTree = nullptr;
+    if(mode_flag == 0)
+    {
         if((sampleName.CompareTo("nd150_rot_2b2n_m4") == 0)   ||
            (sampleName.CompareTo("nd150_rot_2n2b_m4") == 0))
         {
@@ -626,6 +638,7 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
             outputFile->cd("Nd150_2eNg");                                                  
             outputTree = new TTree("Nd150_2eNg", "Nd150_2eNg");
         }
+    }
     #endif
 
     // general
@@ -642,8 +655,6 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
     double      trueVertexZ;
     double      trueVertexSector;
     int         trueVertexLayer;
-    // 2020-02-19 I am now confused. The truth info appears to be in all of my nd150_rot_? files ?
-    // I'm not confused. This info is here, it was trueElectronEnergy which was missing
 
     double      electronEnergy[2];
     double      eTrackLength[2];
@@ -711,20 +722,6 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
     double      trueElectronEnergy[2]; // TODO
     #endif
 
-    //bool        mcFlag;
-    //radon related stuff
-
-    //counters 
-    //int         nGammas, nGammaClusters
-    //nElectrons, nParticles;
-    //double      electronCaloZ[2], electronCaloSector[2], electronCaloR[2];
-    // re-enabled, but not in tree?
-    //double      electronCaloZ[2];
-    //double      electronCaloSector[2];
-    //double      electronCaloR[2];
-
-    //double      dist2VertexPromptGg0[20];
-    //double      dist2VertexPromptGg1[20];
 
     // these are the old variable names
     //int         nLowEClusters;
@@ -829,80 +826,83 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
     // theTree->SetBranchAddress( "lowEMinDistPromptGg", lowEMinDistPromptGg );
    
     #if TRUTH_ENABLE
-    if((sampleName.CompareTo("nd150_rot_2b2n_m4") == 0)   ||
-       (sampleName.CompareTo("nd150_rot_2n2b_m4") == 0))
+    if(mode_flag == 0)
     {
-        theTree->SetBranchAddress("trueElectronEnergy"      , trueElectronEnergy);
+        if((sampleName.CompareTo("nd150_rot_2b2n_m4") == 0)   ||
+           (sampleName.CompareTo("nd150_rot_2n2b_m4") == 0))
+        {
+            theTree->SetBranchAddress("trueElectronEnergy"      , trueElectronEnergy);
 
-        outputTree->Branch("Event"                      , &event                        , "event/I");
-        outputTree->Branch("Run"                        , &run                          , "run/I");
-        outputTree->Branch("runStatus"                  , &runStatus                    , "runStatus/I");
-        outputTree->Branch("nElectrons"                 , &nElectrons                   , "nElectrons/I");
+            outputTree->Branch("Event"                      , &event                        , "event/I");
+            outputTree->Branch("Run"                        , &run                          , "run/I");
+            outputTree->Branch("runStatus"                  , &runStatus                    , "runStatus/I");
+            outputTree->Branch("nElectrons"                 , &nElectrons                   , "nElectrons/I");
 
-        outputTree->Branch("radonWeight"                , &radonWeight                  , "radonWeight/D");
-        outputTree->Branch("bi210Weight"                , &bi210Weight                  , "bi210Weight/D");
-        outputTree->Branch("foilSide"                   , &foilSide                     , "foilSide/I");
-        outputTree->Branch("eventTime"                  , &eventTime                    , "eventTime/D");
+            outputTree->Branch("radonWeight"                , &radonWeight                  , "radonWeight/D");
+            outputTree->Branch("bi210Weight"                , &bi210Weight                  , "bi210Weight/D");
+            outputTree->Branch("foilSide"                   , &foilSide                     , "foilSide/I");
+            outputTree->Branch("eventTime"                  , &eventTime                    , "eventTime/D");
 
-        outputTree->Branch("trueVertexR"                , &trueVertexR                  , "trueVertexR/D");
-        outputTree->Branch("trueVertexZ"                , &trueVertexZ                  , "trueVertexZ/D");
-        outputTree->Branch("trueVertexSector"           , &trueVertexSector             , "trueVertexSector/D");
-        outputTree->Branch("trueVertexLayer"            , &trueVertexLayer              , "trueVertexLayer/I");
+            outputTree->Branch("trueVertexR"                , &trueVertexR                  , "trueVertexR/D");
+            outputTree->Branch("trueVertexZ"                , &trueVertexZ                  , "trueVertexZ/D");
+            outputTree->Branch("trueVertexSector"           , &trueVertexSector             , "trueVertexSector/D");
+            outputTree->Branch("trueVertexLayer"            , &trueVertexLayer              , "trueVertexLayer/I");
 
-        outputTree->Branch("electronEnergy"             , electronEnergy                , "electronEnergy[2]/D");
-        outputTree->Branch("eTrackLength"               , eTrackLength                  , "eTrackLength[2]/D");
-        outputTree->Branch("electronSide"               , electronSide                  , "electronSide[2]/I");
-        outputTree->Branch("trackSign"                  , trackSign                     , "trackSign[2]/D");
-        outputTree->Branch("electronMeasTime"           , electronMeasTime              , "electronMeasTime[2]/D");
-        outputTree->Branch("electronDMeasTime"          , electronDMeasTime             , "electronDMeasTime[2]/D");
-        outputTree->Branch("electronBlockType"          , electronBlockType             , "electronBlockType[2]/I");
+            outputTree->Branch("electronEnergy"             , electronEnergy                , "electronEnergy[2]/D");
+            outputTree->Branch("eTrackLength"               , eTrackLength                  , "eTrackLength[2]/D");
+            outputTree->Branch("electronSide"               , electronSide                  , "electronSide[2]/I");
+            outputTree->Branch("trackSign"                  , trackSign                     , "trackSign[2]/D");
+            outputTree->Branch("electronMeasTime"           , electronMeasTime              , "electronMeasTime[2]/D");
+            outputTree->Branch("electronDMeasTime"          , electronDMeasTime             , "electronDMeasTime[2]/D");
+            outputTree->Branch("electronBlockType"          , electronBlockType             , "electronBlockType[2]/I");
 
-        outputTree->Branch("internalPull"               , &eeInternalPull               , "eeInternalPull/D");
-        outputTree->Branch("internalProb"               , &eeInternalProb               , "eeInternalProb/D");
-        outputTree->Branch("externalPull"               , &eeExternalPull               , "eeExternalPull/D");
-        outputTree->Branch("externalProb"               , &eeExternalProb               , "eeExternalProb/D");
-        outputTree->Branch("cosee"                      , &cosee                        , "cosee/D");
-        outputTree->Branch("cosee_weight"               , &cosee_weight                 , "cosee_weight/D");
+            outputTree->Branch("internalPull"               , &eeInternalPull               , "eeInternalPull/D");
+            outputTree->Branch("internalProb"               , &eeInternalProb               , "eeInternalProb/D");
+            outputTree->Branch("externalPull"               , &eeExternalPull               , "eeExternalPull/D");
+            outputTree->Branch("externalProb"               , &eeExternalProb               , "eeExternalProb/D");
+            outputTree->Branch("cosee"                      , &cosee                        , "cosee/D");
+            outputTree->Branch("cosee_weight"               , &cosee_weight                 , "cosee_weight/D");
 
-        outputTree->Branch("electronPMT"                , electronPMT                   , "electronPMT[2]/I");
-        outputTree->Branch("electronLDFlag"             , electronLDFlag                , "electronLDFlag[2]/I");
-        outputTree->Branch("electronLDCorr"             , electronLDCorr                , "electronLDCorr[2]/D");
-        outputTree->Branch("electronLDCorrErr"          , electronLDCorrErr             , "electronLDCorrErr[2]/D");
+            outputTree->Branch("electronPMT"                , electronPMT                   , "electronPMT[2]/I");
+            outputTree->Branch("electronLDFlag"             , electronLDFlag                , "electronLDFlag[2]/I");
+            outputTree->Branch("electronLDCorr"             , electronLDCorr                , "electronLDCorr[2]/D");
+            outputTree->Branch("electronLDCorrErr"          , electronLDCorrErr             , "electronLDCorrErr[2]/D");
 
-        outputTree->Branch("vertexZ"                    , vertexZ                       , "vertexZ[2]/D");
-        outputTree->Branch("vertexSec"                  , vertexSec                     , "vertexSec[2]/D");
-        outputTree->Branch("vertexR"                    , vertexR                       , "vertexR[2]/D");
+            outputTree->Branch("vertexZ"                    , vertexZ                       , "vertexZ[2]/D");
+            outputTree->Branch("vertexSec"                  , vertexSec                     , "vertexSec[2]/D");
+            outputTree->Branch("vertexR"                    , vertexR                       , "vertexR[2]/D");
 
-        outputTree->Branch("vertexInHotSpot"            , vertexInHotSpot               , "vertexInHotSpot[2]/O");
+            outputTree->Branch("vertexInHotSpot"            , vertexInHotSpot               , "vertexInHotSpot[2]/O");
 
-        outputTree->Branch("firstGgHitLayer"            , firstGgHitLayer               , "firstGgHitLayer[2]/I");
-        outputTree->Branch("lastGgHitLayer"             , lastGgHitLayer                , "lastGgHitLayer[2]/I");
+            outputTree->Branch("firstGgHitLayer"            , firstGgHitLayer               , "firstGgHitLayer[2]/I");
+            outputTree->Branch("lastGgHitLayer"             , lastGgHitLayer                , "lastGgHitLayer[2]/I");
 
-        outputTree->Branch("NAPromptGgHits"             , &NAPromptGgHits               , "NAPromptGgHits/I");
-        outputTree->Branch("NAPromptGgHitsSide"         , NAPromptGgHitsSide            , "NAPromptGgHitsSide/I"); // TODO: should be array?
-        outputTree->Branch("NAPromptGgHitsDist2Vertex"  , NAPromptGgHitsDist2Vertex     , "NAPromptGgHitsDist2Vertex[NAPromptGgHits]/D");
-        outputTree->Branch("NAPromptGgHitsDist2Calo"    , NAPromptGgHitsDist2Calo       , "NAPromptGgHitsDist2Calo[NAPromptGgHits]/D");
+            outputTree->Branch("NAPromptGgHits"             , &NAPromptGgHits               , "NAPromptGgHits/I");
+            outputTree->Branch("NAPromptGgHitsSide"         , NAPromptGgHitsSide            , "NAPromptGgHitsSide/I"); // TODO: should be array?
+            outputTree->Branch("NAPromptGgHitsDist2Vertex"  , NAPromptGgHitsDist2Vertex     , "NAPromptGgHitsDist2Vertex[NAPromptGgHits]/D");
+            outputTree->Branch("NAPromptGgHitsDist2Calo"    , NAPromptGgHitsDist2Calo       , "NAPromptGgHitsDist2Calo[NAPromptGgHits]/D");
 
-        outputTree->Branch("nGammaClusters"             , &nGammaClusters               , "nGammaClusters/I");
-        outputTree->Branch("nInCluster"                 , &nInCluster                   , "nInCluster[nGammaClusters]/I");
-        outputTree->Branch("clusterEnergy"              , clusterEnergy                 , "clusterEnergy[nGammaClusters]/D");
-        outputTree->Branch("clusterTimeSpan"            , clusterTimeSpan               , "clusterTimeSpan[nGammaClusters]/D");
+            outputTree->Branch("nGammaClusters"             , &nGammaClusters               , "nGammaClusters/I");
+            outputTree->Branch("nInCluster"                 , &nInCluster                   , "nInCluster[nGammaClusters]/I");
+            outputTree->Branch("clusterEnergy"              , clusterEnergy                 , "clusterEnergy[nGammaClusters]/D");
+            outputTree->Branch("clusterTimeSpan"            , clusterTimeSpan               , "clusterTimeSpan[nGammaClusters]/D");
 
-        outputTree->Branch("nTotalClusterHits"          , &nTotalClusterHits            , "nTotalClusterHits/I");
-        outputTree->Branch("clusterHitEnergy"           , clusterHitEnergy              , "clusterHitEnergy[nTotalClusterHits]/D");
-        outputTree->Branch("clusterHitPMT"              , clusterHitPMT                 , "clusterHitPMT[nTotalClusterHits]/I");
-        outputTree->Branch("clusterHitLDFlag"           , clusterHitLDFlag              , "clusterHitLDFlag[nTotalClusterHits]/I");
-        outputTree->Branch("clusterHitLDCorr"           , clusterHitLDCorr              , "clusterHitLDCorr[nTotalClusterHits]/D");
-        outputTree->Branch("clusterHitLDCorrErr"        , clusterHitLDCorrErr           , "clusterHitLDCorrErr[nTotalClusterHits]/D");
-        outputTree->Branch("clusterHitSec"              , clusterHitSec                 , "clusterHitSec[nTotalClusterHits]/D");
-        outputTree->Branch("clusterHitZ"                , clusterHitZ                   , "clusterHitZ[nTotalClusterHits]/D");
+            outputTree->Branch("nTotalClusterHits"          , &nTotalClusterHits            , "nTotalClusterHits/I");
+            outputTree->Branch("clusterHitEnergy"           , clusterHitEnergy              , "clusterHitEnergy[nTotalClusterHits]/D");
+            outputTree->Branch("clusterHitPMT"              , clusterHitPMT                 , "clusterHitPMT[nTotalClusterHits]/I");
+            outputTree->Branch("clusterHitLDFlag"           , clusterHitLDFlag              , "clusterHitLDFlag[nTotalClusterHits]/I");
+            outputTree->Branch("clusterHitLDCorr"           , clusterHitLDCorr              , "clusterHitLDCorr[nTotalClusterHits]/D");
+            outputTree->Branch("clusterHitLDCorrErr"        , clusterHitLDCorrErr           , "clusterHitLDCorrErr[nTotalClusterHits]/D");
+            outputTree->Branch("clusterHitSec"              , clusterHitSec                 , "clusterHitSec[nTotalClusterHits]/D");
+            outputTree->Branch("clusterHitZ"                , clusterHitZ                   , "clusterHitZ[nTotalClusterHits]/D");
 
-        outputTree->Branch("trueElectronEnergy"         , trueElectronEnergy            , "trueElectronEnergy[2]/D");
-    }
-    else
-    {
-        trueElectronEnergy[0] = 0.;
-        trueElectronEnergy[1] = 0.;
+            outputTree->Branch("trueElectronEnergy"         , trueElectronEnergy            , "trueElectronEnergy[2]/D");
+        }
+        else
+        {
+            trueElectronEnergy[0] = 0.;
+            trueElectronEnergy[1] = 0.;
+        }
     }
     #endif
 
@@ -912,7 +912,7 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
     int nCuts = 16; // 26;
     Int_t cut_counter[nCuts];
     //Int_t cut_counter_index = 0;
-    for ( int i = 0; i < nCuts; i++ )
+    for(int i = 0; i < nCuts; ++ i)
     {
         cut_counter[i] = 0;
     }
@@ -930,22 +930,6 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
         }
         theTree->GetEvent(event_i);
 
-
-        // theTree->SetBranchAddress( "electronCaloZ"     , electronCaloZ );
-        // theTree->SetBranchAddress( "electronCaloR"     , electronCaloR );
-        //  theTree->SetBranchAddress( "electronCaloSector", electronCaloSector );
-        //electronCaloZ[0] = 0;
-        //electronCaloZ[1] = 0;
-        //electronCaloR[0] = 0;
-        //electronCaloR[1] = 0;
-        //electronCaloSector[0] = 0;
-        //electronCaloSector[1] = 0;
-        
-        //for(Int_t i = 0; i < 10; ++i)
-        //{
-            //lowEClusterR[i] = 0;
-            //lowEMinDistPromptGg[i] = 0;
-        //}
 
         double weight = 1.;
         if(sampleName.CompareTo("bi214_swire") == 0)
@@ -1676,7 +1660,7 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
                 cut = true;
             }
             // accept P1 and P2 for testing purposes
-            //cut = false;
+            cut = false;
             if(cut == true) continue;
         }
         ++ cut_counter[cc]; // cut 1 - phase
@@ -1848,72 +1832,35 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
 
 
         #if TRUTH_ENABLE
-        if((sampleName.CompareTo("nd150_rot_2b2n_m4") == 0)   ||
-           (sampleName.CompareTo("nd150_rot_2n2b_m4") == 0))
+        if(mode_flag == 0)
         {
-            outputTree->Fill();
+            if((sampleName.CompareTo("nd150_rot_2b2n_m4") == 0)   ||
+               (sampleName.CompareTo("nd150_rot_2n2b_m4") == 0))
+            {
+                if(electronEnergy[0] < 0.3 || electronEnergy[1] < 0.3)
+                {
+                    std::cout << "problem in fit_2e electron energy too low" << std::endl;
+                }
+                outputTree->Fill();
+            }
         }
         #endif
 
-
-
-
-
-
-
-        // filling of hNAPromptGgHitsDist2VertexMin moved before cuts
-
-/*
-        for(int i = 0; i < nUnAssocPromptGg; i++)
-        {
-            if(highE_index == 0)
-            {
-                hVertexMinDistPromptGgMax->Fill(dist2VertexPromptGg0[i]);
-                hVertexMinDistPromptGgMin->Fill(dist2VertexPromptGg1[i]);
-    //new variable names:
-    double NAPromptGgHitsDist2Vertex[20]; // TODO check number 20
-    double NAPromptGgHitsDist2Calo[20];
-    //old variable names:
-    //double      dist2VertexPromptGg0[20];
-    //double      dist2VertexPromptGg1[20];
-            }
-            else
-            {
-                hVertexMinDistPromptGgMax->Fill(dist2VertexPromptGg1[i]);
-                hVertexMinDistPromptGgMin->Fill(dist2VertexPromptGg0[i]);
-            }
-        }
-
-        hNUnassocPromptGgHits->Fill(nUnAssocPromptGg);
-
-        double totalLowE = 0.;
-        for(int i = 0; i < nLowEClusters; i++)
-        {
-            totalLowE += lowEClusterE[i];
-            hLowEGammaEnergy->Fill(lowEClusterE[i], weight);
-            hLowEMinDistPromptGg->Fill(lowEMinDistPromptGg[i], weight);
-        }
-
-        hNLowEGammas->Fill(nLowEClusters, weight);
-        hSummedLowEGammaE->Fill(totalLowE, weight);
-*/
-        //hNLowEGammas->Fill();
-        //hLowEGammaEneegy->Fill();
-        //hSummedLowEGammaE->Fill();
-        //hLowEMinDistPromptGg->Fill();
-
     } //~event_i
      
-    ofile_cutcount << sampleName << "\t" << total_event_count << "\t" << event_pass_count << std::endl;
 
+    ofile_cutcount << sampleName << "\t" << total_event_count << "\t" << event_pass_count << std::endl;
     std::cout << std::endl;
 
     #if TRUTH_ENABLE
-    if((sampleName.CompareTo("nd150_rot_2b2n_m4") == 0)   ||
-       (sampleName.CompareTo("nd150_rot_2n2b_m4") == 0))
+    if(mode_flag == 0)
     {
-        outputTree->Write();
-        outputFile->Close();
+        if((sampleName.CompareTo("nd150_rot_2b2n_m4") == 0)   ||
+           (sampleName.CompareTo("nd150_rot_2n2b_m4") == 0))
+        {
+            outputTree->Write();
+            outputFile->Close();
+        }
     }
     #endif
 
@@ -1989,6 +1936,8 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
             if(mode_flag == 0)
             {
                 TDirectory *dir_histogram_name = dir->mkdir("processeddata/" + histogram_name);
+                TDirectory *dir_histogram_name_2 = dir->mkdir("scaled/" + histogram_name);
+                TDirectory *dir_histogram_name_3 = dir->mkdir("scaled2/" + histogram_name);
             }
             else if(mode_flag == 1)
             {
@@ -1999,28 +1948,19 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
         if(mode_flag == 0)
         {
             myFile->cd("processeddata/" + histogram_name);
+            it->second->Write();
         }
         else if(mode_flag == 1)
         {
             myFile->cd("rawdata/" + histogram_name);
+            it->second->Write();
         }
         //myFile->pwd();
         
         //hpmap.at(histogram_name)->Write();
         // same as
-        it->second->Write();
         
     }
-
-
-    /*
-    for(int i = 0; i < nCuts; i++ )
-    {
-        // NOTE: bug, should be i + 1, bin 0 is underflow, bin -1 does not exist
-        //hNAfterCuts->SetBinContent(i - 1, cut_counter[i]);
-        hNAfterCuts->SetBinContent(i + 1, cut_counter[i]);
-    }
-    */
 
 
     myFile->Close();
@@ -2028,18 +1968,12 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
 }
 
 
-/*
-static const int nInternalBkgs = 10;
-TString InternalBkgFiles[nInternalBkgs] = {"bi212_int_rot","ac228_int_rot","bi207_int_rot","bi214_int_rot","eu152_int_rot","eu154_int_rot","k40_int_rot","pa234m_int_rot","pb214_int_rot","tl208_int_rot"};
-TString InternalBkgNames[nInternalBkgs] = {"^{212}Bi int rot","^{228}Ac int rot","^{207}Bi int rot","^{214}Bi int rot","^{152}Eu int rot","^{154}Eu int rot","^{40}K int rot","^{234m}Pa int rot","^{214}Pb int rot","^{208}Tl int rot"};
-double InternalBkgActivity[2][nInternalBkgs], InternalBkgEfficiency[2][nInternalBkgs];
-double  InternalBkgNGenMC[nInternalBkgs];
-Color_t InternalBkgColor[2] = {kPink+1, kPink}; //for grouping
-Color_t InternalBkgColors[nInternalBkgs] = {kCyan+2, kCyan, kTeal+2, kRed, kRed+2, kGreen, kGreen+2, kYellow, kOrange+7,kViolet+1}; 
-*/
+
 void scale(TFile* myFile,                       // INPUT: unscaled histograms are loaded from this root file
            const std::string& activityfile,     // INPUT: activity values read from this file
-           const std::string& typedir,          // INPUT: forms part of path string, eg: "nd150/", "internals/", "externals/", "neighbours/", all radon files are in "externals/"
+           const std::string& typedir,          // INPUT: forms part of path string,
+           // eg: "nd150/", "internals/", "externals/", "neighbours/",
+           // all radon files are in "externals/"
            const int nSamples,                     // INPUT: number of objects in dataFiles/dataNames
            const TString *const sampleFiles,      // INPUT: list of samples, eg: bi214_sfoil_rot
            const TString *const sampleNames,      // INPUT: corresponding human readable names, Latex format, eg: ^{214}Bi Foil Surface
@@ -2049,7 +1983,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
            double *const sampleActivity,          // OUTPUT: activity values written to this location
            double *const sampleEfficiency,        // OUTPUT: efficiency values written to this location
            TObjArray** allSamples,              // OUTPUT: each histogram has colors set and is scaled (using scaling with activity), before being stored as an output here
-           Int_t mode_flag = 0)
+           const Int_t mode_flag = 0)
 {
     std::cout << "scale" << std::endl;
 
@@ -2128,24 +2062,10 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
                 ss >> mcname >> activityPhase1 >> activityPhase2;
                 //std::cout << mcname << ", " << activityPhase1 << ", " << activityPhase2 << std::endl;
                 
-                // cout << "Read in from activity file: " << mcname
-                // 	   << ", " << activityPhase1
-                // 	   << ", " << activityPhase2 << endl;
-                // cout << "Trying to compare to " << InternalBkgFiles[i] << endl;
-                
                 if(mcname.CompareTo(sampleFiles[i]) == 0)
                 {
-                    //sampleActivity[0][i] = activityPhase1;
-                    //sampleActivity[1][i] = activityPhase2;
                     sampleActivity[0 * nSamples + i] = activityPhase1;
                     sampleActivity[1 * nSamples + i] = activityPhase2;
-
-                    if(mcname.CompareTo("mo100_99_rot_2n2b_m14") == 0)
-                    {
-                        std::cout << "tracking m0 bb" << std::endl;
-                        std::cout << activityPhase1 << ", " << activityPhase2 << std::endl;
-                        //std::cin.get();
-                    }
                 }
 
             }
@@ -2176,35 +2096,30 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
             if(mode_flag == 0)
             {
                 TString name = "processeddata/" + histogram_name + "/" + histogram_name + sampleFiles[i]; // + name_append
-                std::cout << "Get() : " << name << " from file, Clone() : " << new_histogram_name << std::endl;
+                if(histogram_name.CompareTo("hTotalE_") == 0)
+                {
+                    std::cout << "Get() : " << name << " from file, Clone() : " << new_histogram_name << std::endl;
+                }
                 tmpHist = (TH1F*)myFile->Get(name)->Clone(new_histogram_name);
             }
             else if(mode_flag == 1)
             {
                 TString name = "rawdata/" + histogram_name + "/" + histogram_name + sampleFiles[i] + "_raw"; // + name_append;
-                std::cout << "Get() : " << name << " from file, Clone() : " << new_histogram_name << std::endl;
+                if(histogram_name.CompareTo("hTotalE_") == 0)
+                {
+                    std::cout << "Get() : " << name << " from file, Clone() : " << new_histogram_name << std::endl;
+                }
                 tmpHist = (TH1F*)myFile->Get(name)->Clone(new_histogram_name);
             }
             // NOTE: will have 2 new histograms here
             // 1: scaled, processeddata histogram (save this one to file)
             // 2: scaled, rawdata histogram (do not save this one to file)
 
-
-            //std::cout << "histogramNames[" << j << "]=" << histogramNames[j] << " sampleFiles[" << i <<"]=" << sampleFiles[i] << std::endl;
-
             // this code was replaced with above: 2020-05-03
             //std::string name("singleHistos/unscaled/" + histogramNames[j] + sampleFiles[i]);
             //std::cout << "Get() : " << name << " from file, Clone() : " << histogramNames[j] + sampleFiles[i] + "_fit" << std::endl;
             //tmpHist = (TH1F*)myFile->Get(name.c_str())->Clone(histogramNames[j] + sampleFiles[i] + "_fit");
             
-            //tmpHist = (TH1F*)myFile->Get("singleHistos/unscaled/" + histogramNames[j] + sampleFiles[i])->Clone(histogramNames[j] + sampleFiles[i] + "_fit");
-            // cout << "The histogram I have got is "
-            // 	   << "singleHistos/unscaled/"
-            // 	   << histogramNames[j]
-            // 	   << InternalBkgFiles[i]
-            // 	   << endl;
-            // cout << "At this point, the integral is " << tmpHist->Integral() << endl;
-
             //calculate efficiency
             // TODO: this is calculated using the 0th histogram, should perhaps
             // change to the hTotalE ?
@@ -2226,27 +2141,15 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
                 //double eff = NPass / (double)(sampleNGenMC[i] * (AcceptedTime[thePhase]/(double)TotalTime) );
                 // this efficiency is phase specific
                 double eff = (double)NPass / (double)sampleNGenMC[i];
-                //double dead_time_scale_factor = (double)TotalTime / (double)AcceptedTime[thePhase];
-                //double efficiency = eff * dead_time_scale_factor;
-                double phase_scale_factor = (double)TotalTime / (double)AcceptedTime[thePhase];
-                // this efficiency is rescaled for to be phase independent
-                double efficiency = eff * phase_scale_factor;
-                std::cout << "efficiency: " << efficiency << std::endl;
-
                 //sampleEfficiency[thePhase][i] = eff;
-                sampleEfficiency[thePhase * nSamples + i] = efficiency;
             }
             */
+            
             tmpHist->Sumw2();
             tmpHist->SetFillColor(sampleColors[i]);
             tmpHist->SetLineColor(sampleColors[i]);
             tmpHist->SetTitle(sampleNames[i]);
-            // cout << "Integral before scaling: " << tmpHist->Integral() << endl;
-            // cout << "InternalBkgActivity[thePhase][i]: " << InternalBkgActivity[thePhase][i] << endl
-            // 	   << "AcceptedTime[thePhase]: " << AcceptedTime[thePhase] << endl
-            // 	   << "InternalBkgNGenMC[i]: " << InternalBkgNGenMC[i] << endl
-            // 	   << "AcceptedTime[thePhase]: " << AcceptedTime[thePhase] << endl
-            // 	   << "TotalTime: " << TotalTime << endl;
+
             //tmpHist->Scale(sampleActivity[thePhase][i] * AcceptedTime[thePhase] * 0.001 / (sampleNGenMC[i] * (AcceptedTime[thePhase]/(double)TotalTime)) );
             //tmpHist->Scale(sampleActivity[thePhase * nSamples + i] * 0.001 * (double)TotalTime / sampleNGenMC[i] );
             //std::cout << "scaling, index=" << thePhase + nSamples + i << std::endl;
@@ -2257,35 +2160,8 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
             // A: activity, N: number of events, t: time, eps: efficiency
             // Can calculate number of events backwards from activity, efficiency and time
 
-            /*
-            //Double_t scale_factor = sampleActivity[thePhase * nSamples + i] * AcceptedTime[thePhase] * additional_scaling_factor / (sampleNGenMC[i] * (AcceptedTime[thePhase]/(double)TotalTime));
-            Double_t the_activity = sampleActivity[thePhase * nSamples + i];
-            //std::cout << sampleFiles[i] << " -> " << sampleNames[i] << std::endl;
-            //Double_t n_expected_events = the_activity * (double)TotalTime;
-            //Double_t n_expected_events = the_activity * (double)AcceptedTime[thePhase];
-            Double_t n_expected_events = the_activity * (double)TotalTime;
-            Double_t scale_factor = n_expected_events / sampleNGenMC[i];
-
-            //Double_t new_scale_factor = (1.0 / sampleNGenMC[i]) * (the_activity * (double)AcceptedTime[thePhase]);
-
-            if(sampleFiles[i].CompareTo("mo100_99_rot_2n2b_m14") == 0 || sampleFiles[i].CompareTo("nd150_rot_2n2b_m4") == 0)
-            {
-                std::cout << sampleFiles[i] << ", " << the_activity << ", " << AcceptedTime[thePhase] << ", " << n_expected_events << ", " << sampleNGenMC[i] << ", " << scale_factor << std::endl;
-                //std::cin.get();
-            }
-            // using the above information from Position paper, this scale_factor should be N/(efficiency*Ngen)
-            // (N is the number that pass cuts, Ngen is the number generated)
-            // N/Ngen = efficiency
-            // therefore scale_factor = 1.
-            // this cannot possibly be true
-            //Double_t effi = tmpHist->Integral() / sampleNGenMC[i];
-            //scale_factor /= effi;
             
             
-            
-            if(std::string(tmpHist->GetName()).find("hTotalE") != std::string::npos ||
-               std::string(tmpHist->GetName()).find("hRun") != std::string::npos)
-            {
 
                 // TODO: working here, the activity can change between phases
                 // not sure what the best way is to work out the number
@@ -2299,49 +2175,6 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
                 //hRun->Fill(run, weight);
                 //hTotalE->Fill(electronEnergy[0] + electronEnergy[1], weight);
 
-
-                std::cout << "pass stats: sampleNGenMC[i]=" << sampleNGenMC[i] << " "
-                          << "sample_pass_count=" << sample_pass_count << " "
-                          << "sample_efficiency=" << sample_efficiency << std::endl;
-
-                double NPass = tmpHist->Integral();
-                //std::cout << tmpHist->GetName() << "->Integral()=" << tmpHist->Integral() << std::endl;
-                std::cout << tmpHist->GetName() << "->Integral()=" << NPass << std::endl;
-                std::cout << "thePhase=" << thePhase << ", nSamples=" << nSamples << ", i=" << i << std::endl;
-                std::cout << "sampleEfficiency[" << thePhase * nSamples + i << "]=" << sampleEfficiency[thePhase * nSamples + i] << std::endl;
-                double eff = (double)NPass / (double)sampleNGenMC[i];
-                //double dead_time_scale_factor = (double)TotalTime / (double)AcceptedTime[thePhase];
-                double phase_scale_factor = (double)TotalTime / (double)AcceptedTime[thePhase];
-                //double efficiency = eff * dead_time_scale_factor;
-                // this scales the efficiency back up to compensate for the
-                // events that were cut due to the phase cut
-                double efficiency = eff * phase_scale_factor;
-                std::cout << "efficiency calculated using " << tmpHist->GetName() << ": eff=" << eff << ", efficiency=" << efficiency << ", NPass=" << NPass << ", sampleNGenMC[" << i << "]=" << sampleNGenMC[i] << std::endl;
-                std::cout << "check activity read in: " << sampleActivity[thePhase * nSamples + i] << std::endl;
-                // TODO: must check all these calculations, particularly what do the times actually correspond to
-                // this value should match the integral
-                double my_n_expected = sampleActivity[thePhase * nSamples + i] * TotalTime * efficiency;
-                std::cout << "number of expected events is: " << my_n_expected << " ~ should match NPass=" << NPass << std::endl;
-                std::cout << "sampleActivity * TotalTime = " << sampleActivity[thePhase * nSamples + i] * TotalTime << std::endl;
-                std::cout << "phase scale factor is " << TotalTime / AcceptedTime[thePhase] << std::endl;
-                std::cout << "magic number? " << sampleActivity[thePhase * nSamples + i] * TotalTime * NPass / (double)sampleNGenMC[i] << std::endl;
-                if(std::string(tmpHist->GetName()).find("hTotalE") != std::string::npos)
-                {
-                    std::cin.get();
-                }
-            }
-            
-
-
-
-            
-            //std::cout << "*** the_activity=" << the_activity << ", n_expected_events=" << n_expected_events << ", sampleNGenMC[i]=" << sampleNGenMC[i] << ", scale_factor=" << scale_factor << ", integral()-> " << tmpHist->Integral() << std::endl;
-
-            oftemp << sampleFiles[i] << " -> " << sampleNames[i] << std::endl;
-            oftemp << "*** the_activity=" << the_activity << ", n_expected_events=" << n_expected_events << ", sampleNGenMC[i]=" << sampleNGenMC[i] << ", scale_factor=" << scale_factor << ", integral()-> " << tmpHist->Integral() << std::endl;
-
-            //tmpHist->Scale(scale_factor); 
-            //tmpHist->Scale(new_scale_factor); 
             
             // moved from stackFunction()
             // 2020-03-30: 
@@ -2350,28 +2183,16 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
             // cause the fit output (and input) to be in units of activty
             // is this actually the case, what about the factor of the detector
             // livetime which I have left in above?
+            /*
             Double_t scale_factor_without_activity = (double)TotalTime / sampleNGenMC[i]; //scale_factor / the_activity;
             tmpHist->Scale(scale_factor_without_activity);
             std::cout << "writing: " << tmpHist->GetName() << std::endl;
             tmpHist->Write();
 
             tmpHist->Scale(scale_factor / scale_factor_without_activity);
-
-            //std::cout << " : " << histogramNames[j] << " -> sf=" << scale_factor << ", sampleActivity[]=" << sampleActivity[thePhase * nSamples + i] << " integral()=> " << tmpHist->Integral() << std::endl;
-
-            //std::cout << "sf=" << sampleActivity[thePhase * nSamples + i] * AcceptedTime[thePhase] * additional_scaling_factor / (sampleNGenMC[i] * (AcceptedTime[thePhase]/(double)TotalTime)) << std::endl;
-            oftemp << " : " << histogramNames[j] << " -> sf=" << scale_factor << ", sampleActivity[]=" << sampleActivity[thePhase * nSamples + i] << " integral()=> " << tmpHist->Integral() << std::endl << std::endl;
-            //tmpHist->Scale(sampleActivity[thePhase * nSamples + i] * AcceptedTime[thePhase] / (sampleNGenMC[i] * (AcceptedTime[thePhase]/(double)TotalTime)) );
-            // cout << "Integral after scaling: " << tmpHist->Integral() << endl;
-
-            //tmpHist->Scale(InternalBkgActivity[thePhase][i] * AcceptedTime[thePhase] * 0.001    / (InternalBkgNGenMC[i] * (AcceptedTime[thePhase]/(double)TotalTime)) );
-            //tmpHist->Scale(NeighbourActivity[thePhase][i]   * AcceptedTime[thePhase] * 0.001    / (NeighbourNGenMC[i]   * (AcceptedTime[thePhase]/(double)TotalTime)) );
-            //tmpHist->Scale(Nd150Activity[thePhase][i]       * AcceptedTime[thePhase] * 0.001    / (Nd150NGenMC[i]       * (AcceptedTime[thePhase]/(double)TotalTime)) );
-            //tmpHist->Scale(ExternalBkgActivity[thePhase][i] * AcceptedTime[thePhase]            / (ExternalBkgNGenMC[i] * (AcceptedTime[thePhase]/(double)TotalTime)) );
-            //tmpHist->Scale(ExternalBkgActivity[thePhase][i] * AcceptedTime[thePhase]            / (ExternalBkgNGenMC[i] * (AcceptedTime[thePhase]/(double)TotalTime)) );
-            //tmpHist->Scale(Rn222BkgActivity[thePhase][i]    * AcceptedTime[thePhase]            / (Rn222BkgNGenMC[i]    * (AcceptedTime[thePhase]/(double)TotalTime)) );
-            //tmpHist->Scale(Rn220BkgActivity[thePhase][i]    * AcceptedTime[thePhase]            / (Rn220BkgNGenMC[i]    * (AcceptedTime[thePhase]/(double)TotalTime)) );
             */
+
+
 
             if(TString(tmpHist->GetName()).Contains("hTotalE"))
             {
@@ -2390,9 +2211,32 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
             tmpHist->Scale(TotalTime / sampleNGenMC[i]);
             if(mode_flag == 0)
             {
+                // write into root directory to be read back by newLogLikFitter.C
+                myFile->cd("/");
                 tmpHist->Write();
+
+                // write into scaled / histogram_name subdirectory
+                myFile->cd("scaled/" + histogram_name);
+                TString clone_name = TString(tmpHist->GetName()) + TString("_scaled");
+                TH1F *tmpHistClone = (TH1F*)tmpHist->Clone(clone_name);
+                tmpHistClone->Write();
             }
             tmpHist->Scale(sampleActivity[thePhase * nSamples + i]);
+            if(mode_flag == 0)
+            {
+                // write into scaled2 / histogram_name subdirectory
+                myFile->cd("scaled2/" + histogram_name);
+                TString clone_name = TString(tmpHist->GetName()) + TString("_scaled2");
+                TH1F *tmpHistClone = (TH1F*)tmpHist->Clone(clone_name);
+                tmpHistClone->Write();
+            }
+
+            if(mode_flag == 0 && TString(tmpHist->GetName()).Contains("hTotalE"))
+            {
+                std::cout << tmpHist->GetName() << " number of events " << tmpHist->Integral() << std::endl;
+                std::ofstream of_numberofevents("of_numberofevents.txt", std::ofstream::out | std::ofstream::app);
+                of_numberofevents << tmpHist->GetName() << " number of events " << tmpHist->Integral() << std::endl;
+            }
 
             // NOTE: done AFTER call to Write()
             // so sample is scaled with activity value if used again from allSamples
@@ -2550,7 +2394,7 @@ void stackfunction(int i,                           // INPUT: histogram index, s
         }
         */
 
-        std::cout << "generic sample name: Add()" << std::endl;
+        std::cout << sampleName << ": Add()" << std::endl;
         events.Form("%i", (int)hAllSamples[i]->Integral());
         TString title_string = sampleHumanName + " (" + events + ")";
         //tmpHist->SetFillColor(dataColors[i]);
@@ -2568,30 +2412,14 @@ void stackfunction(int i,                           // INPUT: histogram index, s
     else
     {
         // do nothing
-    
-        /*
-        if(i == 2)
-        {
-            std::cout << "hAllSamples[" << i << "]->GetName() -> " << hAllSamples[i]->GetName() << std::endl;
-            if(sampleName.CompareTo("Radon") == 0)
-            {
-                std::cout << "need to add this integral: " << hAllSamples[i]->Integral() << std::endl;
-            }
-        }
-        std::cout << "generic sample name: Add()" << std::endl;
-        int previous_count = ((TH1F*)hMajorStacks[i]->GetHists()->Last())->Integral();
-        events.Form("%i", (int)hAllSamples[i]->Integral() + previous_count);
-        TString title_string = sampleHumanName + " (" + events + ")";
-        hAllSamples[i]->SetTitle(title_string);
-        //hMajorStacks[i]->Add((TH1F*)hAllSamples[i]);
-        ((TH1F*)hMajorStacks[i]->GetHists()->Last())->Add((TH1F*)hAllSamples[i]);
-        */
     }
     
 
 }
 
 
+// TODO re-enable RAWENABLE ?
+// need to save into file in different location, or not save at all
 void fitHistograms()
 {
     // TODO: draw the 150nd 2D histograms for hMCElectronEnergy and
@@ -2623,6 +2451,7 @@ void fitHistograms()
 
         TString histogram_name = histogramNames[i];
 
+        // Note: DataFile = "data_2e"
         // processed
         {
             //std::string name("singleHistos/unscaled/" + histogramNames[i] + DataFile);
@@ -2630,19 +2459,87 @@ void fitHistograms()
             //std::string name("processeddata/" + histogram_name  + "/" + histogramNames[i] + DataFile + name_append);
             std::string name("processeddata/" + histogram_name  + "/" + histogramNames[i] + DataFile);
             //std::cout << "name=" << name << std::endl;
-            std::cout << "Get() : " << name << " from file, Clone() : " << histogramNames[i] + "data" << std::endl;
+            if(histogram_name.CompareTo("hTotalE_") == 0)
+            {
+                std::cout << "Get() : " << name << " from file, Clone() : " << histogramNames[i] + "data" << std::endl;
+            }
             allDataHistograms->Add((TH1F*)myFile->Get(name.c_str())->Clone(histogramNames[i] + "data"));
             // 2020-04-02: changed "_data" to "data"
         }
 
+#if RAWENABLE
         // raw
         {
             //std::string name_rawdata("rawdata/" + histogram_name  + "/" + histogramNames[i] + DataFile + name_append);
             std::string name_rawdata("rawdata/" + histogram_name  + "/" + histogramNames[i] + DataFile + "_raw");
-            std::cout << "Get() : " << name_rawdata << " from file, Clone() : " << histogramNames[i] + "data_raw" << std::endl;
+            if(histogram_name.CompareTo("hTotalE_") == 0)
+            {
+                std::cout << "Get() : " << name_rawdata << " from file, Clone() : " << histogramNames[i] + "data_raw" << std::endl;
+            }
             allDataHistograms_rawdata->Add((TH1F*)myFile->Get(name_rawdata.c_str())->Clone(histogramNames[i] + "data_raw"));
         }
+#endif
     }
+
+
+
+
+
+#if dont_do_this
+
+            std::cout << "DONT DO THIS" << std::endl;
+            std::cin.get();
+
+            TString histogram_name = histogramNames[j];
+            TString new_histogram_name = histogram_name + sampleFiles[i] + "_fit";
+            //TString name = "rawdata/" + histogram_name + "/" + histogram_name + sampleFiles[i];
+
+            if(mode_flag == 0)
+            {
+                TString name = "processeddata/" + histogram_name + "/" + histogram_name + sampleFiles[i]; // + name_append
+                std::cout << "Get() : " << name << " from file, Clone() : " << new_histogram_name << std::endl;
+                tmpHist = (TH1F*)myFile->Get(name)->Clone(new_histogram_name);
+            }
+            else if(mode_flag == 1)
+            {
+                TString name = "rawdata/" + histogram_name + "/" + histogram_name + sampleFiles[i] + "_raw"; // + name_append;
+                std::cout << "Get() : " << name << " from file, Clone() : " << new_histogram_name << std::endl;
+                tmpHist = (TH1F*)myFile->Get(name)->Clone(new_histogram_name);
+            }
+            // NOTE: will have 2 new histograms here
+            // 1: scaled, processeddata histogram (save this one to file)
+            // 2: scaled, rawdata histogram (do not save this one to file)
+
+            tmpHist->Sumw2();
+            tmpHist->SetFillColor(sampleColors[i]);
+            tmpHist->SetLineColor(sampleColors[i]);
+            tmpHist->SetTitle(sampleNames[i]);
+
+            tmpHist->Scale(TotalTime / sampleNGenMC[i]);
+            if(mode_flag == 0)
+            {
+                tmpHist->Write();
+            }
+            tmpHist->Scale(sampleActivity[thePhase * nSamples + i]);
+
+            // NOTE: done AFTER call to Write()
+            // so sample is scaled with activity value if used again from allSamples
+            allSamples[i]->Add(tmpHist);
+
+
+#endif
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2710,6 +2607,9 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
     TObjArray *allNeighbours_rawdata[nNeighbours];
     TObjArray *allNd150Samples_rawdata[nNd150Samples];
 
+    // clear this output file
+    std::ofstream of_numberofevents("of_numberofevents.txt", std::ofstream::out | std::ofstream::app);
+
 #if INTERNALS_ON
     std::cout << "scale: internals" << std::endl;
 
@@ -2726,6 +2626,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
           &InternalBkgEfficiency[0][0],
           allInternals);
     
+    #if RAWENABLE
     scale(myFile,
           "../include/activities.txt",
           "internals/",
@@ -2738,6 +2639,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
           &InternalBkgActivity_rawdata[0][0],
           &InternalBkgEfficiency_rawdata[0][0],
           allInternals_rawdata, 1);
+    #endif
 #endif
 
 #if NEIGHBOURS_ON
@@ -2756,6 +2658,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
           &NeighbourEfficiency[0][0],
           allNeighbours);
     
+    #if RAWENABLE
     scale(myFile,
           "../include/activities.txt",
           "neighbours/",
@@ -2768,6 +2671,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
           &NeighbourActivity_rawdata[0][0],
           &NeighbourEfficiency_rawdata[0][0],
           allNeighbours_rawdata, 1);
+    #endif
 #endif
 
 #if ND_ON
@@ -2786,6 +2690,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
           &Nd150Efficiency[0][0],
           allNd150Samples);
 
+    #if RAWENABLE
     scale(myFile,
           "../include/activities.txt",
           "nd150/",
@@ -2798,6 +2703,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
           &Nd150Activity_rawdata[0][0],
           &Nd150Efficiency_rawdata[0][0],
           allNd150Samples_rawdata, 1);
+    #endif
 #endif
 
 #if EXTERNALS_ON
@@ -2816,6 +2722,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
           &ExternalBkgEfficiency[0][0],
           allExternals);
 
+    #if RAWENABLE
     scale(myFile,
           "../include/activities.txt",
           "externals/",
@@ -2828,6 +2735,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
           &ExternalBkgActivity_rawdata[0][0],
           &ExternalBkgEfficiency_rawdata[0][0],
           allExternals_rawdata, 1);
+    #endif
 #endif
 
 #if RADON_ON
@@ -2846,6 +2754,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
           &Rn222BkgEfficiency[0][0],
           allRn222Bkgs);
 
+    #if RAWENABLE
     scale(myFile,
           "../include/activities.txt",
           "externals/",
@@ -2858,6 +2767,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
           &Rn222BkgActivity_rawdata[0][0],
           &Rn222BkgEfficiency_rawdata[0][0],
           allRn222Bkgs_rawdata, 1);
+    #endif
 
     scale(myFile,
           "../include/activities.txt",
@@ -2872,6 +2782,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
           &Rn220BkgEfficiency[0][0],
           allRn220Bkgs);
 
+    #if RAWENABLE
     scale(myFile,
           "../include/activities.txt",
           "externals/",
@@ -2884,6 +2795,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
           &Rn220BkgActivity_rawdata[0][0],
           &Rn220BkgEfficiency_rawdata[0][0],
           allRn220Bkgs_rawdata, 1);
+    #endif
 #endif
 
     // myFile->Close();
@@ -2940,8 +2852,10 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
 
         hMajorStacks[i] = new THStack("majorstack" + i_str, histogramNames[i]);
         hMinorStacks[i] = new THStack("minorstack" + i_str, histogramNames[i]);
+    #if RAWENABLE
         hMajorStacks_rawdata[i] = new THStack("majorstack_rawdata" + i_str, histogramNames[i]);
         hMinorStacks_rawdata[i] = new THStack("minorstack_rawdata" + i_str, histogramNames[i]);
+    #endif
 
 
 
@@ -2960,6 +2874,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
                       ExternalBkgColor,
                       true);
 
+    #if RAWENABLE
         stackfunction(i, nExternalBkgs,
                       hMinorStacks_rawdata, allExternals_rawdata, // TObjArray *allExternals[nExternalBkgs]
                       hMajorStacks_rawdata, "External Backgrounds",
@@ -2968,6 +2883,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
                       true, false,
                       ExternalBkgColor,
                       true);
+    #endif
 #endif
 
 #if RADON_ON
@@ -2985,6 +2901,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
                       RadonBkgColor,
                       false);
 
+    #if RAWENABLE
         stackfunction(i, nRn222Bkgs,
                       hMinorStacks_rawdata, allRn222Bkgs_rawdata,
                       hMajorStacks_rawdata, "Radon Backgrounds",
@@ -2993,6 +2910,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
                       false, false,
                       RadonBkgColor,
                       false);
+    #endif
 
         stackfunction(i, nRn220Bkgs,
                       hMinorStacks, allRn220Bkgs,
@@ -3003,6 +2921,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
                       RadonBkgColor,
                       true);
 
+    #if RAWENABLE
         stackfunction(i, nRn220Bkgs,
                       hMinorStacks_rawdata, allRn220Bkgs_rawdata,
                       hMajorStacks_rawdata, "Radon Backgrounds",
@@ -3011,6 +2930,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
                       false, true,
                       RadonBkgColor,
                       true);
+    #endif
 #endif
 
 #if INTERNALS_ON
@@ -3028,6 +2948,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
                       InternalBkgColor,
                       true);
 
+    #if RAWENABLE
         stackfunction(i, nInternalBkgs,
                       hMinorStacks_rawdata, allInternals_rawdata,
                       hMajorStacks_rawdata, "Internal Backgrounds",
@@ -3036,6 +2957,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
                       false, false,
                       InternalBkgColor,
                       true);
+    #endif
 #endif
 
 #if NEIGHBOURS_ON
@@ -3053,6 +2975,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
                       NeighbourColor,
                       true);
 
+    #if RAWENABLE
         stackfunction(i, nNeighbours,
                       hMinorStacks_rawdata, allNeighbours_rawdata,
                       hMajorStacks_rawdata, "Neighbouring Foils",
@@ -3061,6 +2984,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
                       false, false,
                       NeighbourColor,
                       true);
+    #endif
 #endif
 
 #if ND_ON
@@ -3078,6 +3002,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
                       Nd150Color,
                       true);
 
+    #if RAWENABLE
         stackfunction(i, nNd150Samples,
                       hMinorStacks_rawdata, allNd150Samples_rawdata,
                       hMajorStacks_rawdata, "^{150}Nd 2#nu2#beta",
@@ -3086,6 +3011,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
                       false, false,
                       Nd150Color,
                       true);
+    #endif
 #endif
 
         
@@ -3175,7 +3101,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
     {
 
         hist[i] = (TH1F*)allDataHistograms->At(i);
-        hist[i]->SetName(histogramNames[i] + DataName);
+        //hist[i]->SetName(histogramNames[i] + DataName);
 
         // inserted from below loop (2)
         TString Ndata_str;
@@ -3200,6 +3126,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
         // which creates a TCanvas - move this and SetName() elsewhere
 
     }
+    #if RAWENABLE
     // same for rawdata versions
     TH1F* hist_rawdata[numHistograms];
     for(int i = 0; i < numHistograms; i++)
@@ -3207,6 +3134,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
 
         hist_rawdata[i] = (TH1F*)allDataHistograms_rawdata->At(i);
         hist_rawdata[i]->SetName(histogramNames[i] + DataName);
+        // TODO: bug here: same name
 
         // inserted from below loop (2)
         TString Ndata_str;
@@ -3223,14 +3151,35 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
         // 2020-04-02: requires fiddling around with GetListOfKeys() and
         // cd() to different TDirectory, can't be bothered with that
         // so will re-enable
-        std::cout << "writing histogram with name " << hist[i]->GetName() << " at end of code which was removed" << std::endl;
-        hist_rawdata[i]->Write();
+        std::cout << "writing histogram with name " << hist_rawdata[i]->GetName() << " at end of code which was removed" << std::endl;
+        // TODO: fix bug by not writing this histogram to file
+        // TODO: should it go in the rawdata folder?
+        // TODO: it already is
+        //hist_rawdata[i]->Write();
         // TODO: don't like that other functions write out the equivalent
         // MC histograms to file in a different place from this Write() call
         // expecially since this call to Write() is inside a block of code
         // which creates a TCanvas - move this and SetName() elsewhere
 
     }
+    #endif
+
+
+/*
+    for(std::map<TString, TH1*>::iterator it{histogramPointers.begin();
+        it != histogramPointers.end(); ++ it)
+    {
+
+        TH1F *histtmp = (TH1F*)it->second;
+
+        std::ofstream of_hTotalE_numberofevents("hTotalE_numberofevents.txt")
+        if(TString(histtmp->GetName()).Contains("hTotalE"))
+        {
+            std::cout << histtmp->GetName() << " number of events " << histtmp->Integral() << std::endl;
+            of_hTotalE_numberofevents << histtmp->GetName() << ", " << histtmp->Integral() << std::endl;
+        }
+    }
+*/
 
 
     // TODO: draw raw data histograms 
@@ -3239,8 +3188,10 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
     TCanvas *c_processeddata[numHistograms];
     TLegend *leg_processeddata[numHistograms];
 
+    #if RAWENABLE
     TCanvas *c_rawdata[numHistograms];
     TLegend *leg_rawdata[numHistograms];
+    #endif
     
     std::cout << "About to start the canvas loop" << std::endl;
     for(int j = 0; j < numHistograms; j++)
@@ -3317,6 +3268,8 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
             //leg[i] = c0->BuildLegend();
             leg = c->BuildLegend();
             leg->SetName("leg" + i_str + "_");
+            // TODO: build legend using parameter_names.list rather than
+            // individual MC samples
             leg->SetFillColor(kWhite);
             leg->AddEntry((TObject*)0, "#chi^{2}/ndf = " + chi2_str + "/" + ndf_str, "");
             //c->cd(2);
@@ -3360,6 +3313,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
         // raw data //
         //////////////
         
+    #if RAWENABLE
         if(histogramDrawFlag_rawdata == 1)
         {
             TCanvas *&c = c_rawdata[j];
@@ -3438,12 +3392,6 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
             hist_rawdata[j]->SetTitle(histogramNames[j]); //switch to titles once you've written them
             hist_rawdata[j]->Draw("PEsame");
 
-            //c[i]->cd(3);
-            //c2 = (TPad*)c[i]->GetPad(3);
-            // c1_1->SetBottomMargin(0.1);
-            //c2->SetGrid(1,1);
-            //c2->SetTicks(1,1);
-
             //make ratio plot
             //TH1F *ratio = (TH1F*)hist[i]->Clone("ratio_" + histogramNames[i]);
             //ratio->Sumw2();
@@ -3465,6 +3413,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
             //ratio->Draw("PE");
             std::cout << "Iteration of canvasy loop finished" << std::endl;
         }
+    #endif
    
 
 /*

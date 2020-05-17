@@ -36,7 +36,7 @@
 
 
 #include "newLogLikFitter.h"
-
+#include "newLogLikFitter_read.h"
 
 
 // TODO:
@@ -183,909 +183,36 @@ void logLikelihood(Int_t & /*nPar*/, Double_t * /*grad*/ , Double_t &fval, Doubl
 Double_t getNumberMC1D(Int_t channel, Int_t binx, Double_t *p);
 Double_t getNumberMC2D(Int_t channel, Int_t binx, Int_t biny, Double_t *p);
 
-void fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double*& CovMatrix, int& number_free_params, Int_t thePhase);
+//void fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double*& CovMatrix, int& number_free_params, Int_t thePhase);
+TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double*& CovMatrix, int& number_free_params, Int_t thePhase);
 
+void draw(const Double_t *const AdjustActs, const Double_t *const AdjustActs_Err, const std::string& saveas_filename = "");
+void draw_covariance_matrix(const double * const CovMatrix, const int number_free_params);
 
-// function dec
-Double_t ReWeight3(const Double_t T1, const Double_t T2,
-                  const Double_t epsilon_baseline, const Double_t epsilon,
-                  const TH2D* const h_nEqNull,
-                  const TH2D* const h_nEqTwo,
-                  const Double_t psiN0, const Double_t psiN2,
-                  const std::string& debug);
 
 
 
-// xi31 reweighting function for 150Nd spectra
-//void reweight_apply(TH2F *output, const TH1F *const input,
-void reweight_apply(TH1F *&houtput, const std::string& tinput_filename,
-                    const Double_t xi_31, const Double_t xi_31_baseline,
-                    const TH2D* const h_nEqNull,
-                    const TH2D* const h_nEqTwo,
-                    const Double_t psiN0, const Double_t psiN2,
-                    const Double_t bb_Q)
-{
 
-    //const TString sampleName = "nd150_rot_2n2b_m4";
-    const TString sampleName = Nd150Files[0];
-    const TString name_append = "";
 
-    // TODO: this does not work, need to re-Fill histogram using file
-    //output = input->Clone(input->GetName() + "_reweight");
-    houtput = new TH1F("hTotalE_" + sampleName + name_append + "_reweight",
-                       "Phase " + Phase + " " + sampleName + name_append + " total energy; #SigmaE_{e} (MeV)",
-                       50, 0.0, 4.0);
 
-    //for(Int_t i{1}; i <= output->GetNbinsX(); ++ i)
-    //{
-    //    Double_t content = output->GetBinContent(i);
-    //    Double_t reweight_factor = ReWeight3(T1, T2, xi_31, xi_31_baseline,
-    //                                         hNEqNull, hNEqTwo, psiN0, psiN2, "false");
-    //    content *= reweight_factor;
-    //    output->SetBinContent(i, content);
-    //}
 
 
-    std::cout << "xi_31=" << xi_31 << ", xi_31_baseline=" << xi_31_baseline << std::endl;
 
-    const double &epsilon_31_baseline{xi_31_baseline};
-    const double &epsilon_31{xi_31};
-    //const Double_t &bb_Q{staticsgroup.Get_bb_Q()};
-    //std::cout << "bb_Q=" << bb_Q << std::endl;
 
-    //const TH2D* const h_nEqNull{staticsgroup.Get_h_nEqNull()};
-    //const TH2D* const h_nEqTwo{staticsgroup.Get_h_nEqTwo()};
-    //const double& psiN0{staticsgroup.Get_psiN0()};
-    //const double& psiN2{staticsgroup.Get_psiN2()};
-
-    //TTree *t{staticsgroup.Get_tree()};
-
-    //const Int_t &nElectrons{staticsgroup.Get_nElectrons()};
-    //const Double_t &trueT1{staticsgroup.Get_trueT1()};
-    //const Double_t &trueT2{staticsgroup.Get_trueT2()};
-    //const Double_t* const el_energy_{staticsgroup.Get_el_energy_()};
-    //const Double_t &gen_weight{staticsgroup.Get_gen_weight()};
-    
-    TFile *finput = new TFile(tinput_filename.c_str());
-    TTree *tinput = (TTree*)finput->Get("Nd150_2eNg/Nd150_2eNg");
-
-    Int_t nElectrons;
-    double electronEnergy[2];
-    double trueElectronEnergy[2];
-
-    tinput->SetBranchAddress("nElectrons"          , &nElectrons);  
-    tinput->SetBranchAddress("electronEnergy"      , electronEnergy);
-    tinput->SetBranchAddress("trueElectronEnergy"  , trueElectronEnergy);
-
-    const Double_t &trueT1{trueElectronEnergy[0]};
-    const Double_t &trueT2{trueElectronEnergy[1]};
-
-    for(Long64_t ix{0}; ix < tinput->GetEntries(); ++ ix)
-    {
-
-        tinput->GetEntry(ix);
-
-        // analysis only valid for 2 electron events
-        //if(nElectrons != 2) continue;
-
-        Double_t el_energy_0{electronEnergy[0]}; //{el_energy_[0]};
-        Double_t el_energy_1{electronEnergy[1]}; //{el_energy_[1]}; // * systematic_energy_mult
-        
-        // true energy
-        // TODO: presumably this does not exist for data so need to search for
-        // all instances of the trueT1, trueT2 variable and remove/replace
-        // note name change
-        Double_t T0{trueT1 / bb_Q};
-        Double_t T1{trueT2 / bb_Q};
-
-        /*
-        // if MC apply energy degradation (correction)
-        // only apply to MC
-        if(staticsgroup.mc_flag)
-        {
-            if(staticsgroup.optical_correction_enable)
-            {
-                // apply energy degradation (optical correction)
-                Double_t visible_true_ratio_0{1.0};
-                Double_t visible_true_ratio_1{1.0};
-
-                // if energy correction systematic is enabled, choose
-                // energy correction value depending on which subanalysis
-                // class this is
-                // 0 is default
-                // 1 is high systematic
-                // -1 is low systematic
-                if(staticsgroup.systematic_enable_optical_correction_statistical)
-                {
-                    if(staticsgroup.systematic_optical_correction_statistical_direction == 0)
-                    {
-                        visible_true_ratio_0 = staticsgroup.g_optical_correction->Eval(1000.0 * T0);
-                        visible_true_ratio_1 = staticsgroup.g_optical_correction->Eval(1000.0 * T1);
-                    }
-                    else if(staticsgroup.systematic_optical_correction_statistical_direction == 1)
-                    {
-                        visible_true_ratio_0 = staticsgroup.g_optical_correction_systematic_high->Eval(1000.0 * T0);
-                        visible_true_ratio_1 = staticsgroup.g_optical_correction_systematic_high->Eval(1000.0 * T1);
-                    }
-                    else if(staticsgroup.systematic_optical_correction_statistical_direction == -1)
-                    {
-                        visible_true_ratio_0 = staticsgroup.g_optical_correction_systematic_low->Eval(1000.0 * T0);
-                        visible_true_ratio_1 = staticsgroup.g_optical_correction_systematic_low->Eval(1000.0 * T1);
-                    }
-                    else
-                    {
-                        // NOOP
-                        //std::cout << "invalid value of systematic_optical_correction_statistical" << std::endl;
-                        //throw "invalid value of systematic_optical_correction_statistical";
-                    }
-                }
-                else
-                {
-                    //std::cout << "energy correction systematic is disabled" << std::endl;
-                    visible_true_ratio_0 = staticsgroup.g_optical_correction->Eval(1000.0 * T0);
-                    visible_true_ratio_1 = staticsgroup.g_optical_correction->Eval(1000.0 * T1);
-                }
-
-                //std::cout << "visible_true_ratio = " << visible_true_ratio_0 << ", " << visible_true_ratio_1 << std::endl;
-
-                // TODO this goes elsewhere
-                // apply energy correction with systematics if enabled
-                el_energy_0 = el_energy_0 * visible_true_ratio_0;
-                el_energy_1 = el_energy_1 * visible_true_ratio_1;
-            }
-            else
-            {
-                // optical correction is diabled
-                // NOOP
-            }
-
-            // TODO: other types of optical correction systematic
-        
-        }
-        */
-
-
-
-        /*** SYSTEMATICS **********************************************************/
-
-    /*
-        if(staticsgroup.systematic_enable_energy_multiply)
-        {
-            el_energy_0 *= staticsgroup.systematic_energy_multiply;
-            el_energy_1 *= staticsgroup.systematic_energy_multiply;
-        }
-
-        if(staticsgroup.systematic_enable_energy_add)
-        {
-            el_energy_0 += staticsgroup.systematic_energy_add;
-            el_energy_1 += staticsgroup.systematic_energy_add;
-        }
-
-        if(staticsgroup.systematic_enable_weight_multiply); // does nothing
-
-
-        // check electron energy threshold
-        if(staticsgroup.threshold_low_energy_enable)
-        {
-            if(el_energy_0 < staticsgroup.threshold_low_energy) continue;
-            if(el_energy_1 < staticsgroup.threshold_low_energy) continue;
-        }
-        if(staticsgroup.threshold_low_energy_sum_enable)
-        {
-            if(el_energy_0 + el_energy_1 < staticsgroup.threshold_low_energy_sum) continue;
-        }
-    */
-
-        // note: this was disabled in code I copied it from
-        /*
-        // this if statement sorts out the logical problem of having different
-        // high/low sysematic energy multipliers for the purpose of using them
-        // as labels to address the SubAnalysis entries in the map inside Analysis,
-        // and simultaniously allowing the systematic energy mult systematic to be
-        // turned off while another systematic is on
-        if(systematic_energy_mult_enable == true)
-        {
-            el_energy_0 = el_energy_0 * systematic_energy_mult;
-            el_energy_1 = el_energy_1 * systematic_energy_mult;
-        }
-            
-        // linear energy offset systematic
-        el_energy_0 = el_energy_0 + systematic_energy_offset;
-        el_energy_1 = el_energy_1 + systematic_energy_offset;
-        */
-
-   /*
-        // efficiency systematic
-        // TODO: can remove, as weight_efficiency = systematic_efficiency
-        Double_t weight_efficiency = 1.0;
-        //weight_efficiency = weight_efficiency * systematic_efficiency;
-        weight_efficiency = weight_efficiency * 1.0;
-
-        // generator weight (MC weight) multiplied by weight efficiency
-        Double_t aux_weight{gen_weight};
-        aux_weight = aux_weight * weight_efficiency;
-        
-        // TODO; what happens if the energy shift / systematics move the energy
-        // out of a valid range
-        // answer: nothing, reweight function depends only on T1 T2
-        // TODO: should T1 and T2 be shifted by systematic?
-    */
-
-        // note: already disabled
-        // TODO: energy degratation systematic
-        // cut both electrons > 300 keV
-        /*
-        if(_energy_cut_enable_)
-        {
-            if(el_energy_0 < 0.3) return;
-            if(el_energy_1 < 0.3) return;
-        }
-        */
-
-
-        // NOTE: more logical to set variables
-        // weight_1, weight_2
-        // for baseline and reweighted (now "baseline" and "test" / "universe")
-        // then fill each histogram with each different weight
-        // ?
-        // NOTE: why would we reweight at all, why not use the decay rates from the
-        // theorists directly?
-
-        // ReWeight = baseline 0.0, ReWeight2 = baseline = 0.382
-        Double_t weight{ReWeight3(trueT1, trueT2, epsilon_31_baseline, epsilon_31, h_nEqNull, h_nEqTwo, psiN0, psiN2, "true")}; // TODO remove true?
-        //Double_t weight{ReWeight3(T0, T1, epsilon_31_baseline, epsilon_31, h_nEqNull, h_nEqTwo, psiN0, psiN2, "true")};
-        //Double_t weight{ReWeight2(T1, T2, epsilon_31, h_nEqNull, h_nEqTwo, psiN0, psiN2, "true")};
-        //Double_t weight{ReWeight(T1, T2, epsilon_31, h_nEqNull, h_nEqTwo, psiN0, psiN2, "true")};
-
-
-        // reweight
-        //h_el_energy_reweight->Fill(el_energy_0, weight * aux_weight);
-        //h_el_energy_reweight->Fill(el_energy_1, weight * aux_weight);
-
-        //h_el_energy_sum_reweight->Fill(el_energy_0 + el_energy_1, weight * aux_weight);
-        //houtput->Fill(el_energy_0 + el_energy_1, weight * aux_weight);
-        houtput->Fill(el_energy_0 + el_energy_1, 1.0 * weight);
-
-        // note: already removed
-        /*
-        if(el_energy_0 <= el_energy_1)
-        {
-            h_el_energy_2d_reweight->Fill(el_energy_0, el_energy_1, weight * aux_weight);
-        }
-        else
-        {
-            h_el_energy_2d_reweight->Fill(el_energy_1, el_energy_0, weight * aux_weight);
-        }
-        */
-
-        // note: no systematic energy shift in this class
-        //Double_t el_energy_0{el_energy_[0] * systematic_energy_mult};
-        //Double_t el_energy_1{el_energy_[1] * systematic_energy_mult};
-        //Double_t el_energy_0{el_energy_[0]};
-        //Double_t el_energy_1{el_energy_[1]};
-        // NOTE: removed, defined above, need to check
-
-
-        
-        // note: all below already removed
-
-        // true energy
-        // TODO: presumably this does not exist for data so need to search for
-        // all instances of the trueT1, trueT2 variable and remove/replace
-        //Double_t T1{trueT1 / bb_Q};
-        //Double_t T2{trueT2 / bb_Q};
-        // NOTE: removed, defined above, need to check
-
-        // if MC apply energy degradation (correction)
-        /*
-        if(m_mode == MODE_FLAG::MODE_MC)
-        {
-            Double_t visible_true_ratio_1{g_energy_correction->Eval(T1)};
-            Double_t visible_true_ratio_2{g_energy_correction->Eval(T2)};
-
-            el_energy_0 = el_energy_0 * visible_true_ratio_1;
-            el_energy_1 = el_energy_0 * visible_true_ratio_2;
-        }
-        */
-
-        // TODO: not sure if this should be removed
-        // cut both electrons > 300 keV
-        /*
-        if(_energy_cut_enable_)
-        {
-            if(el_energy_0 < 0.3) continue;
-            if(el_energy_1 < 0.3) continue;
-        }
-        */
-
-        // end of note, all
-
-
-    }
-
-
-    //print_histo_text(std::cout, "h_el_energy_reweight", h_el_energy_reweight);
-
-    /*
-    TFile *fout = new TFile("fout.root", "recreate");
-    h_el_energy_reweight->Write();
-    h_el_energy_sum_reweight->Write();
-    fout->Close();
-    std::cout << "fout" << std::endl;
-    std::cin.get();
-
-    TCanvas *c = new TCanvas("c_srw", "c_srw", 800, 600);
-    h_el_energy_sum_reweight->Draw("e");
-    c->SaveAs("c_srw.png");
-    */
-
-    finput->Close();
-
-    const double TotalTime = 167629292.; // P1+P2
-    const double AcceptedTime0 = 33859178.;
-    const double AcceptedTime1 = 133770114.;
-    const double AcceptedTime2 = TotalTime;
-
-    // scale
-
-    // stack
-
-    houtput->SetLineWidth(2);
-    houtput->SetMarkerStyle(20);
-    //TODO: other stuff here
-
-    houtput->Sumw2();
-    houtput->SetFillColor(Nd150Colors[0]);
-    houtput->SetLineColor(Nd150Colors[0]);
-    houtput->SetTitle(Nd150Names[0]);
-
-    std::ifstream inFile;
-    //std::string filePath = ; //in header
-    std::string filePath = "/media/ecb/Maxtor/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2e/";
-    // TODO: MOVE INTO INCLUDABLE HEADER FOR BOTH fit_2e.h and newLog...h
-    TString sampleFiles_150Nd = Nd150Files[0];
-    //std::cout << "sampleFiles_150Nd=" << sampleFiles_150Nd << std::endl;
-    // THIS WILL GO WRONG IF NOT READING 2e !
-    std::string typedir = "nd150/";
-    std::string fullpath = filePath + typedir + std::string(sampleFiles_150Nd.Data()) + "/JobSummary.txt";
-    //std::cout << "filepath=" << filePath << std::endl;
-    //std::cout << "fullpath=" << fullpath << std::endl;
-    inFile.open(fullpath);
-    if(!inFile.is_open())
-    {
-        std::cout << "could not open: " << fullpath << std::endl;
-        throw "file not open for reading number of generated MC";
-    }
-    std::string dummy;
-    double sampleNGenMC_150Nd; // TODO: wrong type in header?
-    inFile >> dummy >> sampleNGenMC_150Nd;
-    inFile.close();
-    //std::cout << "sampleNGemMC_150Nd=" << sampleNGenMC_150Nd << std::endl;
-
-    houtput->Scale(TotalTime / sampleNGenMC_150Nd);
-    //std::cout << "after Scale(), Integral is: " << houtput->Integral() << " scaled by " << TotalTime / sampleNGenMC_150Nd << std::endl;
-    //std::cin.get();
-    
-    std::string mc_name = std::string(Nd150Files[0]);
-    std::string search_object = MCNameToParamNameMap.at(mc_name);
-    if(paramNameToNumberMap.count(search_object) > 0)
-    {
-        // convert from mc sample name to param number
-
-        int param_number = paramNameToNumberMap.at(search_object);
-        //std::cout << "parameber number " << param_number << " is in the paramNameToNumberMap" << std::endl;
-
-        // TODO: change such that samples are pre-scaled by activity input value
-        // get initial parameter values and error
-        Double_t param_init_value = 0.;
-        Double_t param_init_error = 0.; 
-        if(thePhase == 0)
-        {
-            int i = param_number;
-            param_init_value = paramInitValueP1Map[i];
-            param_init_error = paramInitErrorP1Map[i];
-        }
-        else if(thePhase == 1)
-        {
-            int i = param_number;
-            param_init_value = paramInitValueP2Map[i];
-            param_init_error = paramInitErrorP2Map[i];
-        }
-        else
-        {
-            std::cout << "ERROR: Invalid value for thePhase: thePhase=" << thePhase << std::endl;
-        }
-        Double_t scale_factor = param_init_value;
-
-        // NOTE: TODO
-        // possible flaw with this method: error is no longer
-        // pre-set using values from input file
-        // TODO: note this in input file documentation
-        // however, this may be an improvement because it
-        // guarantees minuit is responsible for error estimation
-        houtput->Scale(scale_factor);
-    }
-    else
-    {
-        throw "problem";
-    }
-
-
-    TCanvas *ctmp = new TCanvas("ctmp");
-    houtput->Draw();
-    std::cout << "draw new hTotalE" << std::endl;
-    //std:cin.get();
-
-}
-
-
-
-
-// electron energies: T1, T2 (in units of Q value)
-// theory parameter: epsilon_baseline
-// theory parameter: epsilon
-// data: G0, G2 (units of Q value)
-//Double_t ReWeight(const Double_t T1, const Double_t T2, const Double_t epsilon,
-//                  const std::vector<std::vector<double>>& data_nEqNull,
-//                  const std::vector<std::vector<double>>& data_nEqTwo)
-Double_t ReWeight3(const Double_t T1, const Double_t T2,
-                  const Double_t epsilon_baseline, const Double_t epsilon,
-                  const TH2D* const h_nEqNull,
-                  const TH2D* const h_nEqTwo,
-                  const Double_t psiN0, const Double_t psiN2,
-                  const std::string& debug = "")
-{
-
-    // TODO: NO INTERPOLATION DONE YET
-
-    // find bin corresponding to energies T1, T2
-    Int_t bin_x{h_nEqNull->GetXaxis()->FindBin(T1)};
-    Int_t bin_y{h_nEqNull->GetYaxis()->FindBin(T2)};
-
-    //std::cout << "T1=" << T1 << " T2=" << T2 << std::endl;
-    //std::cout << "the bin is " << bin_x << " " << bin_y << std::endl;
-    //std::cin.get();
-
-    // bin content corresponding to energies T1, T2
-    Double_t h_nEqNull_c{h_nEqNull->GetBinContent(bin_x, bin_y)};
-    Double_t h_nEqTwo_c{h_nEqTwo->GetBinContent(bin_x, bin_y)};
-    
-    // get the weight for this T1, T2
-    // the input data is for epsilon = 0.0
-    //Double_t phase_1{1.0 / psiN0};
-    //Double_t weight_1{phase_1 * h_nEqNull->GetBinContent(bin_x, bin_y)};
-    Double_t phase_1{1.0 / (psiN0 + epsilon_baseline * psiN2)};
-    Double_t weight_1{phase_1 * (h_nEqNull_c + epsilon_baseline * h_nEqTwo_c)};
-
-    // get the weight for this T1, T2
-    // the input data is for epsilon = some arbitary value
-    Double_t phase_2{1.0 / (psiN0 + epsilon * psiN2)};
-    Double_t weight_2{phase_2 * (h_nEqNull_c + epsilon * h_nEqTwo_c)};
-
-    if(debug == "true")
-    {
-        if(std::isnan(weight_2 / weight_1))
-        {
-            std::cout << "T1=" << T1 << " T2=" << T2 << std::endl;
-            std::cout << "bin_x=" << bin_x << " bin_y=" << bin_y << std::endl;
-            std::cout << "h_nEqNull->GetBinContent(bin_x, bin_y)=" << h_nEqNull->GetBinContent(bin_x, bin_y) << std::endl;
-            std::cout << "h_nEqTwo->GetBinContent(bin_x, bin_y)=" << h_nEqTwo->GetBinContent(bin_x, bin_y) << std::endl;
-            std::cout << "weight_1=" << weight_1 << " weight_2=" << weight_2 << std::endl;
-            std::cout << "phase_1=" << phase_1 << " phase_2=" << phase_2 << std::endl;
-            std::cout << psiN0 << " " << psiN2 << " " << epsilon << " " << epsilon_baseline << std::endl;
-            std::cin.get();
-        }
-    }
-
-    // return re-weighting factor
-    return weight_2 / weight_1;
-
-
-}
-
-// TODO: move elsewhere
-//void reweight_apply(TH1F *output, const TH1F *const input, ...)
-//{
-//
-//    for(Int_t bin_ix{1}; bin_ix <= input->GetNBinsX(); ++ bin_ix)
-//    {
-//        Double_t bin_energy = ???
-//        // >>> cannot reweight in this manner
-//        // >>> do not know T1, T2, need to rebuild histogram by reading from TTree
-//        // or by storing as 2d histogram
-//    }
-//
-//    ReWeight3(T1, T2, epsilon_baseline, h_nEqNull, h_nEqTwo, psiN0, psiN2, "false");
-//    
-//
-//}
-
-
-void LD_REWEIGHT_DATA(TTree *&outputG0, TTree *&outputG2, Long64_t &countG0, Long64_t &countG2)
-{
-    //TH1F* out = nullptr;
-
-    TTree *t_G0 = new TTree();
-    Long64_t count_G0 = t_G0->ReadFile("../../data/150Nd-data/dG150Nd/G0/dG0.dat", "electronEnergy1:electronEnergy2:electronWeight");
-    std::cout << "count_G0=" << count_G0 << std::endl;
-
-    TTree *t_G2 = new TTree();
-    Long64_t count_G2 = t_G2->ReadFile("../../data/150Nd-data/dG150Nd/G2/dG2.dat", "electronEnergy1:electronEnergy2:electronWeight");
-    std::cout << "count_G2=" << count_G2 << std::endl;
-
-    //output = out;
-    outputG0 = t_G0;
-    outputG2 = t_G2;
-    countG0 = count_G0;
-    countG2 = count_G2;
-
-    return;
-}
-
-
-// helper functions to set values read from file
-//
-
-
-// this anonymous function
-// (I couldn't think of a name)
-// copies the value from input to output if
-// string_input == string_compare
-// if string_input != string_compare,
-// then if string_input == "none", output is
-// set to zero
-// else
-// an attempt to set output using std::stod
-// is made, if this fails, an exception is
-// caught and an error is printed
-void function_A(const std::string& string_compare,
-                const double input,
-                const std::string& string_input,
-                double& output)
-{
-    if(string_input == string_compare)
-    {
-        output = input;
-    }
-    else if(string_input == "none")
-    {
-        output = 0.;
-    }
-    else
-    {
-        try
-        {
-            output = std::stod(string_input);
-        }
-        catch(std::exception& e)
-        {
-            std::cout << e.what() << std::endl;
-            std::cout << "string_input=" << string_input << std::endl;
-        }
-    }
-}
-
-// function for setting either the Value or Error
-// of the constraint parameter for Phase 1, using
-// initial value data from Phase 1
-//
-// only for Phase 1, because "useinit" is used to
-// obtain value copied from Phase 1 initial value
-//void function_paramConstrainValueErrorP1(const double paramInitValueP1,
-//                                         const std::string& paramConstrainValueP1_str,
-//                                         double& paramConstrainValueP1);
-//void function_paramConstrainErrorP1();
-
-// function for setting either the Value or Error
-// of the constraint parameter for Phase 2, using
-// constraint data from Phase 1
-//
-// only for Phase 2, because "same" is used to
-// obtain value copied from Phase 1
-//void function_paramConstrainValueErrorP2(paramConstrainValueErrorP1,
-//                                         paramConstrainValueErrorP2_str,
-//                                         paramConstrainValueErrorP2);
-
-// TODO: change to generic name, both functions the same
-//void function_paramConstrainErrorP2(paramConstrainErrorP1,
-//                                    paramConstrainErrorP2_str,
-//                                    paramConstrainErrorP2);
-
-
-void function_paramConstrainMode(const std::string& paramConstrainModePX_str, int &paramConstrainModePX)
-{
-
-    // Phase 1 / Phase 2 Constran Mode
-    if(paramConstrainModePX_str == "free")
-    {
-        paramConstrainModePX = MODE_PARAM_FREE;
-    }
-    else if(paramConstrainModePX_str == "soft")
-    {
-        paramConstrainModePX = MODE_PARAM_SOFT;
-    }
-    else if(paramConstrainModePX_str == "hard")
-    {
-        paramConstrainModePX = MODE_PARAM_HARD;
-    }
-    else
-    {
-        std::cout << "ERROR: Unrecognized value: paramConstrainModePX_str=" << paramConstrainModePX_str << std::endl;
-        paramConstrainModePX = MODE_PARAM_UNDEFINED;
-    }
-}
-
-
-
-
-void convert_data_to_histogram_format(const std::vector<std::vector<double>> &data_nEqNull,
-                                      const std::vector<std::vector<double>> &data_nEqTwo,
-                                      TH2D * &h_nEqNull_return,
-                                      TH2D * &h_nEqTwo_return,
-                                      const Int_t dimension_xy,
-                                      const Double_t bb_Q)
-{
-
-    ////////////////////////////////////////////////////////////////////////////
-    // CONVERT INPUT DATA TO HISTOGRAM FORMAT
-    // Note: Added 2018-04-23 (After INTERMEDIATE DATA below)
-    // Note: These histograms do NOT have the phase space variable included
-    ////////////////////////////////////////////////////////////////////////////
-
-    //const Int_t dimension_xy{3371};
-    //const Int_t dimension_xy{1001};
-    // don't plot raw data
-    //TH2D *h_nEqNull = new TH2D("h_nEqNull", "", dimension_xy, 0.0, bb_Q, dimension_xy, 0.0, bb_Q);
-    //TH2D *h_nEqTwo = new TH2D("h_nEqTwo", "", dimension_xy, 0.0, bb_Q, dimension_xy, 0.0, bb_Q);
-    TH2D *h_nEqNull = new TH2D("h_nEqNull", "nEqNull", dimension_xy, 0.0, bb_Q, dimension_xy, 0.0, bb_Q);
-    TH2D *h_nEqTwo = new TH2D("h_nEqTwo", "nEqTwo", dimension_xy, 0.0, bb_Q, dimension_xy, 0.0, bb_Q);
-    //TH2D *h_nEqNull = new TH2D("h_nEqNull", "", dimension_xy, 0.0, 1.0, dimension_xy, 0.0, 1.0);
-    //TH2D *h_nEqTwo = new TH2D("h_nEqTwo", "", dimension_xy, 0.0, 1.0, dimension_xy, 0.0, 1.0);
-    //TH2D *h_ratio = new TH2D("h_ratio", "", dimension_xy, 0.0, 1.0, dimension_xy, 0.0, 1.0);
-    h_nEqNull->SetStats(0);
-    h_nEqTwo->SetStats(0);
-    //h_ratio->SetStats(0);
-
-    // required because Nd-150 data is triangular
-    std::size_t rd_ix{0};
-    for(std::size_t i{0}; i < dimension_xy; ++ i)
-    {
-        for(std::size_t j{0}; j < dimension_xy; ++ j)
-        {
-            if(i < dimension_xy - j)
-            {
-                h_nEqNull->SetBinContent(i, j, data_nEqNull.at(rd_ix)[2]);
-                h_nEqTwo->SetBinContent(i, j, data_nEqTwo.at(rd_ix)[2]);
-            
-                ++ rd_ix;
-            }
-            else
-            {
-                h_nEqNull->SetBinContent(i, j, 0.0);
-                h_nEqTwo->SetBinContent(i, j, 0.0);
-            }
-            //h_nEqNull->SetBinContent(i, j, data_nEqNull.at(i * dimension_xy + j)[2]);
-            //h_nEqTwo->SetBinContent(i, j, data_nEqTwo.at(i * dimension_xy + j)[2]);
-            //if(i < dimension_xy - j)
-            //if(i + j < dimension_xy - 1)
-            //{
-                // TODO: move above lines to inside this if
-                //h_ratio->SetBinContent(i, j, ratio.at(i * dimension_xy + j)[2]);
-            //}
-        }
-    }
-    std::cout << "rd_ix_max=" << rd_ix << std::endl;
-    std::cout << "Finished constructing input data histograms" << std::endl;
-    
-    h_nEqNull_return = h_nEqNull;
-    h_nEqTwo_return = h_nEqTwo;
-
-}
-
-
-// TODO: this is probably equivalent to my previous "manual"
-// reading code, but should check
-void read_data(TTree *tree, std::vector<std::vector<double>>& data)
-{
-    
-    data.clear();
-
-    Float_t electronEnergy1;
-    Float_t electronEnergy2;
-    Float_t electronWeight;
-
-    tree->SetBranchAddress("electronEnergy1", &electronEnergy1);
-    tree->SetBranchAddress("electronEnergy2", &electronEnergy2);
-    tree->SetBranchAddress("electronWeight", &electronWeight);
-
-    for(Long64_t event = 0; event < tree->GetEntries(); ++ event)
-    {
-
-        tree->GetEntry(event);
-
-
-        std::cout << std::scientific;
-
-        std::cout << "electronEnergy1=" << electronEnergy1
-                  << " electronEnergy2=" << electronEnergy2
-                  << " electronWeight=" << electronWeight << std::endl;
-        std::cin.get();
-
-
-        data.emplace_back(std::vector<double>());
-        data.back().emplace_back(electronEnergy1);
-        data.back().emplace_back(electronEnergy2);
-        data.back().emplace_back(electronWeight);
-
-    }
-
-}
-
-
-std::size_t LD_REWEIGHT_DATA_2(TH2D *&h_out, const std::string &filename, const std::string& hname, const std::string& name, const double low, const double high)
-{
-
-    
-
-    //TTree *t_G0 = new TTree();
-    //Long64_t count_G0 = t_G0->ReadFile("../../data/150Nd-data/dG150Nd/G0/dG0.dat", "electronEnergy1:electronEnergy2:electronWeight");
-    //std::cout << "count_G0=" << count_G0 << std::endl;
-
-    //Long64_t count_G0 = 0;
-    std::vector<std::vector<double>> data;
-    std::size_t read_count = 0;
-    std::ifstream if_Gn(filename);
-    double electronEnergy1, electronEnergy2, electronWeight;
-    while(if_Gn.good())
-    {
-        if_Gn >> electronEnergy1 >> electronEnergy2 >> electronWeight;
-        //++ count_G0;
-        ++ read_count;
-
-       
-        //if(read_count < 10)
-        //{
-        //    std::cout << "electronEnergy1=" << electronEnergy1
-        //          << " electronEnergy2=" << electronEnergy2
-        //          << " electronWeight=" << electronWeight << std::endl;
-        //}
-        //std::cin.get();
-
-
-        data.emplace_back(std::vector<double>());
-        data.back().emplace_back(electronEnergy1);
-        data.back().emplace_back(electronEnergy2);
-        data.back().emplace_back(electronWeight);
-    }
-    std::cout << "read_count=" << read_count << std::endl;
-
-    //TTree *t_G2 = new TTree();
-    //Long64_t count_G2 = t_G2->ReadFile("../../data/150Nd-data/dG150Nd/G2/dG2.dat", "electronEnergy1:electronEnergy2:electronWeight");
-    //std::cout << "count_G2=" << count_G2 << std::endl;
-
-    //output = out;
-    //outputG0 = t_G0;
-    //outputG2 = t_G2;
-    //countG0 = count_G0;
-    //countG2 = count_G2;
-
-    //const double A = 0.5;
-    //const double B = 0.5;
-    //double C = -(double)count;
-    //double dimension_xy = (-B + std::sqrt(B * B - 4.0 * A * C)) / (2.0 * A);
-    Long64_t count = read_count;
-    double dimension_xy = (int)(-0.5 + std::sqrt(0.25 - 2.0 * (-(double)count)));
-    if(dimension_xy != 3371)
-    {
-        std::cout << "error! dimension_xy != 3371, dimension_xy=" << dimension_xy << std::endl;
-    }
-    //const double dimension_xy{3371};
-
-    std::cout << "dimension_xy=" << dimension_xy << std::endl;
-
-
-    ////////////////////////////////////////////////////////////////////////////
-    // CONVERT INPUT DATA TO HISTOGRAM FORMAT
-    // Note: Added 2018-04-23 (After INTERMEDIATE DATA below)
-    // Note: These histograms do NOT have the phase space variable included
-    ////////////////////////////////////////////////////////////////////////////
-                                      
-    //TH2D *h_nEqNull = new TH2D("h_nEqNull", "nEqNull", dimension_xy, 0.0, bb_Q, dimension_xy, 0.0, bb_Q);
-    //TH2D *h_nEqTwo = new TH2D("h_nEqTwo", "nEqTwo", dimension_xy, 0.0, bb_Q, dimension_xy, 0.0, bb_Q);
-
-
-    //const Int_t dimension_xy{3371};
-    //const Int_t dimension_xy{1001};
-    // don't plot raw data
-    //TH2D *h_nEqNull = new TH2D("h_nEqNull", "", dimension_xy, 0.0, bb_Q, dimension_xy, 0.0, bb_Q);
-    //TH2D *h_nEqTwo = new TH2D("h_nEqTwo", "", dimension_xy, 0.0, bb_Q, dimension_xy, 0.0, bb_Q);
-    //TH2D *h_nEqNull = new TH2D("h_nEqNull", "", dimension_xy, 0.0, 1.0, dimension_xy, 0.0, 1.0);
-    //TH2D *h_nEqTwo = new TH2D("h_nEqTwo", "", dimension_xy, 0.0, 1.0, dimension_xy, 0.0, 1.0);
-    //TH2D *h_ratio = new TH2D("h_ratio", "", dimension_xy, 0.0, 1.0, dimension_xy, 0.0, 1.0);
-    //h_nEqNull = new TH2D("h_nEqNull", "nEqNull", dimension_xy, 0.0, bb_Q, dimension_xy, 0.0, bb_Q);
-    //h_nEqTwo = new TH2D("h_nEqTwo", "nEqTwo", dimension_xy, 0.0, bb_Q, dimension_xy, 0.0, bb_Q);
-    TH2D *h_ = new TH2D(hname.c_str(), name.c_str(), dimension_xy, low, high, dimension_xy, low, high);
-    //h_nEqTwo = new TH2D("h_nEqTwo", "nEqTwo", dimension_xy, 0.0, bb_Q, dimension_xy, 0.0, bb_Q);
-    h_->SetStats(0);
-    //h_nEqTwo->SetStats(0);
-    //h_ratio->SetStats(0);
-
-    // required because Nd-150 data is triangular
-    std::size_t rd_ix{0};
-    for(std::size_t i{0}; i < dimension_xy; ++ i)
-    {
-        for(std::size_t j{0}; j < dimension_xy; ++ j)
-        {
-            if(i < dimension_xy - j)
-            {
-                //h_nEqNull->SetBinContent(i, j, data_nEqNull.at(rd_ix)[2]);
-                //h_nEqTwo->SetBinContent(i, j, data_nEqTwo.at(rd_ix)[2]);
-                h_->SetBinContent(i, j, data.at(rd_ix)[2]);
-                //if(i < 5 && j < 10)
-                //{
-                //    std::cout << "fill: " << i << " " << j << " " << data.at(rd_ix)[2] << std::endl;
-                //}
-            
-                ++ rd_ix;
-            }
-            else
-            {
-                //h_nEqNull->SetBinContent(i, j, 0.0);
-                //h_nEqTwo->SetBinContent(i, j, 0.0);
-                h_->SetBinContent(i, j, 0.0);
-            }
-            //h_nEqNull->SetBinContent(i, j, data_nEqNull.at(i * dimension_xy + j)[2]);
-            //h_nEqTwo->SetBinContent(i, j, data_nEqTwo.at(i * dimension_xy + j)[2]);
-            //if(i < dimension_xy - j)
-            //if(i + j < dimension_xy - 1)
-            //{
-                // TODO: move above lines to inside this if
-                //h_ratio->SetBinContent(i, j, ratio.at(i * dimension_xy + j)[2]);
-            //}
-        }
-    }
-    std::cout << "rd_ix_max=" << rd_ix << std::endl;
-    std::cout << "Finished constructing input data histogram" << std::endl;
-    
-    //h_nEqNull_return = h_nEqNull;
-    //h_nEqTwo_return = h_nEqTwo;
-    h_out = h_;
-
-    //TCanvas *c_ = new TCanvas("c_", "c_");
-    //h_->Draw("colz");
-    //c_->SaveAs("hout.png");
-    //std::cout << "histogram done" << std::endl;
-    //std::cin.get();
-
-    return read_count;
-
-}
 
 
 void loadFiles()
 {
 
+    std::cout << std::scientific;
+
     // load data
     std::cout << "attempting to load spectral data from file" << std::endl;
-    //TTree *data_G0;
-    //TTree *data_G2;
-    //Long64_t count_G0;
-    //Long64_t count_G2;
-    //LD_REWEIGHT_DATA(data_G0, data_G2, count_G0, count_G2);
 
-    // global
-    //h_nEqNull = nullptr;
-    //h_nEqTwo = nullptr;
-    //h_nEqNull = new TH2D("h_nEqNull", "nEqNull", dimension_xy, 0.0, bb_Q, dimension_xy, 0.0, bb_Q);
-    //h_nEqTwo = new TH2D("h_nEqTwo", "nEqTwo", dimension_xy, 0.0, bb_Q, dimension_xy, 0.0, bb_Q);
-    //h_nEqNull->SetStats(0);
-    //h_nEqTwo->SetStats(0);
     bb_Q = 3.368;
-    //std::size_t count_G0 = LD_REWEIGHT_DATA_2(h_nEqNull, "../../data/150Nd-data/dG150Nd/G0/dG0.dat", "h_nEqNull", "nEqNull", 0.0, bb_Q);
-    //std::size_t count_G2 = LD_REWEIGHT_DATA_2(h_nEqTwo,  "../../data/150Nd-data/dG150Nd/G2/dG2.dat", "h_nEqNull", "nEqTwo",  0.0, bb_Q);
     // ramdisk, should be faster?
-    std::size_t count_G0 = LD_REWEIGHT_DATA_2(h_nEqNull, "/mnt/ramdisknd150/data/150Nd-data/dG150Nd/G0/dG0.dat", "h_nEqNull", "nEqNull", 0.0, bb_Q);
-    std::size_t count_G2 = LD_REWEIGHT_DATA_2(h_nEqTwo,  "/mnt/ramdisknd150/data/150Nd-data/dG150Nd/G2/dG2.dat", "h_nEqNull", "nEqTwo",  0.0, bb_Q);
+    std::size_t count_G0 = LD_REWEIGHT_DATA_2(h_nEqNull, "/home/ecb/150Nd/150Nd-data/dG150Nd/G0/dG0.dat", "h_nEqNull", "nEqNull", 0.0, bb_Q);
+    std::size_t count_G2 = LD_REWEIGHT_DATA_2(h_nEqTwo,  "/home/ecb/150Nd/150Nd-data/dG150Nd/G2/dG2.dat", "h_nEqTwo", "nEqTwo",  0.0, bb_Q);
 
     // phase space integrals
     const Double_t G0_ps_integral_MeV = 0.420438E-45;
@@ -1096,7 +223,8 @@ void loadFiles()
     // TODO: what is the value for the basline for Nd150? is this for 100Mo
     const Double_t xi_31_baseline{0.368}; // TODO: this is WRONG change it
     // TODO: also change in parameter list file
-    Double_t xi_31_init = 0.8;
+    //Double_t xi_31_init = 0.8;
+    Double_t xi_31_init = 0.368; // change to baseline value for testing purposes
 
     ///*const Double_t*/ bb_Q = 3.368;
     double count = 0;
@@ -1108,33 +236,10 @@ void loadFiles()
     {
         std::cout << "error: count_G0=" << count_G0 << ", count_G2=" << count_G2 << std::endl;
     }
-    /*
-    //const double A = 0.5;
-    //const double B = 0.5;
-    //double C = -(double)count;
-    //double dimension_xy = (-B + std::sqrt(B * B - 4.0 * A * C)) / (2.0 * A);
-    double dimension_xy = (int)(-0.5 + std::sqrt(0.25 - 2.0 * (-(double)count)));
-    if(dimension_xy != 3371)
-    {
-        std::cout << "error! dimension_xy != 3371, dimension_xy=" << dimension_xy << std::endl;
-    }
-    //const double dimension_xy{3371};
 
-    std::cout << "dimension_xy=" << dimension_xy << std::endl;
-    */
-
-    //std::vector<std::vector<double>> data_nEqNull;
-    //std::vector<std::vector<double>> data_nEqTwo;
-    //read_data(data_G0, data_nEqNull);
-    //read_data(data_G2, data_nEqTwo);
-    //std::cout << "vector format constructed" << std::endl;
-    
-    // convert data to histogram format
-    /*TH2D **///h_nEqNull = nullptr;
-    /*TH2D **///h_nEqTwo = nullptr;
-    //convert_data_to_histogram_format(data_nEqNull, data_nEqTwo, h_nEqNull, h_nEqTwo, dimension_xy, bb_Q);
     psiN0 = G0_ps_integral_MeV;
     psiN2 = G2_ps_integral_MeV; // TODO: check this is the correct option
+    
     std::cout << "histogram format constructed" << std::endl;
 
 
@@ -1171,26 +276,6 @@ void loadFiles()
 
 
     // read parameter_name.lst file
-    //for(int i = 0; i < numberParams; i++)
-    //{
-        // paramNameMap[i] = std::vector<TString>();
-        //paramActMap[i] = std::vector<double>();
-        //paramActErrMap[i] = std::vector<double>();
-
-        /*paramNameMap[i].clear();*/
-        //paramActMap[i].clear();
-        //paramActErrMap[i].clear();
-        //paramActP2Map[i].clear();
-        //paramActErrP2Map[i].clear();
-        // old names above, new below
-        /*paramInitValueP1Map[i].clear();
-        paramInitErrorP1Map[i].clear();
-        paramInitValueP2Map[i].clear();
-        paramInitErrorP2Map[i].clear();
-        paramConstraintValueP1Map[i].clear();
-        paramConstraintErrorP1Map[i].clear();
-        paramConstraintValueP2Map[i].clear();
-        paramConstraintErrorP2Map[i].clear();*/
 
     MCNameToParamNameMap.clear();
     MCNameToParamNumberMap.clear();
@@ -1205,9 +290,6 @@ void loadFiles()
 
     fixed_params.clear();
     free_params.clear();
-    //fixed_param_names.clear();
-    //free_param_names.clear();
-    //index_free_params.clear();
 
     //paramNameToHumanReadableParamNameMap.clear();
     MCSampleNameToHumanReadableMCSampleNameMap.clear();
@@ -1216,871 +298,10 @@ void loadFiles()
 
     enabled_params.clear();
     disabled_params.clear();
-    //enabled_param_names.clear();
-    //disabled_param_names.clear();
-    //index_enabled_params.clear();
-
-        // TODO: this is done by calling "new"
-        /*
-        for(int i = 0; i < number1DHists; ++ i)
-        {
-            allMCSamples1D[i]->Clear();
-        }
-        for(int i = 0; i < number2DHists; ++ i)
-        {
-            allMCSamples2D[i]->Clear();
-        }
-        allDataSamples1D->Clear();
-        allDataSamples2D->Clear();
-        */
-    //}
-
     
-    ///////////////////////////////////////////////////////////////////////////
-    // parameter_names.lst
-    //
-    // loading of data from parameters file
-    ///////////////////////////////////////////////////////////////////////////
 
-    std::ifstream paramFile;
-    paramFile.open("parameter_names.lst");
-    // TODO: note that params file contains "same" in many backgrounds
-    // which clearly should not be the same in P1 and P2
-    // is tl208 sfoil and sscin missing?
-    // NOTE: this data is not used in the fit unless constraints are
-    // introduced
-    // TODO: understand fully how this works, the parameter numbers
-    // may not be arbitrary and the _P1 / _P2 strings may be necessary
-    // whereas I removed them
-    std::size_t line_count = 1;
-    while(!paramFile.eof())
-    {
-        std::cout << line_count << std::endl;
-        
-        //std::string paramName_str;
-        //int paramName;
-
-        std::string paramName;
-
-        std::string paramNumber_str;
-        int paramNumber;
-        
-        std::string paramEnabled_str;
-        
-        // reset
-        double paramInitValueP1 = 0.;
-        double paramInitErrorP1 = 0.;
-        double paramInitValueP2 = 0.;
-        double paramInitErrorP2 = 0.;
-
-        std::string paramInitValueP1_str;
-        std::string paramInitErrorP1_str;
-        std::string paramInitValueP2_str;
-        std::string paramInitErrorP2_str;
-
-        double paramConstraintValueP1 = 0.;
-        double paramConstraintErrorP1 = 0.;
-        double paramConstraintValueP2 = 0.;
-        double paramConstraintErrorP2 = 0.;
-
-        std::string paramConstraintValueP1_str;
-        std::string paramConstraintErrorP1_str;
-        std::string paramConstraintValueP2_str;
-        std::string paramConstraintErrorP2_str;
-
-        int paramConstrainModeP1 = MODE_PARAM_UNDEFINED;
-        int paramConstrainModeP2 = MODE_PARAM_UNDEFINED;
-
-        std::string paramConstrainModeP1_str;
-        std::string paramConstrainModeP2_str;
-
-        std::stringstream ss;
-        std::string s;
-        std::getline(paramFile, s);
-        ++ line_count;
-
-        /*
-        if(s.size() > 0)
-        {
-            if(s[0] == '#')
-            {
-                continue;
-            }
-        }
-        else
-        {
-            continue;
-        }
-        */
-        
-        // ignore blank line
-        if((!(s.size() > 0)) || s[0] == '#')
-        {
-            continue;
-        }
-        else if((s.size() >= 5) && (s[0] == 'B') && (s[1] == 'R') && (s[2] == 'E') && (s[3] == 'A') && (s[4] == 'K'))
-        {
-            // this is to fix a bug where lines containing whitespace which
-            // isn't visible in the file
-            continue;
-        }
-        else if((s.size() >= 4) && (s.substr(0, 4) == std::string("NAME")))
-        {
-            //std::cout << "caught NAME" << std::endl;
-
-            ss << s;
-            std::string NAME_str;
-            std::string param_number_str;
-            std::string param_name_str;
-            int param_number;
-            std::string param_name;
-            ss >> NAME_str >> param_number_str;
-            param_number = std::stoi(param_number_str);
-            std::string::size_type found_ix = s.find(param_number_str);
-            if(found_ix != std::string::npos)
-            {
-                param_name_str = s.substr(found_ix + param_number_str.size());
-                std::string::size_type whitespace_ix = 0;
-                for(;;)
-                {
-                    if(whitespace_ix >= param_name_str.size())
-                    {
-                        break;
-                    }
-
-                    char whitespace_char = param_name_str.at(whitespace_ix);
-                    if(std::isspace(whitespace_char))
-                    {
-                        ++ whitespace_ix;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-                param_name = param_name_str.substr(whitespace_ix);
-            }
-            else
-            {
-                std::cout << "Error: found_ix == std::string::npos, string " << param_number_str << " not found in input" << std::endl;
-            }
-
-            //std::cout << "NAME: param_number=" << param_number << " param_name=" << param_name << std::endl;
-
-            // set
-            // use a new map to avoid conflicts
-            paramNumberToHumanReadableParamNameMap.insert(std::make_pair(param_number, TString(param_name)));
-        }
-        //if(s.size() > 0)
-        else
-        {
-
-            ss << s;
-
-            //ss >> paramNumber >> name
-            //   >> activity >> activity_error
-            //   >> activity_P2_str >> activity_error_P2_str
-            //   >> fixed_str >> enabled_str;
-            /*
-            ss >> paramNumber >> paramName
-               >> paramInitValueP1_str >> paramInitErrorP1_str
-               >> paramInitValueP2_str >> paramInitErrorP2_str
-               >> paramConstraintValueP1_str >> paramConstraintErrorP1_str
-               >> paramConstraintValueP2_str >> paramConstraintErrorP2_str
-               >> fixed_str >> enabled_str;
-            */
-            // read in fixed width entries
-            ss >> paramNumber_str
-               >> paramEnabled_str
-               >> paramInitValueP1_str >> paramInitErrorP1_str
-               >> paramInitValueP2_str >> paramInitErrorP2_str
-               >> paramConstraintValueP1_str >> paramConstraintErrorP1_str
-               >> paramConstraintValueP2_str >> paramConstraintErrorP2_str
-               >> paramConstrainModeP1_str >> paramConstrainModeP2_str;
-
-            //std::cout << "read paramNumber_str=" << paramNumber_str << std::endl;
-
-            // read in non fixed width entries
-            // marked by END
-            // construct the parameter name
-            std::vector<std::string> unique_mc_names;
-            for(;;)
-            {
-
-                std::string nextstring;
-                ss >> nextstring;
-
-
-                //std::cout << "nextstring=" << nextstring << std::endl;
-                //std::cin.get(); 
-                
-                //std::cout << "nextstring=" << nextstring << std::endl;
-                if(nextstring == "END")
-                {
-                    break;
-                }
-                else
-                {
-                    // construct name
-                    if(paramName.size() > 0)
-                    {
-                        paramName += std::string(",");
-                    }
-                    paramName += nextstring;
-                    //std::cout << "paramName=" << paramName << std::endl;
-
-                    // add MC to list of MC
-                    //MCNameToParamNameMap[paramNumber].push_back(nextstring);
-                    unique_mc_names.push_back(nextstring);
-
-                    // log the unique mc names in the MC name to human MC name
-                    // map
-                    //MCNameToHumanMCNameMap.insert(std::make_pair(nextstring, ));
-                    // NOTE: don't do this here, this was already the map
-                    // I constructed before using the arrays of MC sample
-                    // names and MC human readable names
-                    // TODO: remove this commented out block
-                }
-            }
-
-
-            // moved from below, required in below block
-            paramNumber = std::stoi(paramNumber_str);
-
-            // setup the MCNameToParamNameMap
-            for(int i = 0; i < unique_mc_names.size(); ++ i)
-            {
-                MCNameToParamNameMap[unique_mc_names.at(i)] = paramName;
-                MCNameToParamNumberMap[unique_mc_names.at(i)] = paramNumber;
-            }
-
-
-            //std::cout << paramNumber << "\t" << name
-            //          << "\t" << activity << "\t" << activity_error
-            //          << "\t" << activity_P2_str << "\t" << activity_error_P2_str
-            //          << " fixed_str=" << fixed_str << " enabled_str=" << enabled_str << std::endl;
-            //std::cout << paramNumber << paramName
-            //          << paramInitValueP1_str << paramInitErrorP1_str
-            //          << paramInitValueP2_str << paramInitErrorP2_str
-            //          << paramConstraintValueP1_str << paramConstraintErrorP1_str
-            //          << paramConstraintValueP2_str << paramConstraintErrorP2_str
-            //          << fixed_str << enabled_str;
-            // moved below
-
-            // phase 1 initial values
-            // read value from file, no other option
-            //std::cout << "paramInitValueP1_str=" << paramInitValueP1_str << "END" << std::endl;
-            //paramInitValueP1 = std::stod("3.535e-04");
-            //std::cout << "worked!" << std::endl;
-            //std::cout << paramInitValueP1_str << std::endl;
-            //std::cout << paramInitValueP2_str << std::endl;
-            paramInitValueP1 = std::stod(paramInitValueP1_str);
-            paramInitErrorP1 = std::stod(paramInitErrorP1_str);
-            //paramInitValueP1 = atof(paramInitValueP1_str.c_str());
-            //paramInitValueP2 = atof(paramInitValueP2_str.c_str());
-
-            // phase 2 intial values
-            // check if string is "same", if so use values from phase 1
-            // else read value from file
-            function_A("same", paramInitValueP1, paramInitValueP2_str, paramInitValueP2);
-            function_A("same", paramInitErrorP1, paramInitErrorP2_str, paramInitErrorP2);
-
-            // now check if initial value strs are "useconstraint"
-            // and copy values from constraints
-            // also need to check for "same" again, for P2 init value and error
-            // (this was an old comment - update TODO)
-
-            // phase 1 constraints
-            // check if string is "useinit", if so use values from phase 1
-            // as constraints for phase 1
-            // else read value from file
-            function_A("useinit", paramInitValueP1, paramConstraintValueP1_str, paramConstraintValueP1);
-            function_A("useinit", paramInitErrorP1, paramConstraintErrorP1_str, paramConstraintErrorP1);
-
-            // phase 2 initial constraints
-            // check if string is "same", if so use constraints from phase 1
-            // else read value from file
-            //if(activity_P2_str == "same")
-            //useinit should be same
-            function_A("same", paramConstraintValueP1, paramConstraintValueP2_str, paramConstraintValueP2);
-            function_A("same", paramConstraintErrorP1, paramConstraintErrorP2_str, paramConstraintErrorP2);
-
-            //paramNumber = std::stoi(paramNumber_str);
-
-            // constrain mode
-            // Phase 1
-            function_paramConstrainMode(paramConstrainModeP1_str, paramConstrainModeP1);
-            // Phase 2
-            function_paramConstrainMode(paramConstrainModeP2_str, paramConstrainModeP2);
-
-            /*
-            std::cout << "values read:" << std::endl;
-            std::cout << paramInitValueP1 << " +- " << paramInitErrorP1 << std::endl;
-            std::cout << paramInitValueP2 << " +- " << paramInitErrorP2 << std::endl;
-            std::cout << paramConstraintValueP1 << " +- " << paramConstraintErrorP1 << std::endl;
-            std::cout << paramConstraintValueP2 << " +- " << paramConstraintErrorP2 << std::endl;
-            std::cout << "mode: " << paramConstrainModeP1 << ", " << paramConstrainModeP2 << std::endl;
-            std::cout << "check these numbers, waiting..." << std::endl;
-            std::cin.get();
-            */
-
-            // print out using actual values, not strings
-            //std::cout << paramNumber << ", " << paramName << ", "
-            //          << paramEnabled_str << ", "
-            //          << paramInitValueP1 << ", " << paramInitErrorP1 << ", "
-            //          << paramInitValueP2 << ", " << paramInitErrorP2 << ", "
-            //          << paramConstraintValueP1 << ", " << paramConstraintErrorP1 << ", "
-            //          << paramConstraintValueP2 << ", " << paramConstraintErrorP2 << ", "
-            //          << paramConstrainModeP1 << ", " << paramConstrainModeP2 << ", ";
-            // print out the MCNameToParamNameMap
-            //for(auto it = MCNameToParamNameMap.cbegin(); it != MCNameToParamNameMap.cend(); ++ it)
-            //{
-            //    std::cout << it->first << " -> " << it->second << std::endl;
-            //}
-
-            /*
-            if(enabled_str.CompareTo("enabled") == 0)
-            {
-                enabled_params.push_back(paramNumber);
-            }
-            else if(enabled_str.CompareTo("disabled") == 0)
-            {
-                // do nothing
-            }
-            */
-            bool is_enabled = false;
-            if(paramEnabled_str == "enabled")
-            {
-                //auto count = std::count(enabled_params.begin(), enabled_params.end(), paramNumber);
-                //if(count > 0)
-                if(std::find(enabled_params.begin(), enabled_params.end(), paramNumber) != enabled_params.end())
-                //if(enabled_params.find(paramNumber) != enabled_params.end())
-                // TODO: change all std::find to enabled_params.find()
-                {
-                    std::cout << "ERROR: enabled_params already contains paramNumber=" << paramNumber << std::endl;
-                    std::cout << "HALT" << std::endl;
-                    std::cin.get();
-                }
-                else
-                {
-                    is_enabled = true; // TODO: can remove this and replace
-                                       // code which uses it below with the
-                                       // usual std::find call
-                    enabled_params.push_back(paramNumber);
-                    ++ numberEnabledParams; // TODO: can just set this at
-                                            // end by calling enabled_params.size()
-                    // moved into block (below) where other map data is set
-                    //paramNumberToMinuitParamNumberMap[paramNumber] = minuitParamNumberCounter;
-                    //++ minuitParamNumberCounter;
-                    // could also have implemented this using .size() - 1
-                    // or using variable numberEnabledParams
-                    // but I prefered this method
-                    // NOTE: enabled_params contains essentially the same
-                    // data as paramNumberToMinuitParamNumberMap
-                    // TODO: remove one
-                }
-            }
-            else if(paramEnabled_str == "disabled")
-            {
-                // do nothing
-                disabled_params.push_back(paramNumber);
-            }
-            else
-            {
-                std::cout << "ERROR: Unrecognized value: paramEnabled_str=" << paramEnabled_str << std::endl;
-                //std::cout << "unknown enabled/disabled parameter specification" << std::endl;
-                //std::cout << "enabled_str=" << enabled_str << std::endl;
-                continue;
-            }
-
-            //if(paramEnabled_str == "enabled")
-            //{
-
-            // TODO: consider removing later, this was added after
-            // numberParams was changed to 1
-            if(paramNumber < numberParams)
-            {
-                if(is_enabled == true)
-                {
-                    paramNumberToMinuitParamNumberMap[paramNumber] = minuitParamNumberCounter;
-                    minuitParamNumberToParamNumberMap[minuitParamNumberCounter] = paramNumber;
-                    ++ minuitParamNumberCounter;
-                }
-
-                paramNameMap[paramNumber] = paramName;
-
-                //paramActMap[paramNumber].push_back(activity);
-                //paramActErrMap[paramNumber].push_back(activity_error);
-                //paramActP2Map[paramNumber].push_back(activity_P2);
-                //paramActErrP2Map[paramNumber].push_back(activity_error_P2);
-                // old names above, new below
-                
-                paramInitValueP1Map[paramNumber] = paramInitValueP1;
-                paramInitErrorP1Map[paramNumber] = paramInitErrorP1;
-                paramInitValueP2Map[paramNumber] = paramInitValueP2;
-                paramInitErrorP2Map[paramNumber] = paramInitErrorP2;
-
-                paramConstraintValueP1Map[paramNumber] = paramConstraintValueP1;
-                paramConstraintErrorP1Map[paramNumber] = paramConstraintErrorP1;
-                paramConstraintValueP2Map[paramNumber] = paramConstraintValueP2;
-                paramConstraintErrorP2Map[paramNumber] = paramConstraintErrorP2;
-
-                paramConstrainModeP1Map[paramNumber] = paramConstrainModeP1;
-                paramConstrainModeP2Map[paramNumber] = paramConstrainModeP2;
-
-                // fixed_params set here
-                if(is_enabled)
-                {
-                    if(thePhase == 0)
-                    {
-                        if(paramConstrainModeP1 == MODE_PARAM_HARD)
-                        {
-                            fixed_params.push_back(paramNumber);
-                        }
-                        else
-                        {
-                            // mode is either SOFT or FREE
-                            free_params.push_back(paramNumber);
-                        }
-                    }
-                    else if(thePhase == 1)
-                    {
-                        if(paramConstrainModeP2 == MODE_PARAM_HARD)
-                        {
-                            fixed_params.push_back(paramNumber);
-                        }
-                        else
-                        {
-                            // mode is either SOFT or FREE
-                            free_params.push_back(paramNumber);
-                        }
-                    }
-                    else
-                    {
-                        std::cout << "ERROR: thePhase=" << thePhase << " invalid value" << std::endl;
-                    }
-                }
-
-                paramNameToNumberMap[paramName] = paramNumber;
-        
-                paramMCList[paramNumber] = unique_mc_names;
-
-            }
-
-            //}
-
-            // write back out
-            std::cout << std::endl;
-            std::cout << "parameter number: " << paramNumber << " " << paramEnabled_str << std::endl;
-            std::cout << "Parameter name: " << paramName << std::endl;
-            std::cout << "List of MC datafiles: ";
-            for(auto it = paramMCList[paramNumber].cbegin(); it != paramMCList[paramNumber].cend(); )
-            {
-                std::cout << *it;
-                if(++ it != paramMCList[paramNumber].cend())
-                {
-                    std::cout << ", ";
-                }
-                else
-                {
-                    break;
-                }
-            }
-            std::cout << std::endl;
-            std::cout << "Phase 1: Initial Value: " << paramInitValueP1Map[paramNumber] << " +- " << paramInitErrorP1Map[paramNumber] << std::endl;
-            std::cout << "         Constraint: " << paramConstraintValueP1Map[paramNumber] << " +- " << paramConstraintErrorP1Map[paramNumber] << std::endl;
-            std::cout << "         Mode: " << paramConstrainModeP1Map[paramNumber];
-            if(paramConstrainModeP1Map[paramNumber] == MODE_PARAM_FREE)
-            {
-                std::cout << " (free)";
-            }
-            else if(paramConstrainModeP1Map[paramNumber] == MODE_PARAM_SOFT)
-            {
-                std::cout << " (soft)";
-            }
-            else if(paramConstrainModeP1Map[paramNumber] == MODE_PARAM_HARD)
-            {
-                std::cout << " (hard)";
-            }
-            else
-            {
-                std::cout << " (unknown/ERROR)";
-            }
-            std::cout << std::endl;
-            std::cout << "Phase 2: Initial Value: " << paramInitValueP2Map[paramNumber] << " +- " << paramInitErrorP2Map[paramNumber] << std::endl;
-            std::cout << "         Constraint: " << paramConstraintValueP2Map[paramNumber] << " +- " << paramConstraintErrorP2Map[paramNumber] << std::endl;
-            std::cout << "         Mode: " << paramConstrainModeP2Map[paramNumber];
-            if(paramConstrainModeP2Map[paramNumber] == MODE_PARAM_FREE)
-            {
-                std::cout << " (free)";
-            }
-            else if(paramConstrainModeP2Map[paramNumber] == MODE_PARAM_SOFT)
-            {
-                std::cout << " (soft)";
-            }
-            else if(paramConstrainModeP2Map[paramNumber] == MODE_PARAM_HARD)
-            {
-                std::cout << " (hard)";
-            }
-            else
-            {
-                std::cout << " (unknown/ERROR)";
-            }
-            std::cout << std::endl;
-
-        }
-
-    }
-
-    std::cout << "read: parameter_names.lst -> done" << std::endl;
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // end of loading data from parameter list file
-    ///////////////////////////////////////////////////////////////////////////
-
-
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // initialize human readable name map
-
-    
-    // first: initialize map to convert from MC Sample Name to
-    // Human Readable MC Sample Name
-
-
-    //paramNameToHumanReadableParamNameMap.clear();
-    // does not work
-    // these objects are the individual MC samples and corresponding human
-    // readable names
-    // NOTE: can be made to work with 2 maps
-    
-    for(int i = 0; i < nExternalBkgs; ++ i)
-    {
-        //paramNameToHumanReadableParamNameMap.insert(std::make_pair(ExternalBkgFiles[i], ExternalBkgNames[i]));
-        MCSampleNameToHumanReadableMCSampleNameMap.insert(std::make_pair(ExternalBkgFiles[i], ExternalBkgNames[i]));
-    }
-
-    for(int i = 0; i < nInternalBkgs; ++ i)
-    {
-        //paramNameToHumanReadableParamNameMap.insert(std::make_pair(InternalBkgFiles[i], InternalBkgNames[i]));
-        MCSampleNameToHumanReadableMCSampleNameMap.insert(std::make_pair(InternalBkgFiles[i], InternalBkgNames[i]));
-    }
-    
-    for(int i = 0; i < nRn222Bkgs; ++ i)
-    {
-        //paramNameToHumanReadableParamNameMap.insert(std::make_pair(Rn222BkgFiles[i], Rn222BkgNames[i]));
-        MCSampleNameToHumanReadableMCSampleNameMap.insert(std::make_pair(Rn222BkgFiles[i], Rn222BkgNames[i]));
-    }
-    
-    for(int i = 0; i < nRn220Bkgs; ++ i)
-    {
-        //paramNameToHumanReadableParamNameMap.insert(make_pair(Rn220BkgFiles[i], Rn220BkgNames[i]));
-        MCSampleNameToHumanReadableMCSampleNameMap.insert(make_pair(Rn220BkgFiles[i], Rn220BkgNames[i]));
-    }
-    
-    for(int i = 0; i < nNeighbours; ++ i)
-    {
-        //paramNameToHumanReadableParamNameMap.insert(make_pair(NeighbourFiles[i], NeighbourNames[i]));
-        MCSampleNameToHumanReadableMCSampleNameMap.insert(make_pair(NeighbourFiles[i], NeighbourNames[i]));
-    }
-    
-    for(int i = 0; i < nNd150Samples; ++ i)
-    {
-        //paramNameToHumanReadableParamNameMap.insert(make_pair(Nd150Files[i], Nd150Names[i]));
-        MCSampleNameToHumanReadableMCSampleNameMap.insert(make_pair(Nd150Files[i], Nd150Names[i]));
-    }
-
-    // add additional parameters
-    MCSampleNameToHumanReadableMCSampleNameMap.insert(make_pair("axial_vector_parameter_0", "^{150}Nd 2#nu#beta#beta g_A #xi_{31}"));
-
-    // done
-
-    // second: convert parameter numbers to parameter names and create map
-    // to convert between parameter names and human readable parameter names
-
-    // NOTE: this block of code depends on the map
-    // MCSampleNameToHumanReadableMCSampleNameMap
-    // containing all the MC Sample Names which appear in the parameter list
-    // file.
-    // Because some parameters MC samples may have been disabled when pre-
-    // processing the data, and are therefore set to "disabled" in the
-    // parameter list file, need to check that parameter is enabled before
-    // processing any names in this code block
-
-    for(int param_number = 0; param_number < numberParams; ++ param_number)
-    {
-        
-        // check if parameter is enabled
-        if(std::find(enabled_params.begin(), enabled_params.end(), param_number) != enabled_params.end())
-        {
-            // do nothing
-        }
-        else
-        {
-            // skip
-            continue;
-        }
-
-        std::cout << "param_number=" << param_number << std::endl;
-        std::string parameter_name = paramNameMap[param_number];
-        std::string human_readable_parameter_name;
-
-        std::cout << "parameter_name=" << parameter_name << std::endl;
-
-        std::string::size_type find_ix{0};
-        for(;;)
-        {
-            // split name by comma
-            // find corresponding MC sample name and corresponding MC sample
-            // human name
-            std::string::size_type found_ix = parameter_name.find(",", find_ix);
-            //std::cout << "found ',' at found_ix=" << found_ix << std::endl;
-
-
-            std::string mc_sample_name;
-            //if(found_ix == std::string::npos)
-            //{
-                mc_sample_name = parameter_name.substr(find_ix, found_ix - find_ix);
-            //}
-            //else
-            //{
-            //    // TODO: this if is not necessary?
-            //    mc_sample_name = parameter_name.substr(find_ix, std::string::npos);
-            //}
-
-            std::cout << "mc_sample_name=" << mc_sample_name << std::endl;
-
-            //std::cout << "mc_sample_name=" << mc_sample_name << std::endl;
-            std::string human_readable_mc_sample_name = std::string(MCSampleNameToHumanReadableMCSampleNameMap.at(mc_sample_name).Data());
-            //std::cout << "human_readable_mc_sample_name=" << human_readable_mc_sample_name << std::endl;
-         
-            // construct human readable parameter name
-            if(human_readable_parameter_name.size() > 0)
-            {
-                human_readable_parameter_name += std::string(",");
-            }
-            human_readable_parameter_name += human_readable_mc_sample_name;
-
-            //TString human_name = paramMCNameToHumanMCNameMap.at(name);
-            // add human names by comma
-
-
-            // TODO: in case of no further comma, last string is until end
-            if(found_ix != std::string::npos)
-            {
-                // do nothing, code moved above
-                // NOTE: may have solved above TODO, check
-                find_ix = found_ix + 1;
-            }
-            else
-            {
-                //std::cout << "break" << std::endl;
-                break;
-            }
-
-        }
-
-        std::cout << "human_readable_parameter_name=" << human_readable_parameter_name << std::endl;
-
-        paramNameToHumanReadableParamNameMap.insert(std::make_pair(parameter_name, human_readable_parameter_name));
-    }
-
-    // human readable name map
-    ///////////////////////////////////////////////////////////////////////////
-
-    //std::cin.get();
-
-    // Some notes after making the above code work.
-    // The above code is: The code that builds the names for the maps used
-    // in the correlation matrix labels.
-    // Map name is: paramNameToHumanReadableParamNameMap
-    //
-    // some comments:
-    // 
-    // there are some blank rows/cols. First one at 12 (?)
-    // looks like some disabled/fixed parameter is being included in the
-    // corralation matrix where it should not be
-    // alternatively these could be exactly zero entries?
-    //
-    // the neighbour foils are set to HARD constrained, and yet they appear
-    // in the correlation matrix
-    //
-    // 22 parameters appear in the correlation matrix, which is wrong
-    //
-    // check how Summer built her free_param_names vector
-    //
-    //
-    //
-
-
-
-    // randomize parameters
-
-    // TODO: re-enable
-    if(false)
-    {
-        std::cout << "randomizing initial parameters" << std::endl;
-        
-        TRandom3 rng(1);
-
-        for(int i = 0; i < numberParams; i++)
-        {
-            Double_t randomnumber = rng.Gaus();
-            Double_t activity = 0.;
-            Double_t uncertainty = 0.;
-            Double_t randomactivity = 0.;
-
-            if(thePhase == 0)
-            {
-                activity = paramInitValueP1Map[i];
-                uncertainty = paramInitErrorP1Map[i];
-                randomactivity = activity + uncertainty * randomnumber;
-
-                paramInitValueP2Map[i] = randomactivity;
-
-                std::cout << "parameter number: " << i
-                          << " randomnumber=" << randomnumber
-                          << " activity=" << activity
-                          << " uncertainty=" << uncertainty
-                          << " randomactivity=" << randomactivity << std::endl;
-            }
-            else if(thePhase == 1)
-            {
-                activity = paramInitValueP2Map[i];
-                uncertainty = paramInitErrorP2Map[i];
-                randomactivity = activity + uncertainty * randomnumber;
-
-                paramInitValueP2Map[i] = randomactivity;
-
-                std::cout << "parameter number: " << i
-                          << " randomnumber=" << randomnumber
-                          << " activity=" << activity
-                          << " uncertainty=" << uncertainty
-                          << " randomactivity=" << randomactivity << std::endl;
-            }
-            else
-            {
-                std::cout << "ERROR: Invalid value for thePhase: thePhase=" << thePhase << std::endl;
-            }
-        }
-        std::cout << "randomization done" << std::endl;
-    }
-    // randomize parameters
-
-
-    // record enabled/disabled fixed/free parameters
-    //
-    //
-    
-    
-    
-    // Sort out fixed vs free params (this can be improved, its too hackish now)
-
-    // data stored here used as name for each item in correlation matrix
-    // TODO other names should be added not just paramNameMap[i].front()
-    // loop over paramNameMap[i], adding each name to the free_param_names
-    // vector
-    
-    // moved to header
-    //std::vector<TString> free_param_names;
-    //std::vector<TString> enabled_param_names;
-    #if 0
-    for(int i = 0; i < numberParams; i++)
-    {
-        TString i_str;
-        i_str.Form("%i", i);
-
-        bool fixed = false;
-        if(std::find(fixed_params.begin(), fixed_params.end(), i) != fixed_params.end())
-        {
-            fixed = true;
-        }
-        /*
-        for(int j = 0; j < fixed_params.size(); j++)
-        {
-            if(i == fixed_params.at(j))
-            {
-                fixed = true;
-            }
-        }
-        */
-
-        if(fixed)
-        {
-            //continue;
-            // do nothing
-        }
-        else
-        {
-            
-            //free_params.push_back(i);
-            // moved into loop which reads parameter list file
-
-            // TODO: what to do with these? are they used?
-            index_free_params.push_back(i_str);
-            // TODO: .front() is bug?
-            ////free_param_names.push_back(paramNameMap[i].front());
-            //for(int ix = 0; ix < paramNameMap[i].size(); ++ ix)
-            //{
-            //    tmpStr += paramNameMap[i][ix];
-            //    if(ix + 1 < paramNameMap[i].size())
-            //    {
-            //        tmpStr += ", ";
-            //    }
-            //}
-            //TODO: enable this code
-        }
-
-        // enabled/disabled
-        bool enabled = false;
-        if(std::find(enabled_params.begin(), enabled_params.end(), i) != enabled_params.end())
-        {
-            enabled = true;
-        }
-        if(enabled)
-        {
-            // do nothing
-            index_enabled_params.push_back(i_str);
-            // TODO: .front() is bug?
-            ////enabled_param_names.push_back(paramNameMap[i].front());
-        }
-        else
-        {
-            //disabled_params.push_back(i);
-            // moved into loop which reads parameter list file
-
-            //disabled_param_names.push_back(paramNameMap[i].front());
-        }
-        // TODO: this may no longer be used
-        // TODO: can probably remove? (check)
-    }
-    #endif
-
-    // TODO: numbers appear multiple times
-    // print out a list of fixed and free parameters
-    std::cout << "List of parameters: free/fixed" << std::endl;
-    for(int i = 0; i < free_params.size(); ++ i)
-    {
-        std::cout << "free parameter: " << free_params[i] << std::endl;
-    }
-    for(int i = 0; i < fixed_params.size(); ++ i)
-    {
-        std::cout << "fixed parameter: " << fixed_params[i] << std::endl;
-    }
-    std::cout << "List of parameters: enabled/disabled" << std::endl;
-    for(int i = 0; i < enabled_params.size(); ++ i)
-    {
-        std::cout << "enabled parameter: " << enabled_params[i] << std::endl;
-    }
-    for(int i = 0; i < disabled_params.size(); ++ i)
-    {
-        std::cout << "diabled parameter: " << disabled_params[i] << std::endl;
-    }
-    // TODO: this should probably be moved to just after the section which
-    // reads parameter list
-
+    // read parameter list file
+    read_parameter_list_file();
 
 
 
@@ -2141,9 +362,94 @@ void loadFiles()
     
     int number_free_params = -1;
     double *CovMatrix = nullptr;
-    fitBackgrounds(AdjustActs, AdjustActs_Err, CovMatrix, number_free_params, thePhase);
+
+    //fitBackgrounds(AdjustActs, AdjustActs_Err, CovMatrix, number_free_params, thePhase);
+    // fit of backgrounds disabled.
+    // need to fit Nd150 parameter only
+    // disabled in fitBackgrounds function
+    
+    TMinuit *minuit = fitBackgrounds(AdjustActs, AdjustActs_Err, CovMatrix, number_free_params, thePhase);
+
+
+    #if 1
+    ///////////////////////////////////////////////////////////////////////////
+    // testing
+    
+    // run chisquare tests
+
+    std::cout << "running chi-square tests (gA): " << "variable: g_A parameter (1)" << std::endl;
+
+    int n_tests = 10;
+    // 100 Mo
+    int axial_vector_parameter_0_index = paramNumberToMinuitParamNumberMap.at(1);
+    std::cout << "the internal index for parameter 1 is " << axial_vector_parameter_0_index << std::endl;
+    // These are in units of minuit internal parameter units
+    // To convert to external parameter units, multiply by the value of the
+    // external input parameter initial activity
+    // Caution: For cases where the fitted parameter minimum is not at 1.0
+    // the errors must be treated as upper and lower bound separatly by adding
+    // them (internal param & error) to the central value fit parameter
+    // external_param_error_lowerbound = (internal_param_CV - internal_param_error) * external_param_init_value
+    // similar for upperbound, then subtract and / 2.0
+    double test_central_value = AdjustActs[axial_vector_parameter_0_index];
+    double test_range = 0.2; //10.0 * AdjustActs_Err[axial_vector_parameter_0_index];
+    // this range should hit delta sigma = 1.0 at 66 % of the width, but it
+    // doesn't.
+    double test_start = test_central_value - 0.5 * test_range;
+    double test_end   = test_central_value + 0.5 * test_range;
+    double *test_values = new double[n_tests];
+    double test_step = test_range / (double)n_tests;
+    std::cout << "test_central_value=" << test_central_value << "\n"
+              << "test_range=" << test_range << "\n"
+              << "test_start=" << test_start << "\n"
+              << "test_end=" << test_end
+              << std::endl;
+    int n_params = minuit->GetNumPars();
+    double *params = new double[n_params];
+    double *param_errs = new double[n_params];
+    for(int jx = 0; jx < n_params; ++ jx)
+    {
+        minuit->GetParameter(jx, params[jx], param_errs[jx]);
+    }
+    std::ofstream ofstream_testvalue("testvalue_gA.txt");
+    for(int ix = 0; ix < n_tests; ++ ix)
+    {
+        test_values[ix] = test_start + test_step * ix;
+
+        // get chisquare value for test
+        double fval = 0.;
+
+        // set parameter for 100Mo
+        double test_value = test_values[ix];
+        params[axial_vector_parameter_0_index] = test_value;
+        
+        std::cout << "test: ix=" << ix << ", " << "test_value=" << test_value << std::endl; //  ", "; << "fval=" << fval << std::endl;
+
+        // TODO: reenable
+        logLikelihood(n_params, nullptr, fval, params, 0);
+        std::cout << "fval=" << fval << std::endl;
+
+        // save canvas to file
+        std::string saveas_filename("testvalue_gA_");
+        saveas_filename += std::to_string(ix) + ".png";
+        draw(AdjustActs, AdjustActs_Err, saveas_filename);
+
+        ofstream_testvalue << "value," << test_value << ",chisquare," << fval << std::endl;
+
+        //void logLikelihood(Int_t & /*nPar*/, Double_t* /*grad*/, Double_t &fval, Double_t *p, Int_t /*iflag */)
+
+    }
+    ofstream_testvalue.close();
+    delete [] test_values;
+    //delete [] params;
+    //delete [] param_errs;
+    #endif
+
+
+    ///////////////////////////////////////////////////////////////////////////
 
     std::cout << "The following adjustments (in minuit parameter units) should be made:" << std::endl;
+    std::cout << "Note that gA (1) is a special parameter" << std::endl;
     //for(int i = 0; i < numberParams; i++)
     for(int i = 0; i < numberEnabledParams; i++)
     {
@@ -2156,9 +462,16 @@ void loadFiles()
 
     std::cout << "The following adjustments (in units of Bq) should be made:" << std::endl;
     //for(int i = 0; i < numberParams; i++)
+    //std::cout << "numberEnabledParams=" << numberEnabledParams << std::endl;
     for(int i = 0; i < numberEnabledParams; i++)
     {
+        //if(i == 1)
+        //{
+        //    std::cout << "skipping gA parameter TODO FIX" << std::endl;
+        //}
+
         int j = minuitParamNumberToParamNumberMap.at(i);
+        //std::cout << "i=" << i << " j=" << j << std::endl;
         Double_t param_init_value = 0.;
         Double_t param_init_error = 0.; 
         if(thePhase == 0)
@@ -2175,9 +488,28 @@ void loadFiles()
         {
             std::cout << "ERROR: Invalid value for thePhase: thePhase=" << thePhase << std::endl;
         }
-        std::cout << i << " :\t" << AdjustActs[i] * param_init_value
-                       << " +- " << AdjustActs_Err[i] * param_init_value;
-        Double_t change = 100.0 * (AdjustActs[i] - 1.0);
+        //std::cout << "value=" << param_init_value << " err=" << param_init_error << " AdjustActs[i]=" << AdjustActs[i] << std::endl;
+        if(i != 1)
+        {
+            std::cout << i << " :\t" << AdjustActs[i] * param_init_value
+                           << " +- " << AdjustActs_Err[i] * param_init_value;
+            // TODO: put the mutiplication by xi_31_init INSIDE the reweight/fit functions,
+            // to restore uniformity in minuit parameters
+        }
+        else
+        {
+            std::cout << i << " :\t" << AdjustActs[i]
+                           << " +- " << AdjustActs_Err[i];
+        }
+        Double_t change = 0.0;
+        if(i != 1)
+        {
+            change = 100.0 * (AdjustActs[i] - 1.0);
+        }
+        else
+        {
+            change = 100.0 * (AdjustActs[i] - xi_31_init);
+        }
         if(change >= 0)
         {
             std::cout << " -> +";
@@ -2245,8 +577,17 @@ void loadFiles()
         chisquarelog_ofstream << paramNameMap[mo100bbnumber] << ", " << AdjustActs[mo100bbnumber] << ", " << global_chisquare << ", (should be values for 100Mo bb)" << std::endl;
     }
 
-  
 
+    draw(AdjustActs, AdjustActs_Err, "");
+    draw_covariance_matrix(CovMatrix, number_free_params);
+
+
+}
+
+
+
+void draw(const Double_t *const AdjustActs, const Double_t *const AdjustActs_Err, const std::string& saveas_filename)
+{
 
     ///////////////////////////////////////////////////////////////////////////
     // draw result
@@ -2518,6 +859,9 @@ void loadFiles()
         data1D[i]->SetLineWidth(2);
         data1D[i]->SetMarkerStyle(20);
         data1D[i]->SetMarkerSize(0.5);
+        TString Ndata_str;
+        Ndata_str.Form("%i", (int)data1D[i]->Integral()); // TODO: float?
+        data1D[i]->SetTitle("Data (" + Ndata_str + ")");
         //data1D[i]->Draw("PEsames");
         data1D[i]->Draw("PEsame");
 
@@ -2530,6 +874,7 @@ void loadFiles()
         // TODO: should chisquare value include the constraints? because at
         // the moment it does not
 
+        // TODO: chi2 value is different from fit_2e code
         double prob = data1D[i]->Chi2TestX(hAllMC1D[i], chi2, ndf, igood, "UW");
         // TODO: check if I can get fcn value from the minuit fit object
         chi2_str.Form("%4.3f", chi2);
@@ -2547,6 +892,18 @@ void loadFiles()
         //c->SaveAs("finalHisto1D_" + i_str + ".png");
     
     }
+
+
+    if(saveas_filename.size() > 0)
+    {
+        c->SaveAs(saveas_filename.c_str());
+    }
+
+}
+
+
+void draw_covariance_matrix(const double * const CovMatrix, const int number_free_params)
+{
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -2584,10 +941,6 @@ void loadFiles()
             Double_t CovMatrix_j_j = CovMatrix[j * number_free_params + j];
 
             Double_t value = CovMatrix_i_j / (std::sqrt(CovMatrix_i_i) * std::sqrt(CovMatrix_j_j));
-            if(i == 11 || j == 11) // TODO: find Mo100 K40 zero events problem
-            {
-                std::cout << "value=" << value << std::endl;
-            }
             //hCorrMatrix->Fill(free_params_names.at(i), free_params_names.at(j), value);
             //hCorrMatrix->Fill(i, j, value);
             
@@ -2695,6 +1048,12 @@ void loadFiles()
 
     // TODO: save plots
 
+}
+
+
+void untitledfunction()
+{
+
     ///////////////////////////////////////////////////////////////////////////
     // draw results - 2d
     ///////////////////////////////////////////////////////////////////////////
@@ -2780,7 +1139,7 @@ void loadFiles()
 // book1DHistograms
 ///////////////////////////////////////////////////////////////////////////////
 
-void book1DHistograms_helper(Int_t channel_counter, TString theChannel, TString thePhase_arg, TString theHistogram,
+void book1DHistograms_helper(TFile *myFile, Int_t channel_counter, TString theChannel, TString thePhase_arg, TString theHistogram,
     const int nBkgs, TString *BkgFiles)//, TH1F *tmpHist)
 {
         
@@ -2805,9 +1164,22 @@ void book1DHistograms_helper(Int_t channel_counter, TString theChannel, TString 
             {
                 // check if param number is enabled
 
-                std::cout << "parameter number " << param_number << " is enabled" << std::endl;
-                std::string name(theHistogram + BkgFiles[i] + "_fit");
-                if(gDirectory->GetListOfKeys()->Contains(theHistogram + BkgFiles[i] + "_fit"))
+                std::string directory("scaled/hTotalE_/");
+                std::string name(theHistogram + BkgFiles[i] + "_fit_scaled");
+                std::string fullname = directory + name;
+                std::string new_name(theHistogram + BkgFiles[i] + "_fit");
+                std::cout << "fullname=" << fullname << std::endl;
+
+                //gDirectory->GetListOfKeys();
+
+                //tmpHist = (TH1F*)gDirectory->Get(fullname.c_str())->Clone();
+                tmpHist = (TH1F*)myFile->Get(fullname.c_str())->Clone(new_name.c_str());
+
+                if(tmpHist != nullptr)
+                //if(gDirectory->GetListOfKeys()->Contains(fullname.c_str()))
+                //std::cout << "parameter number " << param_number << " is enabled" << std::endl;
+                //std::string name(theHistogram + BkgFiles[i] + "_fit");
+                //if(gDirectory->GetListOfKeys()->Contains(name.c_str()))
                 {
                     // load sample
 
@@ -2816,7 +1188,7 @@ void book1DHistograms_helper(Int_t channel_counter, TString theChannel, TString 
                     //std::string hist_name(BkgFiles[i] + "_" + theChannel + thePhase_arg);
                     //std::cout << "Get() : " << name << " from file, Clone() : " << hist_name << std::endl;
                     //tmpHist = (TH1F*)gDirectory->Get(name.c_str())->Clone(hist_name.c_str());
-                    tmpHist = (TH1F*)gDirectory->Get(name.c_str())->Clone();
+                    //tmpHist = (TH1F*)gDirectory->Get(fullname.c_str())->Clone();
 
                     // scale by activity
 
@@ -2899,7 +1271,7 @@ void book1DHistograms_helper(Int_t channel_counter, TString theChannel, TString 
                 }
                 else
                 {
-                    std::cout << "gDirectory->GetListOfKeys() does not contain " << name << " - disabling parameter number " << param_number << std::endl;
+                    std::cout << "gDirectory->GetListOfKeys() does not contain " << fullname << " - disabling parameter number " << param_number << std::endl;
                     // cannot find histogram input data, so disable parameter
                     std::remove(enabled_params.begin(), enabled_params.end(), param_number);
                 }
@@ -2946,7 +1318,8 @@ void book1DHistograms(Int_t channel_counter, TString theChannel, TString thePhas
 
     //TH1F *tmpHist = nullptr; //new TH1F("tmpHist_" + theChannel + thePhase_arg, "" , 1, 0, 1);
     
-    book1DHistograms_helper(channel_counter, theChannel,
+    std::cout << "External" << std::endl;
+    book1DHistograms_helper(aFile, channel_counter, theChannel,
                             thePhase_arg, theHistogram,
                             nExternalBkgs,
                             ExternalBkgFiles);//,
@@ -2955,35 +1328,35 @@ void book1DHistograms(Int_t channel_counter, TString theChannel, TString thePhas
     // TODO: does this work as expected for secular equlibrium samples?
 
     std::cout << "Internal" << std::endl;
-    book1DHistograms_helper(channel_counter, theChannel,
+    book1DHistograms_helper(aFile, channel_counter, theChannel,
                             thePhase_arg, theHistogram,
                             nInternalBkgs,
                             InternalBkgFiles);//,
                             //tmpHist);
 
     std::cout << "Rn 222" << std::endl;
-    book1DHistograms_helper(channel_counter, theChannel,
+    book1DHistograms_helper(aFile, channel_counter, theChannel,
                             thePhase_arg, theHistogram,
                             nRn222Bkgs,
                             Rn222BkgFiles);//,
                             //tmpHist);
 
     std::cout << "Rn 220" << std::endl;
-    book1DHistograms_helper(channel_counter, theChannel,
+    book1DHistograms_helper(aFile, channel_counter, theChannel,
                             thePhase_arg, theHistogram,
                             nRn220Bkgs,
                             Rn220BkgFiles);//,
                             //tmpHist);
 
     std::cout << "Neighbour" << std::endl;
-    book1DHistograms_helper(channel_counter, theChannel,
+    book1DHistograms_helper(aFile, channel_counter, theChannel,
                             thePhase_arg, theHistogram,
                             nNeighbours,
                             NeighbourFiles);//,
                             //tmpHist);
 
     std::cout << "Nd150" << std::endl;
-    book1DHistograms_helper(channel_counter, theChannel,
+    book1DHistograms_helper(aFile, channel_counter, theChannel,
                             thePhase_arg, theHistogram,
                             nNd150Samples,
                             Nd150Files);//,
@@ -2992,20 +1365,26 @@ void book1DHistograms(Int_t channel_counter, TString theChannel, TString thePhas
     // TODO here
     // what is name in other section of code
     //std::string name(theHistogram + "data_2e");
-    std::string name(theHistogram + "data");
-    if(gDirectory->GetListOfKeys()->Contains(name.c_str()))
+    std::string directory("processeddata/hTotalE_/");
+    std::string name(theHistogram + "data_2e");
+    std::string fullname = directory + name;
+    std::cout << "fullname=" << fullname << std::endl;
+    //if(gDirectory->GetListOfKeys()->Contains(fullname.c_str()))
+    //TH1F *tmpHist = (TH1F*)gDirectory->Get(fullname.c_str())->Clone();
+    TH1F *tmpHist = (TH1F*)aFile->Get(fullname.c_str())->Clone();
+    if(tmpHist != nullptr)
     {
-        TH1F *tmpHist = nullptr;
+        //TH1F *tmpHist = nullptr;
         // 2020-04-03: removed changing of histogram name
         //std::string hist_name("data_" + theChannel + thePhase_arg);
         //std::cout << "Get() : " << name << " from file, Clone() : " << hist_name << std::endl;
         //tmpHist = (TH1F*)gDirectory->Get(name.c_str())->Clone(hist_name.c_str());
-        tmpHist = (TH1F*)gDirectory->Get(name.c_str())->Clone();
+        //tmpHist = (TH1F*)gDirectory->Get(fullname.c_str())->Clone();
         allDataSamples1D->Add((TH1F*)tmpHist);
     }
     else
     {
-        std::cout << "gDirectory->GetListOfKeys() does not contain " << name << std::endl;
+        std::cout << "gDirectory->GetListOfKeys() does not contain " << fullname << std::endl;
     }
     /*
     if(gDirectory->GetListOfKeys()->Contains(theHistogram + "Data"))
@@ -3113,7 +1492,8 @@ void book2DHistograms(Int_t channel_counter, TString theChannel, TString thePhas
 // fitBackgrounds
 ///////////////////////////////////////////////////////////////////////////////
 
-void fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&CovMatrix, int& number_free_params, Int_t thePhase)
+//void fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&CovMatrix, int& number_free_params, Int_t thePhase)
+TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&CovMatrix, int& number_free_params, Int_t thePhase)
 {
 
     
@@ -3292,7 +1672,14 @@ void fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&CovMatr
             
             //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_FIXED", param_init_value, param_init_error);
             // TODO: change such that samples are pre-scaled by activity input value
-            minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_FIXED", 1.0, 0.5, 0.0, 50.0);
+            if(i == 1)
+            {
+                minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_FIXED", AdjustActs[i], 0.5, 0.0, 50.0);
+            }
+            else
+            {
+                minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_FIXED", 1.0, 0.5, 0.0, 50.0);
+            }
             minuit->FixParameter(minuit_param_number);
         }
         else
@@ -3460,6 +1847,13 @@ void fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&CovMatr
 
     // mnsimp()?
 
+    
+    // MARKER
+    // disable the 150 Nd gA parameter
+    //minuit->FixParameter(1);
+
+
+
 
     //minuit->SetMaxIterations(50000);
     minuit->SetMaxIterations(1000);
@@ -3469,6 +1863,8 @@ void fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&CovMatr
     //minuit->mnsimp();
     std::cout << "calling: minuit->Migrad()" << std::endl;
     minuit->Migrad();
+    // don't bother calling Migrad() for now
+    // TODO
     //minuit->ExecuteCommand("SIMPLEX",arglist,2);
 
     // Then get results
@@ -3479,7 +1875,8 @@ void fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&CovMatr
         //AdjustActs_Err[i] = minuit->GetParError(i);
     }
 
-    
+   
+#if 0
     ///////////////////////////////////////////////////////////////////////////
     // testing
     
@@ -3522,6 +1919,7 @@ void fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&CovMatr
     std::ofstream ofstream_testvalue("testvalue.txt");
     for(int ix = 0; ix < n_tests; ++ ix)
     {
+
         test_values[ix] = test_start + test_step * ix;
 
         // get chisquare value for test
@@ -3530,6 +1928,8 @@ void fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&CovMatr
         // set parameter for 100Mo
         double test_value = test_values[ix];
         params[mo100_99_rot_2n2b_m14_index] = test_value;
+
+        std::cout << "test: ix=" << ix << ", " << "test_value=" << test_value << std::endl;
 
         logLikelihood(n_params, nullptr, fval, params, 0);
 
@@ -3545,7 +1945,8 @@ void fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&CovMatr
     
 
     ///////////////////////////////////////////////////////////////////////////
-    
+#endif
+
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -3798,6 +2199,7 @@ void fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&CovMatr
     minuit->mnemat(CovMatrix, number_free_params);
 
   
+    return minuit;
 
 }
 
@@ -3811,7 +2213,12 @@ void fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&CovMatr
 // TODO don't appear to work with parameters with more than one MC
 void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p, Int_t /*iflag */)
 {
+
+    std::cout << std::scientific;
+    std::cout << "start of logLike.... psiN0=" << psiN0 << std::endl;
+
     std::cout << "logLikelihood" << std::endl;
+    std::cout << "p[0]=" << p[0] << " p[1]=" << p[1] << std::endl;
 
 
     // TODO: rebuild nd150 xi_31 paramter histogram here
@@ -3824,7 +2231,9 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
 
         int channel = i;
 
-        std::cout << "there are " << allMCSamples1D[channel]->GetEntries() << " objects" << std::endl;
+        TH1F *h_before_reweight = nullptr;
+
+        //std::cout << "there are " << allMCSamples1D[channel]->GetEntries() << " objects" << std::endl;
         // new code to reweight 150Nd by xi_{31} parameter
         for(int i = 0; i < allMCSamples1D[channel]->GetEntries(); ++ i)
         {
@@ -3859,7 +2268,9 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
                 //h_nEqNull->Draw();
                 //std::cin.get();
 
-                reweight_apply(tmpHist_reweight, "/mnt/ramdisknd150/Nd150_2eNg_output_truth_postprocessed.root", xi_31, xi_31_baseline, h_nEqNull, h_nEqTwo, psiN0, psiN2, bb_Q);
+                //reweight_apply(tmpHist_reweight, "/mnt/ramdisknd150/Nd150_2eNg_output_truth_postprocessed.root", xi_31, xi_31_baseline, h_nEqNull, h_nEqTwo, psiN0, psiN2, bb_Q);
+                // line below disabled
+                //reweight_apply(tmpHist_reweight, "Nd150_2eNg_output_truth_postprocessed.root", xi_31, xi_31_baseline, h_nEqNull, h_nEqTwo, psiN0, psiN2, bb_Q);
                 // TODO: after reweight function called, replace 150nd MC
                 // in containers, or add a _reweight version to containers
 
@@ -3868,11 +2279,31 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
 
                 //std::cin.get();
                 //std::cout << "removing i=" << i << std::endl;
-                allMCSamples1D[channel]->RemoveAt(i);
+                //allMCSamples1D[channel]->RemoveAt(i);
                 //std::cout << "now there are " << allMCSamples1D[channel]->GetEntries() << " objects" << std::endl;
-                allMCSamples1D[channel]->Add(tmpHist_reweight);
+                //allMCSamples1D[channel]->Add(tmpHist_reweight);
                 //std::cout << "and now there are " << allMCSamples1D[channel]->GetEntries() << " objects" << std::endl;
                 //allMCSamples1D[i] = tmpHist_reweight;
+
+                //h_before_reweight = (TH1F*)tmpHist->Clone("h_before");
+
+                //std::cout << "tmpHist->GetName() -> " << tmpHist->GetName() << std::endl;
+                std::cout << "calling reweight_apply psiN0=" << psiN0 << " psiN2=" << psiN2 << std::endl;
+                reweight_apply(tmpHist_reweight, "Nd150_2eNg_output_truth_postprocessed.root", xi_31, xi_31_baseline, h_nEqNull, h_nEqTwo, psiN0, psiN2, bb_Q);
+                allMCSamples1D[channel]->RemoveAt(i);
+                allMCSamples1D[channel]->Add(tmpHist_reweight);
+
+                /*
+                for(int i{1}; i < h_before_reweight->GetNbinsX(); ++ i)
+                {
+                    Double_t bin1 = h_before_reweight->GetBinContent(i);
+                    Double_t bin2 = tmpHist_reweight->GetBinContent(i);
+                    if(std::abs(bin1 - bin2) > 1.0e-2)
+                    {
+                        std::cout << "bin1=" << bin1 << " bin2=" << bin2 << std::endl;
+                    }
+                }
+                */
 
             }
             else

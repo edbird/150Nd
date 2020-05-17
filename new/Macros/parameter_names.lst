@@ -86,8 +86,9 @@ BREAK
 # TODO: check these
 #0	enabled     3.65e-04   	6.0e-06     same        same        none        none        none        none        free    free    nd150_rot_2n2b_m4               END
 #0	enabled     4.10996e-04 6.19840e-06 same        same        none        none        none        none        free    free    nd150_rot_2n2b_m4               END
+#0	enabled     3.45e-04    3.45e-05    same        same        none        none        none        none        free    free    nd150_rot_2n2b_m4               END # 470215
 0	enabled     3.45e-04    3.45e-05    same        same        none        none        none        none        free    free    nd150_rot_2n2b_m4               END # 470215
-1   enabled     0.368       0.1         same        same        none        none        none        none        free    free    axial_vector_parameter_0        END
+1   enabled     0.368       0.1         same        same        none        none        none        none        hard    hard    axial_vector_parameter_0        END
 #0	enabled     1.459       0.1         same        same        none        none        none        none        hard    hard    nd150_rot_2n2b_m4               END
 BREAK
 # TODO: bug: line with whitespace crashes
@@ -122,7 +123,6 @@ BREAK
 BREAK
 BREAK
 # MC is not split corrently TODO
-# TODO: make soft after initial debug run
 # TODO what numbers here - disabled?
 22  enabled     1.0e-3      0.6e-3      same        same        useinit     useinit     same        same        hard    hard    bi214_sfoil     pb214_sfoil	    END # 271, 23
 BREAK

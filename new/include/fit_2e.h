@@ -86,7 +86,8 @@ double AcceptedTime[3];
         #if MODE_AT_HOME_RAMDISK
             TString filePath = "/mnt/ramdisknd150/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2e/";
         #else
-            TString filePath = "/media/ecb/Maxtor/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2e/";
+            //TString filePath = "/media/ecb/Maxtor/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2e/";
+            TString filePath = "/media/ecb/backup/users/ecb/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2e/";
         #endif
     #else
         TString filePath = "/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2e/";
@@ -102,7 +103,8 @@ double AcceptedTime[3];
         #if MODE_AT_HOME_RAMDISK
             TString filePath = "/mnt/ramdisknd150/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2eNg_29Sep2015/";
         #else
-            TString filePath = "/media/ecb/Maxtor/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2eNg_29Sep2015/";
+            //TString filePath = "/media/ecb/Maxtor/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2eNg_29Sep2015/";
+            TString filePath = "/media/ecb/backup/users/ecb/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2eNg_29Sep2015/";
         #endif
     #else
         TString filePath = "/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2eNg_29Sep2015/";
@@ -289,64 +291,64 @@ TString histogramNames[numHistograms] = {
 
 Int_t histogramDrawFlag[numHistograms] =
 {
-    1,    // hRun_
+    0,    // hRun_
     0,    // hNElectrons_
     1,    // hTotalE_
-    1,    // hEeMax_
-    1,    // hElectronLengthMax_
+    0,    // hEeMax_
+    0,    // hElectronLengthMax_
 
-    1,    // hVertexZMax_
-    1,    // hVertexSectorMax_
-    1,    // hVertexRMax_
-    1,    // hElectronFirstGgMax_
-    1,    // hElectronLastGgMax_
+    0,    // hVertexZMax_
+    0,    // hVertexSectorMax_
+    0,    // hVertexRMax_
+    0,    // hElectronFirstGgMax_
+    0,    // hElectronLastGgMax_
 
-    1,//1,    // hVertexMinDistPromptGgMax_
-    1,    // hElectronLDCorrMax_
-    1,    // hEeMin_
-    1,    // hElectronLengthMin_
-    1,    // hVertexZMin_
+    0,//1,    // hVertexMinDistPromptGgMax_
+    0,    // hElectronLDCorrMax_
+    0,    // hEeMin_
+    0,    // hElectronLengthMin_
+    0,    // hVertexZMin_
 
-    1,    // hVertexSectorMin_
-    1,    // hVertexRMin_
-    1,    // hElectronFirstGgMin_
-    1,    // hElectronLastGgMin_
-    1,//1,    // hVertexMinDistPromptGgMin_
+    0,    // hVertexSectorMin_
+    0,    // hVertexRMin_
+    0,    // hElectronFirstGgMin_
+    0,    // hElectronLastGgMin_
+    0,//1,    // hVertexMinDistPromptGgMin_
 
-    1,    // hElectronLDCorrMin_
-    1,    // hNLowEGammas_
-    1,    // hLowEGammaEnergy_
-    1,    // hSummedLowEGammaE_
-    1,//1,    // hLowEMinDistPromptGg_
+    0,    // hElectronLDCorrMin_
+    0,    // hNLowEGammas_
+    0,    // hLowEGammaEnergy_
+    0,    // hSummedLowEGammaE_
+    0,//1,    // hLowEMinDistPromptGg_
 
-    1,    // hInternalPullee_
-    1,    // hInternalProbee_
-    1,    // hExternalPullee_
-    1,    // hExternalProbee_
+    0,    // hInternalPullee_
+    0,    // hInternalProbee_
+    0,    // hExternalPullee_
+    0,    // hExternalProbee_
     0,    // hCosee_
 
     0,    // hCoseeWeighted_
-    1,//1,    // hVertexDZ_
-    1,//1,    // hVertexDR_
-    1,//1,    // hVertexDRPhi_
-    1,//1,    // hNAPromptGgHits_
+    0,//1,    // hVertexDZ_
+    0,//1,    // hVertexDR_
+    0,//1,    // hVertexDRPhi_
+    0,//1,    // hNAPromptGgHits_
 
     1,    // hNAfterCuts_
     0,    // hVertexZSecMax_
     0,    // hVertexZSecMin_
     0,    // hEeMaxVEeMin_
-    1,//1    // hNAPromptGgHitsDist2VertexMin_
+    0,//1    // hNAPromptGgHitsDist2VertexMin_
 
     0,    //hTrackSignMax_
     0,    //hTrackSignMin_
-    1,      // hnGammaClusters_
-    1,      // hnInCluster_
-    1,      // hclusterHitEnergy_
+    0,      // hnGammaClusters_
+    0,      // hnInCluster_
+    0,      // hclusterHitEnergy_
 
-    1,      // hclusterHitEnergyMin_
-    1,      // hclusterHitEnergyMax_
-    1,      // hnLowEnergyHits_
-    1       // hClusterEnergy_
+    0,      // hclusterHitEnergyMin_
+    0,      // hclusterHitEnergyMax_
+    0,      // hnLowEnergyHits_
+    0       // hClusterEnergy_
 };
 
 // draw raw data histograms as well?
@@ -354,8 +356,9 @@ Int_t histogramDrawFlag_rawdata = 1;
 
 
 // map for data structure for raw data
-std::map<TString, TH1*> histogramPointers_rawdata;
+//std::map<TString, TH1*> histogramPointers_rawdata;
 // map for data structure for processed data
-std::map<TString, TH1*> histogramPointers;
+//std::map<TString, TH1*> histogramPointers;
+
 
 #endif
