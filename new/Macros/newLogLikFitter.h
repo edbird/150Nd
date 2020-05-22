@@ -55,9 +55,11 @@ double psiN0;
 double psiN2;
 double bb_Q;
 
+double last_xi_31_parameter_value;
+
 // TODO: set numberParams dynamically
 // using input file
-static const int numberParams = 37;
+static const int numberParams = 40;
 static int numberEnabledParams = 0;
 int minuitParamNumberCounter;
 // 2 options here - either add 1 to the number of params

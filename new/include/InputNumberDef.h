@@ -1,7 +1,8 @@
 #ifndef INPUTNUMBERDEF_H
 #define INPUTNUMBERDEF_H
 
-static const int nRn222Bkgs = 11;
+static const int nRn222BkgsInput = 11;
+static const int nRn222Bkgs = 11+6;
 static const int nRn220Bkgs = 1;
 static const int nExternalBkgs = 12;
 static const int nInternalBkgs = 10;

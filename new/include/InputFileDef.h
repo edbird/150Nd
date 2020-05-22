@@ -11,7 +11,7 @@
 
 // this is radon, internal and external
 // 214Bi, 214Pb and 210Bi events
-TString Rn222BkgFiles[nRn222Bkgs] =
+TString Rn222BkgFilesInput[nRn222BkgsInput] =
 {
 "bi214_air",
 "pb214_air",
@@ -50,6 +50,46 @@ static const int nRn222Bkgs = 9;
 TString Rn222BkgFiles[nRn222Bkgs] = {"pb214_air","bi214_sfoil","pb214_sfoil","bi210_sfoil","bi210_sscin","bi214_swire","pb214_swire","bi214_mylar","pb214_mylar"};
 TString Rn222BkgNames[nRn222Bkgs] = {"^{214}Pb air","^{214}Bi sfoil","^{214}Pb sfoil","^{210}Bi sfoil","^{210}Bi sscin","^{214}Bi swire","^{214}Pb swire","bi214_mylar","pb214_mylar"};
 */
+
+
+TString Rn222BkgFilesNew[nRn222Bkgs] =
+{
+"bi214_air",
+"pb214_air",
+
+// bad - needs to be split into In/Out
+"bi214_sfoil_IN",
+"bi214_sfoil_OUT",
+"pb214_sfoil_IN",
+"pb214_sfoil_OUT",
+
+//0 events disabled "bi210_sfoil",
+"bi210_sfoil",
+
+"bi214_swire_INL0",
+"bi214_swire_OUTL0",
+"bi214_swire_Lg0",
+"pb214_swire_INL0",
+"pb214_swire_OUTL0",
+"pb214_swire_Lg0",
+
+//5 events disabled "bi210_swire",
+"bi210_swire",
+
+//0 events disabled "bi214_sscin",
+//0 events disabled "pb214_sscin",
+//0 events disabled "bi210_sscin",
+"bi210_sscin",
+
+"bi214_mylar",
+"pb214_mylar"//,
+
+//"pa234m_sscin"
+
+//4 events disabled "bi214_air",
+//0 events disabled "pb214_air"
+};
+
 
 
 // radon, internal and external, Tl208 related (thoron decays)

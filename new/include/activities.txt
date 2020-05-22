@@ -32,20 +32,15 @@ ca48_63_rot_pa234m      0.3e-3      0.3e-3
 ca48_63_rot_bi214       0.08e-3     0.08e-3
 ca48_63_rot_k40         0.          0.
 
-bi214_sfoil_rot         8.5e-3      1.8e-3
-bi214_sfoil             8.5e-3	    1.8e-3
-pb214_sfoil	            8.5e-3	    1.8e-3
-bi214_sfoil_In	        8.5e-3      1.4e-3
-pb214_sfoil_In	        8.5e-3      1.4e-3
-bi214_sfoil_Out	        5.3e-3      1.8e-3
-pb214_sfoil_Out	        5.3e-3      1.8e-3
+bi214_sfoil_IN	        8.5e-3      1.4e-3
+pb214_sfoil_IN	        8.5e-3      1.4e-3
+bi214_sfoil_OUT	        5.3e-3      1.8e-3
+pb214_sfoil_OUT	        5.3e-3      1.8e-3
 
-bi214_swire             857.5e-3    101.3e-3
-pb214_swire             857.5e-3    101.3e-3
-bi214_swire_InL0	    15.3e-3     1.2e-3
-pb214_swire_InL0	    15.3e-3     1.2e-3
-bi214_swire_OutL0	    29.9e-3     0.4e-3
-pb214_swire_OutL0	    29.9e-3     0.4e-3
+bi214_swire_INL0	    15.3e-3     1.2e-3
+pb214_swire_INL0	    15.3e-3     1.2e-3
+bi214_swire_OUTL0	    29.9e-3     0.4e-3
+pb214_swire_OUTL0	    29.9e-3     0.4e-3
 bi214_swire_Lg0	        857.5e-3	101.3e-3
 pb214_swire_Lg0	        857.5e-3	101.3e-3
 

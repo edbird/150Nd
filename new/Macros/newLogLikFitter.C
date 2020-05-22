@@ -187,7 +187,7 @@ Double_t getNumberMC2D(Int_t channel, Int_t binx, Int_t biny, Double_t *p);
 TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double*& CovMatrix, int& number_free_params, Int_t thePhase);
 
 void draw(const Double_t *const AdjustActs, const Double_t *const AdjustActs_Err, const std::string& saveas_filename = "");
-void draw_covariance_matrix(const double * const CovMatrix, const int number_free_params);
+void draw_covariance_matrix(const double * const CovMatrix, const int number_free_params, const std::string& saveas_filename);
 
 
 
@@ -371,7 +371,7 @@ void loadFiles()
     TMinuit *minuit = fitBackgrounds(AdjustActs, AdjustActs_Err, CovMatrix, number_free_params, thePhase);
 
 
-    #if 1
+    #if 0
     ///////////////////////////////////////////////////////////////////////////
     // testing
     
@@ -578,8 +578,8 @@ void loadFiles()
     }
 
 
-    draw(AdjustActs, AdjustActs_Err, "");
-    draw_covariance_matrix(CovMatrix, number_free_params);
+    draw(AdjustActs, AdjustActs_Err, "hTotalE.*");
+    draw_covariance_matrix(CovMatrix, number_free_params, "cov_matrix.*");
 
 
 }
@@ -595,6 +595,28 @@ void draw(const Double_t *const AdjustActs, const Double_t *const AdjustActs_Err
 
 
     THStack *stacks1D[number1DHists];
+    //THStack *stacks1D_2nubb[number1DHists];
+    //THStack *stacks1D_tl208_int[number1DHists];
+    //THStack *stacks1D_bi214_int[number1DHists];
+    //THStack *stacks1D_bi207_int[number1DHists];
+    //THStack *stacks1D_internal[number1DHists];
+    //THStack *stacks1D_external[number1DHists];
+    //THStack *stacks1D_radon[number1DHists];
+    //THStack *stacks1D_neighbours[number1DHists];
+    //THStack *stacks1D_other[number1DHists];
+
+
+    TH1F *h_2nubb[number1DHists] = { nullptr };
+    TH1F *h_tl208_int[number1DHists] = { nullptr };
+    TH1F *h_bi214_int[number1DHists] = { nullptr };
+    TH1F *h_bi207_int[number1DHists] = { nullptr };
+    TH1F *h_internal[number1DHists] = { nullptr };
+    TH1F *h_external[number1DHists] = { nullptr };
+    TH1F *h_radon[number1DHists] = { nullptr };
+    TH1F *h_neighbours[number1DHists] = { nullptr };
+    TH1F *h_other[number1DHists] = { nullptr };
+
+
     TCanvas *c;
     TH1F *hAllMC1D[number1DHists];
     TH1F *data1D[number1DHists];
@@ -624,6 +646,15 @@ void draw(const Double_t *const AdjustActs, const Double_t *const AdjustActs_Err
 
         
         stacks1D[i] = new THStack("stacks1D" + i_str, i_str);
+        //stacks1D_2nubb[i] = new THStack("stacks1D_2nubb" + i_str, i_str);
+        //stacks1D_tl208_int[i] = new THStack("stacks1D_tl208_int" + i_str, i_str);
+        //stacks1D_bi214_int[i] = new THStack("stacks1D_bi214_int" + i_str, i_str);
+        //stacks1D_bi207_int[i] = new THStack("stacks1D_bi207_int" + i_str, i_str);
+        //stacks1D_internal[i] = new THStack("stacks1D_internal" + i_str, i_str);
+        //stacks1D_external[i] = new THStack("stacks1D_external" + i_str, i_str);
+        //stacks1D_radon[i] = new THStack("stacks1D_radon" + i_str, i_str);
+        //stacks1D_neighbours[i] = new THStack("stacks1D_neighbours" + i_str, i_str);
+        //stacks1D_other[i] = new THStack("stacks1D_other" + i_str, i_str);
 
 
         TH1F *tmpHist_draw1D;
@@ -817,8 +848,147 @@ void draw(const Double_t *const AdjustActs, const Double_t *const AdjustActs_Err
                 if(tmpHist_draw1D->Integral() > 0)
                 //if(tmpHist_drawpointer->Integral() > 0)
                 {
-                    stacks1D[i]->Add(tmpHist_draw1D);
+                    stacks1D[i]->Add((TH1F*)tmpHist_draw1D->Clone());
                     //stacks1D[i]->Add(tmpHist_drawpointer);
+
+                    TString hname = tmpHist_draw1D->GetName();
+
+                    // 150 Nd
+                    if(hname.Contains("150"))
+                    {
+                        //stacks1D_2nubb[i]->Add((TH1F*)tmpHist_draw1D->Clone());
+                        if(h_2nubb[i] == nullptr)
+                        {
+                            h_2nubb[i] = (TH1F*)tmpHist_draw1D->Clone();
+                        }
+                        else
+                        {
+                            h_2nubb[i]->Add((TH1F*)tmpHist_draw1D->Clone());
+                        }
+                    }
+                    // tl208 internal
+                    else if(hname.Contains("tl208_int"))// ||
+                            //hname.Contains("ac228_int") ||
+                            //hname.Contains("bi212_int"))
+                    {
+                        //stacks1D_tl208_int[i]->Add((TH1F*)tmpHist_draw1D->Clone());
+                        if(h_tl208_int[i] == nullptr)
+                        {
+                            h_tl208_int[i] = (TH1F*)tmpHist_draw1D->Clone();
+                        }
+                        else
+                        {
+                            h_tl208_int[i]->Add((TH1F*)tmpHist_draw1D->Clone());
+                        }
+                    }
+                    // bi 214 internal
+                    else if(hname.Contains("bi214_int") ||
+                            hname.Contains("pb214_int")
+                            )
+                    {
+                        //stacks1D_bi214_int[i]->Add((TH1F*)tmpHist_draw1D->Clone());
+                        if(h_bi214_int[i] == nullptr)
+                        {
+                            h_bi214_int[i] = (TH1F*)tmpHist_draw1D->Clone();
+                        }
+                        else
+                        {
+                            h_bi214_int[i]->Add((TH1F*)tmpHist_draw1D->Clone());
+                        }
+                    }
+                    // bi 207 internal
+                    else if(hname.Contains("bi207_int"))
+                    {
+                        //stacks1D_bi207_int[i]->Add((TH1F*)tmpHist_draw1D->Clone());
+                        if(h_bi207_int[i] == nullptr)
+                        {
+                            h_bi207_int[i] = (TH1F*)tmpHist_draw1D->Clone();
+                        }
+                        else
+                        {
+                            h_bi207_int[i]->Add((TH1F*)tmpHist_draw1D->Clone());
+                        }
+                    }
+                    // internals (other)
+                    else if(hname.Contains("int"))
+                    {
+                        //stacks1D_internal[i]->Add((TH1F*)tmpHist_draw1D->Clone());
+                        if(h_internal[i] == nullptr)
+                        {
+                            h_internal[i] = (TH1F*)tmpHist_draw1D->Clone();
+                        }
+                        else
+                        {
+                            h_internal[i]->Add((TH1F*)tmpHist_draw1D->Clone());
+                        }
+                    }
+                    // neighbours
+                    else if(
+                        hname.Contains("mo100") ||
+                        hname.Contains("zr96") ||
+                        hname.Contains("ca48")
+                        )
+                    {
+                        //stacks1D_neighbours[i]->Add((TH1F*)tmpHist_draw1D->Clone());
+                        if(h_neighbours[i] == nullptr)
+                        {
+                            h_neighbours[i] = (TH1F*)tmpHist_draw1D->Clone();
+                        }
+                        else
+                        {
+                            h_neighbours[i]->Add((TH1F*)tmpHist_draw1D->Clone());
+                        }
+                    }
+                    // radon
+                    else if(
+                        hname.Contains("swire")
+                        )
+                    {
+                        //stacks1D_radon[i]->Add((TH1F*)tmpHist_draw1D->Clone());
+                        if(h_radon[i] == nullptr)
+                        {
+                            h_radon[i] = (TH1F*)tmpHist_draw1D->Clone();
+                        }
+                        else
+                        {
+                            h_radon[i]->Add((TH1F*)tmpHist_draw1D->Clone());
+                        }
+                    }
+                    // external
+                    else if(
+                        hname.Contains("feShield") ||
+                        hname.Contains("pmt") ||
+                        hname.Contains("cuTower") ||
+                        hname.Contains("sscin") ||
+                        hname.Contains("scint") ||
+                        hname.Contains("air")
+                        )
+                    {
+                        //stacks1D_external[i]->Add((TH1F*)tmpHist_draw1D->Clone());
+                        if(h_external[i] == nullptr)
+                        {
+                            h_external[i] = (TH1F*)tmpHist_draw1D->Clone();
+                        }
+                        else
+                        {
+                            h_external[i]->Add((TH1F*)tmpHist_draw1D->Clone());
+                        }
+                    }
+                    // everything else
+                    else
+                    {
+                        std::cout << "adding " << tmpHist_draw1D->GetName() << " to others TODO: FIX" << std::endl;
+                        //stacks1D_other[i]->Add((TH1F*)tmpHist_draw1D->Clone());
+                        if(h_other[i] == nullptr)
+                        {
+                            h_other[i] = (TH1F*)tmpHist_draw1D->Clone();
+                        }
+                        else
+                        {
+                            h_other[i]->Add((TH1F*)tmpHist_draw1D->Clone());
+                        }
+                    }
+                    
 
                     if(j == 0)
                     {
@@ -844,8 +1014,98 @@ void draw(const Double_t *const AdjustActs, const Double_t *const AdjustActs_Err
         }
 
 
-        stacks1D[i]->SetMaximum(350.);
-        stacks1D[i]->Draw("hist");
+        //stacks1D[i]->SetMaximum(350.);
+        //stacks1D[i]->Draw("hist");
+
+        //stacks1D_2nubb[i]->SetMaximum(350.0);
+        //stacks1D_2nubb[i]->Draw("hist");
+        //stacks1D_tl208_int[i]->Draw("histsame");
+        //stacks1D_bi214_int[i]->Draw("histsame");
+        //stacks1D_bi207_int[i]->Draw("histsame");
+        //stacks1D_internal[i]->Draw("histsame");
+        //stacks1D_external[i]->Draw("histsame");
+        //stacks1D_radon[i]->Draw("histsame");
+        //stacks1D_neighbours[i]->Draw("histsame");
+        //stacks1D_other[i]->Draw("histsame");
+
+std::cout << "before stacks major" << std::endl;
+
+        THStack *stacks1D_major[number1DHists];
+        stacks1D_major[i] = new THStack("stacks1D_major" + i_str, i_str);
+        if(h_external[i] != nullptr)
+        {
+            //h_external[i]->SetLineWidth(1);
+            //h_external[i]->SetLineColor(kBlack);
+            h_external[i]->SetFillColor(ExternalBkgColor);
+            h_external[i]->SetLineStyle(0);
+            h_external[i]->SetLineWidth(0);
+            stacks1D_major[i]->Add((TH1F*)h_external[i]);
+        }
+        if(h_radon[i] != nullptr)
+        {
+            //h_radon[i]->SetLineWidth(1);
+            //h_radon[i]->SetLineColor(kBlack);
+            h_radon[i]->SetFillColor(RadonBkgColor);
+            h_radon[i]->SetLineStyle(0);
+            h_radon[i]->SetLineWidth(0);
+            stacks1D_major[i]->Add((TH1F*)h_radon[i]);
+        }
+        if(h_neighbours[i] != nullptr)
+        {
+            h_neighbours[i]->SetFillColor(NeighbourColor);
+            h_neighbours[i]->SetLineStyle(0);
+            h_neighbours[i]->SetLineWidth(0);
+            stacks1D_major[i]->Add((TH1F*)h_neighbours[i]);
+        }
+        if(h_internal[i] != nullptr)
+        {
+            //h_internal[i]->SetLineWidth(1);
+            //h_internal[i]->SetLineColor(kBlack);
+            h_internal[i]->SetFillColor(InternalBkgColor);
+            h_internal[i]->SetLineStyle(0);
+            h_internal[i]->SetLineWidth(0);
+            stacks1D_major[i]->Add((TH1F*)h_internal[i]);
+        }
+        if(h_bi207_int[i] != nullptr)
+        {
+            h_bi207_int[i]->SetFillColor(bi207InternalBkgColor);
+            h_bi207_int[i]->SetLineStyle(0);
+            h_bi207_int[i]->SetLineWidth(0);
+            stacks1D_major[i]->Add((TH1F*)h_bi207_int[i]);
+        }
+        if(h_bi214_int[i] != nullptr)
+        {
+            h_bi214_int[i]->SetFillColor(bi214InternalBkgColor);
+            h_bi214_int[i]->SetLineStyle(0);
+            h_bi214_int[i]->SetLineWidth(0);
+            stacks1D_major[i]->Add((TH1F*)h_bi214_int[i]);
+        }
+        if(h_tl208_int[i] != nullptr)
+        {
+            h_tl208_int[i]->SetFillColor(tl208InternalBkgColor);
+            h_tl208_int[i]->SetLineStyle(0);
+            h_tl208_int[i]->SetLineWidth(0);
+            stacks1D_major[i]->Add((TH1F*)h_tl208_int[i]);
+        }
+        if(h_2nubb[i] != nullptr)
+        {
+            h_2nubb[i]->SetFillColor(Nd150Color);
+            h_2nubb[i]->SetLineStyle(0);
+            h_2nubb[i]->SetLineWidth(0);
+            stacks1D_major[i]->Add((TH1F*)h_2nubb[i]);
+        }
+        if(h_other[i] != nullptr)
+        {
+            h_other[i]->SetLineStyle(0);
+            h_other[i]->SetLineWidth(0);
+            stacks1D_major[i]->Add((TH1F*)h_other[i]);
+            std::cout << "h_other is non zero" << std::endl;
+        }
+        std::cout << "after stacks" << std::endl;
+
+        stacks1D_major[i]->SetMaximum(350.0);
+        stacks1D_major[i]->Draw("hist");
+
         hAllMC1D[i]->SetLineWidth(2);
         hAllMC1D[i]->SetLineColor(kBlack);
         hAllMC1D[i]->SetFillColor(kWhite);
@@ -858,7 +1118,7 @@ void draw(const Double_t *const AdjustActs, const Double_t *const AdjustActs_Err
         hAllMC1D[i]->Draw("hist same");
         data1D[i]->SetLineWidth(2);
         data1D[i]->SetMarkerStyle(20);
-        data1D[i]->SetMarkerSize(0.5);
+        data1D[i]->SetMarkerSize(1.0);
         TString Ndata_str;
         Ndata_str.Form("%i", (int)data1D[i]->Integral()); // TODO: float?
         data1D[i]->SetTitle("Data (" + Ndata_str + ")");
@@ -879,12 +1139,42 @@ void draw(const Double_t *const AdjustActs, const Double_t *const AdjustActs_Err
         // TODO: check if I can get fcn value from the minuit fit object
         chi2_str.Form("%4.3f", chi2);
         ndf_str.Form("%i", ndf);
+
+        #if 0
         TLegend *leg;
         leg = c->BuildLegend();
         leg->SetName("leg" + i_str + "_");
         leg->SetFillColor(kWhite);
         leg->AddEntry((TObject*)0, "#chi^{2}/ndf = " + chi2_str + "/" + ndf_str, "");
         leg->Draw();
+        #else
+        TLegend *leg = new TLegend(0.6, 0.88, 0.88, 0.3);
+        leg->AddEntry(data1D[i], "Data (" + Ndata_str + ")", "PE");
+        leg->AddEntry(hAllMC1D[i], "Total MC (" + Nmc_str + ")", "L");
+        leg->AddEntry(h_2nubb[i], "2#nu#beta#beta", "F");
+        leg->AddEntry(h_tl208_int[i], "^{208}Tl Int", "F");
+        leg->AddEntry(h_bi214_int[i], "^{214}Bi Int", "F");
+        leg->AddEntry(h_bi207_int[i], "^{207}Bi Int", "F");
+        leg->AddEntry(h_internal[i], "Internal", "F");
+        leg->AddEntry(h_neighbours[i], "Neighbour Foil", "F");
+        leg->AddEntry(h_radon[i], "Radon", "F");
+        leg->AddEntry(h_external[i], "External", "F");
+        //leg->AddEntry((TObject*)nullptr, "#chi^{2}/ndf=" + chi2_str + "/" + ndf_str, "");
+        //leg->AddEntry(h_other[i], "other", "f");
+        leg->SetBorderSize(0);
+        leg->SetFillColor(0);
+        leg->SetTextFont(62);
+        leg->SetTextSize(0.035);
+        leg->SetShadowColor(kBlack);
+        leg->Draw();
+        #endif
+
+        TLatex latexlabel;
+        latexlabel.SetNDC();
+        latexlabel.SetTextFont(62);
+        latexlabel.SetTextSize(0.035);
+        latexlabel.DrawLatex(0.63, 0.23, "#frac{#chi^{2}}{ndf} = #frac{" + chi2_str + "}{" + ndf_str + "}");
+
 
         //std::cout << "saving to file (canvas)" << std::endl;
         //c->SaveAs("finalHisto1D_" + i_str + ".C");
@@ -896,13 +1186,32 @@ void draw(const Double_t *const AdjustActs, const Double_t *const AdjustActs_Err
 
     if(saveas_filename.size() > 0)
     {
+        std::size_t length = saveas_filename.size();
+        if(length >= 2)
+        {
+            if(saveas_filename[length - 1] == '*' && saveas_filename[length = 2] == '.')
+            {
+                std::string base_name = saveas_filename.substr(0, length - 2);
+                std::vector<std::string> extensions;
+                extensions.push_back("C");
+                extensions.push_back("png");
+                extensions.push_back("eps");
+                extensions.push_back("pdf");
+                for(auto it{extensions.begin()}; it != extensions.end(); ++ it)
+                {
+                    std::string name = base_name + "." + *it;
+                    std::cout << "saving as " << name << std::endl;
+                    c->SaveAs(name.c_str());
+                }
+            }
+        }
         c->SaveAs(saveas_filename.c_str());
     }
 
 }
 
 
-void draw_covariance_matrix(const double * const CovMatrix, const int number_free_params)
+void draw_covariance_matrix(const double * const CovMatrix, const int number_free_params, const std::string& saveas_filename)
 {
 
 
@@ -1047,6 +1356,33 @@ void draw_covariance_matrix(const double * const CovMatrix, const int number_fre
     delete [] CovMatrix;
 
     // TODO: save plots
+
+    //if(saveas_filename.size() > 0)
+    //{
+    //    c2->SaveAs(saveas_filename.c_str());
+    //}
+    if(saveas_filename.size() > 0)
+    {
+        std::size_t length = saveas_filename.size();
+        if(length >= 2)
+        {
+            if(saveas_filename[length - 1] == '*' && saveas_filename[length = 2] == '.')
+            {
+                std::string base_name = saveas_filename.substr(0, length - 2);
+                std::vector<std::string> extensions;
+                extensions.push_back("C");
+                extensions.push_back("png");
+                extensions.push_back("eps");
+                extensions.push_back("pdf");
+                for(auto it{extensions.begin()}; it != extensions.end(); ++ it)
+                {
+                    std::string name = base_name + "." + *it;
+                    c2->SaveAs(name.c_str());
+                }
+            }
+        }
+        c2->SaveAs(saveas_filename.c_str());
+    }
 
 }
 
@@ -1338,7 +1674,8 @@ void book1DHistograms(Int_t channel_counter, TString theChannel, TString thePhas
     book1DHistograms_helper(aFile, channel_counter, theChannel,
                             thePhase_arg, theHistogram,
                             nRn222Bkgs,
-                            Rn222BkgFiles);//,
+                            //Rn222BkgFiles);//,
+                            Rn222BkgFilesNew);//,
                             //tmpHist);
 
     std::cout << "Rn 220" << std::endl;
@@ -1448,8 +1785,10 @@ void book2DHistograms(Int_t channel_counter, TString theChannel, TString thePhas
   }
 
   for ( int i = 0; i < nRn222Bkgs; i++ ) {
-    if ( gDirectory->GetListOfKeys()->Contains(theHistogram+Rn222BkgFiles[i]+"_fit") ) {//check if the histograms exists
-      tmpHist2 = (TH2F*)gDirectory->Get(theHistogram+Rn222BkgFiles[i]+"_fit")->Clone(Rn222BkgFiles[i]+"_"+theChannel+thePhase);
+    //if ( gDirectory->GetListOfKeys()->Contains(theHistogram+Rn222BkgFiles[i]+"_fit") ) {//check if the histograms exists
+    if ( gDirectory->GetListOfKeys()->Contains(theHistogram+Rn222BkgFilesNew[i]+"_fit") ) {//check if the histograms exists
+      //tmpHist2 = (TH2F*)gDirectory->Get(theHistogram+Rn222BkgFiles[i]+"_fit")->Clone(Rn222BkgFiles[i]+"_"+theChannel+thePhase);
+      tmpHist2 = (TH2F*)gDirectory->Get(theHistogram+Rn222BkgFilesNew[i]+"_fit")->Clone(Rn222BkgFilesNew[i]+"_"+theChannel+thePhase);
       allMCSamples2D[channel_counter]->Add(tmpHist2);
     }
   }
@@ -2221,107 +2560,114 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
     std::cout << "p[0]=" << p[0] << " p[1]=" << p[1] << std::endl;
 
 
-    // TODO: rebuild nd150 xi_31 paramter histogram here
-
-    // there are i samples for each channel
-    for(int i = 0; i < allDataSamples1D->GetEntries(); ++ i)
+    // TODO: will not work if parameter number changes
+    if(p[1] != last_xi_31_parameter_value)
     {
-        // note: I have really no idea how this is supposed to work
-        // with multiple data channels, i = 0 here, for one data channel
 
-        int channel = i;
+        // TODO: rebuild nd150 xi_31 paramter histogram here
 
-        TH1F *h_before_reweight = nullptr;
-
-        //std::cout << "there are " << allMCSamples1D[channel]->GetEntries() << " objects" << std::endl;
-        // new code to reweight 150Nd by xi_{31} parameter
-        for(int i = 0; i < allMCSamples1D[channel]->GetEntries(); ++ i)
+        // there are i samples for each channel
+        for(int i = 0; i < allDataSamples1D->GetEntries(); ++ i)
         {
-            TH1F *tmpHist = (TH1F*)allMCSamples1D[channel]->At(i);
-            TString tmpHist_name = tmpHist->GetName();
-            // TODO: had to add "_fit" here - might not work after 1 iteration
-            //if(tmpHist_name.CompareTo("hTotalE_nd150_rot_2n2b_m4_fit") == 0 ||
-            //   tmpHist_name.CompareTo("hTotalE_nd150_rot_2b2n_m4_fit") == 0)
-            if(tmpHist_name.Contains("nd150_rot_2n2b_m4") ||
-               tmpHist_name.Contains("nd150_rot_2b2n_m4"))
+            // note: I have really no idea how this is supposed to work
+            // with multiple data channels, i = 0 here, for one data channel
+
+            int channel = i;
+
+            TH1F *h_before_reweight = nullptr;
+
+            //std::cout << "there are " << allMCSamples1D[channel]->GetEntries() << " objects" << std::endl;
+            // new code to reweight 150Nd by xi_{31} parameter
+            for(int i = 0; i < allMCSamples1D[channel]->GetEntries(); ++ i)
             {
-                //std::cout << "found the 150Nd MC" << std::endl;
-                //std::cin.get();
-
-                // TODO: this is very slow, gets re-built for each bin_ix
-
-
-                //TH1F *tmpHist_draw1D_clone = nullptr;
-                TH1F *tmpHist_reweight = nullptr;
-                //reweight_apply(tmpHist_draw1D_clone, tmpHist_draw1D, ... );
-                const double xi_31{p[1]};
-                // TODO: this will not work if parameter number changes
-                std::cout << "xi_31=" << xi_31 << std::endl;
-                //const double xi_31{p[nPar-1]};
-                //std::cout << "check that nPar=" << nPar << "=29/28 ?" << std::endl;
-                // note: it isn't
-                const double xi_31_baseline{0.368}; // TODO: change to actual value and pass in as argument somehow
-                // fixed in parameter list file?
-
-                // some debug stuff
-                //TCanvas *ctmp = new TCanvas("ctmp", "ctmp");
-                //h_nEqNull->Draw();
-                //std::cin.get();
-
-                //reweight_apply(tmpHist_reweight, "/mnt/ramdisknd150/Nd150_2eNg_output_truth_postprocessed.root", xi_31, xi_31_baseline, h_nEqNull, h_nEqTwo, psiN0, psiN2, bb_Q);
-                // line below disabled
-                //reweight_apply(tmpHist_reweight, "Nd150_2eNg_output_truth_postprocessed.root", xi_31, xi_31_baseline, h_nEqNull, h_nEqTwo, psiN0, psiN2, bb_Q);
-                // TODO: after reweight function called, replace 150nd MC
-                // in containers, or add a _reweight version to containers
-
-                //std::cout << "name before: " << tmpHist->GetName() << std::endl;
-                //std::cout << "name after: " << tmpHist_reweight->GetName() << std::endl;
-
-                //std::cin.get();
-                //std::cout << "removing i=" << i << std::endl;
-                //allMCSamples1D[channel]->RemoveAt(i);
-                //std::cout << "now there are " << allMCSamples1D[channel]->GetEntries() << " objects" << std::endl;
-                //allMCSamples1D[channel]->Add(tmpHist_reweight);
-                //std::cout << "and now there are " << allMCSamples1D[channel]->GetEntries() << " objects" << std::endl;
-                //allMCSamples1D[i] = tmpHist_reweight;
-
-                //h_before_reweight = (TH1F*)tmpHist->Clone("h_before");
-
-                //std::cout << "tmpHist->GetName() -> " << tmpHist->GetName() << std::endl;
-                std::cout << "calling reweight_apply psiN0=" << psiN0 << " psiN2=" << psiN2 << std::endl;
-                reweight_apply(tmpHist_reweight, "Nd150_2eNg_output_truth_postprocessed.root", xi_31, xi_31_baseline, h_nEqNull, h_nEqTwo, psiN0, psiN2, bb_Q);
-                allMCSamples1D[channel]->RemoveAt(i);
-                allMCSamples1D[channel]->Add(tmpHist_reweight);
-
-                /*
-                for(int i{1}; i < h_before_reweight->GetNbinsX(); ++ i)
+                TH1F *tmpHist = (TH1F*)allMCSamples1D[channel]->At(i);
+                TString tmpHist_name = tmpHist->GetName();
+                // TODO: had to add "_fit" here - might not work after 1 iteration
+                //if(tmpHist_name.CompareTo("hTotalE_nd150_rot_2n2b_m4_fit") == 0 ||
+                //   tmpHist_name.CompareTo("hTotalE_nd150_rot_2b2n_m4_fit") == 0)
+                if(tmpHist_name.Contains("nd150_rot_2n2b_m4") ||
+                   tmpHist_name.Contains("nd150_rot_2b2n_m4"))
                 {
-                    Double_t bin1 = h_before_reweight->GetBinContent(i);
-                    Double_t bin2 = tmpHist_reweight->GetBinContent(i);
-                    if(std::abs(bin1 - bin2) > 1.0e-2)
+                    //std::cout << "found the 150Nd MC" << std::endl;
+                    //std::cin.get();
+
+                    // TODO: this is very slow, gets re-built for each bin_ix
+
+
+                    //TH1F *tmpHist_draw1D_clone = nullptr;
+                    TH1F *tmpHist_reweight = nullptr;
+                    //reweight_apply(tmpHist_draw1D_clone, tmpHist_draw1D, ... );
+                    const double xi_31{p[1]};
+                    // TODO: this will not work if parameter number changes
+                    std::cout << "xi_31=" << xi_31 << std::endl;
+                    //const double xi_31{p[nPar-1]};
+                    //std::cout << "check that nPar=" << nPar << "=29/28 ?" << std::endl;
+                    // note: it isn't
+                    const double xi_31_baseline{0.368}; // TODO: change to actual value and pass in as argument somehow
+                    // fixed in parameter list file?
+
+                    // some debug stuff
+                    //TCanvas *ctmp = new TCanvas("ctmp", "ctmp");
+                    //h_nEqNull->Draw();
+                    //std::cin.get();
+
+                    //reweight_apply(tmpHist_reweight, "/mnt/ramdisknd150/Nd150_2eNg_output_truth_postprocessed.root", xi_31, xi_31_baseline, h_nEqNull, h_nEqTwo, psiN0, psiN2, bb_Q);
+                    // line below disabled
+                    //reweight_apply(tmpHist_reweight, "Nd150_2eNg_output_truth_postprocessed.root", xi_31, xi_31_baseline, h_nEqNull, h_nEqTwo, psiN0, psiN2, bb_Q);
+                    // TODO: after reweight function called, replace 150nd MC
+                    // in containers, or add a _reweight version to containers
+
+                    //std::cout << "name before: " << tmpHist->GetName() << std::endl;
+                    //std::cout << "name after: " << tmpHist_reweight->GetName() << std::endl;
+
+                    //std::cin.get();
+                    //std::cout << "removing i=" << i << std::endl;
+                    //allMCSamples1D[channel]->RemoveAt(i);
+                    //std::cout << "now there are " << allMCSamples1D[channel]->GetEntries() << " objects" << std::endl;
+                    //allMCSamples1D[channel]->Add(tmpHist_reweight);
+                    //std::cout << "and now there are " << allMCSamples1D[channel]->GetEntries() << " objects" << std::endl;
+                    //allMCSamples1D[i] = tmpHist_reweight;
+
+                    //h_before_reweight = (TH1F*)tmpHist->Clone("h_before");
+
+                    //std::cout << "tmpHist->GetName() -> " << tmpHist->GetName() << std::endl;
+                    std::cout << "calling reweight_apply psiN0=" << psiN0 << " psiN2=" << psiN2 << std::endl;
+                    //reweight_apply(tmpHist_reweight, "Nd150_2eNg_output_truth_postprocessed.root", xi_31, xi_31_baseline, h_nEqNull, h_nEqTwo, psiN0, psiN2, bb_Q);
+                    reweight_apply(tmpHist_reweight, "Nd150_2eNg_output_truth_postprocessed_small.root", xi_31, xi_31_baseline, h_nEqNull, h_nEqTwo, psiN0, psiN2, bb_Q);
+                    allMCSamples1D[channel]->RemoveAt(i);
+                    allMCSamples1D[channel]->Add(tmpHist_reweight);
+
+                    /*
+                    for(int i{1}; i < h_before_reweight->GetNbinsX(); ++ i)
                     {
-                        std::cout << "bin1=" << bin1 << " bin2=" << bin2 << std::endl;
+                        Double_t bin1 = h_before_reweight->GetBinContent(i);
+                        Double_t bin2 = tmpHist_reweight->GetBinContent(i);
+                        if(std::abs(bin1 - bin2) > 1.0e-2)
+                        {
+                            std::cout << "bin1=" << bin1 << " bin2=" << bin2 << std::endl;
+                        }
                     }
+                    */
+
                 }
-                */
+                else
+                {
+                    //std::cout << "it is not " << tmpHist->GetName() << std::endl;
+                    //std::cin.get();
+                }
 
             }
-            else
-            {
-                //std::cout << "it is not " << tmpHist->GetName() << std::endl;
-                //std::cin.get();
-            }
-
         }
-   }
 
+        last_xi_31_parameter_value = p[1];
+        // TODO: will not work if parameter number changes
+    }
 
 
 
     // TODO: add check here to see if any disabled parameters are accessed
 
 
-    //std::cout << "ll" << std::endl;
 
     double loglik = 0.; 
     //double tmp;

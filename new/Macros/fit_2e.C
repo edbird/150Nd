@@ -29,6 +29,7 @@
 #include <string>
 #include "TLegend.h"
 #include <vector>
+#include <exception>
 
 #include "../include/fit_2e.h"
 
@@ -42,7 +43,7 @@
 //----------------------------------------
 void loadFiles();
 
-void makeHistograms(TString thePath, TString sampleName, std::ofstream &ofile_cutcount, const Int_t mode_flag);
+void makeHistograms(TString thePath, TString sampleName, std::ofstream &ofile_cutcount, const Int_t mode_flag, const uint64_t sample_split_flags = 0);
 //void  makeHistograms(TTree *tree, TString sampleName, Int_t isotope);
 void fitHistograms();
 void drawPlots(TH1F *data,TH1F *mc, THStack *hs);
@@ -72,6 +73,21 @@ void loadFiles()
     myFile->Close();
 
 
+    // map of flags, used for selecting events which are split by
+    // L0, L>0, IN, OUT
+    // 0 = default
+    // 1 = select IN events
+    // 2 = select OUT events
+    // 4 = select L0 IN events
+    // 8 = select L0 OUT events
+    // 16 = select L>0 (IN+OUT) events
+    std::map<std::string, uint64_t> sample_split_flags;
+    sample_split_flags["bi214_sfoil"] = (uint64_t)1 | (uint64_t)2;
+    sample_split_flags["pb214_sfoil"] = (uint64_t)1 | (uint64_t)2;
+    sample_split_flags["bi214_swire"] = (uint64_t)4 | (uint64_t)8 | (uint64_t)16;
+    sample_split_flags["pb214_swire"] = (uint64_t)4 | (uint64_t)8 | (uint64_t)16;
+
+
 
     // open and reset file for storing the number of events that pass cuts
     std::ofstream ofile_cutcount("cutcount.txt", std::ofstream::out | std::ofstream::trunc);
@@ -82,12 +98,14 @@ void loadFiles()
     // which is slow
     // instead, store results into a file
 
+
     // Read in all files and make the cuts you want.
     //First we will read in the data
     std::cout << ">>>>> Reading in data file...";
     makeHistograms("betabeta/", DataFile, ofile_cutcount, 0);
     makeHistograms("betabeta/", DataFile, ofile_cutcount, 1);
     std::cout << "... DONE." << std::endl;
+
 
     // Read in all the backgrounds: externals, Rn222, Rn220, internals and neighbouring foils
     std::cout << std::endl;
@@ -99,6 +117,7 @@ void loadFiles()
     }
     std::cout << "... DONE." << std::endl;
 
+
     std::cout << std::endl;
     std::cout << ">>>>> Reading in Rn220 backgrounds..." << std::endl;
     for(int i = 0; i < nRn220Bkgs; i++)
@@ -108,14 +127,75 @@ void loadFiles()
     }
     std::cout << "... DONE." << std::endl;
 
+
     std::cout << std::endl;
     std::cout << ">>>>> Reading in Rn222 backgrounds..." << std::endl;
-    for(int i = 0; i < nRn222Bkgs; i++)
+    for(int i = 0; i < nRn222BkgsInput; i++)
     {
-        makeHistograms("externals/", Rn222BkgFiles[i], ofile_cutcount, 0);
-        makeHistograms("externals/", Rn222BkgFiles[i], ofile_cutcount, 1);
+        TString sample_name = Rn222BkgFilesInput[i];
+        std::string std_string_sample_name = std::string(sample_name.Data());
+        if(sample_split_flags.count(std_string_sample_name) > 0)
+        {
+            //std::cout << "catch: flags: " << std_string_sample_name << std::endl;
+            //std::cin.get();
+
+            uint64_t flags = sample_split_flags.at(std_string_sample_name);
+            //std::cout << "flags=" << flags << std::endl;
+            int counter = 0;
+            //               |  ||  ||  ||  |
+            while(flags & (0xFFFFFFFFFFFFFFFF << counter))
+            {
+                //std::cout << "while" << std::endl;
+
+                //uint64_t flag_bit = flags & (uint64_t)0x01;
+                //                             |  ||  ||  ||  |
+                uint64_t flag_bit = flags & (0x0000000000000001 << counter);
+                //std::cout << "flag_bit=" << flag_bit << std::endl;
+                if(flag_bit)
+                {
+                    //uint64_t f = flag_bit >> counter;
+                    //std::cout << "calling makeHistograms with flag_bit=" << flag_bit << std::endl;
+                    //std::cin.get();
+                    makeHistograms("externals/", Rn222BkgFilesInput[i], ofile_cutcount, 0, flag_bit);
+                    makeHistograms("externals/", Rn222BkgFilesInput[i], ofile_cutcount, 1, flag_bit);
+                }
+
+                //flags_shift << 1;
+                ++ counter;
+
+                //std::cout << std::hex;
+                //std::cout << "0xFFFFFFFFFFFFFFFF << counter = " << (0xFFFFFFFFFFFFFFFF << counter) << " flags=" << flags << std::endl;
+                //std::cout << std::dec;
+            }
+        }
+        else
+        {
+            makeHistograms("externals/", Rn222BkgFilesInput[i], ofile_cutcount, 0);
+            makeHistograms("externals/", Rn222BkgFilesInput[i], ofile_cutcount, 1);
+        }
+
+    /*
+        if(sample_name == "bi214_sfoil" ||
+           sample_name == "pb214_sfoil")
+        {
+            makeHistograms("externals/", Rn222BkgFiles[i], ofile_cutcount, 0, sample_split_flags[sample_name]);
+            makeHistograms("externals/", Rn222BkgFiles[i], ofile_cutcount, 1, sample_split_flags[sample_name]);
+        }
+        else if(sample_name == "bi214_swire" ||
+                sample_name == "pb214_swire")
+        {
+            makeHistograms("externals/", Rn222BkgFiles[i], ofile_cutcount, 0, sample_split_flags[sample_name]);
+            makeHistograms("externals/", Rn222BkgFiles[i], ofile_cutcount, 1, sample_split_flags[sample_name]);
+        }
+        else
+        {
+            makeHistograms("externals/", Rn222BkgFiles[i], ofile_cutcount, 0);
+            makeHistograms("externals/", Rn222BkgFiles[i], ofile_cutcount, 1);
+        }
+    */
     }
     std::cout << "... DONE." << std::endl;
+
 
     std::cout << std::endl;
     std::cout << ">>>>> Reading in internal backgrounds..." << std::endl;
@@ -126,6 +206,7 @@ void loadFiles()
     }
     std::cout << "... DONE." << std::endl;
 
+
     std::cout << std::endl;
     std::cout << ">>>>> Reading in neighbouring foil backgrounds..." << std::endl;
     for(int i = 0; i < nNeighbours; i++)
@@ -135,6 +216,7 @@ void loadFiles()
     }
     std::cout << "... DONE." << std::endl;
 
+
     std::cout << std::endl;
     std::cout << ">>>>> Reading in Nd150 backgrounds..." << std::endl;
     for(int i = 0; i < nNd150Samples; i++)
@@ -143,6 +225,7 @@ void loadFiles()
         makeHistograms("nd150/", Nd150Files[i], ofile_cutcount, 1);
     }
     std::cout << "... DONE." << std::endl;
+
 
     ofile_cutcount.close();
 
@@ -158,7 +241,7 @@ void loadFiles()
 //                to hold histogram data, may wish to change behaviour
 //                depending on value of the flag such that the NAMES
 //                and pointers are always unique (surpress root warnings)
-void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cutcount, const Int_t mode_flag = 0)
+void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cutcount, const Int_t mode_flag = 0, const uint64_t sample_split_flags = 0)
 {
 
     // enable / disable additional cuts
@@ -180,46 +263,46 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
 
 
     //Declare the histograms.
-    TH1F* hRun;
+    TH1F* hRun; // 0
     TH1F* hNElectrons;
     TH1F* hTotalE;
     TH1F* hInternalPullee;
-    TH1F* hInternalProbee;
-    TH1F* hExternalPullee;
+    TH1F* hInternalProbee; 
+    TH1F* hExternalPullee; // 5
     TH1F* hExternalProbee;
     TH1F* hCosee;
     TH1F* hCoseeWeighted;
     TH1F* hVertexDZ;
-    TH1F* hVertexDR;
+    TH1F* hVertexDR; // 10
     TH1F* hVertexDRPhi;
     TH1F* hNAPromptGgHits;
 
     TH1F* hEeMax;
     TH1F* hElectronLengthMax;
-    TH1F* hVertexZMax;
+    TH1F* hVertexZMax; // 15
     TH1F* hVertexSectorMax;
     TH1F* hVertexRMax;
     TH1F* hElectronFirstGgMax;
     TH1F* hElectronLastGgMax;
-    TH1F* hVertexMinDistPromptGgMax;
+    TH1F* hVertexMinDistPromptGgMax; // 20
     TH1F* hElectronLDCorrMax;
     TH2F* hVertexZSecMax; // usefull really only for data.
 
     TH1F* hEeMin;
     TH1F* hElectronLengthMin;
-    TH1F* hVertexZMin;
+    TH1F* hVertexZMin; // 25
     TH1F* hVertexSectorMin;
     TH1F* hVertexRMin;
     TH1F* hElectronFirstGgMin;
     TH1F* hElectronLastGgMin;
-    TH1F* hVertexMinDistPromptGgMin;
+    TH1F* hVertexMinDistPromptGgMin; // 30
     TH1F* hElectronLDCorrMin;
     TH2F* hVertexZSecMin; // usefull really only for data.
 
     // TODO: obsolete, delete these
     TH1F* hNLowEGammas;
     TH1F* hLowEGammaEnergy;
-    TH1F* hSummedLowEGammaE;
+    TH1F* hSummedLowEGammaE; // 35
     TH1F *hLowEMinDistPromptGg;
 
     TH2F *hEeMaxVEeMin;
@@ -232,16 +315,21 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
     //
     //
     // missing items?
-    TH1F* hNAPromptGgHitsDist2VertexMin;
+    TH1F* hNAPromptGgHitsDist2VertexMin; // 40
     TH1F *hTrackSignMin;
     TH1F *hTrackSignMax;
     TH1F *hnGammaClusters;
     TH1F *hnInCluster;
-    TH1F *hclusterHitEnergy;
+    TH1F *hclusterHitEnergy; // 45
     TH1F *hclusterHitEnergyMin;
     TH1F *hclusterHitEnergyMax;
     TH1F *hnLowEnergyHits;
     TH1F *hclusterEnergy;
+
+    TH1F *hFoilSide;
+    TH1F *hTrueVertexR;
+    TH2F *hFoilSideTrueVertexR;
+    TH1F *hTrueVertexLayer;
 
     // NOTE: this idea (multuplying histograms) will not work because
     // we lose the information of which true energy values match which
@@ -253,222 +341,273 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
     //#endif
 
 
-    hRun                    = new TH1F("hRun_" + sampleName + name_append,
-                                       "Phase " + Phase + " " + sampleName + name_append + " runs; run numbers",
+    TString name_sample_split_additional = "";
+    if(sample_split_flags == 0x01)
+    {
+        // IN
+        std::cout << "sample_split_flags is 1" << std::endl;
+        name_sample_split_additional = "_IN";
+    }
+    else if(sample_split_flags == 0x02)
+    {
+        // OUT
+        std::cout << "sample_split_flags is 2" << std::endl;
+        name_sample_split_additional = "_OUT";
+    }
+    else if(sample_split_flags == 0x04)
+    {
+        // L0 IN
+        std::cout << "sample_split_flags is 4" << std::endl;
+        name_sample_split_additional = "_INL0";
+    }
+    else if(sample_split_flags == 0x08)
+    {
+        // L0 OUT
+        std::cout << "sample_split_flags is 8" << std::endl;
+        name_sample_split_additional = "_OUTL0";
+    }
+    else if(sample_split_flags == 0x10)
+    {
+        // L>0 IN+OUT
+        std::cout << "sample_split_flags is 16" << std::endl;
+        name_sample_split_additional = "_Lg0";
+    }
+
+    std::cout << "name_sample_split_additional=" << name_sample_split_additional << std::endl;
+
+    hRun                    = new TH1F("hRun_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " runs; run numbers",
                                        8000, 0, 10000); // 1000, 8000
 
-    hNElectrons             = new TH1F("hNElectrons_" + sampleName + name_append,
-                                       "Phase " + Phase + " " + sampleName + name_append + " N tracks; N tracks/event",
+    hNElectrons             = new TH1F("hNElectrons_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " N tracks; N tracks/event",
                                        20, -0.5, 19.5); // limits? all events are 2 for nd150
 
-    hNAPromptGgHits         = new TH1F("hNAPromptGgHits_" + sampleName + name_append,
-                                       "Phase " + Phase + " " + sampleName + name_append + " N unassoc. prompt gg hits; N unassoc prompt gg hits",
+    hNAPromptGgHits         = new TH1F("hNAPromptGgHits_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " N unassoc. prompt gg hits; N unassoc prompt gg hits",
                                        20, -0.5, 19.5); // limits? blank histogram for nd150?
 
-    hTotalE                 = new TH1F("hTotalE_" + sampleName + name_append,
-                                       "Phase " + Phase + " " + sampleName + name_append + " total energy; #SigmaE_{e} (MeV)",
+    hTotalE                 = new TH1F("hTotalE_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " total energy; #SigmaE_{e} (MeV)",
                                        50, 0.0, 5.0); // 0.0, 2.2
                                        // TODO was 4.0
 
-    hInternalPullee         = new TH1F("hInternalPullee_" + sampleName + name_append,
-                                       "Phase " + Phase + " " + sampleName + name_append + " internal hypothesis; ee Pull",
+    hInternalPullee         = new TH1F("hInternalPullee_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " internal hypothesis; ee Pull",
                                        50, -40., 40.); // limits? all events within -10, 10 for nd150
 
-    hInternalProbee         = new TH1F("hInternalProbee_" + sampleName + name_append,
-                                       "Phase " + Phase + " " + sampleName + name_append + " internal hypothesis; ee Probability",
+    hInternalProbee         = new TH1F("hInternalProbee_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " internal hypothesis; ee Probability",
                                        50, 0.0, 1.); // limits?
 
-    hExternalPullee         = new TH1F("hExternalPullee_" + sampleName + name_append,
-                                       "Phase " + Phase + " " + sampleName + name_append + " external hypothesis; ee Pull",
+    hExternalPullee         = new TH1F("hExternalPullee_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " external hypothesis; ee Pull",
                                        50, -20., 20.); // limits? all events within -30, 10 for nd150
 
-    hExternalProbee         = new TH1F("hExternalProbee_" + sampleName + name_append,
-                                       "Phase " + Phase + " " + sampleName + name_append + " external hypothesis; ee Probability",
+    hExternalProbee         = new TH1F("hExternalProbee_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " external hypothesis; ee Probability",
                                        50, 0.0, 1.); // limits?
 
-    hCosee                  = new TH1F("hCosee_" + sampleName + name_append,
-                                       "Phase " + Phase + " " + sampleName + name_append + " angular correlation of electron tracks; cos(#theta)_{ee}",
+    hCosee                  = new TH1F("hCosee_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " angular correlation of electron tracks; cos(#theta)_{ee}",
                                        50, -1., 1.); // limits?
 
-    hCoseeWeighted          = new TH1F("hCoseeWeighted_" + sampleName + name_append,
-                                       "Phase " + Phase + " " + sampleName + name_append + "corrected angular correlation of electron tracks; cos(#theta)_{ee}",
+    hCoseeWeighted          = new TH1F("hCoseeWeighted_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + "corrected angular correlation of electron tracks; cos(#theta)_{ee}",
                                        50, -1., 1.); // limits?
 
-    hVertexDZ               = new TH1F("hVertexDZ_" + sampleName + name_append,
-                                       "Phase " + Phase + " " + sampleName + name_append + "distance between recon vertices; #DeltaZ (cm)",
+    hVertexDZ               = new TH1F("hVertexDZ_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + "distance between recon vertices; #DeltaZ (cm)",
                                        50, -10., 10.); // limits? all events within -10, 10 for nd150
 
-    hVertexDR               = new TH1F("hVertexDR_" + sampleName + name_append,
-                                       "Phase " + Phase + " " + sampleName + name_append + "distance between recon vertices; #DeltaR (cm)",
+    hVertexDR               = new TH1F("hVertexDR_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + "distance between recon vertices; #DeltaR (cm)",
                                        50, -0.01, 0.01); // limits?
 
-    hVertexDRPhi            = new TH1F("hVertexDRPhi_" + sampleName + name_append,
-                                       "Phase " + Phase + " " + sampleName + name_append + "distance between recon vertices; #DeltaR#phi (cm*rad)",
+    hVertexDRPhi            = new TH1F("hVertexDRPhi_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + "distance between recon vertices; #DeltaR#phi (cm*rad)",
                                        50, -5., 5.); // limits? all events witnin -10, 10 for nd150
 
-    hEeMax                  = new TH1F("hEeMax_" + sampleName + name_append,
-                                       "Phase " + Phase + " " + sampleName + name_append + " higher energy Ee; E_{e} (MeV)"              ,
+    hEeMax                  = new TH1F("hEeMax_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " higher energy Ee; E_{e} (MeV)"              ,
                                        50, 0.0, 5.0); // limits ok
                                        // TODO was 4.0
 
-    hElectronLengthMax      = new TH1F("hElectronLengthMax_" + sampleName + name_append,
-                                       "Phase " + Phase + " " + sampleName + name_append + " higher energy e^{-} track length;  track length (cm)",
+    hElectronLengthMax      = new TH1F("hElectronLengthMax_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " higher energy e^{-} track length;  track length (cm)",
                                        50, 0, 600); // limits?
 
-    hVertexZMax             = new TH1F("hVertexZMax_" + sampleName + name_append,
-                                       "Phase " + Phase + " " + sampleName + name_append + " higher energy vertex position;  Z (cm)"                  ,
+    hVertexZMax             = new TH1F("hVertexZMax_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " higher energy vertex position;  Z (cm)"                  ,
                                        50, -120, 120); // limits?
                                        //50, -150, 150); // limits?
 
-    hVertexSectorMax        = new TH1F("hVertexSectorMax_" + sampleName + name_append,
-                                       "Phase " + Phase + " " + sampleName + name_append + " higher energy vertex position;  sector"                 ,
+    hVertexSectorMax        = new TH1F("hVertexSectorMax_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " higher energy vertex position;  sector"                 ,
                                        50, 5.7, 5.9); // limits?
                                        //50, 5.5, 6.1); // limits?
 
-    hVertexRMax             = new TH1F("hVertexRMax_" + sampleName + name_append,
-                                       "Phase " + Phase + " " + sampleName + name_append + " higher energy vertex position;  R (cm)"                  ,
+    hVertexRMax             = new TH1F("hVertexRMax_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " higher energy vertex position;  R (cm)"                  ,
                                        //50, 154.7, 155.0); // limits? all events within 154.85, 154.9 for nd150
                                        50, 154.8904, 154.8908); // limits? all events within 154.85, 154.9 for nd150
 
-    hElectronFirstGgMax     = new TH1F("hElectronFirstGgMax_" + sampleName + name_append,
-                                       "Phase " + Phase + " " + sampleName + name_append + " higher energy e^{-} first gg hit location;first gg layer",
+    hElectronFirstGgMax     = new TH1F("hElectronFirstGgMax_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " higher energy e^{-} first gg hit location;first gg layer",
                                        9, -0.5, 8.5); // all in 0 for nd150
 
-    hElectronLastGgMax      = new TH1F("hElectronLastGgMax_" + sampleName + name_append,
-                                       "Phase " + Phase + " " + sampleName + name_append + " higher energy e^{-} last gg hit location;last gg layer",
+    hElectronLastGgMax      = new TH1F("hElectronLastGgMax_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " higher energy e^{-} last gg hit location;last gg layer",
                                        9, -0.5, 8.5); // all in 7/8 for nd150
 
-    hVertexMinDistPromptGgMax  = new TH1F("hVertexMinDistPromptGgMax_" + sampleName + name_append,
-                                       "Phase " + Phase + " " + sampleName + name_append + " distance from higher energy vertex to closest, prompt unassoc. gg hit;(v_{x}, v_{y}, v_{z}) - (gg_{x},gg_{y},gg_{z}) (cm)",
+    hVertexMinDistPromptGgMax  = new TH1F("hVertexMinDistPromptGgMax_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " distance from higher energy vertex to closest, prompt unassoc. gg hit;(v_{x}, v_{y}, v_{z}) - (gg_{x},gg_{y},gg_{z}) (cm)",
                                        50, 0, 600); // blank?
 
-    hElectronLDCorrMax      = new TH1F("hElectronLDCorrMax_" + sampleName + name_append,
-                                       "Phase "+Phase+" "+sampleName + name_append+" higher energy e^{-} LD correction;LD corr", 
+    hElectronLDCorrMax      = new TH1F("hElectronLDCorrMax_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase "+Phase+" "+sampleName + name_sample_split_additional + name_append+" higher energy e^{-} LD correction;LD corr", 
                                        50, 0.9,1.1); // limits? don't know what this histogram is
 
 
-    hVertexZSecMax          = new TH2F("hVertexZSecMax_" + sampleName + name_append,
-                                       "Phase "+Phase+" "+sampleName + name_append+" higher energy vertex location; sector; Z (cm)",
+    hVertexZSecMax          = new TH2F("hVertexZSecMax_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase "+Phase+" "+sampleName + name_sample_split_additional + name_append+" higher energy vertex location; sector; Z (cm)",
                                        100, 5.7, 5.9,
                                        //100, 5.5, 6.1,
                                        100, -120, 120); 
 
-    hEeMin                  = new TH1F("hEeMin_" + sampleName + name_append,
-                                       "Phase "+Phase+" "+sampleName + name_append+" lower energy Ee; E_{e} (MeV)",
+    hEeMin                  = new TH1F("hEeMin_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase "+Phase+" "+sampleName + name_sample_split_additional + name_append+" lower energy Ee; E_{e} (MeV)",
                                        50, 0.0, 4);
 
-    hElectronLengthMin      = new TH1F("hElectronLengthMin_" + sampleName + name_append,
-                                       "Phase "+Phase+" "+sampleName + name_append+" lower energy e^{-} track length;  track length (cm)",
+    hElectronLengthMin      = new TH1F("hElectronLengthMin_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase "+Phase+" "+sampleName + name_sample_split_additional + name_append+" lower energy e^{-} track length;  track length (cm)",
                                        50, 0, 600);
 
-    hVertexZMin             = new TH1F("hVertexZMin_" + sampleName + name_append,
-                                       "Phase "+Phase+" "+sampleName + name_append+" lower energy vertex position;  Z (cm)"                  ,
+    hVertexZMin             = new TH1F("hVertexZMin_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase "+Phase+" "+sampleName + name_sample_split_additional + name_append+" lower energy vertex position;  Z (cm)"                  ,
                                        50, -120, 120);
                                        //50, -150, 150);
 
-    hVertexSectorMin        = new TH1F("hVertexSectorMin_" + sampleName + name_append,
-                                       "Phase "+Phase+" "+sampleName + name_append+" lower energy vertex position;  sector"                 ,
+    hVertexSectorMin        = new TH1F("hVertexSectorMin_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase "+Phase+" "+sampleName + name_sample_split_additional + name_append+" lower energy vertex position;  sector"                 ,
                                        50, 5.7, 5.9);
                                        //50, 5.5, 6.1);
 
-    hVertexRMin             = new TH1F("hVertexRMin_" + sampleName + name_append,
-                                       "Phase "+Phase+" "+sampleName + name_append+" lower energy vertex position;  R (cm)"                  ,
+    hVertexRMin             = new TH1F("hVertexRMin_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase "+Phase+" "+sampleName + name_sample_split_additional + name_append+" lower energy vertex position;  R (cm)"                  ,
                                        //50, 154.7, 155.0);
                                        50, 154.8904, 154.8908);
 
-    hElectronFirstGgMin     = new TH1F("hElectronFirstGgMin_" + sampleName + name_append,
-                                       "Phase "+Phase+" "+sampleName + name_append+" lower energy e^{-} first gg hit location;first gg layer",
+    hElectronFirstGgMin     = new TH1F("hElectronFirstGgMin_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase "+Phase+" "+sampleName + name_sample_split_additional + name_append+" lower energy e^{-} first gg hit location;first gg layer",
                                        9, -0.5, 8.5);
 
-    hElectronLastGgMin      = new TH1F("hElectronLastGgMin_" + sampleName + name_append,
-                                       "Phase "+Phase+" "+sampleName + name_append+" lower energy e^{-} last gg hit location;last gg layer",
+    hElectronLastGgMin      = new TH1F("hElectronLastGgMin_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase "+Phase+" "+sampleName + name_sample_split_additional + name_append+" lower energy e^{-} last gg hit location;last gg layer",
                                        9, -0.5, 8.5);
 
-    hVertexMinDistPromptGgMin   = new TH1F("hVertexMinDistPromptGgMin_" + sampleName + name_append,
-                                           "Phase " + Phase + " " + sampleName + name_append + " distance from lower energy vertex to closest, prompt unassoc. gg hit;(v_{x},v_{y},v_{z}) - (gg_{x},gg_{y},gg_{z}) (cm)",
+    hVertexMinDistPromptGgMin   = new TH1F("hVertexMinDistPromptGgMin_" + sampleName + name_sample_split_additional + name_append,
+                                           "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " distance from lower energy vertex to closest, prompt unassoc. gg hit;(v_{x},v_{y},v_{z}) - (gg_{x},gg_{y},gg_{z}) (cm)",
                                            50, 0, 600);
 
-    hElectronLDCorrMin      = new TH1F("hElectronLDCorrMin_" + sampleName + name_append,
-                                       "Phase "+Phase+" "+sampleName + name_append+" lower energy e^{-} LD correction;LD corr"            ,
+    hElectronLDCorrMin      = new TH1F("hElectronLDCorrMin_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase "+Phase+" "+sampleName + name_sample_split_additional + name_append+" lower energy e^{-} LD correction;LD corr"            ,
                                        50, 0.9, 1.1);
 
-    hVertexZSecMin          = new TH2F("hVertexZSecMin_" + sampleName + name_append,
-                                       "Phase "+Phase+" "+sampleName + name_append+" lower energy vertex location; sector; Z (cm)"              ,
+    hVertexZSecMin          = new TH2F("hVertexZSecMin_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase "+Phase+" "+sampleName + name_sample_split_additional + name_append+" lower energy vertex location; sector; Z (cm)"              ,
                                        150, 5.8904, 5.8907,
                                        100, -120, 120);
 
 
-    hNLowEGammas            = new TH1F("hNLowEGammas_" + sampleName + name_append,
-                                       "Phase "+Phase+" "+sampleName + name_append+" unassoc. scint hits E < 200 keV; N hits"     ,
+    hNLowEGammas            = new TH1F("hNLowEGammas_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase "+Phase+" "+sampleName + name_sample_split_additional + name_append+" unassoc. scint hits E < 200 keV; N hits"     ,
                                        11, -0.5, 10.5);
 
-    hLowEGammaEnergy        = new TH1F("hLowEGammaEnergy_" + sampleName + name_append,
-                                       "Phase "+Phase+" "+sampleName + name_append+" unassoc. scint hits E < 200 keV; Energy (indiv. hits) (MeV)" ,
+    hLowEGammaEnergy        = new TH1F("hLowEGammaEnergy_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase "+Phase+" "+sampleName + name_sample_split_additional + name_append+" unassoc. scint hits E < 200 keV; Energy (indiv. hits) (MeV)" ,
                                        50, 0, 0.2);
 
-    hSummedLowEGammaE       = new TH1F("hSummedLowEGammaE_" + sampleName + name_append,
-                                       "Phase "+Phase+" "+sampleName + name_append+" unassoc. scint hits E < 200 keV; Energy (indiv. hits) (MeV)" ,
+    hSummedLowEGammaE       = new TH1F("hSummedLowEGammaE_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase "+Phase+" "+sampleName + name_sample_split_additional + name_append+" unassoc. scint hits E < 200 keV; Energy (indiv. hits) (MeV)" ,
                                        50, 0, 0.5);
 
-    hLowEMinDistPromptGg    = new TH1F("hLowEMinDistPromptGg_" + sampleName + name_append,
-                                       "Phase "+Phase+" "+sampleName + name_append+" distance from unassoc. calo hits to closest, prompt unassoc. gg hit;(v_{x},v_{y},v_{z}) - (gg_{x},gg_{y},gg_{z}) (cm)",
+    hLowEMinDistPromptGg    = new TH1F("hLowEMinDistPromptGg_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase "+Phase+" "+sampleName + name_sample_split_additional + name_append+" distance from unassoc. calo hits to closest, prompt unassoc. gg hit;(v_{x},v_{y},v_{z}) - (gg_{x},gg_{y},gg_{z}) (cm)",
                                        100, 0, 600.);//all low E hits
 
 
-    hEeMaxVEeMin = new TH2F("hEeMaxVEeMin_" + sampleName + name_append,
-                                       "Phase " + Phase + " " + sampleName + name_append + " electron energies; Ee^{Max} (MeV); Ee^{min} (MeV)",
+    hEeMaxVEeMin = new TH2F("hEeMaxVEeMin_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " electron energies; Ee^{Max} (MeV); Ee^{min} (MeV)",
                                        50, 0, 4, 50, 0, 4);
 
-    hNAPromptGgHitsDist2VertexMin = new TH1F("hNAPromptGgHitsDist2VertexMin_" + sampleName + name_append,
-                                       "Phase " + Phase + " " + sampleName + name_append + " min vertex distance to unassociated prompt geiger hit; min vertex distance (cm); y label",
+    hNAPromptGgHitsDist2VertexMin = new TH1F("hNAPromptGgHitsDist2VertexMin_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " min vertex distance to unassociated prompt geiger hit; min vertex distance (cm); y label",
                                        50, 0., 100.);
                                         
 
 
 
-    hNAfterCuts      = new TH1F("hNAfterCuts_" + sampleName + name_append,
-                                       "Phase " + Phase + " " + sampleName + name_append + " Analysis Cut Flow; ; N events",
+    hNAfterCuts      = new TH1F("hNAfterCuts_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Analysis Cut Flow; ; N events",
                                        20, 0, 20); //never know how many we'll make... :)
 
-    hEffAfterCuts      = new TH1F("hEffAfterCuts_" + sampleName + name_append,
-                                       "Phase " + Phase + " " + sampleName + name_append + " Analysis Cut Flow; ; efficiency",
+    hEffAfterCuts      = new TH1F("hEffAfterCuts_" + sampleName + name_sample_split_additional + name_append,
+                                       "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Analysis Cut Flow; ; efficiency",
                                        20, 0, 20); //never know how many we'll make... :)
 
-    hTrackSignMax   = new TH1F("hTrackSignMax_" + sampleName + name_append,
-                                "Phase " + Phase + " " + sampleName + name_append + " Track Sign (Max)",
+    hTrackSignMax   = new TH1F("hTrackSignMax_" + sampleName + name_sample_split_additional + name_append,
+                                "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Track Sign (Max)",
                                 3, -1, 1);
 
-    hTrackSignMin   = new TH1F("hTrackSignMin_" + sampleName + name_append,
-                                "Phase " + Phase + " " + sampleName + name_append + " Track Sign (Min)",
+    hTrackSignMin   = new TH1F("hTrackSignMin_" + sampleName + name_sample_split_additional + name_append,
+                                "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Track Sign (Min)",
                                 3, -1, 1);
 
-    hnGammaClusters = new TH1F("hnGammaClusters_" + sampleName + name_append,
-                                "Phase " + Phase + " " + sampleName + name_append + " Num Gamma Clusters",
+    hnGammaClusters = new TH1F("hnGammaClusters_" + sampleName + name_sample_split_additional + name_append,
+                                "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Num Gamma Clusters",
                                 20, 0, 20);
 
-    hnInCluster     = new TH1F("hnInCluster_" + sampleName + name_append,
-                                "Phase " + Phase + " " + sampleName + name_append + " Num in Cluster",
+    hnInCluster     = new TH1F("hnInCluster_" + sampleName + name_sample_split_additional + name_append,
+                                "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Num in Cluster",
                                 20, 0, 20);
 
-    hclusterHitEnergy     = new TH1F("hclusterHitEnergy_" + sampleName + name_append,
-                                "Phase " + Phase + " " + sampleName + name_append + " Cluster Hit Energy",
+    hclusterHitEnergy     = new TH1F("hclusterHitEnergy_" + sampleName + name_sample_split_additional + name_append,
+                                "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Cluster Hit Energy",
                                 50, 0, 4.0);
     
-    hclusterHitEnergyMin     = new TH1F("hclusterHitEnergyMin_" + sampleName + name_append,
-                                "Phase " + Phase + " " + sampleName + name_append + " Cluster Hit Energy Min",
+    hclusterHitEnergyMin     = new TH1F("hclusterHitEnergyMin_" + sampleName + name_sample_split_additional + name_append,
+                                "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Cluster Hit Energy Min",
                                 50, 0, 4.0);
 
-    hclusterHitEnergyMax     = new TH1F("hclusterHitEnergyMax_" + sampleName + name_append,
-                                "Phase " + Phase + " " + sampleName + name_append + " Cluster Hit Energy Max",
+    hclusterHitEnergyMax     = new TH1F("hclusterHitEnergyMax_" + sampleName + name_sample_split_additional + name_append,
+                                "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Cluster Hit Energy Max",
                                 50, 0, 4.0);
 
-    hnLowEnergyHits     = new TH1F("hnLowEnergyHits_" + sampleName + name_append,
-                                "Phase " + Phase + " " + sampleName + name_append + " Num in Cluster",
+    hnLowEnergyHits     = new TH1F("hnLowEnergyHits_" + sampleName + name_sample_split_additional + name_append,
+                                "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Num in Cluster",
                                 20, 0, 20);
 
-    hclusterEnergy     = new TH1F("hclusterEnergy_" + sampleName + name_append,
-                                "Phase " + Phase + " " + sampleName + name_append + " Cluster Energy",
+    hclusterEnergy     = new TH1F("hclusterEnergy_" + sampleName + name_sample_split_additional + name_append,
+                                "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Cluster Energy",
                                 50, 0, 4.0);
+
+
+    hFoilSide     = new TH1F("hFoilSide_" + sampleName + name_sample_split_additional + name_append,
+                                "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Foil Side",
+                                21, -10, 10);
+
+    hTrueVertexR     = new TH1F("hTrueVertexR_" + sampleName + name_sample_split_additional + name_append,
+                                "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " True Vertex R",
+                                100, -10.0, 400.0);
+
+    hFoilSideTrueVertexR  = new TH2F("hFoilSideTrueVertexR_" + sampleName + name_sample_split_additional + name_append,
+                                "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Foil Side True Vertex R",
+                                21, -10, 10, 100, -10.0, 400.0);
+
+    hTrueVertexLayer     = new TH1F("hTrueVertexLayer_" + sampleName + name_sample_split_additional + name_append,
+                                "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " True Vertex Layer",
+                                20, -5, 14);
 
 
     //#if TRUTH_ENABLE
@@ -560,6 +699,11 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
     hpmap["hnLowEnergyHits_"] = hnLowEnergyHits;
     hpmap["hclusterEnergy_"] = hclusterEnergy;
 
+    hpmap["hFoilSide_"] = hFoilSide;
+    hpmap["hTrueVertexR_"] = hTrueVertexR;
+    hpmap["hFoilSideTrueVertexR_"] = hFoilSideTrueVertexR;
+    hpmap["hTrueVertexLayer_"] = hTrueVertexLayer;
+
     //#if TRUTH_ENABLE
     //    if((sampleName.CompareTo("nd150_rot_2n2b_m4") == 0) ||
     //       (sampleName.CompareTo("nd150_rot_2b2n_m4") == 0))
@@ -627,6 +771,8 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
     #if TRUTH_ENABLE
     TFile *outputFile = nullptr;
     TTree *outputTree = nullptr;
+    TFile *outputFile_small = nullptr;
+    TTree *outputTree_small = nullptr;
     if(mode_flag == 0)
     {
         if((sampleName.CompareTo("nd150_rot_2b2n_m4") == 0)   ||
@@ -637,6 +783,11 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
             outputFile->mkdir("Nd150_2eNg");                                                                           
             outputFile->cd("Nd150_2eNg");                                                  
             outputTree = new TTree("Nd150_2eNg", "Nd150_2eNg");
+
+            outputFile_small = new TFile("Nd150_2eNg_output_truth_postprocessed_small.root", "recreate");
+            outputFile_small->mkdir("Nd150_2eNg");                                                                           
+            outputFile_small->cd("Nd150_2eNg");                                                  
+            outputTree_small = new TTree("Nd150_2eNg", "Nd150_2eNg");
         }
     }
     #endif
@@ -897,6 +1048,13 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
             outputTree->Branch("clusterHitZ"                , clusterHitZ                   , "clusterHitZ[nTotalClusterHits]/D");
 
             outputTree->Branch("trueElectronEnergy"         , trueElectronEnergy            , "trueElectronEnergy[2]/D");
+
+
+
+
+            outputTree_small->Branch("nElectrons"                 , &nElectrons                   , "nElectrons/I");
+            outputTree_small->Branch("electronEnergy"             , electronEnergy                , "electronEnergy[2]/D");
+            outputTree_small->Branch("trueElectronEnergy"         , trueElectronEnergy            , "trueElectronEnergy[2]/D");
         }
         else
         {
@@ -909,7 +1067,7 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
     std::cout << "Processing: " << sampleName << std::endl;
 
 
-    int nCuts = 16; // 26;
+    int nCuts = 17; // 26;
     Int_t cut_counter[nCuts];
     //Int_t cut_counter_index = 0;
     for(int i = 0; i < nCuts; ++ i)
@@ -929,6 +1087,12 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
             std::cout << "\r Processing complete : " << 100 * event_i / events << "%" << std::flush;
         }
         theTree->GetEvent(event_i);
+
+
+
+
+
+
 
 
         double weight = 1.;
@@ -979,6 +1143,79 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
         ++ cut_counter[cc]; // cut 0 - input count
         ++ cc;
 
+
+
+
+
+
+        // additional sample splitting
+        // side = 1: OUT
+        // side = 0: IN
+        // side = -1: FAIL
+        // layer: 0 - 8 inclusive = valid
+        // -1 = fail
+        if(mode_flag_2 == 1)
+        {
+            if(sample_split_flags == 0x01)
+            {
+                // IN
+                if(foilSide != 0)
+                {
+                    continue;
+                }
+            }
+            else if(sample_split_flags == 0x02)
+            {
+                // OUT
+                if(foilSide != 1)
+                {
+                    continue;
+                }
+            }
+            else if(sample_split_flags == 0x04)
+            {
+                // L0 IN
+                name_sample_split_additional = "_INL0";
+                if(foilSide != 0)
+                {
+                    if(trueVertexLayer != 0)
+                    {
+                        continue;
+                    }
+                }
+            }
+            else if(sample_split_flags == 0x08)
+            {
+                // L0 OUT
+                name_sample_split_additional = "_OUTL0";
+                if(foilSide != 1)
+                {
+                    if(trueVertexLayer != 0)
+                    {
+                        continue;
+                    }
+                }
+            }
+            else if(sample_split_flags == 0x10)
+            {
+                // L>0 IN+OUT
+                name_sample_split_additional = "_Lg0";
+                if(trueVertexLayer < 1 || trueVertexLayer > 8)
+                {
+                    continue;
+                }
+            }
+        }
+
+
+        ++ cut_counter[cc]; // cut 0 - input count
+        ++ cc;
+
+
+
+
+
+
         // 1: Accepted Run
         // (1) Accepted Run
 
@@ -1004,6 +1241,10 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
         // No cut in 2eNg, do not know why
         if(mode_flag_2 == 1)
         {
+            //if(vertexSec[0] < 5.7371 + 0.001 || vertexSec[0] > 5.8706 - 0.001 ||
+            //   vertexSec[1] < 5.7571 + 0.001 || vertexSec[1] > 5.8706 - 0.001)
+            //if(vertexSec[0] < 5.7371 + 0.000 || vertexSec[0] > 5.8706 - 0.001 ||
+            //   vertexSec[1] < 5.7571 + 0.000 || vertexSec[1] > 5.8706 - 0.001)
             if(vertexSec[0] < 5.7371 || vertexSec[0] > 5.8706 || vertexSec[1] < 5.7371 || vertexSec[1] > 5.8706)
             // when working with 2e, this should not cut any events
             //if(vertexSec[0] < 5.7 || vertexSec[0] > 5.9 || vertexSec[1] < 5.7 || vertexSec[1] > 5.9)
@@ -1787,7 +2028,13 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
 
 
         hnGammaClusters->Fill(nGammaClusters, weight);
+
+        hFoilSide->Fill(foilSide, weight);
+        hTrueVertexR->Fill(trueVertexR, weight);
+        hFoilSideTrueVertexR->Fill(foilSide, trueVertexR, weight);
+        hTrueVertexLayer->Fill(trueVertexLayer, weight);
         
+
         int hit_counter = 0;
         int nLowEnergyHits = 0;
         double clusterHitEnergyMin;
@@ -1842,6 +2089,7 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
                     std::cout << "problem in fit_2e electron energy too low" << std::endl;
                 }
                 outputTree->Fill();
+                outputTree_small->Fill();
             }
         }
         #endif
@@ -1860,6 +2108,9 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
         {
             outputTree->Write();
             outputFile->Close();
+
+            outputTree_small->Write();
+            outputFile_small->Close();
         }
     }
     #endif
@@ -1867,22 +2118,40 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
     aFile->Close();
     
     std::string cut_description[nCuts];
-    cut_description[0] = "Input count";
-    cut_description[1] = "Vertex sector";
-    cut_description[2] = "Block type";
-    cut_description[3] = "No gamma with E > 0.2 MeV";
-    cut_description[4] = "Tracks negative curvature";
-    cut_description[5] = "Track length > 30 cm";
-    cut_description[6] = "Tracks not from hot spots";
-    cut_description[7] = "0 Prompt Gg hit within 15 cm scint";
-    cut_description[8] = "1 Prompt Gg hit within 15 cm vertex";
-    cut_description[9] = "Unassoc prompt Gg on opposite side of foil";
-    cut_description[10] = "Tracks hits in Gg L0";
-    cut_description[11] = "Pint / Pext";
-    cut_description[12] = "Delta R / Delta Z";
-    cut_description[13] = "Energy 300 keV";
-    cut_description[14] = "Phase";
-    cut_description[15] = "none";
+    int cc = 0;
+    cut_description[cc] = "Input count";
+    ++ cc;
+    cut_description[cc] = "IN/OUT/Layer Sample Split";
+    ++ cc;
+    cut_description[cc] = "Vertex sector";
+    ++ cc;
+    cut_description[cc] = "Block type";
+    ++ cc;
+    cut_description[cc] = "No gamma with E > 0.2 MeV";
+    ++ cc;
+    cut_description[cc] = "Tracks negative curvature";
+    ++ cc;
+    cut_description[cc] = "Track length > 30 cm";
+    ++ cc;
+    cut_description[cc] = "Tracks not from hot spots";
+    ++ cc;
+    cut_description[cc] = "0 Prompt Gg hit within 15 cm scint";
+    ++ cc;
+    cut_description[cc] = "1 Prompt Gg hit within 15 cm vertex";
+    ++ cc;
+    cut_description[cc] = "Unassoc prompt Gg on opposite side of foil";
+    ++ cc;
+    cut_description[cc] = "Tracks hits in Gg L0";
+    ++ cc;
+    cut_description[cc] = "Pint / Pext";
+    ++ cc;
+    cut_description[cc] = "Delta R / Delta Z";
+    ++ cc;
+    cut_description[cc] = "Energy 300 keV";
+    ++ cc;
+    cut_description[cc] = "Phase";
+    ++ cc;
+    cut_description[cc] = "none";
 
     std::cout << "Here are the cut counts" << std::endl;
     for(int i = 0; i < nCuts; i++)
@@ -2030,7 +2299,20 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
         // read in the information needed for calculating efficiencies
         // read in number of generated MC events
         std::ifstream inFile;
-        inFile.open(filePath + typedir + sampleFiles[i] + "/JobSummary.txt");
+        std::string sample_file_name = sampleFiles[i].Data();
+        static const std::vector<std::string> search_objects = {"_Lg0", "_INL0", "_OUTL0", "_IN", "_OUT"};
+        for(int i = 0; i < search_objects.size(); ++ i)
+        {
+            std::string search_object = search_objects.at(i);
+            if(sample_file_name.find(search_object) != std::string::npos)
+            {
+                //std::cout << "sample_file_name=" << sample_file_name << std::endl;
+                sample_file_name = sample_file_name.substr(0, sample_file_name.size() - search_object.size());
+                //std::cout << "sample_file_name=" << sample_file_name << std::endl;
+                break;
+            }
+        }
+        inFile.open(filePath + typedir + sample_file_name + "/JobSummary.txt");
         // cout << "JobSummary stuff is here: "
         // 	 << filePath << "internals/" << InternalBkgFiles[i] << "/JobSummary.txt"
         // 	 << endl;
@@ -2045,7 +2327,8 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
         std::ifstream inFile2;
         inFile2.open(activityfile.c_str());
 
-        while(!inFile2.eof())
+        bool found = false;
+        while((!found) && (!inFile2.eof()))
         {
             // phase 1 and phase 2 activity
             double activityPhase1, activityPhase2; 
@@ -2066,9 +2349,15 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
                 {
                     sampleActivity[0 * nSamples + i] = activityPhase1;
                     sampleActivity[1 * nSamples + i] = activityPhase2;
+                    found = true;
                 }
 
             }
+        }
+        if(!found)
+        {
+            std::cout << "Fault: sampleFiles[" << i << "]=" << sampleFiles[i] << std::endl;
+            std::cin.get();
         }
 
         inFile2.close();
@@ -2093,23 +2382,34 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
             TString new_histogram_name = histogram_name + sampleFiles[i] + "_fit";
             //TString name = "rawdata/" + histogram_name + "/" + histogram_name + sampleFiles[i];
 
+            TString name;
             if(mode_flag == 0)
             {
-                TString name = "processeddata/" + histogram_name + "/" + histogram_name + sampleFiles[i]; // + name_append
+                /*TString*/ name = "processeddata/" + histogram_name + "/" + histogram_name + sampleFiles[i]; // + name_append
                 if(histogram_name.CompareTo("hTotalE_") == 0)
                 {
                     std::cout << "Get() : " << name << " from file, Clone() : " << new_histogram_name << std::endl;
                 }
-                tmpHist = (TH1F*)myFile->Get(name)->Clone(new_histogram_name);
+                //tmpHist = (TH1F*)myFile->Get(name)->Clone(new_histogram_name);
             }
             else if(mode_flag == 1)
             {
-                TString name = "rawdata/" + histogram_name + "/" + histogram_name + sampleFiles[i] + "_raw"; // + name_append;
+                /*TString*/ name = "rawdata/" + histogram_name + "/" + histogram_name + sampleFiles[i] + "_raw"; // + name_append;
                 if(histogram_name.CompareTo("hTotalE_") == 0)
                 {
                     std::cout << "Get() : " << name << " from file, Clone() : " << new_histogram_name << std::endl;
                 }
+                //tmpHist = (TH1F*)myFile->Get(name)->Clone(new_histogram_name);
+            }
+            try
+            {
                 tmpHist = (TH1F*)myFile->Get(name)->Clone(new_histogram_name);
+            }
+            catch(std::exception &e)
+            {
+                std::cout << "name=" << name << std::endl;
+                std::cout << e.what() << std::endl;
+                throw e;
             }
             // NOTE: will have 2 new histograms here
             // 1: scaled, processeddata histogram (save this one to file)
@@ -2196,6 +2496,13 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
 
             if(TString(tmpHist->GetName()).Contains("hTotalE"))
             {
+                sampleEfficiency[thePhase * nSamples + i] = tmpHist->Integral() / sampleNGenMC[i];
+                std::ofstream of_sampleEfficiency("of_sampleEfficiency.txt", std::ios::app);
+                of_sampleEfficiency << tmpHist->GetName() << " " << tmpHist->Integral() << " " << sampleNGenMC[i] << " " << sampleEfficiency[0 * nSamples + i] << " " << sampleEfficiency[1 * nSamples + i] << std::endl;
+            }
+
+            if(TString(tmpHist->GetName()).Contains("hTotalE"))
+            {
                 std::cout << "TotalTime=" << TotalTime
                           << ", sampleNGenMC[" << i << "]=" << sampleNGenMC[i]
                           << ", sampleActivity[thePhase="
@@ -2208,7 +2515,9 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
                 //std::cin.get();
                 std::cout << std::endl;
             }
+
             tmpHist->Scale(TotalTime / sampleNGenMC[i]);
+            
             if(mode_flag == 0)
             {
                 // write into root directory to be read back by newLogLikFitter.C
@@ -2221,6 +2530,14 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
                 TH1F *tmpHistClone = (TH1F*)tmpHist->Clone(clone_name);
                 tmpHistClone->Write();
             }
+            //if(sampleActivity[thePhase * nSamples + i] <= 0.0)
+            //{
+            //    std::cout << "fault" << std::endl;
+            //    std::cout << "the name is: " << tmpHist->GetName() << std::endl;
+            //    std::cout << sampleFiles[i] << std::endl;
+            //    std::cin.get();
+            //    //throw "fault";
+            //}
             tmpHist->Scale(sampleActivity[thePhase * nSamples + i]);
             if(mode_flag == 0)
             {
@@ -2274,54 +2591,62 @@ void stackfunction(int i,                           // INPUT: histogram index, s
                    bool hMajorStacks_add)
 {
 
-    //    stackfunction(i,
-    //                  nNd150Samples,
-    //                  hMinorStacks,
-    //                  allNd150Samples,
-    //                  "Nd150",
-    //                  hAllNd150,
-    //                  Nd150Names,
-    //                  Nd150Files,
-    //                  hAllMC,
-    //                  false,
-    //                  false
-    //                  );
-
+    // for printing statements
+    TString h_name;
+    try
+    {
+        h_name = ((TH1F*)allSamples[0]->At(i))->GetName();
+    }
+    catch(std::exception& e)
+    {
+        std::cout << e.what() << std::endl;
+        std::cout << "h_name is not set" << std::endl;
+    }
 
     // i = histogram index (type, eg; electron energy min/max, total energy, track length...)
     // j = background/data/mc index
 
     TH1F *tmpHist; //we'll be using this later.
 
-    /*
-    if(genericName.CompareTo("Nd150") == 0)
-    {
-        std::cout << "This is Nd150" << std::endl;
-    }
-    */
-    
     // this block relating to hAllSamples
     // which is one of hAllExternals, hAllInternals, etc...
     // add all samples of a type into a histogram for the group hAllSamples
     for(int j = 0; j < nSamples; j++)
     {
+        if(h_name.Contains("hTotalE"))
+        {
+            std::cout << "stackfunction: j=" << j << std::endl;
+        }
+
         if(hAllSamples_addtoexisting == false)
         {
             if(j == 0)
             {
                 // NOTE: allSamples is either allExternals, allInternals, etc...
                 hAllSamples[i] = (TH1F*)allSamples[j]->At(i)->Clone(sampleName);
+                if(h_name.Contains("hTotalE"))
+                {
+                    std::cout << "adding to hAllSamples[" << i << "]: " << ((TH1F*)allSamples[j]->At(i))->GetName() << " (clone)" << std::endl;
+                }
             }
             else
             {
                 // NOTE: allSamples is either allExternals, allInternals, etc...
                 hAllSamples[i]->Add((TH1F*)allSamples[j]->At(i));
+                if(h_name.Contains("hTotalE"))
+                {
+                    std::cout << "adding to hAllSamples[" << i << "]: " << ((TH1F*)allSamples[j]->At(i))->GetName() << std::endl;
+                }
             }
         }
         else
         {
             // NOTE: allSamples is either allExternals, allInternals, etc...
             hAllSamples[i]->Add((TH1F*)allSamples[j]->At(i));
+            if(h_name.Contains("hTotalE"))
+            {
+                std::cout << "adding to hAllSamples[" << i << "]: " << ((TH1F*)allSamples[j]->At(i))->GetName() << std::endl;
+            }
         }
 
         // 2020-03-31: moved from below block to this location
@@ -2376,25 +2701,12 @@ void stackfunction(int i,                           // INPUT: histogram index, s
     //hAllNd150[i]->SetTitle("^{150}Nd 2#nu2#beta ("+events+")");
     //hMajorStacks[i]->Add((TH1F*)hAllNd150[i]);
     
-
-    // TODO: there are still bugs in this section
-
-    
     if(hMajorStacks_add == true)
     {
-        /*
-        if(i == 2)
+        if(h_name.Contains("hTotalE"))
         {
-            // hTotalE
-            std::cout << "hAllSamples[" << i << "]->GetName() -> " << hAllSamples[i]->GetName() << std::endl;
-            if(sampleName.CompareTo("Radon") == 0)
-            {
-                std::cout << " Integral() -> " << hAllSamples[i]->Integral() << std::endl;
-            }
+            std::cout << sampleName << ": Add()" << std::endl;
         }
-        */
-
-        std::cout << sampleName << ": Add()" << std::endl;
         events.Form("%i", (int)hAllSamples[i]->Integral());
         TString title_string = sampleHumanName + " (" + events + ")";
         //tmpHist->SetFillColor(dataColors[i]);
@@ -2741,32 +3053,66 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
 #if RADON_ON
     std::cout << "scale: radon" << std::endl;
 
-    scale(myFile,
-          "../include/activities.txt",
-          "externals/",
-          nRn222Bkgs,
-          Rn222BkgFiles,
-          Rn222BkgNames,
-          Rn222BkgColors,
-          AcceptedTime,
-          Rn222BkgNGenMC,
-          &Rn222BkgActivity[0][0],
-          &Rn222BkgEfficiency[0][0],
-          allRn222Bkgs);
+    #if 0
+        scale(myFile,
+              "../include/activities.txt",
+              "externals/",
+              nRn222Bkgs,
+              Rn222BkgFiles,
+              Rn222BkgNames,
+              Rn222BkgColors,
+              AcceptedTime,
+              Rn222BkgNGenMC,
+              &Rn222BkgActivity[0][0],
+              &Rn222BkgEfficiency[0][0],
+              allRn222Bkgs);
 
-    #if RAWENABLE
-    scale(myFile,
-          "../include/activities.txt",
-          "externals/",
-          nRn222Bkgs,
-          Rn222BkgFiles,
-          Rn222BkgNames,
-          Rn222BkgColors,
-          AcceptedTime,
-          Rn222BkgNGenMC_rawdata,
-          &Rn222BkgActivity_rawdata[0][0],
-          &Rn222BkgEfficiency_rawdata[0][0],
-          allRn222Bkgs_rawdata, 1);
+        #if RAWENABLE
+        scale(myFile,
+              "../include/activities.txt",
+              "externals/",
+              nRn222Bkgs,
+              Rn222BkgFiles,
+              Rn222BkgNames,
+              Rn222BkgColors,
+              AcceptedTime,
+              Rn222BkgNGenMC_rawdata,
+              &Rn222BkgActivity_rawdata[0][0],
+              &Rn222BkgEfficiency_rawdata[0][0],
+              allRn222Bkgs_rawdata, 1);
+        #endif
+    #else
+        scale(myFile,
+              "../include/activities.txt",
+              "externals/",
+              nRn222Bkgs,
+              Rn222BkgFilesNew,
+              //Rn222BkgNamesNew,
+              Rn222BkgNames,
+              //Rn222BkgColorsNew,
+              Rn222BkgColors,
+              AcceptedTime,
+              Rn222BkgNGenMC,
+              &Rn222BkgActivity[0][0],
+              &Rn222BkgEfficiency[0][0],
+              allRn222Bkgs);
+
+        #if RAWENABLE
+        scale(myFile,
+              "../include/activities.txt",
+              "externals/",
+              nRn222Bkgs,
+              Rn222BkgFilesNew,
+              //Rn222BkgNamesNew,
+              Rn222BkgNames,
+              //Rn222BkgColorsNew,
+              Rn222BkgColors,
+              AcceptedTime,
+              Rn222BkgNGenMC_rawdata,
+              &Rn222BkgActivity_rawdata[0][0],
+              &Rn222BkgEfficiency_rawdata[0][0],
+              allRn222Bkgs_rawdata, 1);
+        #endif
     #endif
 
     scale(myFile,
@@ -2892,6 +3238,10 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
             std::cout << "stack: radon" << std::endl;
         }
 
+        // first
+        // add to existing
+        // add to majors
+        #if 0
         stackfunction(i, nRn222Bkgs,
                       hMinorStacks, allRn222Bkgs,
                       hMajorStacks, "Radon Backgrounds",
@@ -2901,7 +3251,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
                       RadonBkgColor,
                       false);
 
-    #if RAWENABLE
+            #if RAWENABLE
         stackfunction(i, nRn222Bkgs,
                       hMinorStacks_rawdata, allRn222Bkgs_rawdata,
                       hMajorStacks_rawdata, "Radon Backgrounds",
@@ -2910,8 +3260,50 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
                       false, false,
                       RadonBkgColor,
                       false);
-    #endif
+            #endif
+        #else
+        if(i == 0)
+        {
+            std::cout << "stackfunction Rn222" << std::endl;
+        }
+        stackfunction(i, nRn222Bkgs,
+                      hMinorStacks, allRn222Bkgs,
+                      hMajorStacks, "Radon Backgrounds",
+                      "Radon", hAllRadon,
+                      Rn222BkgNames, Rn222BkgFilesNew, hAllMC,
+                      #if EXTERNALS_ON
+                      false, false,
+                      #else
+                      true, false,
+                      #endif
+                      RadonBkgColor,
+                      false);
 
+            #if RAWENABLE
+        if(i == 0)
+        {   
+            std::cout << "stackfunction Rn222 (raw)" << std::endl;
+        }
+        stackfunction(i, nRn222Bkgs,
+                      hMinorStacks_rawdata, allRn222Bkgs_rawdata,
+                      hMajorStacks_rawdata, "Radon Backgrounds",
+                      "Radon", hAllRadon_rawdata,
+                      Rn222BkgNames, Rn222BkgFilesNew, hAllMC_rawdata,
+                      #if EXTERNALS_ON
+                      false, false,
+                      #else
+                      true, false,
+                      #endif
+                      RadonBkgColor,
+                      false);
+            #endif
+        #endif
+
+
+        if(i == 0)
+        {
+            std::cout << "stackfunction Rn220" << std::endl;
+        }
         stackfunction(i, nRn220Bkgs,
                       hMinorStacks, allRn220Bkgs,
                       hMajorStacks, "Radon Backgrounds",
@@ -2921,7 +3313,11 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
                       RadonBkgColor,
                       true);
 
-    #if RAWENABLE
+            #if RAWENABLE
+        if(i == 0)
+        {
+            std::cout << "stackfunction Rn220 (raw)" << std::endl;
+        }
         stackfunction(i, nRn220Bkgs,
                       hMinorStacks_rawdata, allRn220Bkgs_rawdata,
                       hMajorStacks_rawdata, "Radon Backgrounds",
@@ -2930,7 +3326,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
                       false, true,
                       RadonBkgColor,
                       true);
-    #endif
+            #endif
 #endif
 
 #if INTERNALS_ON

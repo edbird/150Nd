@@ -5,16 +5,21 @@
 #include "InputNumberDef.h"
 
 
-Color_t RadonBkgColor = 5;
-Color_t ExternalBkgColor = 2;
-Color_t InternalBkgColor = 6; //for grouping
-Color_t NeighbourColor = 3;
-Color_t Nd150Color = 4;
+Color_t RadonBkgColor = kYellow;
+Color_t ExternalBkgColor = kRed;
+Color_t InternalBkgColor = kOrange; //for grouping
+Color_t NeighbourColor = kCyan;
+Color_t Nd150Color = kAzure + 1;
 Color_t DataColor = kBlack;
+Color_t bi207InternalBkgColor = kViolet;
+Color_t bi214InternalBkgColor = kBlue;
+Color_t tl208InternalBkgColor = kGreen;
+
 
 
 
 // 9
+/*
 Color_t Rn222BkgColors[nRn222Bkgs] =
 {
 kYellow,    // Bi 214 air
@@ -23,6 +28,28 @@ kGreen,     // Bi 214 SFoil
 kGreen,     // Pb 214 SFoil (same color)
 kGreen+1,   // Bi 210 SFoil
 kCyan,      // Bi 214 SWire
+kCyan,      // Pb 214 SWire (same color)
+kCyan+1,    // Bi 210 SWire
+kGray,      // Bi 210 SScin
+kBlue+3,    // Bi 214 Mylar
+kBlue+3     // Pb 214 Mylar (same color)
+};
+*/
+
+Color_t Rn222BkgColors[nRn222Bkgs] =
+{
+kYellow,    // Bi 214 air
+kYellow,    // Pb 214 air (same color)
+kGreen,     // Bi 214 SFoil
+kGreen,     // Bi 214 SFoil
+kGreen,     // Pb 214 SFoil (same color)
+kGreen,     // Pb 214 SFoil (same color)
+kGreen+1,   // Bi 210 SFoil
+kCyan,      // Bi 214 SWire
+kCyan,      // Bi 214 SWire
+kCyan,      // Bi 214 SWire
+kCyan,      // Pb 214 SWire (same color)
+kCyan,      // Pb 214 SWire (same color)
 kCyan,      // Pb 214 SWire (same color)
 kCyan+1,    // Bi 210 SWire
 kGray,      // Bi 210 SScin

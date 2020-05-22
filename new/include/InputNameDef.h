@@ -6,6 +6,7 @@
 
 
 
+/*
 TString Rn222BkgNames[nRn222Bkgs] =
 {
 "^{214}Bi Air",
@@ -18,6 +19,39 @@ TString Rn222BkgNames[nRn222Bkgs] =
 
 "^{214}Bi Wire Surface",
 "^{214}Pb Wire Surface",
+
+"^{210}Bi Wire Surface",
+
+//"^{214}Bi Scintillator Surface",
+//"^{214}Pb Scintillator Surface",
+"^{210}Bi Scintillator Surface",
+
+"^{214}Bi Mylar",
+"^{214}Pb Mylar"//,
+
+//"^{234m}Pa Scintillator Surface"
+
+};
+*/
+
+TString Rn222BkgNames[nRn222Bkgs] =
+{
+"^{214}Bi Air",
+"^{214}Pb Air",
+
+"^{214}Bi Foil Surface IN",
+"^{214}Bi Foil Surface OUT",
+"^{214}Pb Foil Surface IN",
+"^{214}Pb Foil Surface OUT",
+
+"^{210}Bi Foil Surface",
+
+"^{214}Bi Wire Surface L0 IN",
+"^{214}Bi Wire Surface L0 OUT",
+"^{214}Bi Wire Surface L>0",
+"^{214}Pb Wire Surface L0 IN",
+"^{214}Pb Wire Surface L0 OUT",
+"^{214}Pb Wire Surface L>0",
 
 "^{210}Bi Wire Surface",
 
