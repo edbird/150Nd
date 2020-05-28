@@ -57,6 +57,7 @@ double bb_Q;
 
 double last_xi_31_parameter_value;
 
+
 // TODO: set numberParams dynamically
 // using input file
 static const int numberParams = 40;
@@ -197,6 +198,18 @@ std::vector<int> disabled_params;
 static const int number1DHists = 4;
 static const int number2DHists = 1;
 
+const double channel_enable_1D[number1DHists] =
+{
+1, // hTotalE
+1, // hSingleEnergy
+1, // hLowEnergy
+1  // hHighEnergy
+};
+
+const double channel_enable_2D[number2DHists] =
+{
+1  // hHighLowEnergy
+};
 
 // global variable to hold chisquare result
 // there is probably a better way to do this using Eval

@@ -195,6 +195,17 @@ TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double*& Co
 
 
 
+void timestamp(std::ofstream& os)
+{
+    time_t rawtime;
+    time(&rawtime);
+    struct tm *info;
+    info = localtime(&rawtime);
+    char timestringbuf[100];
+    size_t ncount = strftime(timestringbuf, sizeof(timestringbuf), "%F %T", info);
+    std::string datetimestamp(timestringbuf);
+    os << datetimestamp << std::endl;
+}
 
 
 template<typename T, typename U>
@@ -238,6 +249,139 @@ void draw_inputdata()
 }
 
 
+void draw_outputdiff(const double *const AdjustActs, const double xi_31_orig)
+{
+
+    const double xi_31_fit = AdjustActs[1];
+    const double xi_31_baseline{0.296};
+
+    double xi_31 = xi_31_orig;
+    TH1F *hTotalE_orig = nullptr;
+    TH1F *hSingleEnergy_orig = nullptr;
+    TH1F *hLowEnergy_orig = nullptr;
+    TH1F *hHighEnergy_orig = nullptr;
+    TH2F *hHighLowEnergy_orig = nullptr;
+    reweight_apply(hTotalE_orig,
+                   hSingleEnergy_orig,
+                   hLowEnergy_orig,
+                   hHighEnergy_orig,
+                   hHighLowEnergy_orig,
+                   "Nd150_2eNg_output_truth_postprocessed_small.root",
+                   xi_31,
+                   xi_31_baseline,
+                   h_nEqNull,
+                   h_nEqTwo,
+                   psiN0,
+                   psiN2,
+                   bb_Q);
+
+    xi_31 = xi_31_fit;
+    TH1F *hTotalE_fit = nullptr;
+    TH1F *hSingleEnergy_fit = nullptr;
+    TH1F *hLowEnergy_fit = nullptr;
+    TH1F *hHighEnergy_fit = nullptr;
+    TH2F *hHighLowEnergy_fit = nullptr;
+    reweight_apply(hTotalE_fit,
+                   hSingleEnergy_fit,
+                   hLowEnergy_fit,
+                   hHighEnergy_fit,
+                   hHighLowEnergy_fit,
+                   "Nd150_2eNg_output_truth_postprocessed_small.root",
+                   xi_31,
+                   xi_31_baseline,
+                   h_nEqNull,
+                   h_nEqTwo,
+                   psiN0,
+                   psiN2,
+                   bb_Q);
+
+    hTotalE_fit->Scale(AdjustActs[0]);
+    hSingleEnergy_fit->Scale(AdjustActs[0]);
+    hLowEnergy_fit->Scale(AdjustActs[0]);
+    hHighEnergy_fit->Scale(AdjustActs[0]);
+    hHighLowEnergy_fit->Scale(AdjustActs[0]);
+    
+    hTotalE_orig->Sumw2();
+    hSingleEnergy_orig->Sumw2();
+    hLowEnergy_orig->Sumw2();
+    hHighEnergy_orig->Sumw2();
+    hHighLowEnergy_orig->Sumw2();
+    
+    hTotalE_fit->Sumw2();
+    hSingleEnergy_fit->Sumw2();
+    hLowEnergy_fit->Sumw2();
+    hHighEnergy_fit->Sumw2();
+    hHighLowEnergy_fit->Sumw2();
+
+    hTotalE_orig->SetLineWidth(2);
+    hSingleEnergy_orig->SetLineWidth(2);
+    hLowEnergy_orig->SetLineWidth(2);
+    hHighEnergy_orig->SetLineWidth(2);
+    hHighLowEnergy_orig->SetLineWidth(2);
+
+    hTotalE_fit->SetLineWidth(2);
+    hSingleEnergy_fit->SetLineWidth(2);
+    hLowEnergy_fit->SetLineWidth(2);
+    hHighEnergy_fit->SetLineWidth(2);
+    hHighLowEnergy_fit->SetLineWidth(2);
+
+    //hTotalE_orig->SetHatchesLineWidth(2);
+    //hSingleEnergy_orig->SetHatchesLineWidth(2);
+    //hLowEnergy_orig->SetHatchesLineWidth(2);
+    //hHighEnergy_orig->SetHatchesLineWidth(2);
+    //hHighLowEnergy_orig->SetHatchesLineWidth(2);
+
+    //hTotalE_fit->SetHatchesLineWidth(2);
+    //hSingleEnergy_fit->SetHatchesLineWidth(2);
+    //hLowEnergy_fit->SetHatchesLineWidth(2);
+    //hHighEnergy_fit->SetHatchesLineWidth(2);
+    //hHighLowEnergy_fit->SetHatchesLineWidth(2);
+    
+    hTotalE_orig->SetFillStyle(3002);
+    hSingleEnergy_orig->SetFillStyle(3002);
+    hLowEnergy_orig->SetFillStyle(3002);
+    hHighEnergy_orig->SetFillStyle(3002);
+    hHighLowEnergy_orig->SetFillStyle(3002);
+
+    hTotalE_fit->SetFillStyle(3453);
+    hSingleEnergy_fit->SetFillStyle(3453);
+    hLowEnergy_fit->SetFillStyle(3453);
+    hHighEnergy_fit->SetFillStyle(3453);
+    hHighLowEnergy_fit->SetFillStyle(3453);
+
+    hTotalE_orig->SetFillColor(kBlue);
+    hSingleEnergy_orig->SetFillColor(kBlue);
+    hLowEnergy_orig->SetFillColor(kBlue);
+    hHighEnergy_orig->SetFillColor(kBlue);
+    hHighLowEnergy_orig->SetFillColor(kBlue);
+
+    hTotalE_fit->SetFillColor(kMagenta);
+    hSingleEnergy_fit->SetFillColor(kMagenta);
+    hLowEnergy_fit->SetFillColor(kMagenta);
+    hHighEnergy_fit->SetFillColor(kMagenta);
+    hHighLowEnergy_fit->SetFillColor(kMagenta);
+
+    hTotalE_orig->SetLineColor(kBlue);
+    hSingleEnergy_orig->SetLineColor(kBlue);
+    hLowEnergy_orig->SetLineColor(kBlue);
+    hHighEnergy_orig->SetLineColor(kBlue);
+    hHighLowEnergy_orig->SetLineColor(kBlue);
+
+    hTotalE_fit->SetLineColor(kMagenta);
+    hSingleEnergy_fit->SetLineColor(kMagenta);
+    hLowEnergy_fit->SetLineColor(kMagenta);
+    hHighEnergy_fit->SetLineColor(kMagenta);
+    hHighLowEnergy_fit->SetLineColor(kMagenta);
+
+    TCanvas *c = new TCanvas("c_outputdiff", "c_outputdiff");
+    hSingleEnergy_orig->SetMaximum(800.0);
+    hSingleEnergy_orig->Draw("hist");
+    hSingleEnergy_fit->Draw("histsame");
+
+
+
+}
+
 
 
 void loadFiles()
@@ -264,7 +408,7 @@ void loadFiles()
     // TODO: multiple instances, move to header file
     // TODO: also change in parameter list file
     //Double_t xi_31_init = 0.8;
-    Double_t xi_31_init = 0.296; // change to baseline value for testing purposes
+    Double_t xi_31_init = 0.296 * 1.11; // change to baseline value for testing purposes
 
     ///*const Double_t*/ bb_Q = 3.368;
     double count = 0;
@@ -390,12 +534,11 @@ void loadFiles()
     std::cout << "Note that gA (1) is a special parameter" << std::endl;
     //for(int i = 0; i < numberParams; i++)
     std::ofstream myFileFitResults("fit_results.txt", std::ios::out | std::ios::app);
+    timestamp(myFileFitResults);
     for(int i = 0; i < numberEnabledParams; i++)
     {
         std::cout << i << " :\t" << AdjustActs[i] << " +- " << AdjustActs_Err[i] << std::endl;  
         myFileFitResults << AdjustActs[i] << " +- " << AdjustActs_Err[i] << std::endl;
-
-        myFileFitResults.close();
     }
     myFileFitResults.close();
 
@@ -464,6 +607,7 @@ void loadFiles()
         std::string summary_fname("fitsummary.txt");
         std::cout << "writing to " << summary_fname << std::endl;
         std::ofstream summary_ofstream(summary_fname.c_str(), std::ios::out);
+        timestamp(summary_ofstream);
         
         //for(int i = 0; i < numberParams; ++ i)
         for(int i = 0; i < numberEnabledParams; ++ i)
@@ -495,6 +639,7 @@ void loadFiles()
                 std::cout << "ERROR: Invalid value for thePhase: thePhase=" << thePhase << std::endl;
             }
         }
+        summary_ofstream.close();
     }
 
     
@@ -503,14 +648,7 @@ void loadFiles()
         std::cout << "writing to " << chisquarelog_fname << std::endl;
         std::ofstream chisquarelog_ofstream(chisquarelog_fname.c_str(), std::ios::out | std::ios::app);
         chisquarelog_ofstream << std::endl;
-        time_t rawtime;
-        time(&rawtime);
-        struct tm *info;
-        info = localtime(&rawtime);
-        char timestringbuf[100];
-        size_t ncount = strftime(timestringbuf, sizeof(timestringbuf), "%F %T", info);
-        std::string datetimestamp(timestringbuf);
-        chisquarelog_ofstream << datetimestamp << std::endl;
+        timestamp(chisquarelog_ofstream);
         int mo100bbnumber = paramNumberToMinuitParamNumberMap.at(10);
         //std::cout << "CHECK CHECK CHECK: mo100bbnumber=" << mo100bbnumber << std::endl;
         chisquarelog_ofstream << paramNameMap[mo100bbnumber] << ", " << AdjustActs[mo100bbnumber] << ", " << global_chisquare << ", (should be values for 100Mo bb)" << std::endl;
@@ -518,6 +656,7 @@ void loadFiles()
 
 
     std::ofstream of_numberofeventsafterfit("of_numberofeventsafterfit.txt", std::ofstream::out | std::ofstream::app);
+    timestamp(of_numberofeventsafterfit);
     for(int i = 0; i < allMCSamples1D[0]->GetEntries(); ++ i)
     {
         TH1F *tmpHist = (TH1F*)allMCSamples1D[0]->At(i);
@@ -531,6 +670,8 @@ void loadFiles()
     draw_2D(AdjustActs, AdjustActs_Err, "hHighLowEnergy.*");
     draw_covariance_matrix(CovMatrix, number_free_params, "cov_matrix.*");
 
+
+    draw_outputdiff(AdjustActs, 0.296);
 
 }
 

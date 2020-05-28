@@ -1346,7 +1346,7 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
     */
 
         // Set the high and low energy index
-        int highE_index = -1,
+        int highE_index = -1;
         int lowE_index = -1;
         if(electronEnergy[0] > electronEnergy[1])
         {
