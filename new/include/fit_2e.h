@@ -224,7 +224,7 @@ double Nd150NGenMC_rawdata[nNd150Samples];
 
 
 //its annoying to have to keep writing the histogram names. If we always work in the right order, should be OK.
-static const int numHistograms = 53; //49; //40; // 44;
+static const int numHistograms = 57; //49; //40; // 44;
 TString histogramNames[numHistograms] = {
     "hRun_",                            // 00
     "hNElectrons_",                     // 01
@@ -287,8 +287,13 @@ TString histogramNames[numHistograms] = {
     "hFoilSide_",                       //49
 
     "hTrueVertexR_",    
-    "hFoilSideTrueVertexR_",            //51
-    "hTrueVertexLayer_"
+    "hFoilSideTrueVertexR_",
+    "hTrueVertexLayer_",
+    "hSingleEnergy_",
+    "hLowEnergy_",                      // 54
+
+    "hHighEnergy_",                     
+    "hHighLowEnergy_"                   // 56
 
 
 };
@@ -359,7 +364,12 @@ Int_t histogramDrawFlag[numHistograms] =
 
     1,      // hTrueVertexR_
     0,      // hFoilSideTrueVertexR_
-    1       // hTrueVertexLayer_
+    1,      // hTrueVertexLayer_
+    1,      // hSingleEnergy_
+    1,      // hLowEnergy_
+
+    1,      // hHighEnergy_
+    1       // hHighLowEnergy_
 };
 
 // draw raw data histograms as well?

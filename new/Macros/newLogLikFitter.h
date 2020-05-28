@@ -194,8 +194,8 @@ std::vector<int> disabled_params;
 // list of strings where each enabled parameter index is converted to string
 ////std::vector<TString> index_enabled_params; // TODO: is this used?
 
-static const int number1DHists = 1;
-static const int number2DHists = 0;
+static const int number1DHists = 4;
+static const int number2DHists = 1;
 
 
 // global variable to hold chisquare result

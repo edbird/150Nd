@@ -35,8 +35,13 @@
 #include <time.h>
 
 
+// note: these must appear in correct order and after general includes above
 #include "newLogLikFitter.h"
-#include "newLogLikFitter_read.h"
+#include "newLogLikFitter_read_parameternames_lst.h"
+#include "newLogLikFitter_reweight.h"
+#include "newLogLikFitter_loglikelihood.h"
+#include "newLogLikFitter_draw.h"
+#include "newLogLikFitter_chisquaretest.h"
 
 
 // TODO:
@@ -111,6 +116,8 @@
 //  TODO: group all Radon backgrounds together because these might be
 //        reducible with improved Radon filtering, this includes the
 //        Mylar backgrounds
+//
+//  TODO: rescale xi_31 parameter to restore homogenaity in AdjustActs
 
 
 //
@@ -179,15 +186,10 @@ void loadFiles();
 
 void book1DHistograms(Int_t channel_counter, TString theChannel,TString thePhase, TString theHistogram);
 void book2DHistograms(Int_t channel_counter, TString theChannel,TString thePhase, TString theHistogram);
-void logLikelihood(Int_t & /*nPar*/, Double_t * /*grad*/ , Double_t &fval, Double_t *p, Int_t /*iflag */); 
-Double_t getNumberMC1D(Int_t channel, Int_t binx, Double_t *p);
-Double_t getNumberMC2D(Int_t channel, Int_t binx, Int_t biny, Double_t *p);
 
 //void fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double*& CovMatrix, int& number_free_params, Int_t thePhase);
 TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double*& CovMatrix, int& number_free_params, Int_t thePhase);
 
-void draw(const Double_t *const AdjustActs, const Double_t *const AdjustActs_Err, const std::string& saveas_filename = "");
-void draw_covariance_matrix(const double * const CovMatrix, const int number_free_params, const std::string& saveas_filename);
 
 
 
@@ -195,8 +197,45 @@ void draw_covariance_matrix(const double * const CovMatrix, const int number_fre
 
 
 
+template<typename T, typename U>
+void print_map(std::map<T, U> &map, const std::string& name)
+{
+    std::cout << "contents of map " << name << std::endl;
+    for(auto it = map.cbegin(); it != map.cend(); ++ it)
+    {
+        std::cout << it->first << " -> " << it->second << std::endl;
+    }
+    
+    /*
+    std::cout << "contents of map paramNameToNumberMap:" << std::endl;
+    for(auto it = paramNameToNumberMap.cbegin(); it != paramNameToNumberMap.cend(); ++ it)
+    {
+        std::cout << it->first << " -> " << it->second << std::endl;
+    }
+    */
+}
 
+void draw_inputdata()
+{
 
+    // debug
+    TCanvas *c_nEqNull;
+    c_nEqNull = new TCanvas("c_nEqNull", "c_nEqNull"); //, 4000, 3000);
+    h_nEqNull->Draw("colz");
+    c_nEqNull->SaveAs("c_nEqNull.png");
+    c_nEqNull->SaveAs("c_nEqNull.pdf");
+    c_nEqNull->SaveAs("c_nEqNull.C");
+    delete c_nEqNull;
+
+    // debug
+    TCanvas *c_nEqTwo;
+    c_nEqTwo = new TCanvas("c_nEqTwo", "c_nEqTwo"); //, 4000, 3000);
+    h_nEqTwo->Draw("colz");
+    c_nEqTwo->SaveAs("c_nEqTwo.png");
+    c_nEqTwo->SaveAs("c_nEqTwo.pdf");
+    c_nEqTwo->SaveAs("c_nEqTwo.C");
+    delete c_nEqTwo;
+}
 
 
 
@@ -221,10 +260,11 @@ void loadFiles()
     const Double_t G2_ps_integral_yrinv = 0.357034E-16;
 
     // TODO: what is the value for the basline for Nd150? is this for 100Mo
-    const Double_t xi_31_baseline{0.368}; // TODO: this is WRONG change it
+    const Double_t xi_31_baseline{0.296}; // TODO: this is WRONG change it
+    // TODO: multiple instances, move to header file
     // TODO: also change in parameter list file
     //Double_t xi_31_init = 0.8;
-    Double_t xi_31_init = 0.368; // change to baseline value for testing purposes
+    Double_t xi_31_init = 0.296; // change to baseline value for testing purposes
 
     ///*const Double_t*/ bb_Q = 3.368;
     double count = 0;
@@ -243,26 +283,9 @@ void loadFiles()
     std::cout << "histogram format constructed" << std::endl;
 
 
-    // debug
-    //TCanvas *c_nEqNull;
-    //c_nEqNull = new TCanvas("c_nEqNull", "c_nEqNull"); //, 4000, 3000);
-    //h_nEqNull->Draw("colz");
-    //c_nEqNull->SaveAs("c_nEqNull.png");
-    //c_nEqNull->SaveAs("c_nEqNull.pdf");
-    //c_nEqNull->SaveAs("c_nEqNull.C");
-    //delete c_nEqNull;
-
-    //TCanvas *c_nEqTwo;
-    //c_nEqTwo = new TCanvas("c_nEqTwo", "c_nEqTwo"); //, 4000, 3000);
-    //h_nEqTwo->Draw("colz");
-    //c_nEqTwo->SaveAs("c_nEqTwo.png");
-    //c_nEqTwo->SaveAs("c_nEqTwo.pdf");
-    //c_nEqTwo->SaveAs("c_nEqTwo.C");
-    //delete c_nEqTwo;
-    // debug
-
-    //std::cin.get();
-
+    #if 0
+    draw_inputdata();
+    #endif
 
     std::cout << std::fixed << std::endl;
 
@@ -275,31 +298,9 @@ void loadFiles()
 
 
 
-    // read parameter_name.lst file
-
-    MCNameToParamNameMap.clear();
-    MCNameToParamNumberMap.clear();
-
-    paramNameToNumberMap.clear();
-
-    paramNumberToMinuitParamNumberMap.clear();
-    minuitParamNumberToParamNumberMap.clear();
-    minuitParamNumberCounter = 0;
-
-    numberEnabledParams = 0;
-
-    fixed_params.clear();
-    free_params.clear();
-
-    //paramNameToHumanReadableParamNameMap.clear();
-    MCSampleNameToHumanReadableMCSampleNameMap.clear();
-
-
-
-    enabled_params.clear();
-    disabled_params.clear();
     
 
+    // read parameter_name.lst file
     // read parameter list file
     read_parameter_list_file();
 
@@ -334,6 +335,10 @@ void loadFiles()
     //book1DHistograms(0, "2e_", "P1", "hTotalE_");
     //book1DHistograms(0, "2e_", "P2", "hTotalE_");
     book1DHistograms(0, "2e_", "P" + Phase, "hTotalE_");
+    book1DHistograms(1, "2e_", "P" + Phase, "hSingleEnergy_");
+    book1DHistograms(2, "2e_", "P" + Phase, "hHighEnergy_");
+    book1DHistograms(3, "2e_", "P" + Phase, "hLowEnergy_");
+    book2DHistograms(0, "2e_", "P" + Phase, "hHighLowEnergy_");
   
     // Array to hold activity adjustment parameters
     //Double_t AdjustActs[numberParams];
@@ -371,78 +376,11 @@ void loadFiles()
     TMinuit *minuit = fitBackgrounds(AdjustActs, AdjustActs_Err, CovMatrix, number_free_params, thePhase);
 
 
-    #if 0
-    ///////////////////////////////////////////////////////////////////////////
-    // testing
-    
-    // run chisquare tests
-
-    std::cout << "running chi-square tests (gA): " << "variable: g_A parameter (1)" << std::endl;
-
-    int n_tests = 10;
-    // 100 Mo
-    int axial_vector_parameter_0_index = paramNumberToMinuitParamNumberMap.at(1);
-    std::cout << "the internal index for parameter 1 is " << axial_vector_parameter_0_index << std::endl;
-    // These are in units of minuit internal parameter units
-    // To convert to external parameter units, multiply by the value of the
-    // external input parameter initial activity
-    // Caution: For cases where the fitted parameter minimum is not at 1.0
-    // the errors must be treated as upper and lower bound separatly by adding
-    // them (internal param & error) to the central value fit parameter
-    // external_param_error_lowerbound = (internal_param_CV - internal_param_error) * external_param_init_value
-    // similar for upperbound, then subtract and / 2.0
-    double test_central_value = AdjustActs[axial_vector_parameter_0_index];
-    double test_range = 0.2; //10.0 * AdjustActs_Err[axial_vector_parameter_0_index];
-    // this range should hit delta sigma = 1.0 at 66 % of the width, but it
-    // doesn't.
-    double test_start = test_central_value - 0.5 * test_range;
-    double test_end   = test_central_value + 0.5 * test_range;
-    double *test_values = new double[n_tests];
-    double test_step = test_range / (double)n_tests;
-    std::cout << "test_central_value=" << test_central_value << "\n"
-              << "test_range=" << test_range << "\n"
-              << "test_start=" << test_start << "\n"
-              << "test_end=" << test_end
-              << std::endl;
-    int n_params = minuit->GetNumPars();
-    double *params = new double[n_params];
-    double *param_errs = new double[n_params];
-    for(int jx = 0; jx < n_params; ++ jx)
+    #if 1
+    if(0)
     {
-        minuit->GetParameter(jx, params[jx], param_errs[jx]);
+        newloglikfitter_gA_chisquaretest(minuit, AdjustActs, AdjustActs_Err);
     }
-    std::ofstream ofstream_testvalue("testvalue_gA.txt");
-    for(int ix = 0; ix < n_tests; ++ ix)
-    {
-        test_values[ix] = test_start + test_step * ix;
-
-        // get chisquare value for test
-        double fval = 0.;
-
-        // set parameter for 100Mo
-        double test_value = test_values[ix];
-        params[axial_vector_parameter_0_index] = test_value;
-        
-        std::cout << "test: ix=" << ix << ", " << "test_value=" << test_value << std::endl; //  ", "; << "fval=" << fval << std::endl;
-
-        // TODO: reenable
-        logLikelihood(n_params, nullptr, fval, params, 0);
-        std::cout << "fval=" << fval << std::endl;
-
-        // save canvas to file
-        std::string saveas_filename("testvalue_gA_");
-        saveas_filename += std::to_string(ix) + ".png";
-        draw(AdjustActs, AdjustActs_Err, saveas_filename);
-
-        ofstream_testvalue << "value," << test_value << ",chisquare," << fval << std::endl;
-
-        //void logLikelihood(Int_t & /*nPar*/, Double_t* /*grad*/, Double_t &fval, Double_t *p, Int_t /*iflag */)
-
-    }
-    ofstream_testvalue.close();
-    delete [] test_values;
-    //delete [] params;
-    //delete [] param_errs;
     #endif
 
 
@@ -451,14 +389,15 @@ void loadFiles()
     std::cout << "The following adjustments (in minuit parameter units) should be made:" << std::endl;
     std::cout << "Note that gA (1) is a special parameter" << std::endl;
     //for(int i = 0; i < numberParams; i++)
+    std::ofstream myFileFitResults("fit_results.txt", std::ios::out | std::ios::app);
     for(int i = 0; i < numberEnabledParams; i++)
     {
         std::cout << i << " :\t" << AdjustActs[i] << " +- " << AdjustActs_Err[i] << std::endl;  
-        std::ofstream myFileFitResults("fit_results.txt", std::ios::out | std::ios::app);
         myFileFitResults << AdjustActs[i] << " +- " << AdjustActs_Err[i] << std::endl;
 
         myFileFitResults.close();
     }
+    myFileFitResults.close();
 
     std::cout << "The following adjustments (in units of Bq) should be made:" << std::endl;
     //for(int i = 0; i < numberParams; i++)
@@ -578,7 +517,18 @@ void loadFiles()
     }
 
 
+    std::ofstream of_numberofeventsafterfit("of_numberofeventsafterfit.txt", std::ofstream::out | std::ofstream::app);
+    for(int i = 0; i < allMCSamples1D[0]->GetEntries(); ++ i)
+    {
+        TH1F *tmpHist = (TH1F*)allMCSamples1D[0]->At(i);
+        Double_t integral = tmpHist->Integral();
+        of_numberofeventsafterfit << tmpHist->GetName() << " number of events " << integral << std::endl;
+    }
+    of_numberofeventsafterfit.close();
+    
+
     draw(AdjustActs, AdjustActs_Err, "hTotalE.*");
+    draw_2D(AdjustActs, AdjustActs_Err, "hHighLowEnergy.*");
     draw_covariance_matrix(CovMatrix, number_free_params, "cov_matrix.*");
 
 
@@ -586,889 +536,8 @@ void loadFiles()
 
 
 
-void draw(const Double_t *const AdjustActs, const Double_t *const AdjustActs_Err, const std::string& saveas_filename)
-{
 
-    ///////////////////////////////////////////////////////////////////////////
-    // draw result
-    ///////////////////////////////////////////////////////////////////////////
 
-
-    THStack *stacks1D[number1DHists];
-    //THStack *stacks1D_2nubb[number1DHists];
-    //THStack *stacks1D_tl208_int[number1DHists];
-    //THStack *stacks1D_bi214_int[number1DHists];
-    //THStack *stacks1D_bi207_int[number1DHists];
-    //THStack *stacks1D_internal[number1DHists];
-    //THStack *stacks1D_external[number1DHists];
-    //THStack *stacks1D_radon[number1DHists];
-    //THStack *stacks1D_neighbours[number1DHists];
-    //THStack *stacks1D_other[number1DHists];
-
-
-    TH1F *h_2nubb[number1DHists] = { nullptr };
-    TH1F *h_tl208_int[number1DHists] = { nullptr };
-    TH1F *h_bi214_int[number1DHists] = { nullptr };
-    TH1F *h_bi207_int[number1DHists] = { nullptr };
-    TH1F *h_internal[number1DHists] = { nullptr };
-    TH1F *h_external[number1DHists] = { nullptr };
-    TH1F *h_radon[number1DHists] = { nullptr };
-    TH1F *h_neighbours[number1DHists] = { nullptr };
-    TH1F *h_other[number1DHists] = { nullptr };
-
-
-    TCanvas *c;
-    TH1F *hAllMC1D[number1DHists];
-    TH1F *data1D[number1DHists];
-
-    // TODO: copy over legend code from fit_2e.C
-
-    std::cout << "debug: number of data samples: " << allDataSamples1D->GetEntries() << std::endl;
-    std::cout << "debug: number of MC samples: " << allMCSamples1D[0]->GetEntries() << std::endl;
-
-
-    // each channel 1D hists
-    // this is for(i = 0; i < 1; ++ i)
-    for(int i = 0; i < allDataSamples1D->GetEntries(); i++)
-    {
-        if(i != 0)
-        {
-            std::cout << "debug: ERROR: i = " << i << " should ONLY be 0" << std::endl;
-        }
-
-        data1D[i] = (TH1F*)allDataSamples1D->At(i)->Clone();
-
-        TString i_str;
-        i_str.Form("%i", i);
-    
-        c = new TCanvas("c" + i_str);
-        c->SetFillColor(kWhite);
-
-        
-        stacks1D[i] = new THStack("stacks1D" + i_str, i_str);
-        //stacks1D_2nubb[i] = new THStack("stacks1D_2nubb" + i_str, i_str);
-        //stacks1D_tl208_int[i] = new THStack("stacks1D_tl208_int" + i_str, i_str);
-        //stacks1D_bi214_int[i] = new THStack("stacks1D_bi214_int" + i_str, i_str);
-        //stacks1D_bi207_int[i] = new THStack("stacks1D_bi207_int" + i_str, i_str);
-        //stacks1D_internal[i] = new THStack("stacks1D_internal" + i_str, i_str);
-        //stacks1D_external[i] = new THStack("stacks1D_external" + i_str, i_str);
-        //stacks1D_radon[i] = new THStack("stacks1D_radon" + i_str, i_str);
-        //stacks1D_neighbours[i] = new THStack("stacks1D_neighbours" + i_str, i_str);
-        //stacks1D_other[i] = new THStack("stacks1D_other" + i_str, i_str);
-
-
-        TH1F *tmpHist_draw1D;
-
-        // j list MC samples for this channel i
-        //std::cout << "debug: number of MC samples (i=" << i << "): " << allMCSamples1D[i]->GetEntries() << std::endl;
-
-        /*
-        std::cout << "list of all objects in allMCSamples1D[i=" << i << "]" << std::endl;
-        for(int j = 0; j < allMCSamples1D[i]->GetEntries(); j++)
-        {
-            //std::cout << (((TH1F*)allMCSamples1D[i])->At(j))->GetName() << std::endl;
-            tmpHist_draw1D = (TH1F*)allMCSamples1D[i]->At(j)->Clone();
-            TString tmpName = tmpHist_draw1D->GetName();
-            std::cout << tmpName << std::endl;
-        }
-        */
-
-        // what does this code actually do?
-        // loops through all MC samples using index j
-        // gets name of MC sample into tmpName
-        // eg: WHAT
-        // loops over 0..numberParams-1 with k
-        // loops over 0..paramNameMap[k].size()-1 with n
-        // checks if tmpName contains paramNameMap[k].at(n)
-        // what is paramNameMap[k].at(n)?
-        // it is: std::string paramNameMap[numberParams]
-        // this code appears to be broken - was not updated from a previous
-        // version perhaps?
-        // allMCSamples1D[0] contains objects such as: "zr96_rot_k40_2e_P2"
-        
-        
-
-        /*
-        std::cout << "contents of map: MCNameToParamNumberMap" << std::endl;
-        for(auto it = MCNameToParamNumberMap.cbegin(); it != MCNameToParamNumberMap.cend(); ++ it)
-        {
-            std::cout << it->first << " -> " << it->second << std::endl;
-        }
-        */
-
-        // MARKER3
-        for(int j = 0; j < allMCSamples1D[i]->GetEntries(); j++)
-        {
-
-            //std::cout << "j=" << j << std::endl;
-
-            TString j_str;
-            j_str.Form("%i", j);
-
-            tmpHist_draw1D = (TH1F*)allMCSamples1D[i]->At(j)->Clone();
-            TString tmpName = tmpHist_draw1D->GetName();
-
-            //std::cout << "(1) tmpName=" << tmpName << std::endl;
-
-            //std::cout << "looking for " << tmpName << std::endl;
-            int which_param = -1;
-            bool found_param = false;
-
-            // search through parameters to find right one
-            // this code is broken: it is SUPPOSED to select k such that
-            // which_param = k
-            // using tmpName.Contains(paramNameMap[k].at(i))
-            // which_param corresponds to an MC sample (it is an index, or
-            // in other words it is paramNumber)
-            // paramNameMap was expected to be a list of parameter names/MC
-            // samples corresponding to parameter number/index k
-            // in other words, I have a data structure called
-            // MCNameToParamNumberMap which maps a parameterMCSample to the
-            // parameter index. let's try it and see if it works
-            // what is it trying to do? use the names of the histograms to 
-            // map what to what? name of histogram to parameter number?
-            // so that parameter number can be used to get fitted activity
-            // for scaling ? - yes this is what it is trying to do, but
-            // includes an error check for if the parameter is not found
-            // the histogram names are formatted like:
-            // hTotalE_bi214_mylar_fit
-            // histogram_name + "_" + mc_sample_name + "_fit"
-            
-            //std::cout << "NEW CODE" << std::endl;
-            //try
-            //{
-            // TODO: remove TString
-
-            // used later
-            double activity_scale_branching_ratio = 1.0;
-
-            {
-                std::string tmp_hist_name(tmpName);
-                auto i_start = tmp_hist_name.find('_') + 1;
-                auto i_end = tmp_hist_name.rfind('_');
-                if(i_end - i_start > 0)
-                {
-                    std::string tmp_sample_name = tmp_hist_name.substr(i_start, i_end - i_start);
-
-                    // set branching ratio fraction
-                    if(tmp_sample_name == std::string("tl208_int_rot") ||
-                       tmp_sample_name == std::string("tl208_feShield") ||
-                       tmp_sample_name == std::string("tl208_pmt"))
-                    {
-                        //std::cout << "tmp_sample_name=" << tmp_sample_name << std::endl;
-                        //std::cin.get();
-                        activity_scale_branching_ratio = 0.36;
-                    }
-
-                    //std::cout << "tmp_sample_name=" << tmp_sample_name << std::endl;
-                    if(MCNameToParamNumberMap.count(tmp_sample_name) > 0)
-                    {
-                        int paramNumber = MCNameToParamNumberMap.at(tmp_sample_name);
-                        // TODO: removed std::string, change tmpName type to be std::string from TString
-                    
-                        //std::cout << "paramNumber=" << paramNumber << " -> tmp_sample_name=" << tmp_sample_name << " ~> tmpName=" << tmpName << std::endl;                    
-                        //which_param = paramNumber;
-                        which_param = paramNumberToMinuitParamNumberMap.at(paramNumber);
-                        found_param = true;
-                    }
-                    else
-                    {
-                       std::cout << "ERROR: could not find " << tmp_sample_name << " in MCNameToParamNumberMap" << std::endl;
-                    }
-                }
-            }
-            /*
-            }
-            catch(std::exception &e)
-            {
-                std::cout << "e.what(): " << e.what() << std::endl;
-                std::cout << "tmpName=" << tmpName << std::endl;
-                std::cout << "contents of map" << std::endl;
-                for(auto it = MCNameToParamNumberMap.cbegin(); it != MCNameToParamNumberMap.cend(); ++ it)
-                {
-                    std::cout << it->first << " -> " << it->second << std::endl;
-                }
-            }
-            std::cin.get();
-            */
-
-
-
-            if(found_param == true)
-            {
-                //std::cout << "found histogram: tmpName=" << tmpName << " which_param=" << which_param << std::endl;
-
-                // scale histogram to correct size using output parameter
-                // from fit
-                if(which_param >= numberEnabledParams)
-                {
-                    std::cout << "throwing exception, which_param=" << which_param << std::endl;
-                    throw std::runtime_error("which_param invalid value");
-                }
-
-
-            /* if I rebuild the MC in the fitHistograms loop
-             * then I don't need to reweight it here
-                // check if MC sample is 150Nd, if so need to apply xi
-                // reweighting
-                TString tmpHist_name = tmpHist_draw1D->GetName();
-                if(tmpHist_name.CompareTo("nd150_rot_2n2b_m4") == 0)
-                {
-                    std::cout << "found the 150Nd MC" << std::endl;
-                    std::cin.get();
-
-                    //TH1F *tmpHist_draw1D_clone = nullptr;
-                    TH1F *tmpHist_reweight = nullptr;
-                    //reweight_apply(tmpHist_draw1D_clone, tmpHist_draw1D, ... );
-                    reweight_apply(tmpHist_reweight, "Nd150_2eNg_output_truth_postprocessed.root", xi_31, xi_31_baseline, h_nEqNull, h_nEqTwo, psiN0, psiN2, bb_Q);
-                    // TODO: after reweight function called, replace 150nd MC
-                    // in containers, or add a _reweight version to containers
-
-                    tmpHist_drawpointer = tmpHist_draw1D_clone;
-                }
-                else
-                {
-                    std::cout << "it is not " << tmpHist_draw1D->GetName() << std::endl;
-                    std::cin.get();
-                }
-              */
-
-                // no error thrown, which_param is presumably the correct index
-                Double_t activity_scale = AdjustActs[which_param] * activity_scale_branching_ratio;
-                //if()
-                //{
-                //    activity_scale *= 0.36;
-                //}
-                tmpHist_draw1D->Scale(activity_scale);
-                // TODO: fix this
-
-                //TH1F *tmpHist_drawpointer = tmpHist_draw1D;
-
-                
-                if(tmpHist_draw1D->Integral() > 0)
-                //if(tmpHist_drawpointer->Integral() > 0)
-                {
-                    stacks1D[i]->Add((TH1F*)tmpHist_draw1D->Clone());
-                    //stacks1D[i]->Add(tmpHist_drawpointer);
-
-                    TString hname = tmpHist_draw1D->GetName();
-
-                    // 150 Nd
-                    if(hname.Contains("150"))
-                    {
-                        //stacks1D_2nubb[i]->Add((TH1F*)tmpHist_draw1D->Clone());
-                        if(h_2nubb[i] == nullptr)
-                        {
-                            h_2nubb[i] = (TH1F*)tmpHist_draw1D->Clone();
-                        }
-                        else
-                        {
-                            h_2nubb[i]->Add((TH1F*)tmpHist_draw1D->Clone());
-                        }
-                    }
-                    // tl208 internal
-                    else if(hname.Contains("tl208_int"))// ||
-                            //hname.Contains("ac228_int") ||
-                            //hname.Contains("bi212_int"))
-                    {
-                        //stacks1D_tl208_int[i]->Add((TH1F*)tmpHist_draw1D->Clone());
-                        if(h_tl208_int[i] == nullptr)
-                        {
-                            h_tl208_int[i] = (TH1F*)tmpHist_draw1D->Clone();
-                        }
-                        else
-                        {
-                            h_tl208_int[i]->Add((TH1F*)tmpHist_draw1D->Clone());
-                        }
-                    }
-                    // bi 214 internal
-                    else if(hname.Contains("bi214_int") ||
-                            hname.Contains("pb214_int")
-                            )
-                    {
-                        //stacks1D_bi214_int[i]->Add((TH1F*)tmpHist_draw1D->Clone());
-                        if(h_bi214_int[i] == nullptr)
-                        {
-                            h_bi214_int[i] = (TH1F*)tmpHist_draw1D->Clone();
-                        }
-                        else
-                        {
-                            h_bi214_int[i]->Add((TH1F*)tmpHist_draw1D->Clone());
-                        }
-                    }
-                    // bi 207 internal
-                    else if(hname.Contains("bi207_int"))
-                    {
-                        //stacks1D_bi207_int[i]->Add((TH1F*)tmpHist_draw1D->Clone());
-                        if(h_bi207_int[i] == nullptr)
-                        {
-                            h_bi207_int[i] = (TH1F*)tmpHist_draw1D->Clone();
-                        }
-                        else
-                        {
-                            h_bi207_int[i]->Add((TH1F*)tmpHist_draw1D->Clone());
-                        }
-                    }
-                    // internals (other)
-                    else if(hname.Contains("int"))
-                    {
-                        //stacks1D_internal[i]->Add((TH1F*)tmpHist_draw1D->Clone());
-                        if(h_internal[i] == nullptr)
-                        {
-                            h_internal[i] = (TH1F*)tmpHist_draw1D->Clone();
-                        }
-                        else
-                        {
-                            h_internal[i]->Add((TH1F*)tmpHist_draw1D->Clone());
-                        }
-                    }
-                    // neighbours
-                    else if(
-                        hname.Contains("mo100") ||
-                        hname.Contains("zr96") ||
-                        hname.Contains("ca48")
-                        )
-                    {
-                        //stacks1D_neighbours[i]->Add((TH1F*)tmpHist_draw1D->Clone());
-                        if(h_neighbours[i] == nullptr)
-                        {
-                            h_neighbours[i] = (TH1F*)tmpHist_draw1D->Clone();
-                        }
-                        else
-                        {
-                            h_neighbours[i]->Add((TH1F*)tmpHist_draw1D->Clone());
-                        }
-                    }
-                    // radon
-                    else if(
-                        hname.Contains("swire")
-                        )
-                    {
-                        //stacks1D_radon[i]->Add((TH1F*)tmpHist_draw1D->Clone());
-                        if(h_radon[i] == nullptr)
-                        {
-                            h_radon[i] = (TH1F*)tmpHist_draw1D->Clone();
-                        }
-                        else
-                        {
-                            h_radon[i]->Add((TH1F*)tmpHist_draw1D->Clone());
-                        }
-                    }
-                    // external
-                    else if(
-                        hname.Contains("feShield") ||
-                        hname.Contains("pmt") ||
-                        hname.Contains("cuTower") ||
-                        hname.Contains("sscin") ||
-                        hname.Contains("scint") ||
-                        hname.Contains("air")
-                        )
-                    {
-                        //stacks1D_external[i]->Add((TH1F*)tmpHist_draw1D->Clone());
-                        if(h_external[i] == nullptr)
-                        {
-                            h_external[i] = (TH1F*)tmpHist_draw1D->Clone();
-                        }
-                        else
-                        {
-                            h_external[i]->Add((TH1F*)tmpHist_draw1D->Clone());
-                        }
-                    }
-                    // everything else
-                    else
-                    {
-                        std::cout << "adding " << tmpHist_draw1D->GetName() << " to others TODO: FIX" << std::endl;
-                        //stacks1D_other[i]->Add((TH1F*)tmpHist_draw1D->Clone());
-                        if(h_other[i] == nullptr)
-                        {
-                            h_other[i] = (TH1F*)tmpHist_draw1D->Clone();
-                        }
-                        else
-                        {
-                            h_other[i]->Add((TH1F*)tmpHist_draw1D->Clone());
-                        }
-                    }
-                    
-
-                    if(j == 0)
-                    {
-                        hAllMC1D[i] = (TH1F*)tmpHist_draw1D->Clone("Total MC");
-                        //hAllMC1D[i] = (TH1F*)tmpHist_drawpointer->Clone("Total MC");
-                    }
-                    else
-                    {
-                        hAllMC1D[i]->Add((TH1F*)tmpHist_draw1D);
-                        //hAllMC1D[i]->Add((TH1F*)tmpHist_drawpointer);
-                    }
-	            }
-                else
-                {
-                    std::cout << "not adding to stack, Integral() <= 0: " << tmpHist_draw1D->GetName() << std::endl;
-                }
-            }
-            else
-            {
-                std::cout << "error could not find histogram: tmpName=" << tmpName << std::endl;
-            } 
-
-        }
-
-
-        //stacks1D[i]->SetMaximum(350.);
-        //stacks1D[i]->Draw("hist");
-
-        //stacks1D_2nubb[i]->SetMaximum(350.0);
-        //stacks1D_2nubb[i]->Draw("hist");
-        //stacks1D_tl208_int[i]->Draw("histsame");
-        //stacks1D_bi214_int[i]->Draw("histsame");
-        //stacks1D_bi207_int[i]->Draw("histsame");
-        //stacks1D_internal[i]->Draw("histsame");
-        //stacks1D_external[i]->Draw("histsame");
-        //stacks1D_radon[i]->Draw("histsame");
-        //stacks1D_neighbours[i]->Draw("histsame");
-        //stacks1D_other[i]->Draw("histsame");
-
-std::cout << "before stacks major" << std::endl;
-
-        THStack *stacks1D_major[number1DHists];
-        stacks1D_major[i] = new THStack("stacks1D_major" + i_str, i_str);
-        if(h_external[i] != nullptr)
-        {
-            //h_external[i]->SetLineWidth(1);
-            //h_external[i]->SetLineColor(kBlack);
-            h_external[i]->SetFillColor(ExternalBkgColor);
-            h_external[i]->SetLineStyle(0);
-            h_external[i]->SetLineWidth(0);
-            stacks1D_major[i]->Add((TH1F*)h_external[i]);
-        }
-        if(h_radon[i] != nullptr)
-        {
-            //h_radon[i]->SetLineWidth(1);
-            //h_radon[i]->SetLineColor(kBlack);
-            h_radon[i]->SetFillColor(RadonBkgColor);
-            h_radon[i]->SetLineStyle(0);
-            h_radon[i]->SetLineWidth(0);
-            stacks1D_major[i]->Add((TH1F*)h_radon[i]);
-        }
-        if(h_neighbours[i] != nullptr)
-        {
-            h_neighbours[i]->SetFillColor(NeighbourColor);
-            h_neighbours[i]->SetLineStyle(0);
-            h_neighbours[i]->SetLineWidth(0);
-            stacks1D_major[i]->Add((TH1F*)h_neighbours[i]);
-        }
-        if(h_internal[i] != nullptr)
-        {
-            //h_internal[i]->SetLineWidth(1);
-            //h_internal[i]->SetLineColor(kBlack);
-            h_internal[i]->SetFillColor(InternalBkgColor);
-            h_internal[i]->SetLineStyle(0);
-            h_internal[i]->SetLineWidth(0);
-            stacks1D_major[i]->Add((TH1F*)h_internal[i]);
-        }
-        if(h_bi207_int[i] != nullptr)
-        {
-            h_bi207_int[i]->SetFillColor(bi207InternalBkgColor);
-            h_bi207_int[i]->SetLineStyle(0);
-            h_bi207_int[i]->SetLineWidth(0);
-            stacks1D_major[i]->Add((TH1F*)h_bi207_int[i]);
-        }
-        if(h_bi214_int[i] != nullptr)
-        {
-            h_bi214_int[i]->SetFillColor(bi214InternalBkgColor);
-            h_bi214_int[i]->SetLineStyle(0);
-            h_bi214_int[i]->SetLineWidth(0);
-            stacks1D_major[i]->Add((TH1F*)h_bi214_int[i]);
-        }
-        if(h_tl208_int[i] != nullptr)
-        {
-            h_tl208_int[i]->SetFillColor(tl208InternalBkgColor);
-            h_tl208_int[i]->SetLineStyle(0);
-            h_tl208_int[i]->SetLineWidth(0);
-            stacks1D_major[i]->Add((TH1F*)h_tl208_int[i]);
-        }
-        if(h_2nubb[i] != nullptr)
-        {
-            h_2nubb[i]->SetFillColor(Nd150Color);
-            h_2nubb[i]->SetLineStyle(0);
-            h_2nubb[i]->SetLineWidth(0);
-            stacks1D_major[i]->Add((TH1F*)h_2nubb[i]);
-        }
-        if(h_other[i] != nullptr)
-        {
-            h_other[i]->SetLineStyle(0);
-            h_other[i]->SetLineWidth(0);
-            stacks1D_major[i]->Add((TH1F*)h_other[i]);
-            std::cout << "h_other is non zero" << std::endl;
-        }
-        std::cout << "after stacks" << std::endl;
-
-        stacks1D_major[i]->SetMaximum(350.0);
-        stacks1D_major[i]->Draw("hist");
-
-        hAllMC1D[i]->SetLineWidth(2);
-        hAllMC1D[i]->SetLineColor(kBlack);
-        hAllMC1D[i]->SetFillColor(kWhite);
-        hAllMC1D[i]->SetFillStyle(0);
-        hAllMC1D[i]->Sumw2();
-        //hAllMC1D[i]->Draw("hist sames");
-        TString Nmc_str;
-        Nmc_str.Form("%i", (int)hAllMC1D[i]->Integral()); // TODO: float?
-        hAllMC1D[i]->SetTitle("Total MC (" + Nmc_str + ")");
-        hAllMC1D[i]->Draw("hist same");
-        data1D[i]->SetLineWidth(2);
-        data1D[i]->SetMarkerStyle(20);
-        data1D[i]->SetMarkerSize(1.0);
-        TString Ndata_str;
-        Ndata_str.Form("%i", (int)data1D[i]->Integral()); // TODO: float?
-        data1D[i]->SetTitle("Data (" + Ndata_str + ")");
-        //data1D[i]->Draw("PEsames");
-        data1D[i]->Draw("PEsame");
-
-        double chi2;
-        int ndf;
-        int igood;
-        TString chi2_str;
-        TString ndf_str;
-
-        // TODO: should chisquare value include the constraints? because at
-        // the moment it does not
-
-        // TODO: chi2 value is different from fit_2e code
-        double prob = data1D[i]->Chi2TestX(hAllMC1D[i], chi2, ndf, igood, "UW");
-        // TODO: check if I can get fcn value from the minuit fit object
-        chi2_str.Form("%4.3f", chi2);
-        ndf_str.Form("%i", ndf);
-
-        #if 0
-        TLegend *leg;
-        leg = c->BuildLegend();
-        leg->SetName("leg" + i_str + "_");
-        leg->SetFillColor(kWhite);
-        leg->AddEntry((TObject*)0, "#chi^{2}/ndf = " + chi2_str + "/" + ndf_str, "");
-        leg->Draw();
-        #else
-        TLegend *leg = new TLegend(0.6, 0.88, 0.88, 0.3);
-        leg->AddEntry(data1D[i], "Data (" + Ndata_str + ")", "PE");
-        leg->AddEntry(hAllMC1D[i], "Total MC (" + Nmc_str + ")", "L");
-        leg->AddEntry(h_2nubb[i], "2#nu#beta#beta", "F");
-        leg->AddEntry(h_tl208_int[i], "^{208}Tl Int", "F");
-        leg->AddEntry(h_bi214_int[i], "^{214}Bi Int", "F");
-        leg->AddEntry(h_bi207_int[i], "^{207}Bi Int", "F");
-        leg->AddEntry(h_internal[i], "Internal", "F");
-        leg->AddEntry(h_neighbours[i], "Neighbour Foil", "F");
-        leg->AddEntry(h_radon[i], "Radon", "F");
-        leg->AddEntry(h_external[i], "External", "F");
-        //leg->AddEntry((TObject*)nullptr, "#chi^{2}/ndf=" + chi2_str + "/" + ndf_str, "");
-        //leg->AddEntry(h_other[i], "other", "f");
-        leg->SetBorderSize(0);
-        leg->SetFillColor(0);
-        leg->SetTextFont(62);
-        leg->SetTextSize(0.035);
-        leg->SetShadowColor(kBlack);
-        leg->Draw();
-        #endif
-
-        TLatex latexlabel;
-        latexlabel.SetNDC();
-        latexlabel.SetTextFont(62);
-        latexlabel.SetTextSize(0.035);
-        latexlabel.DrawLatex(0.63, 0.23, "#frac{#chi^{2}}{ndf} = #frac{" + chi2_str + "}{" + ndf_str + "}");
-
-
-        //std::cout << "saving to file (canvas)" << std::endl;
-        //c->SaveAs("finalHisto1D_" + i_str + ".C");
-        //c->SaveAs("finalHisto1D_" + i_str + ".eps");
-        //c->SaveAs("finalHisto1D_" + i_str + ".png");
-    
-    }
-
-
-    if(saveas_filename.size() > 0)
-    {
-        std::size_t length = saveas_filename.size();
-        if(length >= 2)
-        {
-            if(saveas_filename[length - 1] == '*' && saveas_filename[length = 2] == '.')
-            {
-                std::string base_name = saveas_filename.substr(0, length - 2);
-                std::vector<std::string> extensions;
-                extensions.push_back("C");
-                extensions.push_back("png");
-                extensions.push_back("eps");
-                extensions.push_back("pdf");
-                for(auto it{extensions.begin()}; it != extensions.end(); ++ it)
-                {
-                    std::string name = base_name + "." + *it;
-                    std::cout << "saving as " << name << std::endl;
-                    c->SaveAs(name.c_str());
-                }
-            }
-        }
-        c->SaveAs(saveas_filename.c_str());
-    }
-
-}
-
-
-void draw_covariance_matrix(const double * const CovMatrix, const int number_free_params, const std::string& saveas_filename)
-{
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // draw covarience matrix
-    ///////////////////////////////////////////////////////////////////////////
-
-    std::cout << "draw: covariance matrix" << std::endl;
-
-    /*
-    std::cout << "contents of free_params:" << std::endl;
-    for(int i = 0; i < free_params.size(); ++ i)
-    {
-        std::cout << free_params.at(i) << std::endl;
-    }
-    */
-
-    // do not store names elsewhere, create them here
-    TH2D* hCorrMatrix = new TH2D("hCorrMatrix", "Correlation Matrix",
-                                 number_free_params, 0, (double)number_free_params,
-                                 number_free_params, 0, (double)number_free_params);
-
-    std::cout << "number_free_params=" << number_free_params << std::endl;
-    for(int i = 0; i < number_free_params; i++)
-    {
-        for(int j = 0; j < number_free_params; j++)
-        {
-            //std::cout << index_free_params.at(i) << "  " << index_free_params.at(j)<< std::endl;
-            //CovMatrix[i][j] = minuit->GetCovarianceMatrixElement(i,j);
-
-            // std::cout << CovMatrix[i][j] << std::endl;
-            //Double_t value = CovMatrix[i][j] / (std::sqrt(CovMatrix[i][i]) * std::sqrt(CovMatrix[j][j]));
-            //
-            Double_t CovMatrix_i_j = CovMatrix[i * number_free_params + j];
-            Double_t CovMatrix_i_i = CovMatrix[i * number_free_params + i];
-            Double_t CovMatrix_j_j = CovMatrix[j * number_free_params + j];
-
-            Double_t value = CovMatrix_i_j / (std::sqrt(CovMatrix_i_i) * std::sqrt(CovMatrix_j_j));
-            //hCorrMatrix->Fill(free_params_names.at(i), free_params_names.at(j), value);
-            //hCorrMatrix->Fill(i, j, value);
-            
-            // need to ignore all HARD constrained (minuit->FixParameter)
-            // parameters
-            // I don't know if I like this solution, might be better to
-            // iterate over the vectors themselves
-            // TODO: what order is this vector in and how does that affect
-            // output?
-            // TODO: change to another incremental index, and have an
-            // if(find(fixed params)) statement
-            //std::cout << "i=" << i << " j=" << j << std::endl;
-
-            int i_free_param_index = free_params.at(i);
-            int j_free_param_index = free_params.at(j);
-            //std::cout << "i_free_param_index=" << i_free_param_index << " j_free_param_index=" << j_free_param_index << std::endl;
-
-            // convert minuit/internal parameter
-            // ("free parameter" meaning not SOFT or FREE constrain mode)
-            // to external parameter number
-            //int i_external = minuitParamNumberToParamNumberMap.at(i_free_param_index);
-            //int j_external = minuitParamNumberToParamNumberMap.at(j_free_param_index);
-            //std::cout << "i_external=" << i_external << " j_external=" << j_external << std::endl;
-            // NOTE: using method of accessing vector elements in free_params
-            // gives index which is already in external index format
-            int i_external = i_free_param_index;
-            int j_external = j_free_param_index;
-
-            // convert external parameter number to parameter name
-            TString free_param_name_i = paramNameMap[i_external];
-            TString free_param_name_j = paramNameMap[j_external];
-            //std::cout << "free_param_name_i=" << free_param_name_i << " free_param_name_j=" << free_param_name_j << std::endl;
-
-            // convert parameter name to human readable name
-            //TString free_param_human_name_i = paramNameToHumanParamNameMap.at(free_param_name_i);
-            //TString free_param_human_name_j = paramNameToHumanParamNameMap.at(free_param_name_j);
-            //TString free_param_human_name_i = paramNameToHumanReadableParamNameMap.at(free_param_name_i);
-            //TString free_param_human_name_j = paramNameToHumanReadableParamNameMap.at(free_param_name_j);
-            //std::cout << "free_param_human_name_i=" << free_param_human_name_i << " free_param_human_name_j=" << free_param_human_name_j << std::endl;
-
-            TString free_param_human_name_i = "NONAME";
-            TString free_param_human_name_j = "NONAME";
-            // if available, use name from manually assigned names in parameter_names.lst file
-            if(paramNumberToHumanReadableParamNameMap.count(i_external) == 1)
-            {
-                free_param_human_name_i = paramNumberToHumanReadableParamNameMap.at(i_external);
-            }
-            else
-            {
-                free_param_human_name_i = paramNameToHumanReadableParamNameMap.at(free_param_name_i);
-            }
-            if(paramNumberToHumanReadableParamNameMap.count(j_external) == 1)
-            {
-                free_param_human_name_j = paramNumberToHumanReadableParamNameMap.at(j_external);
-            }
-            else
-            {
-                free_param_human_name_j = paramNameToHumanReadableParamNameMap.at(free_param_name_j);
-            }
-
-            // fill
-            hCorrMatrix->Fill(free_param_human_name_i, free_param_human_name_j, value);
-
-        }
-    }
-  
-    // TODO: re-enable this check chi2 value is the same
-    // remove global variable for chi2?
-    // these were commented out for some reason, I did not remove them
-    /*
-    double chi2, edm, errdef; 
-    int nvpar, nparx;
-    minuit->GetStats(chi2, edm, errdef, nvpar, nparx);
-    int ndf = npfits-nvpar;
-    */
-
-
-    // TODO: margin
-    //c->SetLeftMargin(0.15)
-    //c->SetTopMargin(0.15);
-    
-    // create a function to draw the final stacked histograms
-    gStyle->SetPaintTextFormat("4.2f");
-    gStyle->SetGridStyle(0);
-
-    hCorrMatrix->SetTitle("Parameter Correlation Matrix");
-    hCorrMatrix->LabelsDeflate();
-    hCorrMatrix->GetXaxis()->LabelsOption("v");
-    hCorrMatrix->GetXaxis()->SetLabelSize(0.035);
-    hCorrMatrix->GetYaxis()->SetLabelSize(0.035);
-    hCorrMatrix->GetZaxis()->SetRangeUser(-1.0, 1.0);
-
-    //TCanvas *c2 = new TCanvas("c2");
-    TCanvas *c2 = new TCanvas("c2", "Parameter Correlation Matrix", 200, 10, 1013, 885);
-    c2->SetLeftMargin(0.18);
-    c2->SetRightMargin(0.14);
-    c2->SetTopMargin(0.14);
-    c2->SetBottomMargin(0.21);
-    c2->SetFillColor(kWhite);
-    c2->SetGrid();
-    hCorrMatrix->Draw("colz text");
-   
-    // clean
-    delete [] CovMatrix;
-
-    // TODO: save plots
-
-    //if(saveas_filename.size() > 0)
-    //{
-    //    c2->SaveAs(saveas_filename.c_str());
-    //}
-    if(saveas_filename.size() > 0)
-    {
-        std::size_t length = saveas_filename.size();
-        if(length >= 2)
-        {
-            if(saveas_filename[length - 1] == '*' && saveas_filename[length = 2] == '.')
-            {
-                std::string base_name = saveas_filename.substr(0, length - 2);
-                std::vector<std::string> extensions;
-                extensions.push_back("C");
-                extensions.push_back("png");
-                extensions.push_back("eps");
-                extensions.push_back("pdf");
-                for(auto it{extensions.begin()}; it != extensions.end(); ++ it)
-                {
-                    std::string name = base_name + "." + *it;
-                    c2->SaveAs(name.c_str());
-                }
-            }
-        }
-        c2->SaveAs(saveas_filename.c_str());
-    }
-
-}
-
-
-void untitledfunction()
-{
-
-    ///////////////////////////////////////////////////////////////////////////
-    // draw results - 2d
-    ///////////////////////////////////////////////////////////////////////////
-
-#if 0
-    // each channel 1D hists
-    THStack *stacks2D[number2DHists];
-    TH2F *data2D[number2DHists];
-    for(int i = 0; i < allDataSamples2D->GetEntries(); i++)
-    {
-        data2D[i] = (TH2F*)allDataSamples2D->At(i)->Clone();
-        TString i_str;
-        i_str.Form("%i",i);
-        c = new TCanvas("c_"+i_str);
-        c->SetFillColor(kWhite);
-        stacks2D[i] = new THStack("stacks2D"+i_str,i_str);
-
-        // j list MC samples for this channel i
-        TH2F *tmpHist_draw2D;
-        for(int j = 0; j < allMCSamples2D[i]->GetEntries(); j++)
-        {
-            TString j_str;
-            j_str.Form("%i",j);
-            tmpHist_draw2D = (TH2F*)allMCSamples2D[i]->At(j)->Clone();
-            TString tmpName = tmpHist_draw2D->GetName();
-
-            //std::cout << "looking for " << tmpName << std::endl;
-            
-            // k searching through array of params for the right one
-            int which_param;
-            bool foundParam = false;
-            for(int k = 0; (k < numberParams) && !foundParam; k++)
-            {
-            
-                // match up the isotope with parm
-                for(int n = 0; (n < paramNameMap[k].size()) && !foundParam; n++)
-                {
-	                //std::cout <<"is it...  " <<paramNameMap[k].at(j) << std::endl;
-
-	                if(tmpName.Contains(paramNameMap[k].at(n)))
-                    {
-	                    foundParam = true;
-                        which_param = k;
-	                }
-	            }
-            }
-
-            if(foundParam)
-            {
-                tmpHist_draw2D->Scale(AdjustActs[which_param]);
-     
-                if(tmpHist_draw2D->Integral() > 0)
-                {
-                    stacks2D[i]->Add(tmpHist_draw2D);
-                }
-            }
-            else
-            {
-                std::cout << "error could not find histograms" << std::endl;
-            }
-
-        }
-
-        stacks2D[i]->Draw("");
-        data2D[i]->SetLineWidth(2);
-        data2D[i]->SetMarkerStyle(20);
-        data2D[i]->SetMarkerSize(0.5);
-        data2D[i]->Draw("PEsames");
-
-        c->SaveAs("finalHisto2D_" + i_str + ".C");
-        c->SaveAs("finalHisto2D_" + i_str + ".eps");
-        c->SaveAs("finalHisto2D_" + i_str + ".png");
-        std::cout << "saved 2D histogram to file" << std::endl;
-
-    }
-#endif
-
-
-}
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1500,7 +569,8 @@ void book1DHistograms_helper(TFile *myFile, Int_t channel_counter, TString theCh
             {
                 // check if param number is enabled
 
-                std::string directory("scaled/hTotalE_/");
+                //std::string directory("scaled/hTotalE_/");
+                std::string directory("scaled/" + theHistogram + "/");
                 std::string name(theHistogram + BkgFiles[i] + "_fit_scaled");
                 std::string fullname = directory + name;
                 std::string new_name(theHistogram + BkgFiles[i] + "_fit");
@@ -1699,10 +769,12 @@ void book1DHistograms(Int_t channel_counter, TString theChannel, TString thePhas
                             Nd150Files);//,
                             //tmpHist);
 
+    std::cout << "Data" << std::endl;
     // TODO here
     // what is name in other section of code
     //std::string name(theHistogram + "data_2e");
-    std::string directory("processeddata/hTotalE_/");
+    //std::string directory("processeddata/hTotalE_/");
+    std::string directory("processeddata/" + theHistogram + "/");
     std::string name(theHistogram + "data_2e");
     std::string fullname = directory + name;
     std::cout << "fullname=" << fullname << std::endl;
@@ -1745,86 +817,222 @@ void book1DHistograms(Int_t channel_counter, TString theChannel, TString thePhas
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// 
+// book2DHistograms
 ///////////////////////////////////////////////////////////////////////////////
 
-void book2DHistograms(Int_t channel_counter, TString theChannel, TString thePhase, TString theHistogram) {
+void book2DHistograms_helper(
+    TFile *myFile,
+    Int_t channel_counter,
+    TString theChannel,
+    TString thePhase_arg,
+    TString theHistogram,
+    const int nBkgs,
+    TString *BkgFiles)
+    //, TH1F *tmpHist)
+{
+        
+    TH2F *tmpHist = nullptr;
 
-  std::cout << "booking 2D hists for "<< theChannel<<" " <<thePhase<<std::endl;
-  allMCSamples2D[channel_counter] = new TObjArray();
+    for(int i = 0; i < nBkgs; i++)
+    {
+        // check if parameter is enabled
+        // convert parameter string name to index
 
-  TFile *aFile = TFile::Open("/home/blotsd/NEMO3/Nd150_analysis/MeasureStuff/Macros/Nd150_"+theChannel+thePhase+".root");
-  gDirectory->cd("singleHistos");
-  // gDirectory->ls();
-  TH2F *tmpHist2  = new TH2F("tmpHist2_"+theChannel+thePhase,"",1,0,1,1,0,1);
-  for ( int i = 0; i < nExternalBkgs; i++ ) {
-    if ( gDirectory->GetListOfKeys()->Contains(theHistogram+ExternalBkgFiles[i]+"_fit") ) {//check if the histograms exists
-      tmpHist2 = (TH2F*)gDirectory->Get(theHistogram+ExternalBkgFiles[i]+"_fit")->Clone(ExternalBkgFiles[i]+"_"+theChannel+thePhase);
-      allMCSamples2D[channel_counter]->Add(tmpHist2);
+        // convert TString to std::string
+        std::string mc_name = std::string(BkgFiles[i]);
 
-      //std::cout << tmpHist->GetName() << std::endl;
+        // example: "bi214_int_rot" -> "bi214_int_rot,pb214_int_rot"
+        std::string search_object = MCNameToParamNameMap.at(mc_name);
 
+        // example: "bi214_int_rot,pb214_int_rot" -> 4
+        // check if parameter number exists
+        // (was defined by parameter_names.lst)
+        if(paramNameToNumberMap.count(search_object) > 0)
+        {
+            // convert from mc sample name to param number
+            int param_number = paramNameToNumberMap.at(search_object);
+
+            // check if this parameter number is enabled
+            if(std::find(enabled_params.begin(), enabled_params.end(), param_number) != enabled_params.end())
+            {
+
+                // TODO:
+                //std::string directory("scaled/hHighLowEnergy_/");
+                std::string directory("scaled/" + theHistogram + "/");
+                std::string name(theHistogram + BkgFiles[i] + "_fit_scaled");
+                std::string fullname = directory + name;
+                std::string new_name(theHistogram + BkgFiles[i] + "_fit");
+                std::cout << "fullname=" << fullname << std::endl;
+
+                // TODO: try catch block
+                // load sample
+                tmpHist = (TH2F*)myFile->Get(fullname.c_str())->Clone(new_name.c_str());
+
+                if(tmpHist != nullptr)
+                {
+                    // scale by activity
+
+                    // convert parameter number to minuit parameter number
+                    //minuit_param_number = paramNumberToMinuitParamNumberMap.at(param_number);
+
+                    // TODO: change such that samples are pre-scaled by activity input value
+                    // get initial parameter values and error
+                    Double_t param_init_value = 0.;
+                    Double_t param_init_error = 0.; 
+                    if(thePhase == 0)
+                    {
+                        param_init_value = paramInitValueP1Map[param_number];
+                        param_init_error = paramInitErrorP1Map[param_number];
+                    }
+                    else if(thePhase == 1)
+                    {
+                        param_init_value = paramInitValueP2Map[param_number];
+                        param_init_error = paramInitErrorP2Map[param_number];
+                    }
+                    else
+                    {
+                        std::cout << "ERROR: Invalid value for thePhase: thePhase=" << thePhase << std::endl;
+                    }
+                    Double_t scale_factor = param_init_value;
+
+                    // account for 208 Tl branching ratio of 36 %
+                    // TODO: should I move this into fit_2e code
+                    // and apply using ->Fill() function call with
+                    // weight = 0.36
+                    if(mc_name == std::string("tl208_int_rot") ||
+                       mc_name == std::string("tl208_feShield") ||
+                       mc_name == std::string("tl208_pmt"))
+                       // TODO: do not apply to tl208_air ?
+                    {
+                        //std::cout << "mc_name=" << mc_name << " applying additional scaling factor of 0.36" << std::endl;
+                        //std::cin.get();
+                        scale_factor *= 0.36;
+                    }
+
+                    // NOTE: TODO
+                    // possible flaw with this method: error is no longer
+                    // pre-set using values from input file
+                    // TODO: note this in input file documentation
+                    // however, this may be an improvement because it
+                    // guarantees minuit is responsible for error estimation
+                    tmpHist->Scale(scale_factor);
+                    // samples are now scaled by activity
+                    // changed input, and pre-scaling, now need to change output
+
+
+                    // NOTE: do NOT apply xi reweighting here
+                    // this section just LOADS histograms from file and we want to LOAD
+                    // the default (not reweighted) nd150 spectra
+
+
+                    allMCSamples2D[channel_counter]->Add(tmpHist);
+                    // TODO: does this work as expected for secular equlibrium samples?
+
+                    //std::cout << tmpHist->GetName() << std::endl;
+
+                }
+                else
+                {
+                    std::cout << "could not find histogram in file: " << fullname << " - disabling parameter number " << param_number << std::endl;
+                    // cannot find histogram input data, so disable parameter
+                    std::remove(enabled_params.begin(), enabled_params.end(), param_number);
+                }
+            }
+            else
+            {
+                // paramter not enabled, do not load histogram/sample
+                std::cout << "parameter number " << param_number << " is not enabled (not found in vector)" << std::endl;
+            }
+        }
+        else
+        {
+            std::cout << "!!!!! ERROR: search_object=" << search_object << " not found in paramNameToNumberMap" << std::endl;
+            std::cout << "mc_name=" << mc_name << std::endl;
+
+            print_map(paramNameToNumberMap, "paramNameToNumberMap");
+            print_map(MCNameToParamNameMap, "MCNameToParamNameMap");
+        }
     }
-  }
-  /*
-  for ( int i = 0; i < nExternalBkgs_twoParam; i++ ) {
-    if ( gDirectory->GetListOfKeys()->Contains(theHistogram+ExternalBkgTwoParamFiles[i]+"_fit") ) {//check if the histograms exists
-      tmpHist2 = (TH2F*)gDirectory->Get(theHistogram+ExternalBkgTwoParamFiles[i]+"_fit")->Clone(ExternalBkgTwoParamFiles[i]+"_"+thePhase);
-      allMCSamples2D[channel_counter]->Add(tmpHist2);
-
-      //std::cout << tmpHist->GetName() << std::endl;
-
-    }
-  }*/
-
-  for ( int i = 0; i < nInternalBkgs; i++ ) {
-    if ( gDirectory->GetListOfKeys()->Contains(theHistogram+InternalBkgFiles[i]+"_fit") ) {//check if the histograms exists
-      tmpHist2 = (TH2F*)gDirectory->Get(theHistogram+InternalBkgFiles[i]+"_fit")->Clone(InternalBkgFiles[i]+"_"+theChannel+thePhase);
-      allMCSamples2D[channel_counter]->Add(tmpHist2);
-    }
-  }
-
-  for ( int i = 0; i < nRn222Bkgs; i++ ) {
-    //if ( gDirectory->GetListOfKeys()->Contains(theHistogram+Rn222BkgFiles[i]+"_fit") ) {//check if the histograms exists
-    if ( gDirectory->GetListOfKeys()->Contains(theHistogram+Rn222BkgFilesNew[i]+"_fit") ) {//check if the histograms exists
-      //tmpHist2 = (TH2F*)gDirectory->Get(theHistogram+Rn222BkgFiles[i]+"_fit")->Clone(Rn222BkgFiles[i]+"_"+theChannel+thePhase);
-      tmpHist2 = (TH2F*)gDirectory->Get(theHistogram+Rn222BkgFilesNew[i]+"_fit")->Clone(Rn222BkgFilesNew[i]+"_"+theChannel+thePhase);
-      allMCSamples2D[channel_counter]->Add(tmpHist2);
-    }
-  }
-
-  for ( int i = 0; i < nRn220Bkgs; i++ ) {
-    if ( gDirectory->GetListOfKeys()->Contains(theHistogram+Rn220BkgFiles[i]+"_fit") ) {//check if the histograms exists
-      tmpHist2 = (TH2F*)gDirectory->Get(theHistogram+Rn220BkgFiles[i]+"_fit")->Clone(Rn220BkgFiles[i]+"_"+theChannel+thePhase);
-      allMCSamples2D[channel_counter]->Add(tmpHist2);
-    }
-  }
-
-  for ( int i = 0; i < nNd150Samples; i++ ) {
-    if ( gDirectory->GetListOfKeys()->Contains(theHistogram+Nd150Files[i]+"_fit") ) {//check if the histograms exists
-      tmpHist2 = (TH2F*)gDirectory->Get(theHistogram+Nd150Files[i]+"_fit")->Clone(Nd150Files[i]+"_"+theChannel+thePhase);
-      allMCSamples2D[channel_counter]->Add(tmpHist2);
-    }
-  }
-
-  for ( int i = 0; i < nNeighbours; i++ ) {
-    if ( gDirectory->GetListOfKeys()->Contains(theHistogram+NeighbourFiles[i]+"_fit") ) {//check if the histograms exists
-      tmpHist2 = (TH2F*)gDirectory->Get(theHistogram+NeighbourFiles[i]+"_fit")->Clone(NeighbourFiles[i]+"_"+theChannel+thePhase);
-      allMCSamples2D[channel_counter]->Add(tmpHist2);
-    }
-  }
-
-  if ( gDirectory->GetListOfKeys()->Contains(theHistogram+"Data") ) {
-    tmpHist2 = (TH2F*)gDirectory->Get(theHistogram+"Data")->Clone("Data_"+theChannel+thePhase);
-    allDataSamples2D->Add((TH2F*)tmpHist2);
-  }
-  // NOTE: Data changed to data but not updated here
-
-  std::cout << tmpHist2->GetName() << std::endl;
-  // tmpHist2->Delete();
-  //aFile->Close();
-  // aFile->Delete();
 }
+
+// channel_counter = 0
+// theChannel = "2e_"
+// thePhase = "P1"
+// theHistogram = "hHighLowEnergy_"
+void book2DHistograms(Int_t channel_counter, TString theChannel, TString thePhase_arg, TString theHistogram) {
+
+    std::cout << "booking 2D hists for " << theChannel << " " << thePhase_arg << std::endl;
+    allMCSamples2D[channel_counter] = new TObjArray();
+
+    TFile *aFile = TFile::Open("Nd150_" + theChannel + thePhase_arg + ".root");
+    
+    std::cout << "External" << std::endl;
+    book2DHistograms_helper(aFile, channel_counter, theChannel,
+                            thePhase_arg, theHistogram,
+                            nExternalBkgs,
+                            ExternalBkgFiles);
+
+    std::cout << "Internal" << std::endl;
+    book2DHistograms_helper(aFile, channel_counter, theChannel,
+                            thePhase_arg, theHistogram,
+                            nInternalBkgs,
+                            InternalBkgFiles);
+
+    std::cout << "Rn 222" << std::endl;
+    book2DHistograms_helper(aFile, channel_counter, theChannel,
+                            thePhase_arg, theHistogram,
+                            nRn222Bkgs,
+                            //Rn222BkgFiles);//,
+                            Rn222BkgFilesNew);
+
+    std::cout << "Rn 220" << std::endl;
+    book2DHistograms_helper(aFile, channel_counter, theChannel,
+                            thePhase_arg, theHistogram,
+                            nRn220Bkgs,
+                            Rn220BkgFiles);
+
+    std::cout << "Neighbour" << std::endl;
+    book2DHistograms_helper(aFile, channel_counter, theChannel,
+                            thePhase_arg, theHistogram,
+                            nNeighbours,
+                            NeighbourFiles);
+
+    std::cout << "Nd150" << std::endl;
+    book2DHistograms_helper(aFile, channel_counter, theChannel,
+                            thePhase_arg, theHistogram,
+                            nNd150Samples,
+                            Nd150Files);
+
+    // TODO here
+    // what is name in other section of code
+    //std::string name(theHistogram + "data_2e");
+    std::string directory("processeddata/" + theHistogram + "/");
+    std::string name(theHistogram + "data_2e");
+    std::string fullname = directory + name;
+    std::cout << "fullname=" << fullname << std::endl;
+
+    // load histogram from file
+    // TODO: try catch block
+    TH1F *tmpHist = (TH1F*)aFile->Get(fullname.c_str())->Clone();
+    if(tmpHist != nullptr)
+    {
+        //TH1F *tmpHist = nullptr;
+        // 2020-04-03: removed changing of histogram name
+        //std::string hist_name("data_" + theChannel + thePhase_arg);
+        //std::cout << "Get() : " << name << " from file, Clone() : " << hist_name << std::endl;
+        //tmpHist = (TH1F*)gDirectory->Get(name.c_str())->Clone(hist_name.c_str());
+        //tmpHist = (TH1F*)gDirectory->Get(fullname.c_str())->Clone();
+        allDataSamples2D->Add((TH1F*)tmpHist);
+    }
+    else
+    {
+        std::cout << "gDirectory->GetListOfKeys() does not contain " << fullname << std::endl;
+    }
+
+    // aFile->Close();
+    // aFile->Delete();
+}
+
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2202,95 +1410,24 @@ TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&Co
     //minuit->mnsimp();
     std::cout << "calling: minuit->Migrad()" << std::endl;
     minuit->Migrad();
-    // don't bother calling Migrad() for now
-    // TODO
-    //minuit->ExecuteCommand("SIMPLEX",arglist,2);
+
 
     // Then get results
     //for(int i = 0; i < numberParams; i++)
     for(int i = 0; i < numberEnabledParams; i++)
     {
         minuit->GetParameter(i, AdjustActs[i], AdjustActs_Err[i]);
-        //AdjustActs_Err[i] = minuit->GetParError(i);
     }
 
    
-#if 0
-    ///////////////////////////////////////////////////////////////////////////
-    // testing
-    
-    // run chisquare tests
-
-    std::cout << "running chi-square tests: " << "variable: 100Mo (10)" << std::endl;
-
-    int n_tests = 250;
-    // 100 Mo
-    int mo100_99_rot_2n2b_m14_index = paramNumberToMinuitParamNumberMap.at(10);
-    std::cout << "the internal index for parameter 10 is " << mo100_99_rot_2n2b_m14_index << std::endl;
-    // These are in units of minuit internal parameter units
-    // To convert to external parameter units, multiply by the value of the
-    // external input parameter initial activity
-    // Caution: For cases where the fitted parameter minimum is not at 1.0
-    // the errors must be treated as upper and lower bound separatly by adding
-    // them (internal param & error) to the central value fit parameter
-    // external_param_error_lowerbound = (internal_param_CV - internal_param_error) * external_param_init_value
-    // similar for upperbound, then subtract and / 2.0
-    double test_central_value = AdjustActs[mo100_99_rot_2n2b_m14_index];
-    double test_range = 10.0 * AdjustActs_Err[mo100_99_rot_2n2b_m14_index];
-    // this range should hit delta sigma = 1.0 at 66 % of the width, but it
-    // doesn't.
-    double test_start = test_central_value - 0.5 * test_range;
-    double test_end =   test_central_value + 0.5 * test_range;
-    double *test_values = new double[n_tests];
-    double test_step = test_range / (double)n_tests;
-    std::cout << "test_central_value=" << test_central_value << "\n"
-              << "test_range=" << test_range << "\n"
-              << "test_start=" << test_start << "\n"
-              << "test_end=" << test_end
-              << std::endl;
-    int n_params = minuit->GetNumPars();
-    double *params = new double[n_params];
-    double *param_errs = new double[n_params];
-    for(int jx = 0; jx < n_params; ++ jx)
+#if 1
+    if(0)
     {
-        minuit->GetParameter(jx, params[jx], param_errs[jx]);
+        newloglikfitter_100Mo_chisquaretest(minuit, AdjustActs, AdjustActs_Err);
     }
-    std::ofstream ofstream_testvalue("testvalue.txt");
-    for(int ix = 0; ix < n_tests; ++ ix)
-    {
-
-        test_values[ix] = test_start + test_step * ix;
-
-        // get chisquare value for test
-        double fval = 0.;
-
-        // set parameter for 100Mo
-        double test_value = test_values[ix];
-        params[mo100_99_rot_2n2b_m14_index] = test_value;
-
-        std::cout << "test: ix=" << ix << ", " << "test_value=" << test_value << std::endl;
-
-        logLikelihood(n_params, nullptr, fval, params, 0);
-
-        ofstream_testvalue << "value=," << test_value << ",chisquare=," << fval << std::endl;
-
-        //void logLikelihood(Int_t & /*nPar*/, Double_t* /*grad*/, Double_t &fval, Double_t *p, Int_t /*iflag */)
-
-    }
-    ofstream_testvalue.close();
-    delete [] test_values;
-    //delete [] params;
-    //delete [] param_errs;
-    
-
-    ///////////////////////////////////////////////////////////////////////////
 #endif
 
 
-    ///////////////////////////////////////////////////////////////////////////
-
-    // testing - my phase space
-    // plot phase space for Nd150 and Mo100 parameters
     
 
 
@@ -2301,240 +1438,24 @@ TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&Co
     // doing everything possible to throw as many spanners into the works as
     // time would allow for.
 
-#if 0
-    std::vector<TCanvas*> c_mps_v;
-    std::vector<TH2D*> h_mps_v;
-
-    // loop over all combinations of parameters
-    for(int param_1_ix = 0; param_1_ix < numberEnabledParams; ++ param_1_ix)
+#if 1
+    if(0)
     {
-        for(int param_2_ix = 0; param_2_ix < param_1_ix; ++ param_2_ix)
-        {
-
-            int param_1_ix_external = minuitParamNumberToParamNumberMap.at(param_1_ix);
-            int param_2_ix_external = minuitParamNumberToParamNumberMap.at(param_2_ix);
-            
-            TString param_1_ix_str_external;
-            param_1_ix_str_external.Form("%i", param_1_ix_external);
-            TString param_2_ix_str_external;
-            param_2_ix_str_external.Form("%i", param_2_ix_external);
-
-            TString c_mps_name_base = "c_mps";
-            TString c_mps_name = c_mps_name_base + "_" + param_1_ix_str_external + "_" + param_2_ix_str_external;
-            
-            std::cout << "rendering: " << c_mps_name << std::endl;
-
-            TCanvas *c_mps = new TCanvas(c_mps_name, c_mps_name);
-            c_mps_v.push_back(c_mps);
-            c_mps = nullptr;
-
-            int n_param_1 = 100;
-            int n_param_2 = 100;
-
-            double param_1 = AdjustActs[param_1_ix];
-            double sigma_1 = AdjustActs_Err[param_1_ix];
-            double width_1 = 5.0;
-            double param_1_min = param_1 + width_1 * sigma_1 * (-0.5); //(-n_param_1 / 2);
-            double param_1_max = param_1 + width_1 * sigma_1 * 0.5; //(n_param_1 - n_param_1 / 2);
-
-            double param_2 = AdjustActs[param_2_ix];
-            double sigma_2 = AdjustActs_Err[param_2_ix];
-            double width_2 = 5.0;
-            double param_2_min = param_2 + width_2 * sigma_2 * (-0.5); //(-n_param_2 / 2);
-            double param_2_max = param_2 + width_2 * sigma_2 * 0.5; //(n_param_2 - n_param_2 / 2);
-            
-            TString h_mps_name_base = "h_mps";
-            TString h_mps_name = h_mps_name_base + "_" + param_1_ix_str_external + "_" + param_2_ix_str_external;
-
-            std::cout << h_mps_name << " param_1=" << param_1 << " sigma_1=" << sigma_1
-                                    << " param_1_min=" << param_1_min << " param_1_max=" << param_1_max
-                                    << " param_2=" << param_2 << " sigma_2=" << sigma_2
-                                    << " param_2_min=" << param_2_min << " param_2_max=" << param_2_max
-                                    << std::endl;
-
-            TH2D *h_mps = new TH2D(h_mps_name, h_mps_name,
-                                   n_param_1, param_1_min, param_1_max,
-                                   n_param_2, param_2_min, param_2_max); 
-            h_mps_v.push_back(h_mps);
-            //h_mps = nullptr;
-
-            //h_mps->GetZaxis()->SetRangeUser(0.0, 1.0e+04);
-            h_mps->SetContour(1000);
-            
-            TString param_1_name_str = TString(paramNameMap[param_1_ix_external].c_str());
-            TString param_2_name_str = TString(paramNameMap[param_2_ix_external]);
-
-            h_mps->GetXaxis()->SetTitle(param_1_name_str);
-            h_mps->GetYaxis()->SetTitle(param_2_name_str);
-
-            // reset params array
-            for(int jx = 0; jx < n_params; ++ jx)
-            {
-                minuit->GetParameter(jx, params[jx], param_errs[jx]);
-            }
-
-            // get minimum
-            double fval_min = 0.0;
-            logLikelihood(n_params, nullptr, fval_min, params, 0);
-
-            // modify parameters
-            //for(int n_1 = 0; n_1 <= n_param_1; ++ n_1)
-            for(int n_1 = 0; n_1 < n_param_1; ++ n_1)
-            {
-                //for(int n_2 = 0; n_2 <= n_param_2; ++ n_2)
-                for(int n_2 = 0; n_2 < n_param_2; ++ n_2)
-                {
-                    // TODO: try using GetBinCenter() and looping over bins
-                    // in combination with Fill method
-
-                    double fval = 0.;
-
-                    double a_1 = (double)n_1 / (double)n_param_1 - 0.5;
-                    double a_2 = (double)n_2 / (double)n_param_2 - 0.5;
-
-                    double t_param_1 = param_1 + width_1 * sigma_1 * a_1;
-                    double t_param_2 = param_2 + width_2 * sigma_2 * a_2;
-
-                    params[param_1_ix] = t_param_1;
-                    params[param_2_ix] = t_param_2;
-
-                    logLikelihood(n_params, nullptr, fval, params, 0);
-
-                    /*
-                    if(m == 50)
-                    {
-                        std::cout << "n=" << n << " a_nd150=" << a_nd150 << " p_nd150=" << p_nd150 << " fval=" << fval << std::endl;
-                    }
-                    */
-
-                    //std::cout << n << " " << m << " " << fval << std::endl;
-                    //std::cin.get();
-
-                    //h_mps->Fill(n, m, fval);
-                    //h_mps->SetBinContent(n_1 + 1, n_2 + 1, fval - fval_min);
-                    double step_1 = width_1 * sigma_1 * (double)1 / (double)n_param_1;
-                    double step_2 = width_2 * sigma_2 * (double)1 / (double)n_param_2;
-                    h_mps->Fill(t_param_1 + step_1 / 2.0, t_param_2 + step_2 / 2.0, fval - fval_min);
-                    // TODO: fval_min does not appear to always be the minimum
-
-                    if(fval - fval_min <= 0.0)
-                    {
-                        std::cout << "dbg1: " << n_1 << " " << n_2 << " " << h_mps->GetBinContent(n_1, n_2) << std::endl;
-                    }
-                    if(n_1 == n_param_1 / 2)
-                    {
-                        if(n_2 == n_param_2 / 2)
-                        {
-                            std::cout << "dbg2: " << n_param_1 / 2 << " " << n_param_2 / 2 << " " << h_mps->GetBinContent(n_1, n_2) << std::endl;
-                        }
-                    }
-                }
-            }
-
-            h_mps->Draw("colz");
-
-            h_mps = nullptr;
-            
-        }
+            newloglikfitter_testmyphasespace(minuit, AdjustActs, AdjustActs_Err);
     }
-
-
-
-    // reset params array
-    for(int jx = 0; jx < n_params; ++ jx)
-    {
-        minuit->GetParameter(jx, params[jx], param_errs[jx]);
-    }
-
-    TCanvas *c_mps = new TCanvas("c_mps", "c_mps");
-
-    int nd150_rot_2n2b_m4_index = paramNumberToMinuitParamNumberMap.at(0);
-
-    int n_nd150 = 100;
-    int n_mo100 = 100;
-
-    double p_nd150_cv = AdjustActs[nd150_rot_2n2b_m4_index];
-    double p_nd150_sigma = AdjustActs_Err[nd150_rot_2n2b_m4_index];
-    double w_nd150 = 5.0;
-    double p_min_nd150 = p_nd150_cv + w_nd150 * p_nd150_sigma * (-n_nd150 / 2);
-    double p_max_nd150 = p_nd150_cv + w_nd150 * p_nd150_sigma * (n_nd150 - n_nd150 / 2);
-    
-    double p_mo100_cv = AdjustActs[mo100_99_rot_2n2b_m14_index];
-    double p_mo100_sigma = AdjustActs_Err[mo100_99_rot_2n2b_m14_index];
-    double w_mo100 = 5.0;
-    double p_min_mo100 = p_mo100_cv + w_mo100 * p_mo100_sigma * (double)(-n_mo100 / 2);
-    double p_max_mo100 = p_mo100_cv + w_mo100 * p_mo100_sigma * (double)(n_mo100 - n_mo100 / 2);
-    
-    std::cout << p_nd150_cv << ", " << p_nd150_sigma << ", " << p_min_nd150 << ", " << p_max_nd150 << std::endl;
-    std::cout << p_mo100_cv << ", " << p_mo100_sigma << ", " << p_min_mo100 << ", " << p_max_mo100 << std::endl;
-
-    TH2F *h_mps = new TH2F("h_mps", "h_mps", n_nd150, p_min_nd150, p_max_nd150, n_mo100, p_min_mo100, p_max_mo100); 
-    //h_mps->GetZaxis()->SetRangeUser(0.0, 1.0e+04);
-    h_mps->SetContour(256);
-    h_mps->GetXaxis()->SetTitle("^{150}Nd");
-    h_mps->GetYaxis()->SetTitle("^{100}Mo");
-
-    // get minimum
-    double fval_min = 0.0;
-    logLikelihood(n_params, nullptr, fval_min, params, 0);
-
-    for(int n = 0; n < n_nd150; ++ n)
-    {
-        for(int m = 0; m < n_mo100; ++ m)
-        {
-            double fval = 0.;
-
-            double a_nd150 = (double)n / (double)n_nd150 - 0.5;
-            double a_mo100 = (double)m / (double)n_mo100 - 0.5;
-
-            double p_nd150 = p_nd150_cv + w_nd150 * p_nd150_sigma * a_nd150;
-            double p_mo100 = p_mo100_cv + w_mo100 * p_mo100_sigma * a_mo100;
-
-            params[nd150_rot_2n2b_m4_index] = p_nd150;
-            params[mo100_99_rot_2n2b_m14_index] = p_mo100;
-
-            logLikelihood(n_params, nullptr, fval, params, 0);
-
-            /*
-            if(m == 50)
-            {
-                std::cout << "n=" << n << " a_nd150=" << a_nd150 << " p_nd150=" << p_nd150 << " fval=" << fval << std::endl;
-            }
-            */
-
-            //std::cout << n << " " << m << " " << fval << std::endl;
-            //std::cin.get();
-
-            //h_mps->Fill(n, m, fval);
-            h_mps->SetBinContent(n + 1, m + 1, fval - fval_min);
-        }
-    }
-
-    h_mps->Draw("colz");
-
-
-    
-    delete [] params;
-    delete [] param_errs;
 #endif
-    ///////////////////////////////////////////////////////////////////////////
 
 
 
     // TODO: this no longer works, or does it?
     // needs to take into account the number of ENABLED free params
     // NOTE: 2020-04-16 fixed
-    //Double_t CovMatrix[free_params.size()][free_params.size()];
-    //minuit->mnemat(&CovMatrix[0][0],free_params.size());
-    //Double_t CovMatrix[minuit->GetNumFreePars()][minuit->GetNumFreePars()];
-    //Double_t *CovMatrix = new Double_t[minuit->GetNumFreePars() * minuit->GetNumFreePars()];
     number_free_params = minuit->GetNumFreePars();
     CovMatrix = new Double_t[number_free_params * number_free_params];
     for(int ix{0}; ix < number_free_params * number_free_params; ++ ix)
     {
         CovMatrix[ix] = 0.;
     }
-    //minuit->mnemat(CovMatrix, minuit->GetNumFreePars());
     minuit->mnemat(CovMatrix, number_free_params);
 
   
@@ -2544,908 +1465,5 @@ TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&Co
 
 
 
-///////////////////////////////////////////////////////////////////////////////
-// logLikelihood
-///////////////////////////////////////////////////////////////////////////////
 
 
-// TODO don't appear to work with parameters with more than one MC
-void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p, Int_t /*iflag */)
-{
-
-    std::cout << std::scientific;
-    std::cout << "start of logLike.... psiN0=" << psiN0 << std::endl;
-
-    std::cout << "logLikelihood" << std::endl;
-    std::cout << "p[0]=" << p[0] << " p[1]=" << p[1] << std::endl;
-
-
-    // TODO: will not work if parameter number changes
-    if(p[1] != last_xi_31_parameter_value)
-    {
-
-        // TODO: rebuild nd150 xi_31 paramter histogram here
-
-        // there are i samples for each channel
-        for(int i = 0; i < allDataSamples1D->GetEntries(); ++ i)
-        {
-            // note: I have really no idea how this is supposed to work
-            // with multiple data channels, i = 0 here, for one data channel
-
-            int channel = i;
-
-            TH1F *h_before_reweight = nullptr;
-
-            //std::cout << "there are " << allMCSamples1D[channel]->GetEntries() << " objects" << std::endl;
-            // new code to reweight 150Nd by xi_{31} parameter
-            for(int i = 0; i < allMCSamples1D[channel]->GetEntries(); ++ i)
-            {
-                TH1F *tmpHist = (TH1F*)allMCSamples1D[channel]->At(i);
-                TString tmpHist_name = tmpHist->GetName();
-                // TODO: had to add "_fit" here - might not work after 1 iteration
-                //if(tmpHist_name.CompareTo("hTotalE_nd150_rot_2n2b_m4_fit") == 0 ||
-                //   tmpHist_name.CompareTo("hTotalE_nd150_rot_2b2n_m4_fit") == 0)
-                if(tmpHist_name.Contains("nd150_rot_2n2b_m4") ||
-                   tmpHist_name.Contains("nd150_rot_2b2n_m4"))
-                {
-                    //std::cout << "found the 150Nd MC" << std::endl;
-                    //std::cin.get();
-
-                    // TODO: this is very slow, gets re-built for each bin_ix
-
-
-                    //TH1F *tmpHist_draw1D_clone = nullptr;
-                    TH1F *tmpHist_reweight = nullptr;
-                    //reweight_apply(tmpHist_draw1D_clone, tmpHist_draw1D, ... );
-                    const double xi_31{p[1]};
-                    // TODO: this will not work if parameter number changes
-                    std::cout << "xi_31=" << xi_31 << std::endl;
-                    //const double xi_31{p[nPar-1]};
-                    //std::cout << "check that nPar=" << nPar << "=29/28 ?" << std::endl;
-                    // note: it isn't
-                    const double xi_31_baseline{0.368}; // TODO: change to actual value and pass in as argument somehow
-                    // fixed in parameter list file?
-
-                    // some debug stuff
-                    //TCanvas *ctmp = new TCanvas("ctmp", "ctmp");
-                    //h_nEqNull->Draw();
-                    //std::cin.get();
-
-                    //reweight_apply(tmpHist_reweight, "/mnt/ramdisknd150/Nd150_2eNg_output_truth_postprocessed.root", xi_31, xi_31_baseline, h_nEqNull, h_nEqTwo, psiN0, psiN2, bb_Q);
-                    // line below disabled
-                    //reweight_apply(tmpHist_reweight, "Nd150_2eNg_output_truth_postprocessed.root", xi_31, xi_31_baseline, h_nEqNull, h_nEqTwo, psiN0, psiN2, bb_Q);
-                    // TODO: after reweight function called, replace 150nd MC
-                    // in containers, or add a _reweight version to containers
-
-                    //std::cout << "name before: " << tmpHist->GetName() << std::endl;
-                    //std::cout << "name after: " << tmpHist_reweight->GetName() << std::endl;
-
-                    //std::cin.get();
-                    //std::cout << "removing i=" << i << std::endl;
-                    //allMCSamples1D[channel]->RemoveAt(i);
-                    //std::cout << "now there are " << allMCSamples1D[channel]->GetEntries() << " objects" << std::endl;
-                    //allMCSamples1D[channel]->Add(tmpHist_reweight);
-                    //std::cout << "and now there are " << allMCSamples1D[channel]->GetEntries() << " objects" << std::endl;
-                    //allMCSamples1D[i] = tmpHist_reweight;
-
-                    //h_before_reweight = (TH1F*)tmpHist->Clone("h_before");
-
-                    //std::cout << "tmpHist->GetName() -> " << tmpHist->GetName() << std::endl;
-                    std::cout << "calling reweight_apply psiN0=" << psiN0 << " psiN2=" << psiN2 << std::endl;
-                    //reweight_apply(tmpHist_reweight, "Nd150_2eNg_output_truth_postprocessed.root", xi_31, xi_31_baseline, h_nEqNull, h_nEqTwo, psiN0, psiN2, bb_Q);
-                    reweight_apply(tmpHist_reweight, "Nd150_2eNg_output_truth_postprocessed_small.root", xi_31, xi_31_baseline, h_nEqNull, h_nEqTwo, psiN0, psiN2, bb_Q);
-                    allMCSamples1D[channel]->RemoveAt(i);
-                    allMCSamples1D[channel]->Add(tmpHist_reweight);
-
-                    /*
-                    for(int i{1}; i < h_before_reweight->GetNbinsX(); ++ i)
-                    {
-                        Double_t bin1 = h_before_reweight->GetBinContent(i);
-                        Double_t bin2 = tmpHist_reweight->GetBinContent(i);
-                        if(std::abs(bin1 - bin2) > 1.0e-2)
-                        {
-                            std::cout << "bin1=" << bin1 << " bin2=" << bin2 << std::endl;
-                        }
-                    }
-                    */
-
-                }
-                else
-                {
-                    //std::cout << "it is not " << tmpHist->GetName() << std::endl;
-                    //std::cin.get();
-                }
-
-            }
-        }
-
-        last_xi_31_parameter_value = p[1];
-        // TODO: will not work if parameter number changes
-    }
-
-
-
-    // TODO: add check here to see if any disabled parameters are accessed
-
-
-
-    double loglik = 0.; 
-    //double tmp;
-
-
-//   std::cout << "getting 1D histograms" << std::endl;
-
-    TH1F *tmpData1D;
-    // std::cout << allDataSamples1D->GetEntries()  << std::endl;
-
-    // there are i samples for each channel
-    for(int i = 0; i < allDataSamples1D->GetEntries(); ++ i)
-    {
-
-        // allDataSamples1D only contains one object
-        
-        TString i_str;
-        i_str.Form("%i", i);
-        //std::cout << i << std::endl;
-
-        // TODO: can I remove this Clone() call safely to improve speed?
-        //tmpData1D = (TH1F*)allDataSamples1D->At(i)->Clone("tmpData1D" + i_str + "_");
-        tmpData1D = (TH1F*)allDataSamples1D->At(i);
-
-        // std::cout << tmpData1D->Integral() << std::endl;
-
-        int nBinsX = tmpData1D->GetNbinsX();
-        for(int bin_ix = 1; bin_ix <= nBinsX; ++ bin_ix)
-        {
-            Int_t nData = (Int_t)tmpData1D->GetBinContent(bin_ix);
-            // i is the index of the sample ?
-            // ix is the bin index
-            // p is a pointer to an array of parameter values
-
-            // TODO:
-            // think there is a bug here
-            // i appears to be the index of the data sample not the MC sample?
-            // it becomes channel index
-            double nMC = getNumberMC1D(i, bin_ix, p);
-
-            //std::cout << "for bin_ix=" << bin_ix << " nMC=" << nMC << " nData=" << nData << std::endl;
-
-            //Int_t new_i = -1;
-            //TString name = names.at(i);
-            //new_i = paramNameToNumberMap[name];
-            //std::cout << "the new i value is new_i=" << new_i << std::endl;
-            //double nMC = getNumberMC1D(new_i, ix, p);
-
-            //std::cin.get();
-
-            
-            // 2020-04-17 Notes:
-            // output histograms do not look right (2d MPS plots)
-            //
-            // range of values for parameter include values such as
-            // -8 to 10
-            // -15 to 15
-            // these ranges seem too large? / are indicating very large uncertainty
-            // update: caused by a bug in the min/max parameter settings, now fixed
-            // (not fixed in h_mps)
-            //
-            // there is a white square in the center. what value does this have?
-            // is it negative, or zero?
-            //
-            // h_mps looks different to h_mps_10_0, they should be the same!
-            // update: they are the same if ranges set the same and fval_min
-            // is subtracted from fval before filling
-            //
-            // my guess was that the change in parameter values and thus n_mc
-            // is having a much weaker effect compared to the penalty term
-            // why is this?
-            // this may not be correct, since all plots appear identical
-            // indicating that something is not being computed correctly
-
-            if(nMC > 0.)
-            {
-                Double_t poisson = TMath::Poisson(nData, nMC);
-                if(poisson > 0.)
-                {
-                    //std::cout << "adding loglik value : " << TMath::Log(poisson) << " bin_ix=" << bin_ix << " poisson=" << poisson << std::endl;
-	                loglik += TMath::Log(poisson);
-                    // adding positive number makes fval go down
-                    // NOTE: Log(poisson) is always negative! so fval goes UP NOT DOWN
-                    // log is taken here, should I take log of the penalty term?
-                    // TODO: answer above question
-                    // TODO: are there any conditions for which this can be negative?
-                    // poisson is a probability, so values are between 0 and 1 which means that
-                    // log of this value is always negative
-                }
-                else
-                {
-                    // MARK have not tested this yet
-                    // can this ever happen? is this the correct way to deal
-                    // with the problem?
-                    //std::cout << "catch: poisson" << std::endl;
-                    // this does not appear to happen
-
-                    //std::cout << "adding penalty of -10. to loglik bin_ix=" << bin_ix << " nMC=" << nMC << " poisson=" << poisson << std::endl;
-                    // TODO: should this be removed? check for bins where ndata = 0?
-
-                    // TODO: there were a lot of failures here
-                    //std::cout << "ERROR: failed to evaluate TMath::Poisson()=" << poisson << " -> nData=" << nData << ", nMC=" << nMC << "; bin_ix=" << bin_ix << std::endl;
-	                //loglik -= 10.;
-                    // subtracting positive number makes fval go up
-                    // TODO: this may not be a large enough penalty
-
-                    // TODO: removed this
-                }
-            }
-            else
-            {
-                // MARK have not tested this yet
-                // not sure we are dealing with zero bins correctly, should
-                // ignore?
-                //std::cout << "catch2: poisson" << std::endl;
-                // this appears to happen a lot
-
-                // if nMC <= 0., just add penalty and cout nothing
-                // subtracting positive number makes fval go up
-                //loglik -= 10.;
-                // 2020-04-17: removed, should I have something here?
-            }
-        
-        } //~bins
-    } //channels
-    
-    
-    //  std::cout << "getting 2D histograms" << std::endl;
-
-
-    /*
-    TH2F *tmpData2D;
-    // std::cout << allDataSamples->GetEntries()  << std::endl;
-    for(int i = 0; i < allDataSamples2D->GetEntries(); ++ i)
-    {
-        // there are i samples for each channel
-        TString i_str;
-        i_str.Form("%i", i);
-
-        tmpData2D = (TH2F*)allDataSamples2D->At(i)->Clone("tmpData2D" + i_str + "_");
-
-        int nBinsX = tmpData2D->GetNbinsX();
-        int nBinsY = tmpData2D->GetNbinsY();
-
-        for(int ix = 1; ix <= nBinsX; ++ ix)
-        {
-            for(int iy = 1; iy <= nBinsY; ++ iy)
-            {
-                Int_t nData = (Int_t)tmpData2D->GetBinContent(ix, iy);
-	            double nMC = getNumberMC2D(i, ix, iy, p);
-
-	            if(nMC > 0 && TMath::Poisson(nData, nMC) > 0)
-                {
-	                loglik += TMath::Log(TMath::Poisson(nData, nMC));
-	            }
-                else
-                {
-	                loglik -= 10.;
-	            }
-            } //~ybins
-        } //~xbins
-    } //channels
-    */
- 
-    // add constraints to improve likelihood
-    //will eventually add gaussian constraint
-    // disabled
-    /*
-    for ( int i = 0; i < 14; i++ ) {
-        double constraint = 0.;
-        //constraint = pow( (p[i] - 1) / (0.01), 2);
-        // std::cout << i << "   " << p[i];
-        bool fixed = false;
-        for ( int j = 0; j < fixed_params.size(); j++ ) {
-            if ( i == fixed_params.at(j) ) fixed = true;
-        }
-
-        //if ( (i <2) || (i == 7 ) || (i==10) || (i == 14) || (i==15) || (i==16) || (i == 18) || (i == 19) || (i == 21) || 9i==22) ) {
-        // constraint = pow( (p[i] - 1.) / (paramActErrMap[i].front() / paramActMap[i].front()), 2);
-        constraint = TMath::Gaus(p[i],1.,(paramActErrMap[i].front() / paramActMap[i].front()),true);
-      
-
-        // std::cout << "   " << constraint << std::endl;
-        //  loglik += log(constraint);  
-	    // }
-    }
-    */
-
-    int mode = MODE_PARAM_UNDEFINED;
-
-    // penalty terms section
-    double penalty_term = 0.0;
-
-    // TODO: I don't like this - should loop over the enabled params
-    // however, this should still work as it is
-    for(int i = 0; i < numberParams; ++ i)
-    {
-
-        if(std::find(enabled_params.begin(), enabled_params.end(), i) == enabled_params.end())
-        {
-            //std::cout << "parameter number " << param_number << " is disabled" << std::endl;
-            //std::cout << "ERROR: i=" << i << " - parameter is DISABLED" << std::endl;
-            //std::cin.get();
-            continue;
-        }
-
-
-        if(thePhase == 0)
-        {
-            mode = paramConstrainModeP1Map[i];
-
-            //if(paramConstrainModeP1Map[i] == MODE_PARAM_SOFT)
-            if(mode == MODE_PARAM_SOFT)
-            {
-                // do nothing, soft constraint will be applied below
-            }
-            //else if(paramConstrainModeP1Map[i] == MODE_PARAM_HARD)
-            else if(mode == MODE_PARAM_HARD)
-            {
-                // parameter fixed by minuit, continue to next param
-                //continue;
-                // although param is fixed by minuit, we still want to add
-                // the penalty term, if available (TODO: will it always
-                // be available?)
-                // can check if error == 0.0 first
-                
-                // NOTE: changed to ignore HARD
-                continue;
-            }
-            //else if(paramConstrainModeP1Map[i] == MODE_PARAM_FREE)
-            else if(mode == MODE_PARAM_FREE)
-            {
-                // no constraint to apply, continue to next param
-                continue;
-            }
-            else
-            {
-                std::cout << "ERROR: Invalid value in paramConstrainModeP1Map: paramConstrainModeP1Map[" << i << "]=" << paramConstrainModeP1Map[i] << std::endl;
-            }
-        }
-        else if(thePhase == 1)
-        {
-            mode = paramConstrainModeP2Map[i];
-
-            //if(paramConstrainModeP2Map[i] == MODE_PARAM_SOFT)
-            if(mode == MODE_PARAM_SOFT)
-            {
-                // do nothing, soft constraint will be applied below
-            }
-            //else if(paramConstrainModeP2Map[i] == MODE_PARAM_HARD)
-            else if(mode == MODE_PARAM_HARD)
-            {
-                // parameter fixed by minuit, continue to next param
-                //continue;
-                // although param is fixed by minuit, we still want to add
-                // the penalty term, if available (TODO: will it always
-                // be available?)
-                // can check if error == 0.0 first
-                
-                // NOTE: changed to ignore HARD
-                continue;
-            }
-            //else if(paramConstrainModeP2Map[i] == MODE_PARAM_FREE)
-            else if(mode == MODE_PARAM_FREE)
-            {
-                // no constraint to apply, continue to next param
-                continue;
-            }
-            else
-            {
-                std::cout << "ERROR: Invalid value in paramConstrainModeP2Map: paramConstrainModeP2Map[" << i << "]=" << paramConstrainModeP2Map[i] << std::endl;
-            }
-        }
-        else
-        {
-            std::cout << "ERROR: Invalid value for thePhase: thePhase=" << thePhase << std::endl;
-        }
-        
-        // soft constraint is applied here
-        double constraint = 0.;
-        double error = 0.;
-        // NOTE: these values read from parameter list file and thus are in
-        // units of activity (Bq)
-
-        /*
-        if(thePhase == 0)
-        {
-            for(int j = 0; j < paramInitValueP1Map[i].size(); ++ j)
-            {
-                param_init_value += paramInitValueP1Map[i].at(j);
-            }
-            for(int j = 0; j < paramInitErrorP1Map[i].size(); ++ j)
-            {
-                param_init_error += paramInitErrorP1Map[i].at(j);
-            }
-        }
-        else if(thePhase == 1)
-        {
-            for(int j = 0; j < paramInitValueP2Map[i].size(); ++ j)
-            {
-                param_init_value += paramInitValueP2Map[i].at(j);
-            }
-            for(int j = 0; j < paramInitErrorP2Map[i].size(); ++ j)
-            {
-                param_init_error += paramInitErrorP2Map[i].at(j);
-            }
-        }
-        */
-        if(thePhase == 0)
-        {
-            //for(int j = 0; j < paramConstraintValueP1Map[i].size(); ++ j)
-            //{
-                //constraint += paramConstraintValueP1Map[i].at(j);
-            //}
-            //for(int j = 0; j < paramConstraintErrorP1Map[i].size(); ++ j)
-            //{
-                //error += paramConstraintErrorP1Map[i].at(j);
-            //}
-            constraint = paramConstraintValueP1Map[i];
-            error = paramConstraintErrorP1Map[i];
-            // TODO: this is a bit weird and perhaps not what would
-            // be expected looking at the input file
-            // perhaps it would be better to use .at(0)
-            // and ignore all later values in parameters
-            // in particular, errors do not usually add, but usually
-            // add in quadrature, which is not what happens here
-            // TODO: consider adding errors in quadrature, or
-            // changing input file to a list of samples as a single parameter
-            // rather than having multiple parameter numbers, each with a
-            // single sample
-            //
-            //constraint = paramConstraintValueP1Map[i];
-            //error = paramConstraintErrorP1Map[i];
-        }
-        else if(thePhase == 1)
-        {
-            //for(int j = 0; j < paramConstraintValueP2Map[i].size(); ++ j)
-            //{
-            //    constraint += paramConstraintValueP2Map[i].at(j);
-            //}
-            //for(int j = 0; j < paramConstraintErrorP2Map[i].size(); ++ j)
-            //{
-            //    error += paramConstraintErrorP2Map[i].at(j);
-            //}
-            constraint = paramConstraintValueP2Map[i];
-            error = paramConstraintErrorP2Map[i];
-
-            //constraint = paramConstraintValueP2Map[i];
-            //error = paramConstraintErrorP2Map[i];
-        }
-        else
-        {
-            std::cout << "ERROR: Invalid value for thePhase: thePhase=" << thePhase << std::endl;
-        }
-        // TODO: can optimize this code
-
-        if(error < 0.0)
-        {
-            std::cout << "ERROR: Invalid error value: error=" << error << std::endl;
-        }
-
-        // check if hard parameter and error == 0.0
-        if(mode == MODE_PARAM_HARD)
-        {
-            if(error == 0.0)
-            {
-                // this parameter is a "constant" (according to minuit)
-                // so ignore
-                continue;
-            }
-            else
-            {
-                // do nothing, add constraint for hard param
-            }
-        }
-
-        //double param_value = p[i];
-        // i is index of the parameter number (external / non minuit)
-        // convert to internal parameter number (minuit param number)
-        int j = paramNumberToMinuitParamNumberMap.at(i);
-        if(j < numberEnabledParams)
-        {
-            // ok
-        }
-        else
-        {
-            throw std::runtime_error("error: invalid value of j (internal param number)");
-        }
-        double param_value = p[j];
-        // this parameter is from minuit internal and thus is in minuit
-        // internal units (not Bq)
-        // have to convert to Bq units
-    
-        // convert to Bq
-        // multiply by the initial value
-        double activity_value_Bq = 0.0;
-        if(thePhase == 0)
-        {
-            activity_value_Bq = paramInitValueP1Map[i];
-        }
-        else if(thePhase == 1)
-        {
-            activity_value_Bq = paramInitValueP2Map[i];
-        }
-        else
-        {
-            std::cout << "ERROR: Invalid value for thePhase: thePhase=" << thePhase << std::endl;
-        }
-        //param_value *= activity_value_Bq;
-
-        double value = param_value * activity_value_Bq;
-        //double penalty = std::pow((param_value - constraint) / error, 2.0);
-        double penalty = std::pow((value - constraint) / error, 2.0);
-        // TODO: penalty term should be a Gaussian constraint?
-        // NOTE: gaussian constraint, after taking log, is the same as
-        // quadratic constraint - however there is the issue of a remaining
-        // constant term which I do not yet fully understand
-        // TODO: is this the correct error term?
-        // error on constraint rather than error on current fit value?
-        // TODO: is the value correct?
-        // NOTE: I think it's all correct
-
-        //double value = param_value * activity_value_Bq;
-        //double penalty = std::pow((value - constraint) / error, 2.0);
-
-        //std::cout << "adding (but it has to be subtracting!) penalty (i=" << i << ") : " << penalty << std::endl;
-
-        // subtracting positive number makes fval go up
-        //loglik -= penalty;
-        penalty_term += penalty;
-    }
-  
-    //fval = -2.0 * loglik; 
-    // equivalent to
-    //fval = -2.0 * (loglik_no_penalty_terms + penalty_terms); 
-    //fval = -2.0 * loglik_no_penalty_terms - 2.0 * penalty_terms; 
-    //fval = -2.0 * loglik_no_penalty_terms + 2.0 * penalty_terms_positive_sign;
-    // then fix factor of 2.0 bug to get
-    //fval = -2.0 * loglik_no_penalty_terms + penalty_terms_positive_sign;
-    fval = -2.0 * loglik + penalty_term;
-    //tmpData->Delete();
-
-    // hook
-    global_chisquare = fval;
-
-    return;
-
-}
-
-
-Double_t getNumberMC1D(Int_t channel, Int_t bin_ix, Double_t *p) {
-
-
-    //std::cout << "getNumberMC1D() called with channel=" << channel << " binx=" << binx << std::endl;
-    //std::cout << "printing contents of parameter array" << std::endl;
-    //for(int i = 0; i < numberParams; ++ i)
-    //{
-    //    std::cout << "i=" << i << " p[i]=" << p[i] << std::endl;
-    //}
-
-
-    // std::cout <<"getting number of1D MC... "  <<channel << std::endl;
-
-    double nMC = 0.;
-
-    // (1) grab a hist from the sample list of this channel
-    // (2) figure out which parameter it corresponds to
-    TH1F *tmpHist;
-    //int which_param;
-
-    //std::cout << "getting number of MC... "  << channel << std::endl;
-
-    //std::cout << allMCSamples[channel]->GetEntries() << std::endl;
-
-
-    // copied from above
-    //for(int k = 0; k < allMCSamples1D[channel]->GetEntries(); k++)
-    for(int j = 0; j < allMCSamples1D[channel]->GetEntries(); j++)
-    {
-
-        //std::cout << "DEBUG: allMCSamples1D[channel]->GetEntries() -> " << allMCSamples1D[channel]->GetEntries() << std::endl;
-        //std::cin.get();
-        // disabled params do not appear in this array
-
-        //tmpHist = (TH1F*)allMCSamples1D[channel]->At(k);
-        //tmpHist = (TH1F*)allMCSamples1D[channel]->At(j)->Clone();
-        tmpHist = (TH1F*)allMCSamples1D[channel]->At(j);
-        //tmpHist_draw1D = (TH1F*)allMCSamples1D[channel]->At(j)->Clone();
-
-        //if ( tmpHist->Integral() == 0 ) continue;
-       
-        TString tmpName = tmpHist->GetName();
-        //TString tmpName;// = tmpHist->GetName();
-        //try
-        //{
-        //tmpName = tmpHist->GetName();
-        //}
-        //catch(std::exception &e)
-        //{
-        //    std::cout << "j=" << j << std::endl;
-        //    std::cout << e.what() << std::endl;
-        //    throw e;
-        //}
-        //TString tmpName = tmpHist_draw1D->GetName();
-        
-        #if PRINT_MO
-        if(tmpName.Contains("mo100_99_rot_2n2b_m14") && bin_ix == 1)
-        {
-            std::cout << "caught mo100" << std::endl;
-            //std::cin.get();
-        }
-        #endif
-        
-
-        //std::cout << "looking for " << tmpName << std::endl;
-        //bool foundParam = false;
-        int which_param = -1;
-        bool found_param = false;
-
-        /*
-        for(int i = 0; (i < numberParams) && !foundParam; i++)
-        {
-            // std::vector<int>::iterator it = find(fixed_params.begin(), fixed_params.end(), i);
-            //if ( it != fixed_params.end() ) continue;      
-
-            for(int j = 0; (j < paramNameMap[i].size()) && !foundParam; j++)
-            {
-                //std::cout << "is it: " << paramNameMap[i].at(j) << std::endl;
-
-	            if(tmpName.Contains(paramNameMap[i].at(j)))
-                {
-	                foundParam = true;
-                    which_param = i;
-                    //std::cout << "match found: " << tmpName << " -> " << paramNameMap[i].at(j) << ", which_param=" << which_param << std::endl;
-	            }
-
-            } //~j searching through array of params for the right one
-        } //~i list of isotopes with same parameter
-        */
-
-        //std::cout << "NEW CODE" << std::endl;
-        //try
-        //{
-        // TODO: remove TString
-        {
-            std::string tmp_hist_name(tmpName);
-            auto i_start = tmp_hist_name.find('_') + 1;
-            auto i_end = tmp_hist_name.rfind('_');
-            if(i_end - i_start > 0)
-            {
-                std::string tmp_sample_name = tmp_hist_name.substr(i_start, i_end - i_start);
-                //std::cout << "tmp_sample_name=" << tmp_sample_name << std::endl;
-                if(MCNameToParamNumberMap.count(tmp_sample_name) > 0)
-                {
-                    int paramNumber = MCNameToParamNumberMap.at(tmp_sample_name);
-                    // TODO: removed std::string, change tmpName type to be std::string from TString
-                
-                    //std::cout << "paramNumber=" << paramNumber << " -> tmp_sample_name=" << tmp_sample_name << " ~> tmpName=" << tmpName << std::endl;                    
-                    //which_param = paramNumber;
-                    which_param = paramNumberToMinuitParamNumberMap.at(paramNumber);
-                    found_param = true;
-
-                    //std::cout << "DEBUG: found parameter with minuit (internal) number: " << which_param << std::endl;
-                    //std::cin.get();
-                }
-                else
-                {
-                   std::cout << "ERROR: could not find " << tmp_sample_name << " in MCNameToParamNumberMap" << std::endl;
-                }
-            }
-        }
-        /*
-        }
-        catch(std::exception &e)
-        {
-            std::cout << "e.what(): " << e.what() << std::endl;
-            std::cout << "tmpName=" << tmpName << std::endl;
-            std::cout << "contents of map" << std::endl;
-            for(auto it = MCNameToParamNumberMap.cbegin(); it != MCNameToParamNumberMap.cend(); ++ it)
-            {
-                std::cout << it->first << " -> " << it->second << std::endl;
-            }
-        }
-        std::cin.get();
-        */
-
-        //std::cout << "bin_ix=" << bin_ix << " tmpHist->GetName()=" << tmpHist->GetName() << " which_param=" << which_param << std::endl;
-
-        /*
-        if(foundParam)
-        {
-            //std::cout << "adding to nMC with index of which_param=" << which_param << std::endl;
-            // TODO: think this is collecting the wrong parameter? or is it?
-            nMC += p[which_param] * tmpHist->GetBinContent(binx);
-        }
-        else
-        {
-            std::cout << "error could not find histogram: " << tmpName << std::endl;
-        }
-        */
-
-        if(found_param == true)
-        {
-        #if PRINT_MO
-            if(tmpName.Contains("mo100_99_rot_2n2b_m14") && bin_ix == 1)
-            {
-                //std::cout << "caught mo100" << std::endl;
-                //std::cin.get();
-                std::cout << "which_param=" << which_param << std::endl;
-            }
-        #endif
-
-            // check here to see if param is disabled
-            // TODO
-            //
-            // since which_param must be an enabled parameter, no longer need this
-            // leave for now as a check?
-            //if(std::find(enabled_params.begin(), enabled_params.end(), which_param) == enabled_params.end())
-            if(std::find(enabled_params.begin(), enabled_params.end(), minuitParamNumberToParamNumberMap.at(which_param)) == enabled_params.end())
-            {
-                //std::cout << "parameter number " << param_number << " is disabled" << std::endl;
-                std::cout << "ERROR: which_param=" << which_param << " - parameter is DISABLED" << std::endl;
-                std::cin.get();
-            }
-
-            //std::cout << "found histogram: tmpName=" << tmpName << " which_param=" << which_param << std::endl;
-
-            /*
-            // scale histogram to correct size using output parameter
-            // from fit
-            //tmpHist_draw1D->Scale(AdjustActs[which_param]);
-            tmpHist->Scale(AdjustActs[which_param]);
-            
-            //if(tmpHist_draw1D->Integral() > 0)
-            if(tmpHist->Integral() > 0)
-            {
-                //stacks1D[channel]->Add(tmpHist_draw1D);
-                stacks1D[channel]->Add(tmpHist);
-            }
-            else
-            {
-                std::cout << "not adding to stack, Integral() <= 0" << std::endl;
-            }
-            */
-
-        #if PRINT_MO
-            if(tmpName.Contains("mo100_99_rot_2n2b_m14"))
-            {
-                //std::cout << "caught mo100" << std::endl;
-                //std::cin.get();
-                std::cout << "p[" << which_param << "]=" << p[which_param] << ", tmpHist->GetBinContent(" << bin_ix << ")=" << tmpHist->GetBinContent(bin_ix) << std::endl;
-            }
-        #endif
-            nMC += p[which_param] * (double)tmpHist->GetBinContent(bin_ix);
-            
-
-
-
-            //std::cout << "DEBUG: tmpName=" << tmpName << " which_param=" << which_param << std::endl;
-            //std::cin.get();
-
-
-            //std::cout << "contents of map" << std::endl;
-            //for(auto it = MCNameToParamNumberMap.cbegin(); it != MCNameToParamNumberMap.cend(); ++ it)
-            //{
-            //    std::cout << it->first << " -> " << it->second << std::endl;
-            //}
-
-            //std::cout << "adding to nMC: which_param=" << which_param << ", bin_ix=" << bin_ix << ", " << p[which_param] * tmpHist->GetBinContent(bin_ix) << std::endl;
-            //std::cin.get();
-        }
-        else
-        {
-            std::cout << "error could not find histogram: tmpName=" << tmpName << std::endl;
-        } 
-
-        #if PRINT_MO
-        if(tmpName.Contains("mo100_99_rot_2n2b_m14") && bin_ix == 50)
-        {
-            //std::cout << "caught mo100" << std::endl;
-            std::cin.get();
-        }
-        #endif
-
-    }
-
-    return nMC;
-
-
-    /*
-    for(int k = 0; k < allMCSamples1D[channel]->GetEntries(); k++)
-    {
-        tmpHist = (TH1F*)allMCSamples1D[channel]->At(k);
-
-        //if ( tmpHist->Integral() == 0 ) continue;
-       
-        TString tmpName = tmpHist->GetName();
-
-        //std::cout << "looking for " << tmpName << std::endl;
-        bool foundParam = false;
-
-        for(int i = 0; (i < numberParams) && !foundParam; i++)
-        {
-            // std::vector<int>::iterator it = find(fixed_params.begin(), fixed_params.end(), i);
-            //if ( it != fixed_params.end() ) continue;      
-
-            for(int j = 0; (j < paramNameMap[i].size()) && !foundParam; j++)
-            {
-                //std::cout << "is it: " << paramNameMap[i].at(j) << std::endl;
-
-	            if(tmpName.Contains(paramNameMap[i].at(j)))
-                {
-	                foundParam = true;
-                    which_param = i;
-                    //std::cout << "match found: " << tmpName << " -> " << paramNameMap[i].at(j) << ", which_param=" << which_param << std::endl;
-	            }
-
-            } //~j searching through array of params for the right one
-        } //~i list of isotopes with same parameter
-
-        if(foundParam)
-        {
-            //std::cout << "adding to nMC with index of which_param=" << which_param << std::endl;
-            // TODO: think this is collecting the wrong parameter? or is it?
-            nMC += p[which_param] * tmpHist->GetBinContent(binx);
-        }
-        else
-        {
-            std::cout << "error could not find histogram: " << tmpName << std::endl;
-        }	 
-    } //each histogram
-
-    return nMC;
-    */
-}
-
-
-// TODO: has not been updated
-Double_t getNumberMC2D(Int_t channel, Int_t binx, Int_t biny, Double_t *p) {
-
-  // std::cout <<"getting number of 2D MC... "  <<channel << std::endl;
-
-  double nMC = 0;
-
-  // (1) grab a hist from the sample list of this channel
-  // (2) figure out which parameter it corresponds to
-  TH2F *tmpHist2;
-  int which_param;
-  //  std::cout <<"getting number of MC... "  <<channel << std::endl;
-
-  //std::cout << allMCSamples[channel]->GetEntries() << std::endl;
-
-  for ( int k = 0; k < allMCSamples2D[channel]->GetEntries(); k++ ) {
-    tmpHist2 = (TH2F*)allMCSamples2D[channel]->At(k);
-    TString tmpName = tmpHist2->GetName();
-
-    //  std::cout << "looking for " << tmpName << std::endl;
-    bool foundParam = false;
-
-    for ( int i = 0; (i < numberParams) && !foundParam; i++ ) {
-
-      std::vector<int>::iterator it = find(fixed_params.begin(), fixed_params.end(), i);
-      if ( it != fixed_params.end() ) continue;    
-
-      for ( int j = 0; (j < paramNameMap[i].size()) && !foundParam; j++ ) {
-	//	   std::cout <<"is it...  " <<paramNameMap[i].at(j) << std::endl;
-
-	if ( tmpName.Contains(paramNameMap[i].at(j)) ) {
-	  foundParam = true;
-          which_param = i;
-	}
-
-      }//~j searching through array of params for the right one
-    }//~i list of isotopes with same parameter
-
-    if ( foundParam ) {nMC += p[which_param]*tmpHist2->GetBinContent(binx,biny);}
-    // else {std::cout << "error could not find histogram: " << tmpName << std::endl;}	 
-  }//each histogram
-
-  return nMC;
-}

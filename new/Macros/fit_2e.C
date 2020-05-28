@@ -331,6 +331,11 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
     TH2F *hFoilSideTrueVertexR;
     TH1F *hTrueVertexLayer;
 
+    TH1F *hSingleEnergy;
+    TH1F *hLowEnergy;
+    TH1F *hHighEnergy;
+    TH2F *hHighLowEnergy;
+
     // NOTE: this idea (multuplying histograms) will not work because
     // we lose the information of which true energy values match which
     // reconstructed energy values
@@ -609,6 +614,22 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
                                 "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " True Vertex Layer",
                                 20, -5, 14);
 
+    hSingleEnergy     = new TH1F("hSingleEnergy_" + sampleName + name_sample_split_additional + name_append,
+                                "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " True Vertex Layer",
+                                50, 0.0, 5.0);
+
+    hLowEnergy     = new TH1F("hLowEnergy_" + sampleName + name_sample_split_additional + name_append,
+                                "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " True Vertex Layer",
+                                50, 0.0, 5.0);
+
+    hHighEnergy     = new TH1F("hHighEnergy_" + sampleName + name_sample_split_additional + name_append,
+                                "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " True Vertex Layer",
+                                50, 0.0, 5.0);
+
+    hHighLowEnergy     = new TH2F("hHighLowEnergy_" + sampleName + name_sample_split_additional + name_append,
+                                "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + ";High Energy;Low Energy",
+                                50, 0.0, 5.0, 50, 0.0, 5.0);
+
 
     //#if TRUTH_ENABLE
     // limits used for both are same as hTotalE limits, since these
@@ -703,6 +724,12 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
     hpmap["hTrueVertexR_"] = hTrueVertexR;
     hpmap["hFoilSideTrueVertexR_"] = hFoilSideTrueVertexR;
     hpmap["hTrueVertexLayer_"] = hTrueVertexLayer;
+
+    hpmap["hSingleEnergy_"] = hSingleEnergy;
+    hpmap["hLowEnergy_"] = hLowEnergy;
+    hpmap["hHighEnergy_"] = hHighEnergy;
+    hpmap["hHighLowEnergy_"] = hHighLowEnergy;
+
 
     //#if TRUTH_ENABLE
     //    if((sampleName.CompareTo("nd150_rot_2n2b_m4") == 0) ||
@@ -1106,10 +1133,58 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
         {
             weight = radonWeight;
         }
-        else if(sampleName.CompareTo("bi210_swire") == 0)
+        else if(sampleName.Contains("bi210"))
         {
-            weight = bi210Weight;
+            // halflife
+            // https://periodictable.com/Isotopes/083.210/index.p.full.dm.html
+            const double T21 = 86400. * 5.011574074074;
+            // lambda
+            const double lambda = std::log(2.0) / T21;
+            double arg = -lambda * eventTime;
+            // I assume event time is in SI units
+            weight = bi210Weight * std::exp(arg);
         }
+        else if(sampleName.Contains("co60"))
+        {
+            // halflife
+            // https://periodictable.com/Isotopes/027.60/index.p.html
+            const double T21 = 31557600. * 5.274923896499;
+            // lambda
+            const double lambda = std::log(2.0) / T21;
+            double arg = -lambda * eventTime;
+            // I assume event time is in SI units
+            weight = std::exp(arg);
+        }
+        else if(sampleName.Contains("eu152"))
+        {
+            // halflife
+            // https://periodictable.com/Isotopes/063.152/index.p.html
+            const double T21 = 31557600. * 13.537;
+            // lambda
+            const double lambda = std::log(2.0) / T21;
+            double arg = -lambda * eventTime;
+            // I assume event time is in SI units
+            weight = std::exp(arg);
+        }
+        else if(sampleName.Contains("eu154"))
+        {
+            // halflife
+            // https://periodictable.com/Isotopes/063.154/index.html
+            const double T21 = 31557600. * 8.593;
+            // lambda
+            const double lambda = std::log(2.0) / T21;
+            double arg = -lambda * eventTime;
+            // I assume event time is in SI units
+            weight = std::exp(arg);
+        }
+        // TODO: can fill 208Tl with 208Tl weight here instead of changing weight arbitrarily later
+        // TODO: I get completely different numbers
+        /*    else if ( histName.CompareTo("bi210_swire") == 0 ) {weight = bi210Weight * pow(0.5,eventTime/433123.);}
+        else if ( (histName.CompareTo("bi210_swire") == 0) || (histName.CompareTo("bi210_sscin") == 0) || (histName.CompareTo("bi210_sfoil") == 0)) {weight = bi210Weight * pow(0.5,eventTime/433123.);}
+        else if ((histName.CompareTo("co60_cuTower")==0) || (histName.CompareTo("co60_steel")==0) || (histName.CompareTo("co60_muMetal")==0) || (histName.CompareTo("co60_cuPetals")==0) )weight = pow(0.5,(eventTime/166344192.));
+        else if ( (histName.CompareTo("eu152_sscin")==0) || (histName.CompareTo("eu152_int")==0)) {weight = pow(0.5,(eventTime/4.265e8));}
+        else if ((histName.CompareTo("eu154_int")==0)) {weight = pow(0.5,(eventTime/2.71169e8));}
+        */
         
         // TODO: re-implement this
         // http://nile.hep.utexas.edu/DocDB/ut-nemo/docs/0037/003716/005/position_paper.pdf
@@ -1129,12 +1204,6 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
         // Similar info from Table 4.8 "Events from 207Bi and 152,154Eu have been weighted by their respective
         // half-lives as described in Section 3.4.1, and therefore the activities reported here correspond to their activities as of 01/02/03."
         //
-        /*    else if ( histName.CompareTo("bi210_swire") == 0 ) {weight = bi210Weight * pow(0.5,eventTime/433123.);}
-        else if ( (histName.CompareTo("bi210_swire") == 0) || (histName.CompareTo("bi210_sscin") == 0) || (histName.CompareTo("bi210_sfoil") == 0)) {weight = bi210Weight * pow(0.5,eventTime/433123.);}
-        else if ((histName.CompareTo("co60_cuTower")==0) || (histName.CompareTo("co60_steel")==0) || (histName.CompareTo("co60_muMetal")==0) || (histName.CompareTo("co60_cuPetals")==0) )weight = pow(0.5,(eventTime/166344192.));
-        else if ( (histName.CompareTo("eu152_sscin")==0) || (histName.CompareTo("eu152_int")==0)) {weight = pow(0.5,(eventTime/4.265e8));}
-        else if ((histName.CompareTo("eu154_int")==0)) {weight = pow(0.5,(eventTime/2.71169e8));}
-        */
 
 
         // count number of events before cuts
@@ -1277,7 +1346,8 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
     */
 
         // Set the high and low energy index
-        int highE_index, lowE_index;
+        int highE_index = -1,
+        int lowE_index = -1;
         if(electronEnergy[0] > electronEnergy[1])
         {
             highE_index = 0;
@@ -2034,6 +2104,12 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
         hFoilSideTrueVertexR->Fill(foilSide, trueVertexR, weight);
         hTrueVertexLayer->Fill(trueVertexLayer, weight);
         
+        hSingleEnergy->Fill(electronEnergy[lowE_index], weight);
+        hSingleEnergy->Fill(electronEnergy[highE_index], weight);
+        hLowEnergy->Fill(electronEnergy[lowE_index], weight);
+        hHighEnergy->Fill(electronEnergy[highE_index], weight);
+        hHighLowEnergy->Fill(electronEnergy[lowE_index], electronEnergy[highE_index], weight);
+
 
         int hit_counter = 0;
         int nLowEnergyHits = 0;
@@ -2548,19 +2624,20 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
                 tmpHistClone->Write();
             }
 
+            std::ofstream of_numberofevents("of_numberofevents.txt", std::ofstream::out | std::ofstream::app);
             if(mode_flag == 0 && TString(tmpHist->GetName()).Contains("hTotalE"))
             {
                 std::cout << tmpHist->GetName() << " number of events " << tmpHist->Integral() << std::endl;
-                std::ofstream of_numberofevents("of_numberofevents.txt", std::ofstream::out | std::ofstream::app);
                 of_numberofevents << tmpHist->GetName() << " number of events " << tmpHist->Integral() << std::endl;
             }
+            of_numberofevents.close();
 
             // NOTE: done AFTER call to Write()
             // so sample is scaled with activity value if used again from allSamples
             allSamples[i]->Add(tmpHist);
 
-        }//all histos
-    }//internals
+        } // all histos
+    }   //all of sample type (internal/external/...)
 
     oftemp.close();
 }
