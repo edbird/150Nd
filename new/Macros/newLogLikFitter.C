@@ -41,6 +41,7 @@
 #include "newLogLikFitter_reweight.h"
 #include "newLogLikFitter_loglikelihood.h"
 #include "newLogLikFitter_draw.h"
+#include "newLogLikFitter_draw_outputdiff.h"
 #include "newLogLikFitter_chisquaretest.h"
 
 
@@ -249,139 +250,9 @@ void draw_inputdata()
 }
 
 
-void draw_outputdiff(const double *const AdjustActs, const double xi_31_orig)
-{
-
-    const double xi_31_fit = AdjustActs[1];
-    const double xi_31_baseline{0.296};
-
-    double xi_31 = xi_31_orig;
-    TH1F *hTotalE_orig = nullptr;
-    TH1F *hSingleEnergy_orig = nullptr;
-    TH1F *hLowEnergy_orig = nullptr;
-    TH1F *hHighEnergy_orig = nullptr;
-    TH2F *hHighLowEnergy_orig = nullptr;
-    reweight_apply(hTotalE_orig,
-                   hSingleEnergy_orig,
-                   hLowEnergy_orig,
-                   hHighEnergy_orig,
-                   hHighLowEnergy_orig,
-                   "Nd150_2eNg_output_truth_postprocessed_small.root",
-                   xi_31,
-                   xi_31_baseline,
-                   h_nEqNull,
-                   h_nEqTwo,
-                   psiN0,
-                   psiN2,
-                   bb_Q);
-
-    xi_31 = xi_31_fit;
-    TH1F *hTotalE_fit = nullptr;
-    TH1F *hSingleEnergy_fit = nullptr;
-    TH1F *hLowEnergy_fit = nullptr;
-    TH1F *hHighEnergy_fit = nullptr;
-    TH2F *hHighLowEnergy_fit = nullptr;
-    reweight_apply(hTotalE_fit,
-                   hSingleEnergy_fit,
-                   hLowEnergy_fit,
-                   hHighEnergy_fit,
-                   hHighLowEnergy_fit,
-                   "Nd150_2eNg_output_truth_postprocessed_small.root",
-                   xi_31,
-                   xi_31_baseline,
-                   h_nEqNull,
-                   h_nEqTwo,
-                   psiN0,
-                   psiN2,
-                   bb_Q);
-
-    hTotalE_fit->Scale(AdjustActs[0]);
-    hSingleEnergy_fit->Scale(AdjustActs[0]);
-    hLowEnergy_fit->Scale(AdjustActs[0]);
-    hHighEnergy_fit->Scale(AdjustActs[0]);
-    hHighLowEnergy_fit->Scale(AdjustActs[0]);
-    
-    hTotalE_orig->Sumw2();
-    hSingleEnergy_orig->Sumw2();
-    hLowEnergy_orig->Sumw2();
-    hHighEnergy_orig->Sumw2();
-    hHighLowEnergy_orig->Sumw2();
-    
-    hTotalE_fit->Sumw2();
-    hSingleEnergy_fit->Sumw2();
-    hLowEnergy_fit->Sumw2();
-    hHighEnergy_fit->Sumw2();
-    hHighLowEnergy_fit->Sumw2();
-
-    hTotalE_orig->SetLineWidth(2);
-    hSingleEnergy_orig->SetLineWidth(2);
-    hLowEnergy_orig->SetLineWidth(2);
-    hHighEnergy_orig->SetLineWidth(2);
-    hHighLowEnergy_orig->SetLineWidth(2);
-
-    hTotalE_fit->SetLineWidth(2);
-    hSingleEnergy_fit->SetLineWidth(2);
-    hLowEnergy_fit->SetLineWidth(2);
-    hHighEnergy_fit->SetLineWidth(2);
-    hHighLowEnergy_fit->SetLineWidth(2);
-
-    //hTotalE_orig->SetHatchesLineWidth(2);
-    //hSingleEnergy_orig->SetHatchesLineWidth(2);
-    //hLowEnergy_orig->SetHatchesLineWidth(2);
-    //hHighEnergy_orig->SetHatchesLineWidth(2);
-    //hHighLowEnergy_orig->SetHatchesLineWidth(2);
-
-    //hTotalE_fit->SetHatchesLineWidth(2);
-    //hSingleEnergy_fit->SetHatchesLineWidth(2);
-    //hLowEnergy_fit->SetHatchesLineWidth(2);
-    //hHighEnergy_fit->SetHatchesLineWidth(2);
-    //hHighLowEnergy_fit->SetHatchesLineWidth(2);
-    
-    hTotalE_orig->SetFillStyle(3002);
-    hSingleEnergy_orig->SetFillStyle(3002);
-    hLowEnergy_orig->SetFillStyle(3002);
-    hHighEnergy_orig->SetFillStyle(3002);
-    hHighLowEnergy_orig->SetFillStyle(3002);
-
-    hTotalE_fit->SetFillStyle(3453);
-    hSingleEnergy_fit->SetFillStyle(3453);
-    hLowEnergy_fit->SetFillStyle(3453);
-    hHighEnergy_fit->SetFillStyle(3453);
-    hHighLowEnergy_fit->SetFillStyle(3453);
-
-    hTotalE_orig->SetFillColor(kBlue);
-    hSingleEnergy_orig->SetFillColor(kBlue);
-    hLowEnergy_orig->SetFillColor(kBlue);
-    hHighEnergy_orig->SetFillColor(kBlue);
-    hHighLowEnergy_orig->SetFillColor(kBlue);
-
-    hTotalE_fit->SetFillColor(kMagenta);
-    hSingleEnergy_fit->SetFillColor(kMagenta);
-    hLowEnergy_fit->SetFillColor(kMagenta);
-    hHighEnergy_fit->SetFillColor(kMagenta);
-    hHighLowEnergy_fit->SetFillColor(kMagenta);
-
-    hTotalE_orig->SetLineColor(kBlue);
-    hSingleEnergy_orig->SetLineColor(kBlue);
-    hLowEnergy_orig->SetLineColor(kBlue);
-    hHighEnergy_orig->SetLineColor(kBlue);
-    hHighLowEnergy_orig->SetLineColor(kBlue);
-
-    hTotalE_fit->SetLineColor(kMagenta);
-    hSingleEnergy_fit->SetLineColor(kMagenta);
-    hLowEnergy_fit->SetLineColor(kMagenta);
-    hHighEnergy_fit->SetLineColor(kMagenta);
-    hHighLowEnergy_fit->SetLineColor(kMagenta);
-
-    TCanvas *c = new TCanvas("c_outputdiff", "c_outputdiff");
-    hSingleEnergy_orig->SetMaximum(800.0);
-    hSingleEnergy_orig->Draw("hist");
-    hSingleEnergy_fit->Draw("histsame");
 
 
-
-}
-
+void draw(const double* const AdjustActs, const double* const AdjustActs_Err, const double* const CovMatrix, const int number_free_params);
 
 
 void loadFiles()
@@ -408,7 +279,7 @@ void loadFiles()
     // TODO: multiple instances, move to header file
     // TODO: also change in parameter list file
     //Double_t xi_31_init = 0.8;
-    Double_t xi_31_init = 0.296 * 1.11; // change to baseline value for testing purposes
+    Double_t xi_31_init = 2.63e-01; //1.13; //0.296; // change to baseline value for testing purposes
 
     ///*const Double_t*/ bb_Q = 3.368;
     double count = 0;
@@ -498,7 +369,6 @@ void loadFiles()
     // TODO: fix this
     AdjustActs[1] = xi_31_init;
 
-    // TODO: MARKER1
 
     /*
     Int_t number_free_params = minuit->GetNumFreePars();
@@ -509,6 +379,36 @@ void loadFiles()
     }
     */
     
+
+
+    // draw some gA values as output
+    const int i_max = 100;
+    for(int i = 0; i < i_max; ++ i)
+    {
+
+        Double_t xi_31_default = 0.296;
+        Double_t xi_31_half_range = 5.0;
+
+        Double_t xi_31_offset = 0.05;
+        Double_t xi_31_min = xi_31_default - xi_31_half_range + xi_31_offset;
+        Double_t xi_31_max = xi_31_default + xi_31_half_range + xi_31_offset;
+        Double_t xi_31_value = ((double)i / (double)i_max) * (xi_31_max - xi_31_min) + xi_31_min;
+        AdjustActs[1] = xi_31_value;
+
+        TString xi_31_str;
+        xi_31_str.Form("%f", xi_31_value);
+
+        // TODO, put in custom directory with text file containing params
+        draw(AdjustActs, AdjustActs_Err, std::string("hTotalE_") + std::string(xi_31_str) + std::string(".png"));
+        draw_2D(AdjustActs, AdjustActs_Err, std::string("hHighLowEnergy_") + std::string(xi_31_str) + std::string(".png"));
+        draw_outputdiff(AdjustActs, 0.296, std::string("houtputdiff_") + std::string(xi_31_str) + std::string(".png"));
+    }
+
+    std::cout << "done, check output folder for figures" << std::endl;
+    return 0;
+
+
+
     int number_free_params = -1;
     double *CovMatrix = nullptr;
 
@@ -664,14 +564,153 @@ void loadFiles()
         of_numberofeventsafterfit << tmpHist->GetName() << " number of events " << integral << std::endl;
     }
     of_numberofeventsafterfit.close();
+ 
+
+    ///////////////////////////////////////////////////////////////////////////
+    // write to output file
+    ///////////////////////////////////////////////////////////////////////////
+
+    TFile *fout = new TFile("Nd150_2e_P" + Phase + "_fit_histograms.root", "UPDATE");
+    //fout->mkdir("1D");
+    //fout->mkdir("2D");
+    std::cout << "writing histograms into \"\"" << std::endl;
+
+    std::ofstream ofoutaux("Nd150_2e_P" + Phase + "_fit_histograms.txt", std::ofstream::out);
     
+    for(int channel = 0; channel < number1DHists; ++ channel)
+    {
+        std::cout << "writing: 1D: channel=" << channel << std::endl;
+        
+        TString channel_str;
+        channel_str.Form("%i", channel);
+        //fout->cd("/1D");
+        fout->cd("/");
+        TDirectory *dir = gDirectory;
+        //TDirectory *dir_histogram = dir->mkdir("channel_" + channel_str);
+        TDirectory *dir_histogram = dir->mkdir("channel_1D_" + channel_str);
+
+        allDataSamples1D->At(channel)->Write();
+
+        std::string auxname = "channel_1D_" + std::string(channel_str) + "/" + std::string(allDataSamples1D->At(channel)->GetName());
+        ofoutaux << auxname << std::endl;
+
+        for(int j = 0; j < allMCSamples1D[channel]->GetEntries(); ++ j)
+        {
+            allMCSamples1D[channel]->Write();
+
+            std::string auxname = "channel_1D_" + std::string(channel_str) + "/" + std::string(allMCSamples1D[channel]->At(j)->GetName());
+            ofoutaux << auxname << std::endl;
+        }
+    }
+
+    for(int channel = 0; channel < number2DHists; ++ channel)
+    {
+        std::cout << "writing: 2D: channel=" << channel << std::endl;
+
+        TString channel_str;
+        channel_str.Form("%i", channel);
+        //fout->cd("/2D");
+        fout->cd("/");
+        TDirectory *dir = gDirectory;
+        //TDirectory *dir_histogram = dir->mkdir("channel_" + channel_str);
+        TDirectory *dir_histogram = dir->mkdir("channel_2D_" + channel_str);
+        
+        allDataSamples2D->At(channel)->Write();
+
+        std::string auxname = "channel_2D_" + std::string(channel_str) + "/" + std::string(allDataSamples2D->At(channel)->GetName());
+        ofoutaux << auxname << std::endl;
+
+        for(int j = 0; j < allMCSamples2D[channel]->GetEntries(); ++ j)
+        {
+            allMCSamples2D[channel]->Write();
+
+            std::string auxname = "channel_2D_" + std::string(channel_str) + "/" + std::string(allMCSamples2D[channel]->At(j)->GetName());
+            ofoutaux << auxname << std::endl;
+        }
+    }
+
+    ofoutaux.close();
+
+
+    draw(AdjustActs, AdjustActs_Err, CovMatrix, number_free_params);
+
+
+
+
+}
+
+void draw(const double* const AdjustActs, const double* const AdjustActs_Err, const double* const CovMatrix, const int number_free_params)
+{
+    // TODO: load AdjustActs, AdjustActs_Err from file
+
+    ///////////////////////////////////////////////////////////////////////////
+    // read from input file
+    ///////////////////////////////////////////////////////////////////////////
+
+    if(allDataSamples1D->GetEntries() == 0)
+    {
+
+        TFile *fin = new TFile("Nd150_2e_P" + Phase + "_fit_histograms.root", "UPDATE");
+        std::cout << "reading histograms from \"\"" << std::endl;
+
+        std::ifstream ifinaux("Nd150_2e_P" + Phase + "_fit_histograms.txt", std::ifstream::in);
+
+        std::string auxname;
+
+        for(int channel = 0; channel < number1DHists; ++ channel)
+        {
+            std::cout << "reading: 1D: channel=" << channel << std::endl;
+            
+            TString channel_str;
+            channel_str.Form("%i", channel);
+            //fout->cd("/1D");
+            //fout->cd("/");
+            //TDirectory *dir = gDirectory;
+            //TDirectory *dir_histogram = dir->mkdir("channel_" + channel_str);
+            //TDirectory *dir_histogram = dir->mkdir("channel_1D_" + channel_str);
+
+            ifinaux >> auxname;
+
+            TString hfullname = TString(auxname);
+            //TString hfullname = "channel_1D_" + channel_str + "/" + hname;
+
+            allDataSamples1D->Add((TH1F*)fin->Get(hfullname));
+            allMCSamples1D[channel]->Add((TH1F*)fin->Get(hfullname));
+
+        }
+
+        for(int channel = 0; channel < number2DHists; ++ channel)
+        {
+            std::cout << "reading: 2D: channel=" << channel << std::endl;
+
+            TString channel_str;
+            channel_str.Form("%i", channel);
+            //fout->cd("/2D");
+            //fout->cd("/");
+            //TDirectory *dir = gDirectory;
+            //TDirectory *dir_histogram = dir->mkdir("channel_" + channel_str);
+            //TDirectory *dir_histogram = dir->mkdir("channel_2D_" + channel_str);
+            
+            ifinaux >> auxname;
+
+            TString hfullname = TString(auxname);
+            //TString hfullname = "channel_2D_" + channel_str + "/" + hname;
+
+            allDataSamples2D->Add((TH2F*)fin->Get(hfullname));
+            allMCSamples2D[channel]->Add((TH2F*)fin->Get(hfullname));
+
+        }
+
+        ifinaux.close();
+
+    }
 
     draw(AdjustActs, AdjustActs_Err, "hTotalE.*");
     draw_2D(AdjustActs, AdjustActs_Err, "hHighLowEnergy.*");
     draw_covariance_matrix(CovMatrix, number_free_params, "cov_matrix.*");
 
 
-    draw_outputdiff(AdjustActs, 0.296);
+    draw_outputdiff(AdjustActs, 0.296, "c_outputdiff_.png");
 
 }
 

@@ -305,7 +305,7 @@ Int_t histogramDrawFlag[numHistograms] =
     0,    // hRun_
     0,    // hNElectrons_
     1,    // hTotalE_
-    0,    // hEeMax_
+    1,    // hEeMax_
     0,    // hElectronLengthMax_
 
     0,    // hVertexZMax_
@@ -316,7 +316,7 @@ Int_t histogramDrawFlag[numHistograms] =
 
     0,//1,    // hVertexMinDistPromptGgMax_
     0,    // hElectronLDCorrMax_
-    0,    // hEeMin_
+    1,    // hEeMin_
     0,    // hElectronLengthMin_
     0,    // hVertexZMin_
 
@@ -360,11 +360,11 @@ Int_t histogramDrawFlag[numHistograms] =
     0,      // hclusterHitEnergyMax_
     0,      // hnLowEnergyHits_
     0,      // hClusterEnergy_
-    1,      // hFoilSide_
+    0,      // hFoilSide_
 
-    1,      // hTrueVertexR_
+    0,      // hTrueVertexR_
     0,      // hFoilSideTrueVertexR_
-    1,      // hTrueVertexLayer_
+    0,      // hTrueVertexLayer_
     1,      // hSingleEnergy_
     1,      // hLowEnergy_
 

@@ -208,7 +208,7 @@ const double channel_enable_1D[number1DHists] =
 
 const double channel_enable_2D[number2DHists] =
 {
-1  // hHighLowEnergy
+0  // hHighLowEnergy
 };
 
 // global variable to hold chisquare result

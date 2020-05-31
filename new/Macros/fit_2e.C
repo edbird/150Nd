@@ -615,19 +615,19 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
                                 20, -5, 14);
 
     hSingleEnergy     = new TH1F("hSingleEnergy_" + sampleName + name_sample_split_additional + name_append,
-                                "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " True Vertex Layer",
+                                "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Single Electron Energy;Energy (MeV)",
                                 50, 0.0, 5.0);
 
     hLowEnergy     = new TH1F("hLowEnergy_" + sampleName + name_sample_split_additional + name_append,
-                                "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " True Vertex Layer",
+                                "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Low Energy Electron Energy;Energy (MeV)",
                                 50, 0.0, 5.0);
 
     hHighEnergy     = new TH1F("hHighEnergy_" + sampleName + name_sample_split_additional + name_append,
-                                "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " True Vertex Layer",
+                                "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " High Energy Electron Energy; Energy (MeV)",
                                 50, 0.0, 5.0);
 
     hHighLowEnergy     = new TH2F("hHighLowEnergy_" + sampleName + name_sample_split_additional + name_append,
-                                "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + ";High Energy;Low Energy",
+                                "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Electron Energy;High Energy Electron Energy (MeV);Low Energy Electron Energy (MeV)",
                                 50, 0.0, 5.0, 50, 0.0, 5.0);
 
 
