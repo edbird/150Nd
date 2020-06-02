@@ -627,7 +627,7 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
                                 50, 0.0, 5.0);
 
     hHighLowEnergy     = new TH2F("hHighLowEnergy_" + sampleName + name_sample_split_additional + name_append,
-                                "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Electron Energy;High Energy Electron Energy (MeV);Low Energy Electron Energy (MeV)",
+                                "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Electron Energy;Low Energy Electron Energy (MeV);High Energy Electron Energy (MeV)",
                                 50, 0.0, 5.0, 50, 0.0, 5.0);
 
 

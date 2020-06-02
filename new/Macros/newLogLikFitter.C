@@ -382,14 +382,14 @@ void loadFiles()
 
 
     // draw some gA values as output
-    const int i_max = 100;
+    const int i_max = 1;
     for(int i = 0; i < i_max; ++ i)
     {
 
-        Double_t xi_31_default = 0.296;
-        Double_t xi_31_half_range = 5.0;
+        Double_t xi_31_default = 0.296 + 0.01;
+        Double_t xi_31_half_range = 0.0;
 
-        Double_t xi_31_offset = 0.05;
+        Double_t xi_31_offset = 0.0;
         Double_t xi_31_min = xi_31_default - xi_31_half_range + xi_31_offset;
         Double_t xi_31_max = xi_31_default + xi_31_half_range + xi_31_offset;
         Double_t xi_31_value = ((double)i / (double)i_max) * (xi_31_max - xi_31_min) + xi_31_min;

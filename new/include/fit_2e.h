@@ -87,7 +87,9 @@ double AcceptedTime[3];
             TString filePath = "/mnt/ramdisknd150/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2e/";
         #else
             //TString filePath = "/media/ecb/Maxtor/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2e/";
-            TString filePath = "/media/ecb/backup/users/ecb/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2e/";
+            //TString filePath = "/media/ecb/backup/users/ecb/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2e/";
+            // change to using md0 over network
+            TString filePath = "/mnt/md0/users/ecb/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2e/";
         #endif
     #else
         TString filePath = "/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2e/";
@@ -104,7 +106,9 @@ double AcceptedTime[3];
             TString filePath = "/mnt/ramdisknd150/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2eNg_29Sep2015/";
         #else
             //TString filePath = "/media/ecb/Maxtor/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2eNg_29Sep2015/";
-            TString filePath = "/media/ecb/backup/users/ecb/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2eNg_29Sep2015/";
+            //TString filePath = "/media/ecb/backup/users/ecb/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2eNg_29Sep2015/";
+            // change to using md0 over network
+            TString filePath = "/mnt/md0/users/ecb/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2eNg_29Sep2015/";
         #endif
     #else
         TString filePath = "/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2eNg_29Sep2015/";
