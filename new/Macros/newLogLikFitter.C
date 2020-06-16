@@ -37,6 +37,7 @@
 
 // note: these must appear in correct order and after general includes above
 #include "newLogLikFitter.h"
+#include "newLogLikFitter_aux.h"
 #include "newLogLikFitter_read_parameternames_lst.h"
 #include "newLogLikFitter_reweight.h"
 #include "newLogLikFitter_loglikelihood.h"
@@ -196,17 +197,6 @@ TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double*& Co
 
 
 
-void timestamp(std::ofstream& os)
-{
-    time_t rawtime;
-    time(&rawtime);
-    struct tm *info;
-    info = localtime(&rawtime);
-    char timestringbuf[100];
-    size_t ncount = strftime(timestringbuf, sizeof(timestringbuf), "%F %T", info);
-    std::string datetimestamp(timestringbuf);
-    os << datetimestamp << std::endl;
-}
 
 
 template<typename T, typename U>
@@ -251,6 +241,7 @@ void draw_inputdata()
     h_nEqNull_clone->GetZaxis()->SetLabelFont(43);
     h_nEqNull_clone->GetZaxis()->SetLabelSize(15);
     c_nEqNull->SetRightMargin(0.15);
+    h_nEqNull_clone->SetContour(1000);
     h_nEqNull_clone->Draw("colz");
 
     TLatex latexlabel;
@@ -259,7 +250,7 @@ void draw_inputdata()
     latexlabel.SetTextFont(43);
     latexlabel.SetTextSize(30);
 
-    latexlabel.DrawLatex(0.80, 0.85, "#frac{dG_{0}}{dG_{T_{ee}}}");
+    latexlabel.DrawLatex(0.80, 0.85, "#frac{dG_{0}}{dT_{ee}}");
 
     c_nEqNull->SaveAs("c_nEqNull.png");
     c_nEqNull->SaveAs("c_nEqNull.pdf");
@@ -288,9 +279,10 @@ void draw_inputdata()
     h_nEqTwo_clone->GetZaxis()->SetLabelSize(15);
     c_nEqTwo->SetRightMargin(0.15);
     //h_nEqTwo_clone->SetNumberContours(256);
+    h_nEqTwo_clone->SetContour(1000);
     h_nEqTwo_clone->Draw("colz");
 
-    latexlabel.DrawLatex(0.80, 0.85, "#frac{dG_{2}}{dG_{T_{ee}}}");
+    latexlabel.DrawLatex(0.80, 0.85, "#frac{dG_{2}}{dT_{ee}}");
 
     c_nEqTwo->SaveAs("c_nEqTwo.png");
     c_nEqTwo->SaveAs("c_nEqTwo.pdf");
@@ -351,9 +343,10 @@ void loadFiles()
     std::cout << "histogram format constructed" << std::endl;
 
 
-    #if 1
-    draw_inputdata();
-    #endif
+    if(0)
+    {
+        draw_inputdata();
+    }
 
     std::cout << std::fixed << std::endl;
 
@@ -363,7 +356,7 @@ void loadFiles()
     gStyle->SetPalette(kBird);
     gStyle->SetPalette(kBrownCyan);
     gStyle->SetPalette(kLightTemperature);
-    gStyle->SetNumberContours(10000);
+    //gStyle->SetNumberContours(1000);
 
     allDataSamples1D = new TObjArray();
     allDataSamples2D = new TObjArray();
@@ -619,6 +612,7 @@ void loadFiles()
     }
 
     
+    /*
     {
         std::string chisquarelog_fname("chisquarelog.txt");
         std::cout << "writing to " << chisquarelog_fname << std::endl;
@@ -629,6 +623,7 @@ void loadFiles()
         //std::cout << "CHECK CHECK CHECK: mo100bbnumber=" << mo100bbnumber << std::endl;
         chisquarelog_ofstream << paramNameMap[mo100bbnumber] << ", " << AdjustActs[mo100bbnumber] << ", " << global_chisquare << ", (should be values for 100Mo bb)" << std::endl;
     }
+    */
 
 
     std::ofstream of_numberofeventsafterfit("of_numberofeventsafterfit.txt", std::ofstream::out | std::ofstream::app);
@@ -646,6 +641,7 @@ void loadFiles()
     // write to output file
     ///////////////////////////////////////////////////////////////////////////
 
+    /*
     TFile *fout = new TFile("Nd150_2e_P" + Phase + "_fit_histograms.root", "UPDATE");
     //fout->mkdir("1D");
     //fout->mkdir("2D");
@@ -706,14 +702,29 @@ void loadFiles()
     }
 
     ofoutaux.close();
-
+    */
 
     draw(AdjustActs, AdjustActs_Err, CovMatrix, number_free_params);
 
 
 
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Single Electron Energy Histogram
+    // Chisquare Test
+    // Plot chisquare as a function of the xi_31 parameter
+    ///////////////////////////////////////////////////////////////////////////
+
+    
+    std::cout << "ok to run chisquare test? [press enter to continue]" << std::endl;
+    //std::cin.get();
+
+    newloglikfitter_gA_chisquaretest(minuit, AdjustActs, AdjustActs_Err);
+
+
 }
+
+
 
 void draw(const double* const AdjustActs, const double* const AdjustActs_Err, const double* const CovMatrix, const int number_free_params)
 {
@@ -1661,6 +1672,8 @@ TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&Co
 
     //minuit->SetMaxIterations(50000);
     minuit->SetMaxIterations(1000);
+    //minuit->mnexcm("SET EPS", 0.01);
+    //minuit->SetEPS(1.0e-3); // TODO
     //give it the function to use
     minuit->SetFCN(logLikelihood);
     //std::cout << "calling: minuit->mnsimp()" << std::endl;

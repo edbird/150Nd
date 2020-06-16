@@ -201,9 +201,9 @@ static const int number2DHists = 1;
 const double channel_enable_1D[number1DHists] =
 {
 0, // hTotalE
-0, // hSingleEnergy
-1, // hLowEnergy
-1  // hHighEnergy
+1, // hSingleEnergy
+0, // hLowEnergy
+0  // hHighEnergy
 };
 
 const double channel_enable_2D[number2DHists] =

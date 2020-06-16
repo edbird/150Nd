@@ -2603,7 +2603,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
             }
             */
             
-            tmpHist->Sumw2();
+            //tmpHist->Sumw2();
             tmpHist->SetFillColor(sampleColors[i]);
             tmpHist->SetLineColor(sampleColors[i]);
             tmpHist->SetTitle(sampleNames[i]);
@@ -2981,7 +2981,7 @@ void fitHistograms()
             // 1: scaled, processeddata histogram (save this one to file)
             // 2: scaled, rawdata histogram (do not save this one to file)
 
-            tmpHist->Sumw2();
+            //tmpHist->Sumw2();
             tmpHist->SetFillColor(sampleColors[i]);
             tmpHist->SetLineColor(sampleColors[i]);
             tmpHist->SetTitle(sampleNames[i]);
@@ -3786,9 +3786,10 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
 
             Nmc_str.Form("%i", (int)hAllMC[j]->Integral());
             // moved to above (2)
+            // draw twice to set max
             if(j == 58)
             {
-                hist[j]->Draw("colz");
+            //    hist[j]->Draw("colz");
             }
             else
             {
@@ -3802,24 +3803,37 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
             }
             else
             {
+                //hMinorStacks[j]->Draw("hist");
                 hMinorStacks[j]->Draw("hist same");
                 //hMajorStacks[j]->Draw("hist same");
             }
 
 
-            hAllMC[j]->SetMaximum(1.0e+04);
+            //hAllMC[j]->SetMaximum(1.0e+04);
+            //hAllMC[j]->GetYaxis()->SetMaximum(1.0e+04);
+            //hAllMC[j]->GetYaxis()->SetRangeUser(0.0, 1.0e+04);
 
             hAllMC[j]->SetLineWidth(2);
             hAllMC[j]->SetLineColor(kBlack);
             hAllMC[j]->SetFillColor(kWhite);
             hAllMC[j]->SetFillStyle(0);
-            hAllMC[j]->Sumw2();
+            //hAllMC[j]->Sumw2();
             if(j == 58)
             {
             }
             else
             {
-                hAllMC[j]->Draw("hist sames");
+                hAllMC[j]->Draw("hist same");
+            }
+
+            // moved from above
+            if(j == 58)
+            {
+                hist[j]->Draw("colz");
+            }
+            else
+            {
+                hist[j]->Draw("PE same");
             }
 
             double chi2;
@@ -3926,10 +3940,10 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
             // moved to above (1)
 
             Nmc_str.Form("%i", (int)hAllMC_rawdata[j]->Integral());
-            // moved to above (2)
+            // moved to above (2) 
             if(j == 58)
             {
-                hist_rawdata[j]->Draw("colz");
+                //hist_rawdata[j]->Draw("colz");
             }
             else
             {
@@ -3943,24 +3957,37 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
             }
             else
             {
+                //hMinorStacks_rawdata[j]->Draw("hist");
+                //hMajorStacks_rawdata[j]->Draw("hist same");
                 hMinorStacks_rawdata[j]->Draw("hist same");
-                //hMajorStacks_rawdata[i]->Draw("hist same");
             }
 
 
-            hAllMC_rawdata[j]->SetMaximum(1.0e+04);
+            //hAllMC_rawdata[j]->SetMaximum(1.0e+04);
+            //hAllMC_rawdata[j]->GetYaxis()->SetRangeUser(0.0, 1.0e+04);
 
             hAllMC_rawdata[j]->SetLineWidth(2);
             hAllMC_rawdata[j]->SetLineColor(kBlack);
             hAllMC_rawdata[j]->SetFillColor(kWhite);
             hAllMC_rawdata[j]->SetFillStyle(0);
-            hAllMC_rawdata[j]->Sumw2();
+            //hAllMC_rawdata[j]->Sumw2();
             if(j == 58)
             {
             }
             else
             {
-                hAllMC_rawdata[j]->Draw("hist sames");
+                hAllMC_rawdata[j]->Draw("hist same");
+                //hAllMC_rawdata[j]->Draw("hist");
+            }
+
+            // moved to here
+            if(j == 58)
+            {
+                hist_rawdata[j]->Draw("colz");
+            }
+            else
+            {
+                hist_rawdata[j]->Draw("PE same");
             }
 
             double chi2;
