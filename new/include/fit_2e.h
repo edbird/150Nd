@@ -228,7 +228,7 @@ double Nd150NGenMC_rawdata[nNd150Samples];
 
 
 //its annoying to have to keep writing the histogram names. If we always work in the right order, should be OK.
-static const int numHistograms = 57; //49; //40; // 44;
+static const int numHistograms = 59; // 57; //49; //40; // 44;
 TString histogramNames[numHistograms] = {
     "hRun_",                            // 00
     "hNElectrons_",                     // 01
@@ -297,7 +297,9 @@ TString histogramNames[numHistograms] = {
     "hLowEnergy_",                      // 54
 
     "hHighEnergy_",                     
-    "hHighLowEnergy_"                   // 56
+    "hHighLowEnergy_",                  // 56
+    "hTotalClusterEnergy_",
+    "hHotSpotLocation_"
 
 
 };
@@ -309,7 +311,7 @@ Int_t histogramDrawFlag[numHistograms] =
     0,    // hRun_
     0,    // hNElectrons_
     1,    // hTotalE_
-    1,    // hEeMax_
+    0,    // hEeMax_
     0,    // hElectronLengthMax_
 
     0,    // hVertexZMax_
@@ -320,7 +322,7 @@ Int_t histogramDrawFlag[numHistograms] =
 
     0,//1,    // hVertexMinDistPromptGgMax_
     0,    // hElectronLDCorrMax_
-    1,    // hEeMin_
+    0,    // hEeMin_
     0,    // hElectronLengthMin_
     0,    // hVertexZMin_
 
@@ -348,7 +350,7 @@ Int_t histogramDrawFlag[numHistograms] =
     0,//1,    // hVertexDRPhi_
     0,//1,    // hNAPromptGgHits_
 
-    1,    // hNAfterCuts_
+    0,    // hNAfterCuts_
     0,    // hVertexZSecMax_
     0,    // hVertexZSecMin_
     0,    // hEeMaxVEeMin_
@@ -370,10 +372,12 @@ Int_t histogramDrawFlag[numHistograms] =
     0,      // hFoilSideTrueVertexR_
     0,      // hTrueVertexLayer_
     1,      // hSingleEnergy_
-    1,      // hLowEnergy_
+    0,      // hLowEnergy_
 
-    1,      // hHighEnergy_
-    1       // hHighLowEnergy_
+    0,      // hHighEnergy_
+    0,      // hHighLowEnergy_
+    0,       // hTotalClusterEnergy_
+    1       // hHotSpotLocation_
 };
 
 // draw raw data histograms as well?

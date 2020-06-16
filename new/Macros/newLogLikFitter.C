@@ -233,20 +233,69 @@ void draw_inputdata()
     // debug
     TCanvas *c_nEqNull;
     c_nEqNull = new TCanvas("c_nEqNull", "c_nEqNull"); //, 4000, 3000);
-    h_nEqNull->Draw("colz");
+    TH2F *h_nEqNull_clone = (TH2F*)h_nEqNull->Clone();
+    h_nEqNull_clone->SetTitle("");
+    h_nEqNull_clone->GetXaxis()->SetTitle("Electron Energy 2");
+    h_nEqNull_clone->GetXaxis()->SetTitleFont(43);
+    h_nEqNull_clone->GetXaxis()->SetTitleSize(20);
+    h_nEqNull_clone->GetXaxis()->SetLabelFont(43);
+    h_nEqNull_clone->GetXaxis()->SetLabelSize(15);
+    h_nEqNull_clone->GetYaxis()->SetTitle("Electron Energy 1");
+    h_nEqNull_clone->GetYaxis()->SetTitleFont(43);
+    h_nEqNull_clone->GetYaxis()->SetTitleSize(20);
+    h_nEqNull_clone->GetYaxis()->SetLabelFont(43);
+    h_nEqNull_clone->GetYaxis()->SetLabelSize(15);
+    h_nEqNull_clone->GetZaxis()->SetTitle("Decay Rate");
+    h_nEqNull_clone->GetZaxis()->SetTitleFont(43);
+    h_nEqNull_clone->GetZaxis()->SetTitleSize(20);
+    h_nEqNull_clone->GetZaxis()->SetLabelFont(43);
+    h_nEqNull_clone->GetZaxis()->SetLabelSize(15);
+    c_nEqNull->SetRightMargin(0.15);
+    h_nEqNull_clone->Draw("colz");
+
+    TLatex latexlabel;
+    latexlabel.SetNDC();
+    latexlabel.SetTextAlign(33);
+    latexlabel.SetTextFont(43);
+    latexlabel.SetTextSize(30);
+
+    latexlabel.DrawLatex(0.80, 0.85, "#frac{dG_{0}}{dG_{T_{ee}}}");
+
     c_nEqNull->SaveAs("c_nEqNull.png");
     c_nEqNull->SaveAs("c_nEqNull.pdf");
     c_nEqNull->SaveAs("c_nEqNull.C");
-    delete c_nEqNull;
+    //delete c_nEqNull;
 
     // debug
     TCanvas *c_nEqTwo;
     c_nEqTwo = new TCanvas("c_nEqTwo", "c_nEqTwo"); //, 4000, 3000);
-    h_nEqTwo->Draw("colz");
+    TH2F *h_nEqTwo_clone = (TH2F*)h_nEqTwo->Clone();
+    h_nEqTwo_clone->SetTitle("");
+    h_nEqTwo_clone->GetXaxis()->SetTitle("Electron Energy 2");
+    h_nEqTwo_clone->GetXaxis()->SetTitleFont(43);
+    h_nEqTwo_clone->GetXaxis()->SetTitleSize(20);
+    h_nEqTwo_clone->GetXaxis()->SetLabelFont(43);
+    h_nEqTwo_clone->GetXaxis()->SetLabelSize(15);
+    h_nEqTwo_clone->GetYaxis()->SetTitle("Electron Energy 1");
+    h_nEqTwo_clone->GetYaxis()->SetTitleFont(43);
+    h_nEqTwo_clone->GetYaxis()->SetTitleSize(20);
+    h_nEqTwo_clone->GetYaxis()->SetLabelFont(43);
+    h_nEqTwo_clone->GetYaxis()->SetLabelSize(15);
+    h_nEqTwo_clone->GetZaxis()->SetTitle("Decay Rate");
+    h_nEqTwo_clone->GetZaxis()->SetTitleFont(43);
+    h_nEqTwo_clone->GetZaxis()->SetTitleSize(20);
+    h_nEqTwo_clone->GetZaxis()->SetLabelFont(43);
+    h_nEqTwo_clone->GetZaxis()->SetLabelSize(15);
+    c_nEqTwo->SetRightMargin(0.15);
+    //h_nEqTwo_clone->SetNumberContours(256);
+    h_nEqTwo_clone->Draw("colz");
+
+    latexlabel.DrawLatex(0.80, 0.85, "#frac{dG_{2}}{dG_{T_{ee}}}");
+
     c_nEqTwo->SaveAs("c_nEqTwo.png");
     c_nEqTwo->SaveAs("c_nEqTwo.pdf");
     c_nEqTwo->SaveAs("c_nEqTwo.C");
-    delete c_nEqTwo;
+    //delete c_nEqTwo;
 }
 
 
@@ -257,6 +306,8 @@ void draw(const double* const AdjustActs, const double* const AdjustActs_Err, co
 
 void loadFiles()
 {
+
+
 
     std::cout << std::scientific;
 
@@ -275,11 +326,13 @@ void loadFiles()
     const Double_t G2_ps_integral_yrinv = 0.357034E-16;
 
     // TODO: what is the value for the basline for Nd150? is this for 100Mo
-    const Double_t xi_31_baseline{0.296}; // TODO: this is WRONG change it
+    //const Double_t xi_31_baseline{0.296}; // TODO: this is WRONG change it
+    const Double_t xi_31_baseline{0.0}; // TODO: this is WRONG change it
     // TODO: multiple instances, move to header file
     // TODO: also change in parameter list file
     //Double_t xi_31_init = 0.8;
-    Double_t xi_31_init = 2.63e-01; //1.13; //0.296; // change to baseline value for testing purposes
+    Double_t xi_31_init = 0.0; //1.13; //0.296; // change to baseline value for testing purposes
+//    Double_t xi_31_init = 2.63e-01; //1.13; //0.296; // change to baseline value for testing purposes
 
     ///*const Double_t*/ bb_Q = 3.368;
     double count = 0;
@@ -298,7 +351,7 @@ void loadFiles()
     std::cout << "histogram format constructed" << std::endl;
 
 
-    #if 0
+    #if 1
     draw_inputdata();
     #endif
 
@@ -307,6 +360,10 @@ void loadFiles()
     gROOT->SetStyle("Plain");
     gStyle->SetOptStat(0);
     gStyle->SetPalette(1);
+    gStyle->SetPalette(kBird);
+    gStyle->SetPalette(kBrownCyan);
+    gStyle->SetPalette(kLightTemperature);
+    gStyle->SetNumberContours(10000);
 
     allDataSamples1D = new TObjArray();
     allDataSamples2D = new TObjArray();
@@ -380,32 +437,51 @@ void loadFiles()
     */
     
 
-
-    // draw some gA values as output
-    const int i_max = 1;
-    for(int i = 0; i < i_max; ++ i)
+    if(0)
     {
+        //double xi_31_values[] = {-0.55, 0.0, 0.246, 0.286, 0.295, 0.297, 0.306, 0.346, 1.0, 1.2, 1.5, 10.0, 100.0};
+        double xi_31_values[] = {-0.5, 0.0, 0.246, 0.286, 0.295, 0.297, 0.306, 0.346, 1.0, 1.2, 1.5};
 
-        Double_t xi_31_default = 0.296 + 0.01;
-        Double_t xi_31_half_range = 0.0;
+        // draw some gA values as output
+        //const int i_max = 1;
+        int i_max = sizeof(xi_31_values) / sizeof(xi_31_values[0]);
+        for(int i = 0; i < i_max; ++ i)
+        {
 
-        Double_t xi_31_offset = 0.0;
-        Double_t xi_31_min = xi_31_default - xi_31_half_range + xi_31_offset;
-        Double_t xi_31_max = xi_31_default + xi_31_half_range + xi_31_offset;
-        Double_t xi_31_value = ((double)i / (double)i_max) * (xi_31_max - xi_31_min) + xi_31_min;
-        AdjustActs[1] = xi_31_value;
+            // -1.5 does not appear to be consistent - see negative values
+            /*
+            Double_t xi_31_default = 0.296; //+ 1.0;
+            Double_t xi_31_half_range = 2.5;
 
-        TString xi_31_str;
-        xi_31_str.Form("%f", xi_31_value);
+            Double_t xi_31_offset = 0.0;
+            Double_t xi_31_min = xi_31_default - xi_31_half_range + xi_31_offset;
+            Double_t xi_31_max = xi_31_default + xi_31_half_range + xi_31_offset;
+            */
+            //Double_t xi_31_min = -0.565;
+            //Double_t xi_31_max = -0.550;
+            //Double_t xi_31_min = 100.0;
+            //Double_t xi_31_max = 1000.0;
+            //Double_t xi_31_min = 0.296 - 0.1;
+            //Double_t xi_31_max = 0.296 + 0.1;
 
-        // TODO, put in custom directory with text file containing params
-        draw(AdjustActs, AdjustActs_Err, std::string("hTotalE_") + std::string(xi_31_str) + std::string(".png"));
-        draw_2D(AdjustActs, AdjustActs_Err, std::string("hHighLowEnergy_") + std::string(xi_31_str) + std::string(".png"));
-        draw_outputdiff(AdjustActs, 0.296, std::string("houtputdiff_") + std::string(xi_31_str) + std::string(".png"));
-    }
+            //Double_t xi_31_value = ((double)i / (double)i_max) * (xi_31_max - xi_31_min) + xi_31_min;
+            Double_t xi_31_value = xi_31_values[i];
+            AdjustActs[1] = xi_31_value;
 
-    std::cout << "done, check output folder for figures" << std::endl;
-    return 0;
+            TString xi_31_str;
+            xi_31_str.Form("%f", xi_31_value);
+
+            // TODO, put in custom directory with text file containing params
+            draw(AdjustActs, AdjustActs_Err, std::string("hTotalE_") + std::string(xi_31_str) + std::string(".png"));
+            draw_2D(AdjustActs, AdjustActs_Err, std::string("hHighLowEnergy_") + std::string(xi_31_str) + std::string(".png"));
+
+            //draw_outputdiff(AdjustActs, 0.296, std::string("houtputdiff_") + std::string(xi_31_str) + std::string(".png"), -3);
+            draw_outputdiff(AdjustActs, 0.0, std::string("houtputdiff_") + std::string(xi_31_str) + std::string(".png"), -3);
+        }
+
+        std::cout << "done, check output folder for figures" << std::endl;
+        return 0;
+   }
 
 
 
@@ -710,7 +786,8 @@ void draw(const double* const AdjustActs, const double* const AdjustActs_Err, co
     draw_covariance_matrix(CovMatrix, number_free_params, "cov_matrix.*");
 
 
-    draw_outputdiff(AdjustActs, 0.296, "c_outputdiff_.png");
+    //draw_outputdiff(AdjustActs, 0.296, "c_outputdiff_.png", -1);
+    draw_outputdiff(AdjustActs, 0.0, "c_outputdiff_.png", -1);
 
 }
 

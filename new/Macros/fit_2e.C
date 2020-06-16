@@ -336,6 +336,9 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
     TH1F *hHighEnergy;
     TH2F *hHighLowEnergy;
 
+    TH1F *hTotalClusterEnergy;
+    TH2F *hHotSpotLocation;
+
     // NOTE: this idea (multuplying histograms) will not work because
     // we lose the information of which true energy values match which
     // reconstructed energy values
@@ -571,31 +574,31 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
 
     hnGammaClusters = new TH1F("hnGammaClusters_" + sampleName + name_sample_split_additional + name_append,
                                 "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Num Gamma Clusters",
-                                20, 0, 20);
+                                11, 0, 10);
 
     hnInCluster     = new TH1F("hnInCluster_" + sampleName + name_sample_split_additional + name_append,
                                 "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Num in Cluster",
-                                20, 0, 20);
+                                11, 0, 10);
 
     hclusterHitEnergy     = new TH1F("hclusterHitEnergy_" + sampleName + name_sample_split_additional + name_append,
                                 "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Cluster Hit Energy",
-                                50, 0, 4.0);
+                                50, 0, 0.5);
     
     hclusterHitEnergyMin     = new TH1F("hclusterHitEnergyMin_" + sampleName + name_sample_split_additional + name_append,
                                 "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Cluster Hit Energy Min",
-                                50, 0, 4.0);
+                                50, 0, 0.5);
 
     hclusterHitEnergyMax     = new TH1F("hclusterHitEnergyMax_" + sampleName + name_sample_split_additional + name_append,
                                 "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Cluster Hit Energy Max",
-                                50, 0, 4.0);
+                                50, 0, 0.5);
 
     hnLowEnergyHits     = new TH1F("hnLowEnergyHits_" + sampleName + name_sample_split_additional + name_append,
                                 "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Num in Cluster",
-                                20, 0, 20);
+                                11, 0, 10);
 
     hclusterEnergy     = new TH1F("hclusterEnergy_" + sampleName + name_sample_split_additional + name_append,
                                 "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Cluster Energy",
-                                50, 0, 4.0);
+                                50, 0, 1.0);
 
 
     hFoilSide     = new TH1F("hFoilSide_" + sampleName + name_sample_split_additional + name_append,
@@ -629,6 +632,17 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
     hHighLowEnergy     = new TH2F("hHighLowEnergy_" + sampleName + name_sample_split_additional + name_append,
                                 "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Electron Energy;Low Energy Electron Energy (MeV);High Energy Electron Energy (MeV)",
                                 50, 0.0, 5.0, 50, 0.0, 5.0);
+
+
+    hTotalClusterEnergy     = new TH1F("hTotalClusterEnergy_" + sampleName + name_sample_split_additional + name_append,
+                                "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Total Cluster Hit Energy",
+                                50, 0, 1.0);
+
+    hHotSpotLocation = new TH2F("hHotSpotLocation_" + sampleName + name_sample_split_additional + name_append,
+                        "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Hot Spot Locations",
+                        50, 5.7371, 5.8706, 50, -120.0, 120.0);
+
+
 
 
     //#if TRUTH_ENABLE
@@ -730,6 +744,16 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
     hpmap["hHighEnergy_"] = hHighEnergy;
     hpmap["hHighLowEnergy_"] = hHighLowEnergy;
 
+    hpmap["hTotalClusterEnergy_"] = hTotalClusterEnergy;
+
+    hpmap["hHotSpotLocation_"] = hHotSpotLocation;
+
+
+    for(std::map<TString, TH1*>::iterator it{hpmap.begin()}; it != hpmap.end(); ++ it)
+    {
+        //std::cout << it->second->GetName() << std::endl;
+        it->second->Sumw2();
+    }
 
     //#if TRUTH_ENABLE
     //    if((sampleName.CompareTo("nd150_rot_2n2b_m4") == 0) ||
@@ -1359,6 +1383,18 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
             lowE_index = 0;
         }
 
+
+
+        if(vertexInHotSpot[0])
+        {
+            hHotSpotLocation->Fill(vertexSec[0], vertexZ[0], 1.0);
+        }
+        if(vertexInHotSpot[1])
+        {
+            hHotSpotLocation->Fill(vertexSec[1], vertexZ[1], 1.0);
+        }
+
+
     /*
      *
      * TODO: some of these were making cuts that removed events, but they should not have!
@@ -1643,12 +1679,42 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
         // Summer removed this for Position paper
         // replacing it with no gamma rays with energy > 200 keV
         // check this TODO
+        //if(mode_flag == 0)
+        //{
+        //    if(mode_flag_2 == 1)
+        //    {
+        //        int cluster_hit_index = 0;
+        //        int cesum = 0;
+        //        for(int i{0}; i < nGammaClusters; ++ i)
+        //        {
+        //            /*
+        //            if(clusterEnergy[i] > 0.2)
+        //            {
+        //                ++ cesum;
+        //            }
+        //            */
+        //            for(int j{0}; j < nInCluster[i]; ++ j)
+        //            {
+        //                if(clusterHitEnergy[cluster_hit_index] > 0.2)
+        //                {
+        //                    ++ cesum;
+        //                }
+        //                ++ cluster_hit_index;
+        //            }
+        //        }
+        //        if(cesum > 0) continue;
+        //    }
+        //}
         if(mode_flag == 0)
         {
             if(mode_flag_2 == 1)
             {
+                double cluster_total_energy = 0.;
                 int cluster_hit_index = 0;
                 int cesum = 0;
+
+                //if(nGammaClusters > 0) continue;
+
                 for(int i{0}; i < nGammaClusters; ++ i)
                 {
                     /*
@@ -1657,16 +1723,23 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
                         ++ cesum;
                     }
                     */
+                    /*
                     for(int j{0}; j < nInCluster[i]; ++ j)
                     {
                         if(clusterHitEnergy[cluster_hit_index] > 0.2)
                         {
                             ++ cesum;
+                            cluster_total_energy += clusterHitEnergy[cluster_hit_index];
                         }
                         ++ cluster_hit_index;
                     }
+                    */
+                    //if(clusterEnergy[i] > 0.2) continue;
+                    cluster_total_energy += clusterEnergy[i];
                 }
-                if(cesum > 0) continue;
+                //if(cesum > 0) continue;
+                if(cluster_total_energy > 0.2) continue;
+                
             }
         }
         ++ cut_counter[cc]; // cut 4 - gamma energy
@@ -2115,6 +2188,7 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
         int nLowEnergyHits = 0;
         double clusterHitEnergyMin;
         double clusterHitEnergyMax;
+        double total_cluster_energy;
         for(int i = 0; i < nGammaClusters; ++ i)
         {
             hnInCluster->Fill(nInCluster[i], weight);
@@ -2122,8 +2196,11 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
 
             clusterHitEnergyMin = 0.;
             clusterHitEnergyMax = 0.;
+            total_cluster_energy = 0.0;
             for(int j = 0; j < nInCluster[i]; ++ j)
             {
+                total_cluster_energy += clusterHitEnergy[hit_counter];
+
                 if(j == 0)
                 {
                     clusterHitEnergyMin = clusterHitEnergy[hit_counter];
@@ -2138,6 +2215,7 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
                     ++ nLowEnergyHits;
                 }
             }
+            hTotalClusterEnergy->Fill(total_cluster_energy, weight);
             if(nInCluster[i] >= 2)
             {
                 // don't store case where no data was set (0)
@@ -2230,10 +2308,14 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
     cut_description[cc] = "none";
 
     std::cout << "Here are the cut counts" << std::endl;
+    std::ofstream of_cutcount("of_cutcount.txt", std::ios::out);
+    of_cutcount << sampleName << std::endl;
     for(int i = 0; i < nCuts; i++)
     {
         std::cout << "Passed cut " << i << ": " << cut_counter[i] << " events. Description=\"" << cut_description[i] << "\"" << std::endl;
+        of_cutcount << "Passed cut " << i << ": " << cut_counter[i] << " events. Description=\"" << cut_description[i] << "\"" << std::endl; 
     }
+    of_cutcount << std::endl;
     
 
     for(int i = 0; i < nCuts; i++ )
@@ -3704,12 +3786,25 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
 
             Nmc_str.Form("%i", (int)hAllMC[j]->Integral());
             // moved to above (2)
-            hist[j]->Draw("PE");
+            if(j == 58)
+            {
+                hist[j]->Draw("colz");
+            }
+            else
+            {
+                hist[j]->Draw("PE");
+            }
 
             //std::cout << " data: " << hist[i]->Integral() << std::endl;
             //hSimpleStacks[j]->Draw("hist same");
-            hMinorStacks[j]->Draw("hist same");
-            //hMajorStacks[j]->Draw("hist same");
+            if(j == 58)
+            {
+            }
+            else
+            {
+                hMinorStacks[j]->Draw("hist same");
+                //hMajorStacks[j]->Draw("hist same");
+            }
 
 
             hAllMC[j]->SetMaximum(1.0e+04);
@@ -3719,7 +3814,13 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
             hAllMC[j]->SetFillColor(kWhite);
             hAllMC[j]->SetFillStyle(0);
             hAllMC[j]->Sumw2();
-            hAllMC[j]->Draw("hist sames");
+            if(j == 58)
+            {
+            }
+            else
+            {
+                hAllMC[j]->Draw("hist sames");
+            }
 
             double chi2;
             int ndf, igood;
@@ -3751,7 +3852,15 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
             //c0->cd();
             leg->Delete();
             hist[j]->SetTitle(histogramNames[j]); //switch to titles once you've written them
-            hist[j]->Draw("PEsame");
+            /*
+            if(j == 58)
+            {
+            }
+            else
+            {
+                hist[j]->Draw("PEsame");
+            }
+            */
 
             //c[i]->cd(3);
             //c2 = (TPad*)c[i]->GetPad(3);
@@ -3818,12 +3927,25 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
 
             Nmc_str.Form("%i", (int)hAllMC_rawdata[j]->Integral());
             // moved to above (2)
-            hist_rawdata[j]->Draw("PE");
+            if(j == 58)
+            {
+                hist_rawdata[j]->Draw("colz");
+            }
+            else
+            {
+                hist_rawdata[j]->Draw("PE");
+            }
 
             //std::cout << " data: " << hist[i]->Integral() << std::endl;
             //hSimpleStacks[i]->Draw("hist same");
-            hMinorStacks_rawdata[j]->Draw("hist same");
-            //hMajorStacks_rawdata[i]->Draw("hist same");
+            if(j == 58)
+            {
+            }
+            else
+            {
+                hMinorStacks_rawdata[j]->Draw("hist same");
+                //hMajorStacks_rawdata[i]->Draw("hist same");
+            }
 
 
             hAllMC_rawdata[j]->SetMaximum(1.0e+04);
@@ -3833,7 +3955,13 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
             hAllMC_rawdata[j]->SetFillColor(kWhite);
             hAllMC_rawdata[j]->SetFillStyle(0);
             hAllMC_rawdata[j]->Sumw2();
-            hAllMC_rawdata[j]->Draw("hist sames");
+            if(j == 58)
+            {
+            }
+            else
+            {
+                hAllMC_rawdata[j]->Draw("hist sames");
+            }
 
             double chi2;
             int ndf, igood;
@@ -3863,7 +3991,16 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
             //c0->cd();
             leg->Delete();
             hist_rawdata[j]->SetTitle(histogramNames[j]); //switch to titles once you've written them
-            hist_rawdata[j]->Draw("PEsame");
+            /*
+            if()
+            {
+                hist_rawdata[j]->Draw("colz");
+            }
+            else
+            {
+                hist_rawdata[j]->Draw("PEsame");
+            }
+            */
 
             //make ratio plot
             //TH1F *ratio = (TH1F*)hist[i]->Clone("ratio_" + histogramNames[i]);
