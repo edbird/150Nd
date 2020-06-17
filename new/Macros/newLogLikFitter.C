@@ -38,12 +38,16 @@
 // note: these must appear in correct order and after general includes above
 #include "newLogLikFitter.h"
 #include "newLogLikFitter_aux.h"
+#include "newLogLikFitter_print.h"
 #include "newLogLikFitter_read_parameternames_lst.h"
+#include "newLogLikFitter_book1DHistograms.h"
+#include "newLogLikFitter_book2DHistograms.h"
 #include "newLogLikFitter_reweight.h"
 #include "newLogLikFitter_loglikelihood.h"
 #include "newLogLikFitter_draw.h"
 #include "newLogLikFitter_draw_outputdiff.h"
 #include "newLogLikFitter_chisquaretest.h"
+#include "newLogLikFitter_test.h"
 
 
 // TODO:
@@ -186,8 +190,6 @@
 //----------------------------------------
 void loadFiles();
 
-void book1DHistograms(Int_t channel_counter, TString theChannel,TString thePhase, TString theHistogram);
-void book2DHistograms(Int_t channel_counter, TString theChannel,TString thePhase, TString theHistogram);
 
 //void fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double*& CovMatrix, int& number_free_params, Int_t thePhase);
 TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double*& CovMatrix, int& number_free_params, Int_t thePhase);
@@ -199,101 +201,11 @@ TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double*& Co
 
 
 
-template<typename T, typename U>
-void print_map(std::map<T, U> &map, const std::string& name)
-{
-    std::cout << "contents of map " << name << std::endl;
-    for(auto it = map.cbegin(); it != map.cend(); ++ it)
-    {
-        std::cout << it->first << " -> " << it->second << std::endl;
-    }
-    
-    /*
-    std::cout << "contents of map paramNameToNumberMap:" << std::endl;
-    for(auto it = paramNameToNumberMap.cbegin(); it != paramNameToNumberMap.cend(); ++ it)
-    {
-        std::cout << it->first << " -> " << it->second << std::endl;
-    }
-    */
-}
-
-void draw_inputdata()
-{
-
-    // debug
-    TCanvas *c_nEqNull;
-    c_nEqNull = new TCanvas("c_nEqNull", "c_nEqNull"); //, 4000, 3000);
-    TH2F *h_nEqNull_clone = (TH2F*)h_nEqNull->Clone();
-    h_nEqNull_clone->SetTitle("");
-    h_nEqNull_clone->GetXaxis()->SetTitle("Electron Energy 2");
-    h_nEqNull_clone->GetXaxis()->SetTitleFont(43);
-    h_nEqNull_clone->GetXaxis()->SetTitleSize(20);
-    h_nEqNull_clone->GetXaxis()->SetLabelFont(43);
-    h_nEqNull_clone->GetXaxis()->SetLabelSize(15);
-    h_nEqNull_clone->GetYaxis()->SetTitle("Electron Energy 1");
-    h_nEqNull_clone->GetYaxis()->SetTitleFont(43);
-    h_nEqNull_clone->GetYaxis()->SetTitleSize(20);
-    h_nEqNull_clone->GetYaxis()->SetLabelFont(43);
-    h_nEqNull_clone->GetYaxis()->SetLabelSize(15);
-    h_nEqNull_clone->GetZaxis()->SetTitle("Decay Rate");
-    h_nEqNull_clone->GetZaxis()->SetTitleFont(43);
-    h_nEqNull_clone->GetZaxis()->SetTitleSize(20);
-    h_nEqNull_clone->GetZaxis()->SetLabelFont(43);
-    h_nEqNull_clone->GetZaxis()->SetLabelSize(15);
-    c_nEqNull->SetRightMargin(0.15);
-    h_nEqNull_clone->SetContour(1000);
-    h_nEqNull_clone->Draw("colz");
-
-    TLatex latexlabel;
-    latexlabel.SetNDC();
-    latexlabel.SetTextAlign(33);
-    latexlabel.SetTextFont(43);
-    latexlabel.SetTextSize(30);
-
-    latexlabel.DrawLatex(0.80, 0.85, "#frac{dG_{0}}{dT_{ee}}");
-
-    c_nEqNull->SaveAs("c_nEqNull.png");
-    c_nEqNull->SaveAs("c_nEqNull.pdf");
-    c_nEqNull->SaveAs("c_nEqNull.C");
-    //delete c_nEqNull;
-
-    // debug
-    TCanvas *c_nEqTwo;
-    c_nEqTwo = new TCanvas("c_nEqTwo", "c_nEqTwo"); //, 4000, 3000);
-    TH2F *h_nEqTwo_clone = (TH2F*)h_nEqTwo->Clone();
-    h_nEqTwo_clone->SetTitle("");
-    h_nEqTwo_clone->GetXaxis()->SetTitle("Electron Energy 2");
-    h_nEqTwo_clone->GetXaxis()->SetTitleFont(43);
-    h_nEqTwo_clone->GetXaxis()->SetTitleSize(20);
-    h_nEqTwo_clone->GetXaxis()->SetLabelFont(43);
-    h_nEqTwo_clone->GetXaxis()->SetLabelSize(15);
-    h_nEqTwo_clone->GetYaxis()->SetTitle("Electron Energy 1");
-    h_nEqTwo_clone->GetYaxis()->SetTitleFont(43);
-    h_nEqTwo_clone->GetYaxis()->SetTitleSize(20);
-    h_nEqTwo_clone->GetYaxis()->SetLabelFont(43);
-    h_nEqTwo_clone->GetYaxis()->SetLabelSize(15);
-    h_nEqTwo_clone->GetZaxis()->SetTitle("Decay Rate");
-    h_nEqTwo_clone->GetZaxis()->SetTitleFont(43);
-    h_nEqTwo_clone->GetZaxis()->SetTitleSize(20);
-    h_nEqTwo_clone->GetZaxis()->SetLabelFont(43);
-    h_nEqTwo_clone->GetZaxis()->SetLabelSize(15);
-    c_nEqTwo->SetRightMargin(0.15);
-    //h_nEqTwo_clone->SetNumberContours(256);
-    h_nEqTwo_clone->SetContour(1000);
-    h_nEqTwo_clone->Draw("colz");
-
-    latexlabel.DrawLatex(0.80, 0.85, "#frac{dG_{2}}{dT_{ee}}");
-
-    c_nEqTwo->SaveAs("c_nEqTwo.png");
-    c_nEqTwo->SaveAs("c_nEqTwo.pdf");
-    c_nEqTwo->SaveAs("c_nEqTwo.C");
-    //delete c_nEqTwo;
-}
 
 
 
 
-void draw(const double* const AdjustActs, const double* const AdjustActs_Err, const double* const CovMatrix, const int number_free_params);
+
 
 
 void loadFiles()
@@ -319,12 +231,17 @@ void loadFiles()
 
     // TODO: what is the value for the basline for Nd150? is this for 100Mo
     //const Double_t xi_31_baseline{0.296}; // TODO: this is WRONG change it
-    const Double_t xi_31_baseline{0.0}; // TODO: this is WRONG change it
+//    const Double_t xi_31_baseline{0.0}; // TODO: this is WRONG change it
+    xi_31_baseline = 0.0;
     // TODO: multiple instances, move to header file
     // TODO: also change in parameter list file
     //Double_t xi_31_init = 0.8;
-    Double_t xi_31_init = 0.0; //1.13; //0.296; // change to baseline value for testing purposes
+    //Double_t xi_31_init = 0.0; //1.13; //0.296; // change to baseline value for testing purposes
+    // TODO: remove xi_31_init variable and replace with paramInitValuePXMap[1]
+    // and then change index 1 for a sensible way of looking up the index
 //    Double_t xi_31_init = 2.63e-01; //1.13; //0.296; // change to baseline value for testing purposes
+    last_xi_31_parameter_value = 0.0;
+
 
     ///*const Double_t*/ bb_Q = 3.368;
     double count = 0;
@@ -414,10 +331,13 @@ void loadFiles()
     for(Int_t ix{0}; ix < numberEnabledParams; ++ ix)
     {
         AdjustActs[ix] = 1.0;
-        AdjustActs_Err[ix] = 1.0;
+        AdjustActs_Err[ix] = 0.5; // TODO: set using parameter_names.list
     }
     // TODO: fix this
-    AdjustActs[1] = xi_31_init;
+    const double xi_31_init_value = 0.0;
+    const double xi_31_init_error = 0.0;
+    get_paramInitValueError(thePhase, 1, xi_31_init, xi_31_init_error);
+    AdjustActs[1] = xi_31_init_value;
 
 
     /*
@@ -432,49 +352,23 @@ void loadFiles()
 
     if(0)
     {
-        //double xi_31_values[] = {-0.55, 0.0, 0.246, 0.286, 0.295, 0.297, 0.306, 0.346, 1.0, 1.2, 1.5, 10.0, 100.0};
-        double xi_31_values[] = {-0.5, 0.0, 0.246, 0.286, 0.295, 0.297, 0.306, 0.346, 1.0, 1.2, 1.5};
 
-        // draw some gA values as output
-        //const int i_max = 1;
-        int i_max = sizeof(xi_31_values) / sizeof(xi_31_values[0]);
-        for(int i = 0; i < i_max; ++ i)
+        // TODO: somewhere I copy using numberParams instead of numberEnabledParams
+        // if I remember correctly, need to find and fix this
+
+        Double_t AdjustActs_copy[numberEnabledParams];
+        Double_t AdjustActs_Err_copy[numberEnabledParams];
+
+        for(int i = 0; i < numberEnabledParams; ++ i)
         {
-
-            // -1.5 does not appear to be consistent - see negative values
-            /*
-            Double_t xi_31_default = 0.296; //+ 1.0;
-            Double_t xi_31_half_range = 2.5;
-
-            Double_t xi_31_offset = 0.0;
-            Double_t xi_31_min = xi_31_default - xi_31_half_range + xi_31_offset;
-            Double_t xi_31_max = xi_31_default + xi_31_half_range + xi_31_offset;
-            */
-            //Double_t xi_31_min = -0.565;
-            //Double_t xi_31_max = -0.550;
-            //Double_t xi_31_min = 100.0;
-            //Double_t xi_31_max = 1000.0;
-            //Double_t xi_31_min = 0.296 - 0.1;
-            //Double_t xi_31_max = 0.296 + 0.1;
-
-            //Double_t xi_31_value = ((double)i / (double)i_max) * (xi_31_max - xi_31_min) + xi_31_min;
-            Double_t xi_31_value = xi_31_values[i];
-            AdjustActs[1] = xi_31_value;
-
-            TString xi_31_str;
-            xi_31_str.Form("%f", xi_31_value);
-
-            // TODO, put in custom directory with text file containing params
-            draw(AdjustActs, AdjustActs_Err, std::string("hTotalE_") + std::string(xi_31_str) + std::string(".png"));
-            draw_2D(AdjustActs, AdjustActs_Err, std::string("hHighLowEnergy_") + std::string(xi_31_str) + std::string(".png"));
-
-            //draw_outputdiff(AdjustActs, 0.296, std::string("houtputdiff_") + std::string(xi_31_str) + std::string(".png"), -3);
-            draw_outputdiff(AdjustActs, 0.0, std::string("houtputdiff_") + std::string(xi_31_str) + std::string(".png"), -3);
+            AdjustActs_copy[i] = AdjustActs[i];
+            AdjustActs_Err_copy[i] = AdjustActs_Err[i];
         }
+        
 
-        std::cout << "done, check output folder for figures" << std::endl;
+        do_test_xi_31_test1(AdjustActs_copy, AdjustActs_Err_copy);
         return 0;
-   }
+    }
 
 
 
@@ -489,18 +383,17 @@ void loadFiles()
     TMinuit *minuit = fitBackgrounds(AdjustActs, AdjustActs_Err, CovMatrix, number_free_params, thePhase);
 
 
-    #if 1
     if(0)
     {
         newloglikfitter_gA_chisquaretest(minuit, AdjustActs, AdjustActs_Err);
     }
-    #endif
 
 
     ///////////////////////////////////////////////////////////////////////////
 
     std::cout << "The following adjustments (in minuit parameter units) should be made:" << std::endl;
     std::cout << "Note that gA (1) is a special parameter" << std::endl;
+    // TODO: after homogenizing gA is no longer a special parameter
     //for(int i = 0; i < numberParams; i++)
     std::ofstream myFileFitResults("fit_results.txt", std::ios::out | std::ios::app);
     timestamp(myFileFitResults);
@@ -523,23 +416,13 @@ void loadFiles()
 
         int j = minuitParamNumberToParamNumberMap.at(i);
         //std::cout << "i=" << i << " j=" << j << std::endl;
-        Double_t param_init_value = 0.;
-        Double_t param_init_error = 0.; 
-        if(thePhase == 0)
-        {
-            param_init_value = paramInitValueP1Map[j];
-            param_init_error = paramInitErrorP1Map[j];
-        }
-        else if(thePhase == 1)
-        {
-            param_init_value = paramInitValueP2Map[j];
-            param_init_error = paramInitErrorP2Map[j];
-        }
-        else
-        {
-            std::cout << "ERROR: Invalid value for thePhase: thePhase=" << thePhase << std::endl;
-        }
+        double param_init_value = 0.;
+        double param_init_error = 0.; 
+        get_paramInitValueError(thePhase, j, param_init_value, param_init_error);
         //std::cout << "value=" << param_init_value << " err=" << param_init_error << " AdjustActs[i]=" << AdjustActs[i] << std::endl;
+        
+        // 2020-06-17
+        
         if(i != 1)
         {
             std::cout << i << " :\t" << AdjustActs[i] * param_init_value
@@ -552,15 +435,31 @@ void loadFiles()
             std::cout << i << " :\t" << AdjustActs[i]
                            << " +- " << AdjustActs_Err[i];
         }
+        
+        /*
+        std::cout << i << " :\t" << AdjustActs[i] * param_init_value
+                       << " +- " << AdjustActs_Err[i] * param_init_value;
+        */
+        // TODO: put the mutiplication by xi_31_init INSIDE the reweight/fit functions,
+        // to restore uniformity in minuit parameters
+        // xi works as an additive parameter so cannot do this, in case where HSD
+        // is zero does not work
+
+
         Double_t change = 0.0;
+        // 2020-06-17
         if(i != 1)
         {
             change = 100.0 * (AdjustActs[i] - 1.0);
         }
         else
         {
-            change = 100.0 * (AdjustActs[i] - xi_31_init);
+            // 2020-06-17
+            //change = 100.0 * (AdjustActs[i] - xi_31_init);
+            change = 100.0 * (AdjustActs[i] - xi_31_init_value);
+            //change = 100.0 * (AdjustActs[i] - 1.0);
         }
+        /*change = 100.0 * (AdjustActs[i] - 1.0);*/
         if(change >= 0)
         {
             std::cout << " -> +";
@@ -583,8 +482,21 @@ void loadFiles()
         {
             int j = minuitParamNumberToParamNumberMap.at(i);
 
+            double param_init_value;
+            double param_init_error;
+            get_paramInitValueError(thePhase, j, param_init_value, param_init_error);
+            // TODO: summary_ofstream is printing nonsense for percentage change
+            summary_ofstream << i << ","
+                             << j << ","
+                             << param_init_value << ","
+                             << param_init_error << ","
+                             << AdjustActs[i] << ","
+                             << AdjustActs_Err[i] << ","
+                             << (AdjustActs[i] - param_init_value) / param_init_error * 100.0 << " %" << std::endl;
+            /*
             if(thePhase == 0)
             {
+                // TODO: summary_ofstream is printing nonsense for percentage change
                 summary_ofstream << i << ","
                                  << j << ","
                                  << paramInitValueP1Map[j] << ","
@@ -595,6 +507,7 @@ void loadFiles()
             }
             else if(thePhase == 1)
             {
+                // TODO: summary_ofstream is printing nonsense for percentage change
                 summary_ofstream << i << ","
                                  << j << ","
                                  << paramInitValueP2Map[j] << ","
@@ -607,6 +520,7 @@ void loadFiles()
             {
                 std::cout << "ERROR: Invalid value for thePhase: thePhase=" << thePhase << std::endl;
             }
+            */
         }
         summary_ofstream.close();
     }
@@ -722,83 +636,18 @@ void loadFiles()
 //    newloglikfitter_gA_chisquaretest(minuit, AdjustActs, AdjustActs_Err);
 
 
-}
+    // TODO: this isn't working because I am calling the wrong function
+//    draw_outputdiff(AdjustActs, 0.0, "afterfit", 4);
+//    AdjustActs[1] = 0.0; // HSD
+//    draw_outputdiff(AdjustActs, 0.0, "beforefit", 4); // TODO: makes these functions easier to use
+    // by splitting the function called into several different functions
 
 
-
-void draw(const double* const AdjustActs, const double* const AdjustActs_Err, const double* const CovMatrix, const int number_free_params)
-{
-    // TODO: load AdjustActs, AdjustActs_Err from file
-
-    ///////////////////////////////////////////////////////////////////////////
-    // read from input file
-    ///////////////////////////////////////////////////////////////////////////
-
-    if(allDataSamples1D->GetEntries() == 0)
-    {
-
-        TFile *fin = new TFile("Nd150_2e_P" + Phase + "_fit_histograms.root", "UPDATE");
-        std::cout << "reading histograms from \"\"" << std::endl;
-
-        std::ifstream ifinaux("Nd150_2e_P" + Phase + "_fit_histograms.txt", std::ifstream::in);
-
-        std::string auxname;
-
-        for(int channel = 0; channel < number1DHists; ++ channel)
-        {
-            std::cout << "reading: 1D: channel=" << channel << std::endl;
-            
-            TString channel_str;
-            channel_str.Form("%i", channel);
-            //fout->cd("/1D");
-            //fout->cd("/");
-            //TDirectory *dir = gDirectory;
-            //TDirectory *dir_histogram = dir->mkdir("channel_" + channel_str);
-            //TDirectory *dir_histogram = dir->mkdir("channel_1D_" + channel_str);
-
-            ifinaux >> auxname;
-
-            TString hfullname = TString(auxname);
-            //TString hfullname = "channel_1D_" + channel_str + "/" + hname;
-
-            allDataSamples1D->Add((TH1F*)fin->Get(hfullname));
-            allMCSamples1D[channel]->Add((TH1F*)fin->Get(hfullname));
-
-        }
-
-        for(int channel = 0; channel < number2DHists; ++ channel)
-        {
-            std::cout << "reading: 2D: channel=" << channel << std::endl;
-
-            TString channel_str;
-            channel_str.Form("%i", channel);
-            //fout->cd("/2D");
-            //fout->cd("/");
-            //TDirectory *dir = gDirectory;
-            //TDirectory *dir_histogram = dir->mkdir("channel_" + channel_str);
-            //TDirectory *dir_histogram = dir->mkdir("channel_2D_" + channel_str);
-            
-            ifinaux >> auxname;
-
-            TString hfullname = TString(auxname);
-            //TString hfullname = "channel_2D_" + channel_str + "/" + hname;
-
-            allDataSamples2D->Add((TH2F*)fin->Get(hfullname));
-            allMCSamples2D[channel]->Add((TH2F*)fin->Get(hfullname));
-
-        }
-
-        ifinaux.close();
-
-    }
-
-    draw(AdjustActs, AdjustActs_Err, "hTotalE.*");
-    draw_2D(AdjustActs, AdjustActs_Err, "hHighLowEnergy.*");
-    draw_covariance_matrix(CovMatrix, number_free_params, "cov_matrix.*");
-
-
-    //draw_outputdiff(AdjustActs, 0.296, "c_outputdiff_.png", -1);
-    draw_outputdiff(AdjustActs, 0.0, "c_outputdiff_.png", -1);
+    draw(AdjustActs, AdjustActs_Err, "afterfit_hTotalE.*");
+    AdjustActs[1] = 0.0; // HSD // TODO: should it be zero or 1? does this indicate a bug elsewhere
+    // BUG: I think I have interpreted AdjustActs as a scaling parameter and I cannot do that if my
+    // initial xi value is 0! because 0 * anything = 0
+    draw(AdjustActs, AdjustActs_Err, "beforefit_hTotalE.*");
 
 }
 
@@ -808,498 +657,11 @@ void draw(const double* const AdjustActs, const double* const AdjustActs_Err, co
 
 
 
-///////////////////////////////////////////////////////////////////////////////
-// book1DHistograms
-///////////////////////////////////////////////////////////////////////////////
 
-void book1DHistograms_helper(TFile *myFile, Int_t channel_counter, TString theChannel, TString thePhase_arg, TString theHistogram,
-    const int nBkgs, TString *BkgFiles)//, TH1F *tmpHist)
-{
-        
-    TH1F *tmpHist = nullptr;
 
 
-    for(int i = 0; i < nBkgs; i++)
-    {
-        // check if parameter is enabled
-        // convert parameter string name to index
-        //std::cout << "searching for string " << ExternalBkgOneParamFiles[i] << " in paramNameMap" << std::endl;
-        //TString search_object = ExternalBkgOneParamFiles[i];
-        std::string mc_name = std::string(BkgFiles[i]);
-        std::string search_object = MCNameToParamNameMap.at(mc_name);
-        if(paramNameToNumberMap.count(search_object) > 0)
-        {
-            // convert from mc sample name to param number
 
-            int param_number = paramNameToNumberMap.at(search_object);
-            //std::cout << "parameber number " << param_number << " is in the paramNameToNumberMap" << std::endl;
-            if(std::find(enabled_params.begin(), enabled_params.end(), param_number) != enabled_params.end())
-            {
-                // check if param number is enabled
 
-                //std::string directory("scaled/hTotalE_/");
-                std::string directory("scaled/" + theHistogram + "/");
-                std::string name(theHistogram + BkgFiles[i] + "_fit_scaled");
-                std::string fullname = directory + name;
-                std::string new_name(theHistogram + BkgFiles[i] + "_fit");
-                std::cout << "fullname=" << fullname << std::endl;
-
-                //gDirectory->GetListOfKeys();
-
-                //tmpHist = (TH1F*)gDirectory->Get(fullname.c_str())->Clone();
-                tmpHist = (TH1F*)myFile->Get(fullname.c_str())->Clone(new_name.c_str());
-
-                if(tmpHist != nullptr)
-                //if(gDirectory->GetListOfKeys()->Contains(fullname.c_str()))
-                //std::cout << "parameter number " << param_number << " is enabled" << std::endl;
-                //std::string name(theHistogram + BkgFiles[i] + "_fit");
-                //if(gDirectory->GetListOfKeys()->Contains(name.c_str()))
-                {
-                    // load sample
-
-                    // 2020-04-03: removed changing of histogram name
-                    //check if the histograms exists 
-                    //std::string hist_name(BkgFiles[i] + "_" + theChannel + thePhase_arg);
-                    //std::cout << "Get() : " << name << " from file, Clone() : " << hist_name << std::endl;
-                    //tmpHist = (TH1F*)gDirectory->Get(name.c_str())->Clone(hist_name.c_str());
-                    //tmpHist = (TH1F*)gDirectory->Get(fullname.c_str())->Clone();
-
-                    // scale by activity
-
-                    // convert parameter number to minuit parameter number
-                    //minuit_param_number = paramNumberToMinuitParamNumberMap.at(param_number);
-
-                    // TODO: change such that samples are pre-scaled by activity input value
-                    // get initial parameter values and error
-                    Double_t param_init_value = 0.;
-                    Double_t param_init_error = 0.; 
-                    if(thePhase == 0)
-                    {
-                        int i = param_number;
-                        param_init_value = paramInitValueP1Map[i];
-                        param_init_error = paramInitErrorP1Map[i];
-                    }
-                    else if(thePhase == 1)
-                    {
-                        int i = param_number;
-                        param_init_value = paramInitValueP2Map[i];
-                        param_init_error = paramInitErrorP2Map[i];
-                    }
-                    else
-                    {
-                        std::cout << "ERROR: Invalid value for thePhase: thePhase=" << thePhase << std::endl;
-                    }
-                    Double_t scale_factor = param_init_value;
-
-                    // account for 208 Tl branching ratio of 36 %
-                    if(mc_name == std::string("tl208_int_rot") ||
-                       mc_name == std::string("tl208_feShield") || // TODO: this doesn't seem to work
-                       mc_name == std::string("tl208_pmt"))
-                       // TODO: do not apply to tl208_air ?
-                    {
-                        //std::cout << "mc_name=" << mc_name << " applying additional scaling factor of 0.36" << std::endl;
-                        //std::cin.get();
-                        scale_factor *= 0.36;
-                    }
-
-                    // NOTE: TODO
-                    // possible flaw with this method: error is no longer
-                    // pre-set using values from input file
-                    // TODO: note this in input file documentation
-                    // however, this may be an improvement because it
-                    // guarantees minuit is responsible for error estimation
-                    tmpHist->Scale(scale_factor);
-                    // samples are now scaled by activity
-                    // changed input, and pre-scaling, now need to change output
-
-
-// NOTE: do NOT apply xi reweighting here
-// this section just LOADS histograms from file and we want to LOAD
-// the default (not reweighted) nd150 spectra
-// TODO: this may no longer be true
-/*
-        // MARKER 10
-                // check if MC sample is 150Nd, if so need to apply xi
-                // reweighting
-                if(tmpHist_draw1D->GetName().CompareTo("nd150_rot_2n2b_m4") == 0)
-                {
-                    std::cout << "found the 150Nd MC" << std::endl;
-                    std::cin.get();
-
-                    TH1F *tmpHist_draw_1d_clone = nullptr;
-                    reweight_apply(tmpHist_draw1D_clone, tmpHist_draw1D, ... );
-                }
-                else
-                {
-                    std::cout << "it is not " << tmpHist_draw1D->GetName() << std::endl;
-                    std::cin.get();
-                }
-*/
-
-
-                    allMCSamples1D[channel_counter]->Add(tmpHist);
-                    // TODO: does this work as expected for secular equlibrium samples?
-
-                    //std::cout << tmpHist->GetName() << std::endl;
-
-                }
-                else
-                {
-                    std::cout << "gDirectory->GetListOfKeys() does not contain " << fullname << " - disabling parameter number " << param_number << std::endl;
-                    // cannot find histogram input data, so disable parameter
-                    std::remove(enabled_params.begin(), enabled_params.end(), param_number);
-                }
-            }
-            else
-            {
-                // paramter not enabled, do not load histogram/sample
-                std::cout << "parameter number " << param_number << " is not enabled (not found in vector)" << std::endl;
-            }
-        }
-        else
-        {
-            std::cout << "!!!!! ERROR: search_object=" << search_object << " not found in paramNameToNumberMap" << std::endl;
-            std::cout << "mc_name=" << mc_name << std::endl;
-
-            std::cout << "contents of map paramNameToNumberMap:" << std::endl;
-            for(auto it = paramNameToNumberMap.cbegin(); it != paramNameToNumberMap.cend(); ++ it)
-            {
-                std::cout << it->first << " -> " << it->second << std::endl;
-            }
-            std::cout << "contents of map MCNameToParamNameMap:" << std::endl;
-            for(auto it = MCNameToParamNameMap.cbegin(); it != MCNameToParamNameMap.cend(); ++ it)
-            {
-                std::cout << it->first << " -> " << it->second << std::endl;
-            }
-        }
-    }
-}
-
-// channel_counter = 0
-// theChannel = "2e_"
-// thePhase = "P1"
-// theHistogram = "hTotalE_"
-void book1DHistograms(Int_t channel_counter, TString theChannel, TString thePhase_arg, TString theHistogram) {
-
-    std::cout << "booking 1D hists for " << theChannel << " " << thePhase_arg << std::endl;
-    allMCSamples1D[channel_counter] = new TObjArray();
-
-    //TFile *aFile = TFile::Open("/home/ebirdsall/NEMO3/Nd150_analysis/MeasureStuff/new/Macros/Nd150_" + theChannel + thePhase_arg + ".root");
-    TFile *aFile = TFile::Open("Nd150_" + theChannel + thePhase_arg + ".root");
-    //gDirectory->cd("singleHistos");
-    //gDirectory->ls();
-
-
-    //TH1F *tmpHist = nullptr; //new TH1F("tmpHist_" + theChannel + thePhase_arg, "" , 1, 0, 1);
-    
-    std::cout << "External" << std::endl;
-    book1DHistograms_helper(aFile, channel_counter, theChannel,
-                            thePhase_arg, theHistogram,
-                            nExternalBkgs,
-                            ExternalBkgFiles);//,
-                            //tmpHist);
-
-    // TODO: does this work as expected for secular equlibrium samples?
-
-    std::cout << "Internal" << std::endl;
-    book1DHistograms_helper(aFile, channel_counter, theChannel,
-                            thePhase_arg, theHistogram,
-                            nInternalBkgs,
-                            InternalBkgFiles);//,
-                            //tmpHist);
-
-    std::cout << "Rn 222" << std::endl;
-    book1DHistograms_helper(aFile, channel_counter, theChannel,
-                            thePhase_arg, theHistogram,
-                            nRn222Bkgs,
-                            //Rn222BkgFiles);//,
-                            Rn222BkgFilesNew);//,
-                            //tmpHist);
-
-    std::cout << "Rn 220" << std::endl;
-    book1DHistograms_helper(aFile, channel_counter, theChannel,
-                            thePhase_arg, theHistogram,
-                            nRn220Bkgs,
-                            Rn220BkgFiles);//,
-                            //tmpHist);
-
-    std::cout << "Neighbour" << std::endl;
-    book1DHistograms_helper(aFile, channel_counter, theChannel,
-                            thePhase_arg, theHistogram,
-                            nNeighbours,
-                            NeighbourFiles);//,
-                            //tmpHist);
-
-    std::cout << "Nd150" << std::endl;
-    book1DHistograms_helper(aFile, channel_counter, theChannel,
-                            thePhase_arg, theHistogram,
-                            nNd150Samples,
-                            Nd150Files);//,
-                            //tmpHist);
-
-    std::cout << "Data" << std::endl;
-    // TODO here
-    // what is name in other section of code
-    //std::string name(theHistogram + "data_2e");
-    //std::string directory("processeddata/hTotalE_/");
-    std::string directory("processeddata/" + theHistogram + "/");
-    std::string name(theHistogram + "data_2e");
-    std::string fullname = directory + name;
-    std::cout << "fullname=" << fullname << std::endl;
-    //if(gDirectory->GetListOfKeys()->Contains(fullname.c_str()))
-    //TH1F *tmpHist = (TH1F*)gDirectory->Get(fullname.c_str())->Clone();
-    TH1F *tmpHist = (TH1F*)aFile->Get(fullname.c_str())->Clone();
-    if(tmpHist != nullptr)
-    {
-        //TH1F *tmpHist = nullptr;
-        // 2020-04-03: removed changing of histogram name
-        //std::string hist_name("data_" + theChannel + thePhase_arg);
-        //std::cout << "Get() : " << name << " from file, Clone() : " << hist_name << std::endl;
-        //tmpHist = (TH1F*)gDirectory->Get(name.c_str())->Clone(hist_name.c_str());
-        //tmpHist = (TH1F*)gDirectory->Get(fullname.c_str())->Clone();
-        allDataSamples1D->Add((TH1F*)tmpHist);
-    }
-    else
-    {
-        std::cout << "gDirectory->GetListOfKeys() does not contain " << fullname << std::endl;
-    }
-    /*
-    if(gDirectory->GetListOfKeys()->Contains(theHistogram + "Data"))
-    {
-        std::string name(theHistogram + "Data");
-        std::cout << "Get() : " << name << " from file, Clone() : " << "Data_" + theChannel + thePhase_arg << std::endl;
-        tmpHist = (TH1F*)gDirectory->Get(name.c_str())->Clone("Data_" + theChannel + thePhase_arg);
-        allDataSamples1D->Add((TH1F*)tmpHist);
-    }
-    else
-    {
-        std::cout << "gDirectory->GetListOfKeys() does not contain " << theHistogram + "Data" << std::endl;
-    }
-    */
-
-    // std::cout << tmpHist->GetName() << std::endl;
-    // tmpHist->Delete();
-    // aFile->Close();
-    // aFile->Delete();
-}
-
-
-///////////////////////////////////////////////////////////////////////////////
-// book2DHistograms
-///////////////////////////////////////////////////////////////////////////////
-
-void book2DHistograms_helper(
-    TFile *myFile,
-    Int_t channel_counter,
-    TString theChannel,
-    TString thePhase_arg,
-    TString theHistogram,
-    const int nBkgs,
-    TString *BkgFiles)
-    //, TH1F *tmpHist)
-{
-        
-    TH2F *tmpHist = nullptr;
-
-    for(int i = 0; i < nBkgs; i++)
-    {
-        // check if parameter is enabled
-        // convert parameter string name to index
-
-        // convert TString to std::string
-        std::string mc_name = std::string(BkgFiles[i]);
-
-        // example: "bi214_int_rot" -> "bi214_int_rot,pb214_int_rot"
-        std::string search_object = MCNameToParamNameMap.at(mc_name);
-
-        // example: "bi214_int_rot,pb214_int_rot" -> 4
-        // check if parameter number exists
-        // (was defined by parameter_names.lst)
-        if(paramNameToNumberMap.count(search_object) > 0)
-        {
-            // convert from mc sample name to param number
-            int param_number = paramNameToNumberMap.at(search_object);
-
-            // check if this parameter number is enabled
-            if(std::find(enabled_params.begin(), enabled_params.end(), param_number) != enabled_params.end())
-            {
-
-                // TODO:
-                //std::string directory("scaled/hHighLowEnergy_/");
-                std::string directory("scaled/" + theHistogram + "/");
-                std::string name(theHistogram + BkgFiles[i] + "_fit_scaled");
-                std::string fullname = directory + name;
-                std::string new_name(theHistogram + BkgFiles[i] + "_fit");
-                std::cout << "fullname=" << fullname << std::endl;
-
-                // TODO: try catch block
-                // load sample
-                tmpHist = (TH2F*)myFile->Get(fullname.c_str())->Clone(new_name.c_str());
-
-                if(tmpHist != nullptr)
-                {
-                    // scale by activity
-
-                    // convert parameter number to minuit parameter number
-                    //minuit_param_number = paramNumberToMinuitParamNumberMap.at(param_number);
-
-                    // TODO: change such that samples are pre-scaled by activity input value
-                    // get initial parameter values and error
-                    Double_t param_init_value = 0.;
-                    Double_t param_init_error = 0.; 
-                    if(thePhase == 0)
-                    {
-                        param_init_value = paramInitValueP1Map[param_number];
-                        param_init_error = paramInitErrorP1Map[param_number];
-                    }
-                    else if(thePhase == 1)
-                    {
-                        param_init_value = paramInitValueP2Map[param_number];
-                        param_init_error = paramInitErrorP2Map[param_number];
-                    }
-                    else
-                    {
-                        std::cout << "ERROR: Invalid value for thePhase: thePhase=" << thePhase << std::endl;
-                    }
-                    Double_t scale_factor = param_init_value;
-
-                    // account for 208 Tl branching ratio of 36 %
-                    // TODO: should I move this into fit_2e code
-                    // and apply using ->Fill() function call with
-                    // weight = 0.36
-                    if(mc_name == std::string("tl208_int_rot") ||
-                       mc_name == std::string("tl208_feShield") ||
-                       mc_name == std::string("tl208_pmt"))
-                       // TODO: do not apply to tl208_air ?
-                    {
-                        //std::cout << "mc_name=" << mc_name << " applying additional scaling factor of 0.36" << std::endl;
-                        //std::cin.get();
-                        scale_factor *= 0.36;
-                    }
-
-                    // NOTE: TODO
-                    // possible flaw with this method: error is no longer
-                    // pre-set using values from input file
-                    // TODO: note this in input file documentation
-                    // however, this may be an improvement because it
-                    // guarantees minuit is responsible for error estimation
-                    tmpHist->Scale(scale_factor);
-                    // samples are now scaled by activity
-                    // changed input, and pre-scaling, now need to change output
-
-
-                    // NOTE: do NOT apply xi reweighting here
-                    // this section just LOADS histograms from file and we want to LOAD
-                    // the default (not reweighted) nd150 spectra
-
-
-                    allMCSamples2D[channel_counter]->Add(tmpHist);
-                    // TODO: does this work as expected for secular equlibrium samples?
-
-                    //std::cout << tmpHist->GetName() << std::endl;
-
-                }
-                else
-                {
-                    std::cout << "could not find histogram in file: " << fullname << " - disabling parameter number " << param_number << std::endl;
-                    // cannot find histogram input data, so disable parameter
-                    std::remove(enabled_params.begin(), enabled_params.end(), param_number);
-                }
-            }
-            else
-            {
-                // paramter not enabled, do not load histogram/sample
-                std::cout << "parameter number " << param_number << " is not enabled (not found in vector)" << std::endl;
-            }
-        }
-        else
-        {
-            std::cout << "!!!!! ERROR: search_object=" << search_object << " not found in paramNameToNumberMap" << std::endl;
-            std::cout << "mc_name=" << mc_name << std::endl;
-
-            print_map(paramNameToNumberMap, "paramNameToNumberMap");
-            print_map(MCNameToParamNameMap, "MCNameToParamNameMap");
-        }
-    }
-}
-
-// channel_counter = 0
-// theChannel = "2e_"
-// thePhase = "P1"
-// theHistogram = "hHighLowEnergy_"
-void book2DHistograms(Int_t channel_counter, TString theChannel, TString thePhase_arg, TString theHistogram) {
-
-    std::cout << "booking 2D hists for " << theChannel << " " << thePhase_arg << std::endl;
-    allMCSamples2D[channel_counter] = new TObjArray();
-
-    TFile *aFile = TFile::Open("Nd150_" + theChannel + thePhase_arg + ".root");
-    
-    std::cout << "External" << std::endl;
-    book2DHistograms_helper(aFile, channel_counter, theChannel,
-                            thePhase_arg, theHistogram,
-                            nExternalBkgs,
-                            ExternalBkgFiles);
-
-    std::cout << "Internal" << std::endl;
-    book2DHistograms_helper(aFile, channel_counter, theChannel,
-                            thePhase_arg, theHistogram,
-                            nInternalBkgs,
-                            InternalBkgFiles);
-
-    std::cout << "Rn 222" << std::endl;
-    book2DHistograms_helper(aFile, channel_counter, theChannel,
-                            thePhase_arg, theHistogram,
-                            nRn222Bkgs,
-                            //Rn222BkgFiles);//,
-                            Rn222BkgFilesNew);
-
-    std::cout << "Rn 220" << std::endl;
-    book2DHistograms_helper(aFile, channel_counter, theChannel,
-                            thePhase_arg, theHistogram,
-                            nRn220Bkgs,
-                            Rn220BkgFiles);
-
-    std::cout << "Neighbour" << std::endl;
-    book2DHistograms_helper(aFile, channel_counter, theChannel,
-                            thePhase_arg, theHistogram,
-                            nNeighbours,
-                            NeighbourFiles);
-
-    std::cout << "Nd150" << std::endl;
-    book2DHistograms_helper(aFile, channel_counter, theChannel,
-                            thePhase_arg, theHistogram,
-                            nNd150Samples,
-                            Nd150Files);
-
-    // TODO here
-    // what is name in other section of code
-    //std::string name(theHistogram + "data_2e");
-    std::string directory("processeddata/" + theHistogram + "/");
-    std::string name(theHistogram + "data_2e");
-    std::string fullname = directory + name;
-    std::cout << "fullname=" << fullname << std::endl;
-
-    // load histogram from file
-    // TODO: try catch block
-    TH1F *tmpHist = (TH1F*)aFile->Get(fullname.c_str())->Clone();
-    if(tmpHist != nullptr)
-    {
-        //TH1F *tmpHist = nullptr;
-        // 2020-04-03: removed changing of histogram name
-        //std::string hist_name("data_" + theChannel + thePhase_arg);
-        //std::cout << "Get() : " << name << " from file, Clone() : " << hist_name << std::endl;
-        //tmpHist = (TH1F*)gDirectory->Get(name.c_str())->Clone(hist_name.c_str());
-        //tmpHist = (TH1F*)gDirectory->Get(fullname.c_str())->Clone();
-        allDataSamples2D->Add((TH1F*)tmpHist);
-    }
-    else
-    {
-        std::cout << "gDirectory->GetListOfKeys() does not contain " << fullname << std::endl;
-    }
-
-    // aFile->Close();
-    // aFile->Delete();
-}
 
 
 
@@ -1336,55 +698,13 @@ TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&Co
     //std::cin.get();
 
     // set debug level
-    minuit->SetPrintLevel(1);
+    minuit->SetPrintLevel(3);
 
     // moved reading of parameter list file to before book histogram function
     // calls
   
-    TString sample_names[numberParams];
-    // read samples names out again just to make sure its correct (useful when changing the number of params)
-    for(int i = 0; i < numberParams; i++)
-    {
-        // tmpStr doesn't appear to do anything ?
-        // TODO
-        TString tmpStr = "";
 
-        TString i_str;
-        i_str.Form("%i", i);
-
-        sample_names[i] = i_str;
-        
-        std::cout << "param " << i << ": sample_names[" << i << "]=" << sample_names[i] << " -> ";
-        std::cout << paramNameMap[i] << " : ";
-        bool first = true;
-        for(auto it = MCNameToParamNameMap.cbegin(); it != MCNameToParamNameMap.cend(); ++ it)
-        {
-            if(it->second == paramNameMap[i])
-            {
-                // match for MC name
-                if(!first) std::cout << ", ";
-                std::cout << it->first;
-                first = false;
-            }
-        }
-        std::cout << std::endl;
-
-        /*
-        for(int j = 0; j < paramNameMap[i].size(); j++)
-        { 
-            std::cout << paramNameMap[i].at(j);
-            tmpStr += paramNameMap[i].at(j);
-            
-            if(j + 1 < paramNameMap[i].size())
-            {
-                std::cout << ", ";
-                tmpStr += ",";
-            }
-        }
-        */
-        
-        std::cout << std::endl;
-    }
+    print_paramNameMap();
 
     std::cout << "set errors" << std::endl;
 
@@ -1431,49 +751,6 @@ TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&Co
         std::cout << "DefineParameter: i=" << i << " -> minuit_param_number=" << minuit_param_number << std::endl;
         //minuit->DefineParameter(i, "_" + i_str + "_", 1.0, 0.1, 0.0, 1000.0);
 
-        // TODO: change such that samples are pre-scaled by activity input value
-        #if 0
-        // get initial parameter values and error
-        Double_t param_init_value = 0.;
-        Double_t param_init_error = 0.; 
-        if(thePhase == 0)
-        {
-            /*
-            for(int j = 0; j < paramInitValueP1Map[i].size(); ++ j)
-            {
-                param_init_value += paramInitValueP1Map[i].at(j);
-            }
-            for(int j = 0; j < paramInitErrorP1Map[i].size(); ++ j)
-            {
-                param_init_error += paramInitErrorP1Map[i].at(j);
-            }
-            */
-
-            param_init_value = paramInitValueP1Map[i];
-            param_init_error = paramInitErrorP1Map[i];
-        }
-        else if(thePhase == 1)
-        {
-            /*
-            for(int j = 0; j < paramInitValueP2Map[i].size(); ++ j)
-            {
-                param_init_value += paramInitValueP2Map[i].at(j);
-            }
-            for(int j = 0; j < paramInitErrorP2Map[i].size(); ++ j)
-            {
-                param_init_error += paramInitErrorP2Map[i].at(j);
-            }
-            */
-
-            param_init_value = paramInitValueP2Map[i];
-            param_init_error = paramInitErrorP2Map[i];
-        }
-        else
-        {
-            std::cout << "ERROR: Invalid value for thePhase: thePhase=" << thePhase << std::endl;
-        }
-        #endif
-
 
         if(std::find(fixed_params.begin(), fixed_params.end(), i) != fixed_params.end())
         {
@@ -1487,6 +764,8 @@ TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&Co
             
             //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_FIXED", param_init_value, param_init_error);
             // TODO: change such that samples are pre-scaled by activity input value
+            
+            // 2020-06-17
             if(i == 1)
             {
                 minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_FIXED", AdjustActs[i], 0.5, 0.0, 50.0);
@@ -1495,6 +774,19 @@ TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&Co
             {
                 minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_FIXED", 1.0, 0.5, 0.0, 50.0);
             }
+            /*
+            if(i == 1)
+            {
+                //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_FIXED", AdjustActs[i], 0.5, 0.0, 50.0);
+                minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_FIXED", 1.0, 0.5, 0.0, 50.0);
+            }
+            else
+            {
+                minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_FIXED", 1.0, 0.5, 0.0, 50.0);
+            }
+            */
+
+            //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_FIXED", 1.0, 0.5, 0.0, 50.0);
             minuit->FixParameter(minuit_param_number);
         }
         else
@@ -1509,17 +801,38 @@ TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&Co
             // TODO: change such that samples are pre-scaled by activity input value
             //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", 1.0, 0.5, 0.0, 50.0);
             //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", 1.0, 0.5, 0.0, 1000.0);
+
+            // 2020-06-17
+            
             if(i == 1)
             {
                 // TODO: fix this
                 // does not work if xi_31 paramter is not number 1
                 //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", xi_31_init, 0.5, 0.0, 1000.0);
-                minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", AdjustActs[i], 0.5, 0.0, 1000.0);
+                //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", AdjustActs[i], 0.5, 0.0, 1000.0);
+                minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", AdjustActs[i], 0.5, -1.0, 5.0);
             }
             else
             {
                 minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", 1.0, 0.5, 0.0, 1000.0);
             }
+            
+            /*
+            if(i == 1)
+            {
+                // TODO: fix this
+                // does not work if xi_31 paramter is not number 1
+                //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", xi_31_init, 0.5, 0.0, 1000.0);
+                //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", AdjustActs[i], 0.5, 0.0, 1000.0);
+                minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", 1.0, 0.5, -1.0, 5.0);
+            }
+            else
+            {
+                minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", 1.0, 0.5, 0.0, 1000.0);
+            }
+            */
+
+
             // TODO: set initial error using initError/initValue
             // TODO: limits were set to 50. minuit trying to exceed 50 for some
             // backgrounds when only using nd, mo bb, zr bb, ca bb an Ca Y90
@@ -1649,7 +962,7 @@ TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&Co
 
     // Set print level
     //  minuit->ExecuteCommand("SET PRINT",arglist,2);
-    std::cout << "lets do the fit" << std::endl;
+    std::cout << "Ready to exec fix" << std::endl;
 
     // Do minimisation
     // arglist[0] = 50000;  // number of function calls
@@ -1690,12 +1003,10 @@ TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&Co
     }
 
    
-#if 1
     if(0)
     {
         newloglikfitter_100Mo_chisquaretest(minuit, AdjustActs, AdjustActs_Err);
     }
-#endif
 
 
     
@@ -1708,12 +1019,10 @@ TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&Co
     // doing everything possible to throw as many spanners into the works as
     // time would allow for.
 
-#if 1
     if(0)
     {
             newloglikfitter_testmyphasespace(minuit, AdjustActs, AdjustActs_Err);
     }
-#endif
 
 
 

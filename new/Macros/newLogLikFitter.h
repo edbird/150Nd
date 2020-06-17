@@ -55,12 +55,17 @@ double psiN0;
 double psiN2;
 double bb_Q;
 
+// store last xi_31 value used in logliklihood function
 double last_xi_31_parameter_value;
+// store last parameter values used in logliklihood function
+static const int numberParams = 40;
+double paramLastValueMap[numberParams];
+
 
 
 // TODO: set numberParams dynamically
 // using input file
-static const int numberParams = 40;
+//static const int numberParams = 40; // NOTE: moved above
 static int numberEnabledParams = 0;
 int minuitParamNumberCounter;
 // 2 options here - either add 1 to the number of params
