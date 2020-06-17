@@ -719,7 +719,7 @@ void loadFiles()
     std::cout << "ok to run chisquare test? [press enter to continue]" << std::endl;
     //std::cin.get();
 
-    newloglikfitter_gA_chisquaretest(minuit, AdjustActs, AdjustActs_Err);
+//    newloglikfitter_gA_chisquaretest(minuit, AdjustActs, AdjustActs_Err);
 
 
 }
