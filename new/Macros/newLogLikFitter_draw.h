@@ -383,7 +383,7 @@ void draw_2D(
 	            }
                 else
                 {
-                    std::cout << "not adding to stack, Integral() <= 0: " << tmpHist_draw2D->GetName() << std::endl;
+                    //std::cout << "not adding to stack, Integral() <= 0: " << tmpHist_draw2D->GetName() << std::endl;
                 }
             }
             else
@@ -486,7 +486,32 @@ void draw_2D(
         //c->SaveAs("finalHisto1D_" + i_str + ".png");
     
 
+        std::string base_name;
+        std::string extension;
+        filename_split_extension(saveas_filename, base_name, extension);
 
+        {
+            std::string dir = base_name + "_c_MC";
+            std::string name = base_name + "_c_MC" + "_" + std::string(i_str);
+            std::string name_plus_ext = name + extension;
+            canvas_saveas_helper(dir, name_plus_ext, c_MC[channel]);
+        }
+
+        {
+            std::string dir = base_name + "_c_data";
+            std::string name = base_name + "_c_data" + "_" + std::string(i_str);
+            std::string name_plus_ext = name + extension;
+            canvas_saveas_helper(dir, name_plus_ext, c_data[channel]);
+        }
+
+        {
+            std::string dir = base_name + "_c_data_div_MC";
+            std::string name = base_name + "_c_data_div_MC" + "_" + std::string(i_str);
+            std::string name_plus_ext = name + extension;
+            canvas_saveas_helper(dir, name_plus_ext, c_data_div_MC[channel]);
+        }
+
+        /*
         if(saveas_filename.size() > 0)
         {
             std::size_t length = saveas_filename.size();
@@ -518,6 +543,8 @@ void draw_2D(
             }
             else
             {
+                //std::cout << "saveas_filename=" << saveas_filename << std::endl;
+
                 std::string base_name;
                 std::string extension;
                 std::size_t pos = saveas_filename.rfind('.');
@@ -525,6 +552,9 @@ void draw_2D(
                 {
                     base_name = saveas_filename.substr(0, pos);
                     extension = saveas_filename.substr(pos);
+
+                    //std::cout << "base_name=" << base_name << std::endl;
+                    //std::cout << "extension=" << extension << std::endl;
                 }
                 else
                 {
@@ -534,32 +564,33 @@ void draw_2D(
                 std::string name = base_name + "_c_data_div_MC" + "_" + std::string(i_str);
                 if(extension.size() > 0)
                 {
-                    base_name += "." + extension;
+                    name += extension;
                 }
-                std::cout << "saving as " << saveas_filename << std::endl;
-                c_data_div_MC[channel]->SaveAs(saveas_filename.c_str());
+                std::cout << "saving as " << name << std::endl;
+                c_data_div_MC[channel]->SaveAs(name.c_str());
 
                 name = base_name + "_c_data" + "_" + std::string(i_str);
                 if(extension.size() > 0)
                 {
-                    base_name += "." + extension;
+                    name += extension;
                 }
-                std::cout << "saving as " << saveas_filename << std::endl;
-                c_data[channel]->SaveAs(saveas_filename.c_str());
+                std::cout << "saving as " << name << std::endl;
+                c_data[channel]->SaveAs(name.c_str());
                 
                 name = base_name + "_c_MC" + "_" + std::string(i_str);
                 if(extension.size() > 0)
                 {
-                    base_name += "." + extension;
+                    name += extension;
                 }
-                std::cout << "saving as " << saveas_filename << std::endl;
-                c_MC[channel]->SaveAs(saveas_filename.c_str());
+                std::cout << "saving as " << name << std::endl;
+                c_MC[channel]->SaveAs(name.c_str());
             }
         }
         else
         {
             std::cout << "Error: saveas_filename.size() == 0" << std::endl;
         }
+        */
 
     }
 
@@ -990,7 +1021,7 @@ void draw(
 	            }
                 else
                 {
-                    std::cout << "not adding to stack, Integral() <= 0: " << tmpHist_draw1D->GetName() << std::endl;
+                    //std::cout << "not adding to stack, Integral() <= 0: " << tmpHist_draw1D->GetName() << std::endl;
                 }
             }
             else
@@ -1400,6 +1431,14 @@ void draw(
         }
         */
 
+        std::string base_name;
+        std::string extension;
+        filename_split_extension(saveas_filename, base_name, extension);
+
+        std::string dir = base_name + "_c" + "_" + std::string(i_str);
+        std::string name = base_name + "_c" + "_" + std::string(i_str) + extension;
+        canvas_saveas_helper(dir, name, c[i]);
+        /*
         if(saveas_filename.size() > 0)
         {
             std::size_t length = saveas_filename.size();
@@ -1425,6 +1464,8 @@ void draw(
             }
             else
             {
+                //std::cout << "saveas_filename=" << saveas_filename << std::endl;
+
                 std::string base_name;
                 std::string extension;
                 std::size_t pos = saveas_filename.rfind('.');
@@ -1432,6 +1473,9 @@ void draw(
                 {
                     base_name = saveas_filename.substr(0, pos);
                     extension = saveas_filename.substr(pos);
+
+                    //std::cout << "base_name=" << base_name << std::endl;
+                    //std::cout << "extension=" << extension << std::endl;
                 }
                 else
                 {
@@ -1441,19 +1485,19 @@ void draw(
                 std::string name = base_name + "_c" + "_" + std::string(i_str);
                 if(extension.size() > 0)
                 {
-                    base_name += "." + extension;
+                    name += extension;
                 }
-                std::cout << "saving as " << saveas_filename << std::endl;
-                c[i]->SaveAs(saveas_filename.c_str());
+                std::cout << "saving as " << name << std::endl;
+                c[i]->SaveAs(name.c_str());
             }
         }
         else
         {
             std::cout << "Error: saveas_filename.size() == 0" << std::endl;
         }
+        */
     
     }
-
 
 
 

@@ -66,10 +66,11 @@ void newloglikfitter_gA_chisquaretest(
 
     std::cout << "running chi-square tests (gA): " << "variable: g_A parameter (1)" << std::endl;
 
-    int n_tests = 10;
+    int n_tests = 1; //20;
     // 100 Mo
     int axial_vector_parameter_0_index = paramNumberToMinuitParamNumberMap.at(1);
     std::cout << "the internal index for parameter 1 is " << axial_vector_parameter_0_index << std::endl;
+    //std::cin.get();
     // These are in units of minuit internal parameter units
     // To convert to external parameter units, multiply by the value of the
     // external input parameter initial activity
@@ -79,7 +80,7 @@ void newloglikfitter_gA_chisquaretest(
     // external_param_error_lowerbound = (internal_param_CV - internal_param_error) * external_param_init_value
     // similar for upperbound, then subtract and / 2.0
     double test_central_value = AdjustActs[axial_vector_parameter_0_index];
-    double test_range = 0.2; //10.0 * AdjustActs_Err[axial_vector_parameter_0_index];
+    double test_range = 0.0; //1.0; //10.0 * AdjustActs_Err[axial_vector_parameter_0_index];
     // this range should hit delta sigma = 1.0 at 66 % of the width, but it
     // doesn't.
     double test_start = test_central_value - 0.5 * test_range;

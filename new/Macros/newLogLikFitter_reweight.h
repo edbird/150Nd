@@ -69,12 +69,14 @@ void reweight_apply(
     const TString name_append = "";
 
 
+/*
     delete gROOT->FindObject("hTotalE_" + sampleName + name_append + "_reweight");
     delete gROOT->FindObject("hSingleEnergy_" + sampleName + name_append + "_reweight");
     delete gROOT->FindObject("hLowEnergy_" + sampleName + name_append + "_reweight");
     delete gROOT->FindObject("hHighEnergy_" + sampleName + name_append + "_reweight");
     delete gROOT->FindObject("hHighLowEnergy_" + sampleName + name_append + "_reweight");
     delete gROOT->FindObject("hWeight" + sampleName + name_append + "_reweight");
+*/
 
     // TODO: this does not work, need to re-Fill histogram using file
     //output = input->Clone(input->GetName() + "_reweight");
@@ -560,9 +562,11 @@ void reweight_apply(
     hHighEnergy_output->SetTitle(Nd150Names[0]);
 
     //hHighLowEnergy_output->Sumw2();
+/*
     hHighLowEnergy_output->SetFillColor(Nd150Colors[0]);
     hHighLowEnergy_output->SetLineColor(Nd150Colors[0]);
     hHighLowEnergy_output->SetTitle(Nd150Names[0]);
+*/
 
     std::ifstream inFile;
     //std::string filePath = ; //in header

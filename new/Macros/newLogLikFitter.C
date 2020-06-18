@@ -334,11 +334,12 @@ void loadFiles()
         AdjustActs_Err[ix] = 0.5; // TODO: set using parameter_names.list
     }
     // TODO: fix this
-    const double xi_31_init_value = 0.0;
-    const double xi_31_init_error = 0.0;
-    get_paramInitValueError(thePhase, 1, xi_31_init, xi_31_init_error);
+    double xi_31_init_value = 0.0;
+    double xi_31_init_error = 0.0;
+    get_paramInitValueError(thePhase, 1, xi_31_init_value, xi_31_init_error);
     AdjustActs[1] = xi_31_init_value;
 
+    std::cout << "initial value is set to " << xi_31_init_value << std::endl;
 
     /*
     Int_t number_free_params = minuit->GetNumFreePars();
@@ -643,11 +644,11 @@ void loadFiles()
     // by splitting the function called into several different functions
 
 
-    draw(AdjustActs, AdjustActs_Err, "afterfit_hTotalE.*");
-    AdjustActs[1] = 0.0; // HSD // TODO: should it be zero or 1? does this indicate a bug elsewhere
+//    draw(AdjustActs, AdjustActs_Err, "afterfit_hTotalE.*");
+//    AdjustActs[1] = 0.0; // HSD // TODO: should it be zero or 1? does this indicate a bug elsewhere
     // BUG: I think I have interpreted AdjustActs as a scaling parameter and I cannot do that if my
     // initial xi value is 0! because 0 * anything = 0
-    draw(AdjustActs, AdjustActs_Err, "beforefit_hTotalE.*");
+//    draw(AdjustActs, AdjustActs_Err, "beforefit_hTotalE.*");
 
 }
 
@@ -703,7 +704,7 @@ TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&Co
     // moved reading of parameter list file to before book histogram function
     // calls
   
-
+    // TODO: printing sample_names array, what does this do, is it still used?
     print_paramNameMap();
 
     std::cout << "set errors" << std::endl;
@@ -992,7 +993,32 @@ TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&Co
     //std::cout << "calling: minuit->mnsimp()" << std::endl;
     //minuit->mnsimp();
     std::cout << "calling: minuit->Migrad()" << std::endl;
-    minuit->Migrad();
+
+    
+    newloglikfitter_gA_chisquaretest(minuit, AdjustActs, AdjustActs_Err);
+
+    /*
+    Int_t npar = 0;
+    Double_t fval;
+    logLikelihood(npar, nullptr, fval, AdjustActs, 0);
+    std::cout << "fval=" << fval << std::endl;
+    draw(AdjustActs, AdjustActs_Err, CovMatrix, number_free_params);
+    std::cin.get();
+
+    AdjustActs[1] = 0.296 -0.1;
+    logLikelihood(npar, nullptr, fval, AdjustActs, 0);
+    std::cout << "fval=" << fval << std::endl;
+    draw(AdjustActs, AdjustActs_Err, CovMatrix, number_free_params);
+    std::cin.get();
+
+    AdjustActs[1] = 0.296 + 0.1;
+    logLikelihood(npar, nullptr, fval, AdjustActs, 0);
+    std::cout << "fval=" << fval << std::endl;
+    draw(AdjustActs, AdjustActs_Err, CovMatrix, number_free_params);
+    std::cin.get();
+    */
+
+    //minuit->Migrad();
 
 
     // Then get results
@@ -1021,7 +1047,7 @@ TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&Co
 
     if(0)
     {
-            newloglikfitter_testmyphasespace(minuit, AdjustActs, AdjustActs_Err);
+        newloglikfitter_testmyphasespace(minuit, AdjustActs, AdjustActs_Err);
     }
 
 

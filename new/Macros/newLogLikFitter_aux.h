@@ -46,4 +46,106 @@ void get_paramConstraintValueError(const Int_t thePhase, const int param_number,
     }
 }
 
+
+// split filename into base name and extension
+// split string based on rfind '.' char
+// return 0 if failed to split
+// return 1 if success
+// if '.' is found, it is contained and returned in output_extension
+int filename_split_extension(const std::string &input, std::string &output_base, std::string &output_extension)
+{
+    std::size_t pos = input.rfind('.');
+    if(pos != std::string::npos)
+    {
+        output_base = input.substr(0, pos);
+        output_extension = input.substr(pos);
+        return 1;
+    }
+    else
+    {
+        output_base = input;
+        output_extension = "";
+        return 0;
+    }
+}
+
+
+void canvas_saveas_helper(const std::string &directory, const std::string &saveas_filename, TCanvas *canvas)
+{
+    if(saveas_filename.size() > 0)
+    {
+        std::size_t length = saveas_filename.size();
+        if(
+            (length >= 2) &&
+            ((saveas_filename[length - 1] == '*') && (saveas_filename[length - 2] == '.'))
+          )
+        {
+            // TODO: get the name based on the histogram type
+            // from data accessable via loop index i
+            std::string base_name = saveas_filename.substr(0, length - 2);
+            std::vector<std::string> extensions;
+            extensions.push_back("C");
+            extensions.push_back("png");
+            extensions.push_back("eps");
+            extensions.push_back("pdf");
+            for(auto it{extensions.begin()}; it != extensions.end(); ++ it)
+            {
+                //std::string name = base_name + "_" + std::string(i_str) + "." + *it;
+                std::string name = base_name + "." + *it;
+                std::string fullname = directory + "/" + name;
+                std::cout << "saving as " << fullname << std::endl;
+                canvas->SaveAs(fullname.c_str());
+            }
+        }
+        else
+        {
+            //std::cout << "saveas_filename=" << saveas_filename << std::endl;
+
+            
+            std::string base_name;
+            std::string extension;
+            if(filename_split_extension(saveas_filename, base_name, extension) == 1)
+            {
+                // contains an extension
+            }
+            else
+            {
+                // does not contain an extension
+                //extension = ".png";
+            }
+            /*
+            std::string base_name;
+            std::string extension;
+            std::size_t pos = saveas_filename.rfind('.');
+            if(pos != std::string::npos)
+            {
+                base_name = saveas_filename.substr(0, pos);
+                extension = saveas_filename.substr(pos);
+
+                //std::cout << "base_name=" << base_name << std::endl;
+                //std::cout << "extension=" << extension << std::endl;
+            }
+            else
+            {
+                base_name = saveas_filename;
+            }
+            */
+
+            //std::string name = base_name + "_c" + "_" + std::string(i_str);
+            std::string name = base_name;
+            if(extension.size() > 0)
+            {
+                name += extension;
+            }
+            std::string fullname = directory + "/" + name; 
+            std::cout << "saving as " << fullname << std::endl;
+            canvas->SaveAs(fullname.c_str());
+        }
+    }
+    else
+    {
+        std::cout << "Error: saveas_filename.size() == 0" << std::endl;
+    }
+}
+
 #endif // NEWLOGLIKFITTER_AUX_H

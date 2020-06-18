@@ -867,6 +867,10 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
         //loglik -= penalty;
         penalty_term += penalty;
     }
+
+
+    std::cout << "penalty_term=" << penalty_term << std::endl;
+    //std::cin.get();
   
     //fval = -2.0 * loglik; 
     // equivalent to
@@ -966,6 +970,8 @@ Double_t getNumberMC1D(
                     which_param = paramNumberToMinuitParamNumberMap.at(paramNumber);
                     found_param = true;
 
+                    //std::cout << tmp_sample_name << " -> " << paramNumber << std::endl;
+
                     //std::cout << "DEBUG: found parameter with minuit (internal) number: " << which_param << std::endl;
                     //std::cin.get();
                 }
@@ -1029,6 +1035,8 @@ Double_t getNumberMC1D(
         } 
 
     }
+
+    //std::cin.get();
 
     return nMC;
 
