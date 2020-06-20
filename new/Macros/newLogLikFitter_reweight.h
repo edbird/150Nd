@@ -50,8 +50,10 @@ static int ctmp_counter = 0;
 void reweight_apply(
     TH1F *&hTotalE_output,
     TH1F *&hSingleEnergy_output,
-    TH1F *&hLowEnergy_output,
     TH1F *&hHighEnergy_output,
+    TH1F *&hLowEnergy_output,
+    TH1F *&hEnergySum_output,
+    TH1F *&hEnergyDiff_output,
     TH2F *&hHighLowEnergy_output,
     TH1F *&hWeight_output,
     const std::string& tinput_filename,
@@ -90,12 +92,20 @@ void reweight_apply(
                                 "Phase " + Phase + " " + sampleName  + name_append + " Single Energy",
                                 50, 0.0, 5.0);
 
+    hHighEnergy_output     = new TH1F("hHighEnergy_" + sampleName + name_append + "_reweight",
+                                "Phase " + Phase + " " + sampleName + name_append + " High Energy; Energy (MeV)",
+                                50, 0.0, 5.0);
+
     hLowEnergy_output     = new TH1F("hLowEnergy_" + sampleName + name_append + "_rewight",
                                 "Phase " + Phase + " " + sampleName + name_append + " Low Energy",
                                 50, 0.0, 5.0);
 
-    hHighEnergy_output     = new TH1F("hHighEnergy_" + sampleName + name_append + "_reweight",
-                                "Phase " + Phase + " " + sampleName + name_append + " High Energy; Energy (MeV)",
+    hEnergySum_output     = new TH1F("hEnergySum_" + sampleName + name_append + "_rewight",
+                                "Phase " + Phase + " " + sampleName + name_append + " Low Energy",
+                                50, 0.0, 5.0);
+
+    hEnergyDiff_output     = new TH1F("hEnergyDiff_" + sampleName + name_append + "_rewight",
+                                "Phase " + Phase + " " + sampleName + name_append + " Low Energy",
                                 50, 0.0, 5.0);
 
     hHighLowEnergy_output     = new TH2F("hHighLowEnergy_" + sampleName + name_append + "_reweight",
@@ -109,9 +119,11 @@ void reweight_apply(
 
     hTotalE_output->Sumw2();
     hSingleEnergy_output->Sumw2();
-    hLowEnergy_output->Sumw2();
     hHighEnergy_output->Sumw2();
+    hLowEnergy_output->Sumw2();
     hHighLowEnergy_output->Sumw2();
+    hEnergySum_output->Sumw2();
+    hEnergyDiff_output->Sumw2();
 
     hWeight_output->Sumw2();
 
@@ -433,9 +445,11 @@ void reweight_apply(
         hTotalE_output->Fill(electronEnergy[0] + electronEnergy[1], 1.0 * weight);
         hSingleEnergy_output->Fill(electronEnergy[lowE_index], 1.0 * weight);
         hSingleEnergy_output->Fill(electronEnergy[highE_index], 1.0 * weight);
-        hLowEnergy_output->Fill(electronEnergy[lowE_index], 1.0 * weight);
         hHighEnergy_output->Fill(electronEnergy[highE_index], 1.0 * weight);
+        hLowEnergy_output->Fill(electronEnergy[lowE_index], 1.0 * weight);
         hHighLowEnergy_output->Fill(electronEnergy[lowE_index], electronEnergy[highE_index], 1.0 * weight);
+        hEnergySum_output->Fill(electronEnergy[highE_index] + electronEnergy[lowE_index], 1.0 * weight);
+        hEnergyDiff_output->Fill(electronEnergy[highE_index] - electronEnergy[lowE_index], 1.0 * weight);
 
         hWeight_output->Fill(1.0 * weight);
 
@@ -535,9 +549,11 @@ void reweight_apply(
 
     hTotalE_output->SetLineWidth(2);
     hSingleEnergy_output->SetLineWidth(2);
-    hLowEnergy_output->SetLineWidth(2);
     hHighEnergy_output->SetLineWidth(2);
+    hLowEnergy_output->SetLineWidth(2);
     hHighLowEnergy_output->SetLineWidth(2);
+    hEnergySum_output->SetLineWidth(2);
+    hEnergyDiff_output->SetLineWidth(2);
     //houtput->SetMarkerStyle(20);
     //TODO: other stuff here
 
@@ -551,15 +567,15 @@ void reweight_apply(
     hSingleEnergy_output->SetLineColor(Nd150Colors[0]);
     hSingleEnergy_output->SetTitle(Nd150Names[0]);
 
-    //hLowEnergy_output->Sumw2();
-    hLowEnergy_output->SetFillColor(Nd150Colors[0]);
-    hLowEnergy_output->SetLineColor(Nd150Colors[0]);
-    hLowEnergy_output->SetTitle(Nd150Names[0]);
-
     //hHighEnergy_output->Sumw2();
     hHighEnergy_output->SetFillColor(Nd150Colors[0]);
     hHighEnergy_output->SetLineColor(Nd150Colors[0]);
     hHighEnergy_output->SetTitle(Nd150Names[0]);
+
+    //hLowEnergy_output->Sumw2();
+    hLowEnergy_output->SetFillColor(Nd150Colors[0]);
+    hLowEnergy_output->SetLineColor(Nd150Colors[0]);
+    hLowEnergy_output->SetTitle(Nd150Names[0]);
 
     //hHighLowEnergy_output->Sumw2();
 /*
@@ -567,6 +583,17 @@ void reweight_apply(
     hHighLowEnergy_output->SetLineColor(Nd150Colors[0]);
     hHighLowEnergy_output->SetTitle(Nd150Names[0]);
 */
+
+    //hEnergySum_output->Sumw2();
+    hEnergySum_output->SetFillColor(Nd150Colors[0]);
+    hEnergySum_output->SetLineColor(Nd150Colors[0]);
+    hEnergySum_output->SetTitle(Nd150Names[0]);
+
+    //hEnergyDiff_output->Sumw2();
+    hEnergyDiff_output->SetFillColor(Nd150Colors[0]);
+    hEnergyDiff_output->SetLineColor(Nd150Colors[0]);
+    hEnergyDiff_output->SetTitle(Nd150Names[0]);
+
 
     std::ifstream inFile;
     //std::string filePath = ; //in header
@@ -597,9 +624,11 @@ void reweight_apply(
 
     hTotalE_output->Scale(TotalTime / sampleNGenMC_150Nd);
     hSingleEnergy_output->Scale(TotalTime / sampleNGenMC_150Nd);
-    hLowEnergy_output->Scale(TotalTime / sampleNGenMC_150Nd);
     hHighEnergy_output->Scale(TotalTime / sampleNGenMC_150Nd);
+    hLowEnergy_output->Scale(TotalTime / sampleNGenMC_150Nd);
     hHighLowEnergy_output->Scale(TotalTime / sampleNGenMC_150Nd);
+    hEnergySum_output->Scale(TotalTime / sampleNGenMC_150Nd);
+    hEnergyDiff_output->Scale(TotalTime / sampleNGenMC_150Nd);
     //std::cout << "after Scale(), Integral is: " << houtput->Integral() << " scaled by " << TotalTime / sampleNGenMC_150Nd << std::endl;
     //std::cin.get();
     
@@ -611,6 +640,7 @@ void reweight_apply(
 
         int param_number = paramNameToNumberMap.at(search_object);
         //std::cout << "parameber number " << param_number << " is in the paramNameToNumberMap" << std::endl;
+        //std::cin.get();
 
         // TODO: change such that samples are pre-scaled by activity input value
         // get initial parameter values and error
@@ -648,6 +678,8 @@ void reweight_apply(
         hLowEnergy_output->Scale(scale_factor);
         hHighEnergy_output->Scale(scale_factor);
         hHighLowEnergy_output->Scale(scale_factor);
+        hEnergySum_output->Scale(scale_factor);
+        hEnergyDiff_output->Scale(scale_factor);
 
         /*
         std::cout << "Integrals after scaling: " << hTotalE_output->Integral()

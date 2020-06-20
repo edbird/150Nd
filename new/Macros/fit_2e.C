@@ -332,12 +332,15 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
     TH1F *hTrueVertexLayer;
 
     TH1F *hSingleEnergy;
-    TH1F *hLowEnergy;
     TH1F *hHighEnergy;
+    TH1F *hLowEnergy;
     TH2F *hHighLowEnergy;
 
     TH1F *hTotalClusterEnergy;
     TH2F *hHotSpotLocation;
+
+    TH1F *hEnergySum;
+    TH1F *hEnergyDiff;
 
     // NOTE: this idea (multuplying histograms) will not work because
     // we lose the information of which true energy values match which
@@ -485,7 +488,7 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
 
     hEeMin                  = new TH1F("hEeMin_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase "+Phase+" "+sampleName + name_sample_split_additional + name_append+" lower energy Ee; E_{e} (MeV)",
-                                       50, 0.0, 4);
+                                       50, 0.0, 5.0);
 
     hElectronLengthMin      = new TH1F("hElectronLengthMin_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase "+Phase+" "+sampleName + name_sample_split_additional + name_append+" lower energy e^{-} track length;  track length (cm)",
@@ -621,12 +624,12 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
                                 "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Single Electron Energy;Energy (MeV)",
                                 50, 0.0, 5.0);
 
-    hLowEnergy     = new TH1F("hLowEnergy_" + sampleName + name_sample_split_additional + name_append,
-                                "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Low Energy Electron Energy;Energy (MeV)",
-                                50, 0.0, 5.0);
-
     hHighEnergy     = new TH1F("hHighEnergy_" + sampleName + name_sample_split_additional + name_append,
                                 "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " High Energy Electron Energy; Energy (MeV)",
+                                50, 0.0, 5.0);
+
+    hLowEnergy     = new TH1F("hLowEnergy_" + sampleName + name_sample_split_additional + name_append,
+                                "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Low Energy Electron Energy;Energy (MeV)",
                                 50, 0.0, 5.0);
 
     hHighLowEnergy     = new TH2F("hHighLowEnergy_" + sampleName + name_sample_split_additional + name_append,
@@ -641,6 +644,14 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
     hHotSpotLocation = new TH2F("hHotSpotLocation_" + sampleName + name_sample_split_additional + name_append,
                         "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Hot Spot Locations",
                         50, 5.7371, 5.8706, 50, -120.0, 120.0);
+
+    hEnergySum     = new TH1F("hEnergySum_" + sampleName + name_sample_split_additional + name_append,
+                                "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Single Electron Energy;Energy (MeV)",
+                                50, 0.0, 5.0);
+                                
+    hEnergyDiff     = new TH1F("hEnergyDiff_" + sampleName + name_sample_split_additional + name_append,
+                                "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Single Electron Energy;Energy (MeV)",
+                                50, 0.0, 5.0);
 
 
 
@@ -740,13 +751,16 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
     hpmap["hTrueVertexLayer_"] = hTrueVertexLayer;
 
     hpmap["hSingleEnergy_"] = hSingleEnergy;
-    hpmap["hLowEnergy_"] = hLowEnergy;
     hpmap["hHighEnergy_"] = hHighEnergy;
+    hpmap["hLowEnergy_"] = hLowEnergy;
     hpmap["hHighLowEnergy_"] = hHighLowEnergy;
 
     hpmap["hTotalClusterEnergy_"] = hTotalClusterEnergy;
 
     hpmap["hHotSpotLocation_"] = hHotSpotLocation;
+
+    hpmap["hEnergySum_"] = hEnergySum;
+    hpmap["hEnergyDiff_"] = hEnergyDiff;
 
 
     for(std::map<TString, TH1*>::iterator it{hpmap.begin()}; it != hpmap.end(); ++ it)
@@ -2166,8 +2180,8 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
 
         hEeMaxVEeMin->Fill(electronEnergy[highE_index], electronEnergy[lowE_index], weight);
 
-        hTrackSignMax->Fill(trackSign[lowE_index], weight);
-        hTrackSignMin->Fill(trackSign[highE_index], weight);
+        hTrackSignMax->Fill(trackSign[highE_index], weight);
+        hTrackSignMin->Fill(trackSign[lowE_index], weight);
 
 
         hnGammaClusters->Fill(nGammaClusters, weight);
@@ -2179,9 +2193,11 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
         
         hSingleEnergy->Fill(electronEnergy[lowE_index], weight);
         hSingleEnergy->Fill(electronEnergy[highE_index], weight);
-        hLowEnergy->Fill(electronEnergy[lowE_index], weight);
         hHighEnergy->Fill(electronEnergy[highE_index], weight);
+        hLowEnergy->Fill(electronEnergy[lowE_index], weight);
         hHighLowEnergy->Fill(electronEnergy[lowE_index], electronEnergy[highE_index], weight);
+        hEnergySum->Fill(electronEnergy[highE_index] + electronEnergy[lowE_index], weight);
+        hEnergyDiff->Fill(electronEnergy[highE_index] - electronEnergy[lowE_index], weight);
 
 
         int hit_counter = 0;
@@ -2606,6 +2622,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
             //tmpHist->Sumw2();
             tmpHist->SetFillColor(sampleColors[i]);
             tmpHist->SetLineColor(sampleColors[i]);
+            tmpHist->SetLineWidth(0);
             tmpHist->SetTitle(sampleNames[i]);
 
             //tmpHist->Scale(sampleActivity[thePhase][i] * AcceptedTime[thePhase] * 0.001 / (sampleNGenMC[i] * (AcceptedTime[thePhase]/(double)TotalTime)) );
@@ -2872,6 +2889,7 @@ void stackfunction(int i,                           // INPUT: histogram index, s
         //tmpHist->SetLineColor(dataColors[i]);
         hAllSamples[i]->SetFillColor(majorStackColor);
         hAllSamples[i]->SetLineColor(majorStackColor);
+        hAllSamples[i]->SetLineWidth(0);
         hAllSamples[i]->SetTitle(title_string);
         hMajorStacks[i]->Add((TH1F*)hAllSamples[i]);
         
@@ -2984,6 +3002,7 @@ void fitHistograms()
             //tmpHist->Sumw2();
             tmpHist->SetFillColor(sampleColors[i]);
             tmpHist->SetLineColor(sampleColors[i]);
+            tmpHist->SetLineWidth(0);
             tmpHist->SetTitle(sampleNames[i]);
 
             tmpHist->Scale(TotalTime / sampleNGenMC[i]);
@@ -3815,7 +3834,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
 
             hAllMC[j]->SetLineWidth(2);
             hAllMC[j]->SetLineColor(kBlack);
-            hAllMC[j]->SetFillColor(kWhite);
+            hAllMC[j]->SetFillColor(kBlack);
             hAllMC[j]->SetFillStyle(0);
             //hAllMC[j]->Sumw2();
             if(j == 58)
@@ -3968,7 +3987,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
 
             hAllMC_rawdata[j]->SetLineWidth(2);
             hAllMC_rawdata[j]->SetLineColor(kBlack);
-            hAllMC_rawdata[j]->SetFillColor(kWhite);
+            hAllMC_rawdata[j]->SetFillColor(kBlack);
             hAllMC_rawdata[j]->SetFillStyle(0);
             //hAllMC_rawdata[j]->Sumw2();
             if(j == 58)

@@ -45,7 +45,9 @@
 #include "newLogLikFitter_reweight.h"
 #include "newLogLikFitter_loglikelihood.h"
 #include "newLogLikFitter_draw.h"
+#include "newLogLikFitter_draw_2D.h"
 #include "newLogLikFitter_draw_outputdiff.h"
+#include "newLogLikFitter_draw_all.h"
 #include "newLogLikFitter_chisquaretest.h"
 #include "newLogLikFitter_test.h"
 
@@ -320,6 +322,8 @@ void loadFiles()
     book1DHistograms(1, "2e_", "P" + Phase, "hSingleEnergy_");
     book1DHistograms(2, "2e_", "P" + Phase, "hHighEnergy_");
     book1DHistograms(3, "2e_", "P" + Phase, "hLowEnergy_");
+    book1DHistograms(4, "2e_", "P" + Phase, "hEnergySum_");
+    book1DHistograms(5, "2e_", "P" + Phase, "hEnergyDiff_");
     book2DHistograms(0, "2e_", "P" + Phase, "hHighLowEnergy_");
   
     // Array to hold activity adjustment parameters
@@ -619,7 +623,7 @@ void loadFiles()
     ofoutaux.close();
     */
 
-    draw(AdjustActs, AdjustActs_Err, CovMatrix, number_free_params);
+    draw_all(AdjustActs, AdjustActs_Err, CovMatrix, number_free_params);
 
 
 
@@ -1018,7 +1022,7 @@ TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&Co
     std::cin.get();
     */
 
-    //minuit->Migrad();
+    minuit->Migrad();
 
 
     // Then get results

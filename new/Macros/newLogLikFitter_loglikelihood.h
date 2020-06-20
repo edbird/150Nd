@@ -69,96 +69,6 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
         // TODO: rebuild nd150 xi_31 paramter histogram here
 
 
-        #if 0
-        ///////////////////////////////////////////////////////////////////////
-        // reweight hTotalE
-        ///////////////////////////////////////////////////////////////////////
-        // there are i samples for each channel
-        // search through each channel for 150nd samples
-        for(int channel = 0; channel < allDataSamples1D->GetEntries(); ++ channel)
-        {
-            // note: I have really no idea how this is supposed to work
-            // with multiple data channels, i = 0 here, for one data channel
-
-            TH1F *h_before_reweight = nullptr;
-
-            //std::cout << "there are " << allMCSamples1D[channel]->GetEntries() << " objects" << std::endl;
-            // new code to reweight 150Nd by xi_{31} parameter
-            for(int i = 0; i < allMCSamples1D[channel]->GetEntries(); ++ i)
-            {
-                TH1F *tmpHist = (TH1F*)allMCSamples1D[channel]->At(i);
-                TString tmpHist_name = tmpHist->GetName();
-                // TODO: had to add "_fit" here - might not work after 1 iteration
-                //if(tmpHist_name.CompareTo("hTotalE_nd150_rot_2n2b_m4_fit") == 0 ||
-                //   tmpHist_name.CompareTo("hTotalE_nd150_rot_2b2n_m4_fit") == 0)
-                if(tmpHist_name.Contains("nd150_rot_2n2b_m4") ||
-                   tmpHist_name.Contains("nd150_rot_2b2n_m4"))
-                {
-                    //std::cout << "found the 150Nd MC" << std::endl;
-                    //std::cin.get();
-
-                    // TODO: this is very slow, gets re-built for each bin_ix
-
-
-                    //TH1F *tmpHist_draw1D_clone = nullptr;
-                    TH1F *tmpHist_reweight = nullptr;
-                    //reweight_apply(tmpHist_draw1D_clone, tmpHist_draw1D, ... );
-                    const double xi_31{p[1]};
-                    // TODO: this will not work if parameter number changes
-                    std::cout << "xi_31=" << xi_31 << std::endl;
-                    //const double xi_31{p[nPar-1]};
-                    //std::cout << "check that nPar=" << nPar << "=29/28 ?" << std::endl;
-                    // note: it isn't
-                    const double xi_31_baseline{0.296}; // TODO: change to actual value and pass in as argument somehow
-                    // fixed in parameter list file?
-
-                    // some debug stuff
-                    //TCanvas *ctmp = new TCanvas("ctmp", "ctmp");
-                    //h_nEqNull->Draw();
-                    //std::cin.get();
-
-                    //reweight_apply(tmpHist_reweight, "/mnt/ramdisknd150/Nd150_2eNg_output_truth_postprocessed.root", xi_31, xi_31_baseline, h_nEqNull, h_nEqTwo, psiN0, psiN2, bb_Q);
-                    // line below disabled
-                    //reweight_apply(tmpHist_reweight, "Nd150_2eNg_output_truth_postprocessed.root", xi_31, xi_31_baseline, h_nEqNull, h_nEqTwo, psiN0, psiN2, bb_Q);
-                    // TODO: after reweight function called, replace 150nd MC
-                    // in containers, or add a _reweight version to containers
-
-                    //std::cout << "name before: " << tmpHist->GetName() << std::endl;
-                    //std::cout << "name after: " << tmpHist_reweight->GetName() << std::endl;
-
-
-                    //h_before_reweight = (TH1F*)tmpHist->Clone("h_before");
-
-                    //std::cout << "tmpHist->GetName() -> " << tmpHist->GetName() << std::endl;
-                    std::cout << "calling reweight_apply psiN0=" << psiN0 << " psiN2=" << psiN2 << std::endl;
-                    //reweight_apply(tmpHist_reweight, "Nd150_2eNg_output_truth_postprocessed.root", xi_31, xi_31_baseline, h_nEqNull, h_nEqTwo, psiN0, psiN2, bb_Q);
-                    reweight_apply(tmpHist_reweight, "Nd150_2eNg_output_truth_postprocessed_small.root", xi_31, xi_31_baseline, h_nEqNull, h_nEqTwo, psiN0, psiN2, bb_Q);
-                    allMCSamples1D[channel]->RemoveAt(i);
-                    allMCSamples1D[channel]->Add(tmpHist_reweight);
-
-                    /*
-                    for(int i{1}; i < h_before_reweight->GetNbinsX(); ++ i)
-                    {
-                        Double_t bin1 = h_before_reweight->GetBinContent(i);
-                        Double_t bin2 = tmpHist_reweight->GetBinContent(i);
-                        if(std::abs(bin1 - bin2) > 1.0e-2)
-                        {
-                            std::cout << "bin1=" << bin1 << " bin2=" << bin2 << std::endl;
-                        }
-                    }
-                    */
-
-                }
-                else
-                {
-                    //std::cout << "it is not " << tmpHist->GetName() << std::endl;
-                    //std::cin.get();
-                }
-
-            }
-        }
-        #endif
-
         ///////////////////////////////////////////////////////////////////////
         // reweight hMinMaxEnergy_
         // reweight all
@@ -176,8 +86,10 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
         // pointers of histograms to pass to reweight function
         TH1F *hTotalE = nullptr;
         TH1F *hSingleEnergy = nullptr;
-        TH1F *hLowEnergy = nullptr;
         TH1F *hHighEnergy = nullptr;
+        TH1F *hLowEnergy = nullptr;
+        TH1F *hEnergySum = nullptr;
+        TH1F *hEnergyDiff = nullptr;
         TH2F *hHighLowEnergy = nullptr;
 
         //std::map<int, TH1F*> channel_to_pointer_map_1D;
@@ -305,7 +217,7 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
         ////const double xi_31_init{param_init_value};
         ////const double xi_31{xi_31_init * p[axial_vector_parameter_0_param_number]};
         const double xi_31{p[axial_vector_parameter_0_param_number]};
-        std::cout << "xi_31=" << xi_31 << std::endl;
+        std::cout << "xi_31=" << xi_31 << " xi_31_baseline=" << xi_31_baseline << std::endl;
         //const double xi_31_baseline{0.296};
         // NOTE: 2020-06-17 this was a bug, removed
 
@@ -313,8 +225,10 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
         reweight_apply(
             hTotalE,
             hSingleEnergy,
-            hLowEnergy,
             hHighEnergy,
+            hLowEnergy,
+            hEnergySum,
+            hEnergyDiff,
             hHighLowEnergy,
             hWeight,
             "Nd150_2eNg_output_truth_postprocessed_small.root",
@@ -330,8 +244,10 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
         // make a file describing the channels to fit as well as the parameters
         allMCSamples1D[0]->Add(hTotalE);
         allMCSamples1D[1]->Add(hSingleEnergy);
-        allMCSamples1D[3]->Add(hLowEnergy);
         allMCSamples1D[2]->Add(hHighEnergy);
+        allMCSamples1D[3]->Add(hLowEnergy);
+        allMCSamples1D[4]->Add(hEnergySum);
+        allMCSamples1D[5]->Add(hEnergyDiff);
         allMCSamples2D[0]->Add(hHighLowEnergy);
 
         /*

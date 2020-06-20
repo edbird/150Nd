@@ -41,8 +41,16 @@ void do_test_xi_31_test1(double *const AdjustActs, double* const AdjustActs_Err)
             xi_31_str.Form("%f", xi_31_value);
 
             // TODO, put in custom directory with text file containing params
-            draw(AdjustActs, AdjustActs_Err, std::string("hTotalE_") + std::string(xi_31_str) + std::string(".png"));
-            draw_2D(AdjustActs, AdjustActs_Err, std::string("hHighLowEnergy_") + std::string(xi_31_str) + std::string(".png"));
+            TH1F *hHighEnergy_allMC = nullptr;
+            TH1F *hLowEnergy_allMC = nullptr;
+            TH1F *hHighEnergy_data = nullptr;
+            TH1F *hLowEnergy_data = nullptr;
+
+            draw(AdjustActs, AdjustActs_Err, std::string("hTotalE_") + std::string(xi_31_str) + std::string(".png"),
+                    hHighEnergy_allMC, hLowEnergy_allMC, hHighEnergy_data, hLowEnergy_data);
+            
+            draw_2D(AdjustActs, AdjustActs_Err, std::string("hHighLowEnergy_") + std::string(xi_31_str) + std::string(".png"),
+                    hHighEnergy_allMC, hLowEnergy_allMC, hHighEnergy_data, hLowEnergy_data);
 
             //draw_outputdiff(AdjustActs, 0.296, std::string("houtputdiff_") + std::string(xi_31_str) + std::string(".png"), -3);
             draw_outputdiff(AdjustActs, 0.0, std::string("houtputdiff_") + std::string(xi_31_str) + std::string(".png"), -3);
@@ -122,7 +130,12 @@ void newloglikfitter_gA_chisquaretest(
         std::string saveas_filename("testvalue_gA_");
         saveas_filename += std::to_string(ix) + ".png";
         //draw(AdjustActs, AdjustActs_Err, saveas_filename);
-        draw(params, param_errs, saveas_filename);
+
+        TH1F *hHighEnergy_allMC = nullptr;
+        TH1F *hLowEnergy_allMC = nullptr;
+        TH1F *hHighEnergy_data = nullptr;
+        TH1F *hLowEnergy_data = nullptr;
+        draw(params, param_errs, saveas_filename, hHighEnergy_allMC, hLowEnergy_allMC, hHighEnergy_data, hLowEnergy_data);
 
         ofstream_testvalue << "value," << test_value << ",chisquare," << fval << std::endl;
 

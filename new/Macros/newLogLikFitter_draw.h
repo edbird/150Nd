@@ -2,95 +2,23 @@
 #define NEWLOGLIKFITTER_DRAW_H
 
 
-#include "newLogLikFitter_draw_outputdiff.h"
 
 
-void draw(const Double_t *const AdjustActs, const Double_t *const AdjustActs_Err, const std::string& saveas_filename = "");
+//void draw(const Double_t *const AdjustActs, const Double_t *const AdjustActs_Err, const std::string& saveas_filename = "",
+//          TH1F* hHighEnergy_allMC = nullptr, TH1F* hLowEnergy_allMC = nullptr,
+//          TH1F* hHighEnergy_data = nullptr, TH1F* hLowEnergy_data = nullptr);
+
 void draw_covariance_matrix(const double * const CovMatrix, const int number_free_params, const std::string& saveas_filename);
 
+/*
 void draw_2D(
     const Double_t *const AdjustActs,
     const Double_t *const AdjustActs_Err,
-    const std::string &saveas_filename);
+    const std::string &saveas_filename,
+    TH1F*, TH1F*);
+*/
 
 
-
-void draw(const double* const AdjustActs, const double* const AdjustActs_Err, const double* const CovMatrix, const int number_free_params)
-{
-    // TODO: load AdjustActs, AdjustActs_Err from file
-
-    ///////////////////////////////////////////////////////////////////////////
-    // read from input file
-    ///////////////////////////////////////////////////////////////////////////
-
-    if(allDataSamples1D->GetEntries() == 0)
-    {
-
-        TFile *fin = new TFile("Nd150_2e_P" + Phase + "_fit_histograms.root", "UPDATE");
-        std::cout << "reading histograms from \"\"" << std::endl;
-
-        std::ifstream ifinaux("Nd150_2e_P" + Phase + "_fit_histograms.txt", std::ifstream::in);
-
-        std::string auxname;
-
-        for(int channel = 0; channel < number1DHists; ++ channel)
-        {
-            std::cout << "reading: 1D: channel=" << channel << std::endl;
-            
-            TString channel_str;
-            channel_str.Form("%i", channel);
-            //fout->cd("/1D");
-            //fout->cd("/");
-            //TDirectory *dir = gDirectory;
-            //TDirectory *dir_histogram = dir->mkdir("channel_" + channel_str);
-            //TDirectory *dir_histogram = dir->mkdir("channel_1D_" + channel_str);
-
-            ifinaux >> auxname;
-
-            TString hfullname = TString(auxname);
-            //TString hfullname = "channel_1D_" + channel_str + "/" + hname;
-
-            allDataSamples1D->Add((TH1F*)fin->Get(hfullname));
-            allMCSamples1D[channel]->Add((TH1F*)fin->Get(hfullname));
-
-        }
-
-        for(int channel = 0; channel < number2DHists; ++ channel)
-        {
-            std::cout << "reading: 2D: channel=" << channel << std::endl;
-
-            TString channel_str;
-            channel_str.Form("%i", channel);
-            //fout->cd("/2D");
-            //fout->cd("/");
-            //TDirectory *dir = gDirectory;
-            //TDirectory *dir_histogram = dir->mkdir("channel_" + channel_str);
-            //TDirectory *dir_histogram = dir->mkdir("channel_2D_" + channel_str);
-            
-            ifinaux >> auxname;
-
-            TString hfullname = TString(auxname);
-            //TString hfullname = "channel_2D_" + channel_str + "/" + hname;
-
-            allDataSamples2D->Add((TH2F*)fin->Get(hfullname));
-            allMCSamples2D[channel]->Add((TH2F*)fin->Get(hfullname));
-
-        }
-
-        ifinaux.close();
-
-    }
-
-    draw(AdjustActs, AdjustActs_Err, "hTotalE.*");
-    draw_2D(AdjustActs, AdjustActs_Err, "hHighLowEnergy.*");
-    draw_covariance_matrix(CovMatrix, number_free_params, "cov_matrix.*");
-
-
-    //draw_outputdiff(AdjustActs, 0.296, "c_outputdiff_.png", -1);
-    //draw_outputdiff(AdjustActs, 0.0, "c_outputdiff_.png", -1);
-    draw_outputdiff(AdjustActs, 0.0, "c_outputdiff_.png", 4);
-
-}
 
 
 void untitledfunction()
@@ -255,353 +183,17 @@ void draw_inputdata()
 
 
 
-// TODO: draw functions for other fit histograms, particularly hHighLowEnergy
-void draw_2D(
-    const Double_t *const AdjustActs,
-    const Double_t *const AdjustActs_Err,
-    const std::string &saveas_filename)
-{
-    
-
-    TH2F *h_data[number2DHists] = { nullptr };
-    TH2F *h_MC[number2DHists] = { nullptr };
-    TH2F *h_data_div_MC[number2DHists] = { nullptr };
-
-    TCanvas *c_data[number2DHists];
-    TCanvas *c_MC[number2DHists];
-    TCanvas *c_data_div_MC[number2DHists];
-
-    TH2F *hAllMC2D[number2DHists];
-    TH2F *data2D[number2DHists];
-
-
-
-
-    // each channel 1D hists
-    // this is for(i = 0; i < 1; ++ i)
-    for(int channel = 0; channel < allDataSamples2D->GetEntries(); ++ channel)
-    {
-
-        data2D[channel] = (TH2F*)allDataSamples2D->At(channel)->Clone();
-        h_data_div_MC[channel] = (TH2F*)allDataSamples2D->At(channel)->Clone();
-
-        TString i_str;
-        i_str.Form("%i", channel);
-    
-        c_data[channel] = new TCanvas("c_data_2D" + i_str, "c_data_2D" + i_str);
-        c_data[channel]->SetFillColor(kWhite);
-
-        c_MC[channel] = new TCanvas("c_MC_2D" + i_str, "c_MC_2D" + i_str);
-        c_MC[channel]->SetFillColor(kWhite);
-        
-        c_data_div_MC[channel] = new TCanvas("c_ratio_2D" + i_str, "c_ratio_2D" + i_str);
-        c_data_div_MC[channel]->SetFillColor(kWhite);
-
-        // add each MC sample
-        for(int j = 0; j < allMCSamples2D[channel]->GetEntries(); ++ j)
-        {
-
-            TString j_str;
-            j_str.Form("%i", j);
-
-            TH2F *tmpHist_draw2D = (TH2F*)allMCSamples2D[channel]->At(j)->Clone();
-            TString tmpName = tmpHist_draw2D->GetName();
-
-            //std::cout << "looking for " << tmpName << std::endl;
-            int which_param = -1;
-            bool found_param = false;
-
-            // used later
-            double activity_scale_branching_ratio = 1.0;
-
-            {
-                std::string tmp_hist_name(tmpName);
-                auto i_start = tmp_hist_name.find('_') + 1;
-                auto i_end = tmp_hist_name.rfind('_');
-                if(i_end - i_start > 0)
-                {
-                    std::string tmp_sample_name = tmp_hist_name.substr(i_start, i_end - i_start);
-
-                    // set branching ratio fraction
-                    if(tmp_sample_name == std::string("tl208_int_rot") ||
-                       tmp_sample_name == std::string("tl208_feShield") ||
-                       tmp_sample_name == std::string("tl208_pmt"))
-                    {
-                        //std::cout << "tmp_sample_name=" << tmp_sample_name << std::endl;
-                        //std::cin.get();
-                        activity_scale_branching_ratio = 0.36;
-                    }
-
-                    //std::cout << "tmp_sample_name=" << tmp_sample_name << std::endl;
-                    if(MCNameToParamNumberMap.count(tmp_sample_name) > 0)
-                    {
-                        int paramNumber = MCNameToParamNumberMap.at(tmp_sample_name);
-                        // TODO: removed std::string, change tmpName type to be std::string from TString
-                    
-                        //std::cout << "paramNumber=" << paramNumber << " -> tmp_sample_name=" << tmp_sample_name << " ~> tmpName=" << tmpName << std::endl;                    
-                        //which_param = paramNumber;
-                        which_param = paramNumberToMinuitParamNumberMap.at(paramNumber);
-                        found_param = true;
-                    }
-                    else
-                    {
-                       std::cout << "ERROR: could not find " << tmp_sample_name << " in MCNameToParamNumberMap" << std::endl;
-                    }
-                }
-            }
-
-
-            if(found_param == true)
-            {
-                // scale histogram to correct size using output parameter
-                // from fit
-                if(which_param >= numberEnabledParams)
-                {
-                    std::cout << "throwing exception, which_param=" << which_param << std::endl;
-                    throw std::runtime_error("which_param invalid value");
-                }
-
-
-                // no error thrown, which_param is presumably the correct index
-                Double_t activity_scale = AdjustActs[which_param] * activity_scale_branching_ratio;
-                tmpHist_draw2D->Scale(activity_scale);
-                // TODO: fix this
-
-                
-                if(tmpHist_draw2D->Integral() > 0)
-                {
-                    //h_data_div_MC[i]->Add((TH2F*)tmpHist_draw2D->Clone(), -1.0);
-                    
-                    if(j == 0)
-                    {
-                        hAllMC2D[channel] = (TH2F*)tmpHist_draw2D->Clone("Total MC");
-                    }
-                    else
-                    {
-                        hAllMC2D[channel]->Add((TH2F*)tmpHist_draw2D);
-                    }
-	            }
-                else
-                {
-                    //std::cout << "not adding to stack, Integral() <= 0: " << tmpHist_draw2D->GetName() << std::endl;
-                }
-            }
-            else
-            {
-                std::cout << "error could not find histogram: tmpName=" << tmpName << std::endl;
-            } 
-
-        }
-
-
-        h_data[channel] = (TH2F*)data2D[channel]->Clone();
-        h_MC[channel] = (TH2F*)hAllMC2D[channel]->Clone();
-
-        ///////////////////////////////////////////////////////////////////////
-
-        c_data[channel]->cd();
-        h_data[channel]->SetContour(1000);
-        h_data[channel]->Draw("colz");
-
-        c_data[channel]->SaveAs((std::string(c_data[channel]->GetName()) + std::string(".png")).c_str());
-
-        ///////////////////////////////////////////////////////////////////////
-
-        c_MC[channel]->cd();
-        h_MC[channel]->SetContour(1000);
-        h_MC[channel]->Draw("colz");
-
-        c_MC[channel]->SaveAs((std::string(c_MC[channel]->GetName()) + std::string(".png")).c_str());
-
-        ///////////////////////////////////////////////////////////////////////
-
-        // change to division
-        h_data_div_MC[channel] = (TH2F*)data2D[channel]->Clone();
-        h_data_div_MC[channel]->Divide(hAllMC2D[channel]);
-
-        c_data_div_MC[channel]->cd();
-        h_data_div_MC[channel]->SetContour(1000);
-        h_data_div_MC[channel]->Draw("colz");
-        //hAllMC1D[i]->Draw("hist sames");
-        //TString Nmc_str;
-        //Nmc_str.Form("%i", (int)h_data_div_MC[i]->Integral()); // TODO: float?
-        //hAllMC1D[i]->SetTitle("Total MC (" + Nmc_str + ")");
-        //hAllMC1D[i]->Draw("hist same");
-        //data1D[i]->SetLineWidth(2);
-        //data1D[i]->SetMarkerStyle(20);
-        //data1D[i]->SetMarkerSize(1.0);
-        //TString Ndata_str;
-        //Ndata_str.Form("%i", (int)data1D[i]->Integral()); // TODO: float?
-        //data1D[i]->SetTitle("Data (" + Ndata_str + ")");
-        //data1D[i]->Draw("PEsames");
-        //data1D[i]->Draw("PEsame");
-
-        double chi2;
-        int ndf;
-        int igood;
-        TString chi2_str;
-        TString ndf_str;
-
-        // TODO: should chisquare value include the constraints? because at
-        // the moment it does not
-
-        // TODO: chi2 value is different from fit_2e code
-        double prob = data2D[channel]->Chi2TestX(hAllMC2D[channel], chi2, ndf, igood, "UW");
-        // TODO: check if I can get fcn value from the minuit fit object
-        chi2_str.Form("%4.3f", chi2);
-        ndf_str.Form("%i", ndf);
-
-        #if 0
-        TLegend *leg;
-        leg = c->BuildLegend();
-        leg->SetName("leg" + i_str + "_");
-        leg->SetFillColor(kWhite);
-        leg->AddEntry((TObject*)0, "#chi^{2}/ndf = " + chi2_str + "/" + ndf_str, "");
-        leg->Draw();
-        #else
-        TLegend *leg = new TLegend(0.6, 0.88, 0.88, 0.7);
-        //leg->AddEntry(data1D[i], "Data (" + Ndata_str + ")", "PE");
-        //leg->AddEntry(hAllMC1D[i], "Total MC (" + Nmc_str + ")", "L");
-        leg->AddEntry(h_data_div_MC[channel], "Data / MC", "F");
-        //leg->AddEntry((TObject*)nullptr, "#chi^{2}/ndf=" + chi2_str + "/" + ndf_str, "");
-        //leg->AddEntry(h_other[i], "other", "f");
-        leg->SetBorderSize(1);
-        leg->SetFillColor(0);
-        leg->SetTextFont(62);
-        leg->SetTextSize(0.035);
-        leg->SetShadowColor(kBlack);
-        leg->Draw("BR");
-        #endif
-
-        TLatex latexlabel;
-        latexlabel.SetNDC();
-        latexlabel.SetTextFont(62);
-        latexlabel.SetTextSize(0.035);
-        latexlabel.DrawLatex(0.63, 0.23, "#frac{#chi^{2}}{ndf} = #frac{" + chi2_str + "}{" + ndf_str + "}");
-
-
-        //std::cout << "saving to file (canvas)" << std::endl;
-        //c->SaveAs("finalHisto1D_" + i_str + ".C");
-        //c->SaveAs("finalHisto1D_" + i_str + ".eps");
-        //c->SaveAs("finalHisto1D_" + i_str + ".png");
-    
-
-        std::string base_name;
-        std::string extension;
-        filename_split_extension(saveas_filename, base_name, extension);
-
-        {
-            std::string dir = base_name + "_c_MC";
-            std::string name = base_name + "_c_MC" + "_" + std::string(i_str);
-            std::string name_plus_ext = name + extension;
-            canvas_saveas_helper(dir, name_plus_ext, c_MC[channel]);
-        }
-
-        {
-            std::string dir = base_name + "_c_data";
-            std::string name = base_name + "_c_data" + "_" + std::string(i_str);
-            std::string name_plus_ext = name + extension;
-            canvas_saveas_helper(dir, name_plus_ext, c_data[channel]);
-        }
-
-        {
-            std::string dir = base_name + "_c_data_div_MC";
-            std::string name = base_name + "_c_data_div_MC" + "_" + std::string(i_str);
-            std::string name_plus_ext = name + extension;
-            canvas_saveas_helper(dir, name_plus_ext, c_data_div_MC[channel]);
-        }
-
-        /*
-        if(saveas_filename.size() > 0)
-        {
-            std::size_t length = saveas_filename.size();
-            if(
-                (length >= 2) &&
-                ((saveas_filename[length - 1] == '*') && (saveas_filename[length - 2] == '.'))
-              )
-            {
-                std::string base_name = saveas_filename.substr(0, length - 2);
-                std::vector<std::string> extensions;
-                extensions.push_back("C");
-                extensions.push_back("png");
-                extensions.push_back("eps");
-                extensions.push_back("pdf");
-                for(auto it{extensions.begin()}; it != extensions.end(); ++ it)
-                {
-                    std::string name = base_name + "_c_data_div_MC" + "_" + std::string(i_str) + "." + *it;
-                    std::cout << "saving as " << name << std::endl;
-                    c_data_div_MC[channel]->SaveAs(name.c_str());
-
-                    name = base_name + "_c_data" + "_" + std::string(i_str) + "." + *it;
-                    std::cout << "saving as " << name << std::endl;
-                    c_data[channel]->SaveAs(name.c_str());
-
-                    name = base_name + "_c_MC" + "_" + std::string(i_str) + "." + *it;
-                    std::cout << "saving as " << name << std::endl;
-                    c_MC[channel]->SaveAs(name.c_str());
-                }
-            }
-            else
-            {
-                //std::cout << "saveas_filename=" << saveas_filename << std::endl;
-
-                std::string base_name;
-                std::string extension;
-                std::size_t pos = saveas_filename.rfind('.');
-                if(pos != std::string::npos)
-                {
-                    base_name = saveas_filename.substr(0, pos);
-                    extension = saveas_filename.substr(pos);
-
-                    //std::cout << "base_name=" << base_name << std::endl;
-                    //std::cout << "extension=" << extension << std::endl;
-                }
-                else
-                {
-                    base_name = saveas_filename;
-                }
-
-                std::string name = base_name + "_c_data_div_MC" + "_" + std::string(i_str);
-                if(extension.size() > 0)
-                {
-                    name += extension;
-                }
-                std::cout << "saving as " << name << std::endl;
-                c_data_div_MC[channel]->SaveAs(name.c_str());
-
-                name = base_name + "_c_data" + "_" + std::string(i_str);
-                if(extension.size() > 0)
-                {
-                    name += extension;
-                }
-                std::cout << "saving as " << name << std::endl;
-                c_data[channel]->SaveAs(name.c_str());
-                
-                name = base_name + "_c_MC" + "_" + std::string(i_str);
-                if(extension.size() > 0)
-                {
-                    name += extension;
-                }
-                std::cout << "saving as " << name << std::endl;
-                c_MC[channel]->SaveAs(name.c_str());
-            }
-        }
-        else
-        {
-            std::cout << "Error: saveas_filename.size() == 0" << std::endl;
-        }
-        */
-
-    }
-
-
-}
 
 
 void draw(
     const Double_t *const AdjustActs,
     const Double_t *const AdjustActs_Err,
-    const std::string& saveas_filename)
+    const std::string& saveas_filename,
+    TH1F *&hHighEnergy_allMC_out,
+    TH1F *&hLowEnergy_allMC_out,
+    TH1F *&hHighEnergy_data_out,
+    TH1F *&hLowEnergy_data_out
+    )
 {
 
     ///////////////////////////////////////////////////////////////////////////
@@ -1144,6 +736,16 @@ void draw(
             //stacks1D_major[i]->SetMaximum(900.0);
             PAD_U_Y_MAX = 1000.0;
         }
+        else if(i == 4)
+        {
+            //stacks1D_major[i]->SetMaximum(900.0);
+            PAD_U_Y_MAX = 400.0;
+        }
+        else if(i == 5)
+        {
+            //stacks1D_major[i]->SetMaximum(900.0);
+            PAD_U_Y_MAX = 600.0;
+        }
         else
         {
             //stacks1D_major[i]->SetMaximum(350.0);
@@ -1332,14 +934,6 @@ void draw(
         axis2->SetLabelSize(0);
         axis2->Draw();
 
-        #if 0
-        TLegend *leg;
-        leg = c->BuildLegend();
-        leg->SetName("leg" + i_str + "_");
-        leg->SetFillColor(kWhite);
-        leg->AddEntry((TObject*)0, "#chi^{2}/ndf = " + chi2_str + "/" + ndf_str, "");
-        leg->Draw();
-        #else
         TLegend *leg = new TLegend(0.6, 0.1, 0.85, 0.85);
         leg->AddEntry(data1D[i], "Data (" + Ndata_str + ")", "PE");
         leg->AddEntry(hAllMC1D[i], "Total MC (" + Nmc_str + ")", "L");
@@ -1361,9 +955,7 @@ void draw(
         leg->SetTextSize(15);
         leg->SetShadowColor(kGray + 2);
         leg->SetBorderSize(5);
-        //leg->SetShadowColor(kBlack);
         leg->Draw("BR");
-        #endif
 
         //TLatex latexlabel;
         //latexlabel.SetNDC();
@@ -1392,44 +984,8 @@ void draw(
 
     
 
-        //std::cout << "saving to file (canvas)" << std::endl;
-        //c->SaveAs("finalHisto1D_" + i_str + ".C");
-        //c->SaveAs("finalHisto1D_" + i_str + ".eps");
-        //c->SaveAs("finalHisto1D_" + i_str + ".png");
 
         c[i]->Show();
-
-        /*
-        if(saveas_filename.size() > 0)
-        {
-            std::size_t length = saveas_filename.size();
-            if(length >= 2)
-            {
-                if(saveas_filename[length - 1] == '*' && saveas_filename[length - 2] == '.')
-                {
-                    std::string base_name = saveas_filename.substr(0, length - 2);
-                    std::vector<std::string> extensions;
-                    extensions.push_back("C");
-                    extensions.push_back("png");
-                    extensions.push_back("eps");
-                    extensions.push_back("pdf");
-                    for(auto it{extensions.begin()}; it != extensions.end(); ++ it)
-                    {
-                    }
-                }
-                else
-                {
-                    std::cout << "saving as " << saveas_filename << std::endl;
-                    c[i]->SaveAs(saveas_filename.c_str());
-                }
-            }
-            else
-            {
-                std::cout << "saving as " << saveas_filename << std::endl;
-                c[i]->SaveAs(saveas_filename.c_str());
-            }
-        }
-        */
 
         std::string base_name;
         std::string extension;
@@ -1438,65 +994,22 @@ void draw(
         std::string dir = base_name + "_c" + "_" + std::string(i_str);
         std::string name = base_name + "_c" + "_" + std::string(i_str) + extension;
         canvas_saveas_helper(dir, name, c[i]);
-        /*
-        if(saveas_filename.size() > 0)
-        {
-            std::size_t length = saveas_filename.size();
-            if(
-                (length >= 2) &&
-                ((saveas_filename[length - 1] == '*') && (saveas_filename[length - 2] == '.'))
-              )
-            {
-                // TODO: get the name based on the histogram type
-                // from data accessable via loop index i
-                std::string base_name = saveas_filename.substr(0, length - 2);
-                std::vector<std::string> extensions;
-                extensions.push_back("C");
-                extensions.push_back("png");
-                extensions.push_back("eps");
-                extensions.push_back("pdf");
-                for(auto it{extensions.begin()}; it != extensions.end(); ++ it)
-                {
-                    std::string name = base_name + "_" + std::string(i_str) + "." + *it;
-                    std::cout << "saving as " << name << std::endl;
-                    c[i]->SaveAs(name.c_str());
-                }
-            }
-            else
-            {
-                //std::cout << "saveas_filename=" << saveas_filename << std::endl;
-
-                std::string base_name;
-                std::string extension;
-                std::size_t pos = saveas_filename.rfind('.');
-                if(pos != std::string::npos)
-                {
-                    base_name = saveas_filename.substr(0, pos);
-                    extension = saveas_filename.substr(pos);
-
-                    //std::cout << "base_name=" << base_name << std::endl;
-                    //std::cout << "extension=" << extension << std::endl;
-                }
-                else
-                {
-                    base_name = saveas_filename;
-                }
-
-                std::string name = base_name + "_c" + "_" + std::string(i_str);
-                if(extension.size() > 0)
-                {
-                    name += extension;
-                }
-                std::cout << "saving as " << name << std::endl;
-                c[i]->SaveAs(name.c_str());
-            }
-        }
-        else
-        {
-            std::cout << "Error: saveas_filename.size() == 0" << std::endl;
-        }
-        */
     
+
+        // channel 2 = high energy
+        // channel 3 = low energy
+
+        if(i == 2)
+        {
+            hHighEnergy_allMC_out = (TH1F*)hAllMC1D[i]->Clone();
+            hHighEnergy_data_out = (TH1F*)data1D[i]->Clone();
+        }
+        else if(i == 3)
+        {
+            hLowEnergy_allMC_out = (TH1F*)hAllMC1D[i]->Clone();
+            hLowEnergy_data_out = (TH1F*)data1D[i]->Clone();
+        }
+
     }
 
 

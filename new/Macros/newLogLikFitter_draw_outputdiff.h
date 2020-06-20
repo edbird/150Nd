@@ -324,14 +324,18 @@ void draw_outputdiff(const double *const AdjustActs,
     double xi_31 = xi_31_orig;
     TH1F *hTotalE_orig = nullptr;
     TH1F *hSingleEnergy_orig = nullptr;
-    TH1F *hLowEnergy_orig = nullptr;
     TH1F *hHighEnergy_orig = nullptr;
+    TH1F *hLowEnergy_orig = nullptr;
+    TH1F *hEnergySum_orig = nullptr;
+    TH1F *hEnergyDiff_orig = nullptr;
     TH2F *hHighLowEnergy_orig = nullptr;
     TH1F *hWeight_orig = nullptr;
     reweight_apply(hTotalE_orig,
                    hSingleEnergy_orig,
-                   hLowEnergy_orig,
                    hHighEnergy_orig,
+                   hLowEnergy_orig,
+                   hEnergySum_orig,
+                   hEnergyDiff_orig,
                    hHighLowEnergy_orig,
                    hWeight_orig,
                    "Nd150_2eNg_output_truth_postprocessed_small.root",
@@ -346,14 +350,18 @@ void draw_outputdiff(const double *const AdjustActs,
     xi_31 = xi_31_fit;
     TH1F *hTotalE_fit = nullptr;
     TH1F *hSingleEnergy_fit = nullptr;
-    TH1F *hLowEnergy_fit = nullptr;
     TH1F *hHighEnergy_fit = nullptr;
+    TH1F *hLowEnergy_fit = nullptr;
+    TH1F *hEnergySum_fit = nullptr;
+    TH1F *hEnergyDiff_fit = nullptr;
     TH2F *hHighLowEnergy_fit = nullptr;
     TH1F *hWeight_fit = nullptr;
     reweight_apply(hTotalE_fit,
                    hSingleEnergy_fit,
-                   hLowEnergy_fit,
                    hHighEnergy_fit,
+                   hLowEnergy_fit,
+                   hEnergySum_fit,
+                   hEnergyDiff_fit,
                    hHighLowEnergy_fit,
                    hWeight_fit,
                    "Nd150_2eNg_output_truth_postprocessed_small.root",
@@ -419,38 +427,50 @@ void draw_outputdiff(const double *const AdjustActs,
     
     hTotalE_orig->SetFillStyle(3002);
     hSingleEnergy_orig->SetFillStyle(3002);
-    hLowEnergy_orig->SetFillStyle(3002);
     hHighEnergy_orig->SetFillStyle(3002);
+    hLowEnergy_orig->SetFillStyle(3002);
+    hEnergySum_orig->SetFillStyle(3002);
+    hEnergyDiff_orig->SetFillStyle(3002);
     hHighLowEnergy_orig->SetFillStyle(3002);
 
     hTotalE_fit->SetFillStyle(3453);
     hSingleEnergy_fit->SetFillStyle(3453);
-    hLowEnergy_fit->SetFillStyle(3453);
     hHighEnergy_fit->SetFillStyle(3453);
+    hLowEnergy_fit->SetFillStyle(3453);
+    hEnergySum_fit->SetFillStyle(3453);
+    hEnergyDiff_fit->SetFillStyle(3453);
     hHighLowEnergy_fit->SetFillStyle(3453);
 
     hTotalE_orig->SetFillColor(kBlue);
     hSingleEnergy_orig->SetFillColor(kBlue);
-    hLowEnergy_orig->SetFillColor(kBlue);
     hHighEnergy_orig->SetFillColor(kBlue);
+    hLowEnergy_orig->SetFillColor(kBlue);
+    hEnergySum_orig->SetFillColor(kBlue);
+    hEnergyDiff_orig->SetFillColor(kBlue);
     hHighLowEnergy_orig->SetFillColor(kBlue);
 
     hTotalE_fit->SetFillColor(kMagenta);
     hSingleEnergy_fit->SetFillColor(kMagenta);
-    hLowEnergy_fit->SetFillColor(kMagenta);
     hHighEnergy_fit->SetFillColor(kMagenta);
+    hLowEnergy_fit->SetFillColor(kMagenta);
+    hEnergySum_fit->SetFillColor(kMagenta);
+    hEnergyDiff_fit->SetFillColor(kMagenta);
     hHighLowEnergy_fit->SetFillColor(kMagenta);
 
     hTotalE_orig->SetLineColor(kBlue);
     hSingleEnergy_orig->SetLineColor(kBlue);
-    hLowEnergy_orig->SetLineColor(kBlue);
     hHighEnergy_orig->SetLineColor(kBlue);
+    hLowEnergy_orig->SetLineColor(kBlue);
+    hEnergySum_orig->SetLineColor(kBlue);
+    hEnergyDiff_orig->SetLineColor(kBlue);
     hHighLowEnergy_orig->SetLineColor(kBlue);
 
     hTotalE_fit->SetLineColor(kMagenta);
     hSingleEnergy_fit->SetLineColor(kMagenta);
-    hLowEnergy_fit->SetLineColor(kMagenta);
     hHighEnergy_fit->SetLineColor(kMagenta);
+    hLowEnergy_fit->SetLineColor(kMagenta);
+    hEnergySum_fit->SetLineColor(kMagenta);
+    hEnergyDiff_fit->SetLineColor(kMagenta);
     hHighLowEnergy_fit->SetLineColor(kMagenta);
 
     //hSingleEnergy_orig->SetMaximum(800.0);
@@ -683,7 +703,7 @@ void draw_outputdiff(const double *const AdjustActs,
             }
             else
             {
-                std::cout << "not adding to stack, Integral() <= 0: " << tmpHist->GetName() << std::endl;
+                //std::cout << "not adding to stack, Integral() <= 0: " << tmpHist->GetName() << std::endl;
             }
         }
         else

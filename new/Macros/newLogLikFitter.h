@@ -200,15 +200,17 @@ std::vector<int> disabled_params;
 // list of strings where each enabled parameter index is converted to string
 ////std::vector<TString> index_enabled_params; // TODO: is this used?
 
-static const int number1DHists = 4;
+static const int number1DHists = 6;
 static const int number2DHists = 1;
 
 const double channel_enable_1D[number1DHists] =
 {
-0, // hTotalE
-1, // hSingleEnergy
-0, // hLowEnergy
-0  // hHighEnergy
+1, // ch 0 = hTotalE
+0, // ch 1 = hSingleEnergy
+0, // ch 2 = hHighEnergy
+0, // ch 3 = hLowEnergy
+0, // ch 4 = hEnergySum
+0  // ch 5 = hEnergyDiff
 };
 
 const double channel_enable_2D[number2DHists] =
