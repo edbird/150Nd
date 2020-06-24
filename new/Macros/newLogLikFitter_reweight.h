@@ -71,14 +71,15 @@ void reweight_apply(
     const TString name_append = "";
 
 
-/*
     delete gROOT->FindObject("hTotalE_" + sampleName + name_append + "_reweight");
     delete gROOT->FindObject("hSingleEnergy_" + sampleName + name_append + "_reweight");
-    delete gROOT->FindObject("hLowEnergy_" + sampleName + name_append + "_reweight");
     delete gROOT->FindObject("hHighEnergy_" + sampleName + name_append + "_reweight");
+    delete gROOT->FindObject("hLowEnergy_" + sampleName + name_append + "_reweight");
+    delete gROOT->FindObject("hEnergySum_" + sampleName + name_append + "_reweight");
+    delete gROOT->FindObject("hEnergyDiff_" + sampleName + name_append + "_reweight");
     delete gROOT->FindObject("hHighLowEnergy_" + sampleName + name_append + "_reweight");
-    delete gROOT->FindObject("hWeight" + sampleName + name_append + "_reweight");
-*/
+    delete gROOT->FindObject("hWeight_" + sampleName + name_append + "_reweight");
+
 
     // TODO: this does not work, need to re-Fill histogram using file
     //output = input->Clone(input->GetName() + "_reweight");
@@ -96,15 +97,15 @@ void reweight_apply(
                                 "Phase " + Phase + " " + sampleName + name_append + " High Energy; Energy (MeV)",
                                 50, 0.0, 5.0);
 
-    hLowEnergy_output     = new TH1F("hLowEnergy_" + sampleName + name_append + "_rewight",
+    hLowEnergy_output     = new TH1F("hLowEnergy_" + sampleName + name_append + "_reweight",
                                 "Phase " + Phase + " " + sampleName + name_append + " Low Energy",
                                 50, 0.0, 5.0);
 
-    hEnergySum_output     = new TH1F("hEnergySum_" + sampleName + name_append + "_rewight",
+    hEnergySum_output     = new TH1F("hEnergySum_" + sampleName + name_append + "_reweight",
                                 "Phase " + Phase + " " + sampleName + name_append + " Low Energy",
                                 50, 0.0, 5.0);
 
-    hEnergyDiff_output     = new TH1F("hEnergyDiff_" + sampleName + name_append + "_rewight",
+    hEnergyDiff_output     = new TH1F("hEnergyDiff_" + sampleName + name_append + "_reweight",
                                 "Phase " + Phase + " " + sampleName + name_append + " Low Energy",
                                 50, 0.0, 5.0);
 
@@ -600,7 +601,8 @@ void reweight_apply(
     //std::string filePath = "/media/ecb/Maxtor/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2e/";
     //std::string filePath = "/media/ecb/backup/users/ecb/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2e/";
     // change to using md0 raid over network
-    std::string filePath = "/mnt/md0/users/ecb/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2e/";
+    //std::string filePath = "/mnt/md0/users/ecb/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2e/";
+    std::string filePath = "/mnt/ecb/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2e/";
     // TODO: this will break when changing to 2eNg
     // TODO: MOVE INTO INCLUDABLE HEADER FOR BOTH fit_2e.h and newLog...h
     TString sampleFiles_150Nd = Nd150Files[0];

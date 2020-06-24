@@ -244,14 +244,38 @@ void newloglikfitter_testmyphasespace(
     std::vector<TCanvas*> c_mps_v;
     std::vector<TH2D*> h_mps_v;
 
+    std::cout << "numberEnabledParams=" << numberEnabledParams << std::endl;
+    std::cout << "numberFreeParams=" << free_params.size() << std::endl;
+
     // loop over all combinations of parameters
-    for(int param_1_ix = 0; param_1_ix < numberEnabledParams; ++ param_1_ix)
+    //for(int param_1_ix = 0; param_1_ix < numberEnabledParams; ++ param_1_ix)
+    for(int free_params_index_1 = 0; free_params_index_1 < free_params.size(); ++ free_params_index_1)
     {
-        for(int param_2_ix = 0; param_2_ix < param_1_ix; ++ param_2_ix)
+        for(int free_params_index_2 = 0; free_params_index_2 < free_params_index_1; ++ free_params_index_2)
         {
+            int free_param_1 = free_params.at(free_params_index_1);
+            int free_param_2 = free_params.at(free_params_index_2);
+
+            int param_1_ix = paramNumberToMinuitParamNumberMap.at(free_param_1);
+            int param_2_ix = paramNumberToMinuitParamNumberMap.at(free_param_2);
 
             int param_1_ix_external = minuitParamNumberToParamNumberMap.at(param_1_ix);
             int param_2_ix_external = minuitParamNumberToParamNumberMap.at(param_2_ix);
+
+
+            std::cout << "free_params_index_1=" << free_params_index_1
+                      << " free_params_index_2=" << free_params_index_2
+                      << " free_param_1=" << free_param_1
+                      << " free_param_2=" << free_param_2
+                      << " param_1_ix=" << param_1_ix
+                      << " param_2_ix=" << param_2_ix
+                      << " param_1_ix_external=" << param_1_ix_external
+                      << " param_2_ix_external=" << param_2_ix_external
+                      << std::endl;
+                      //std::cin.get();
+
+
+
             
             TString param_1_ix_str_external;
             param_1_ix_str_external.Form("%i", param_1_ix_external);
@@ -265,10 +289,12 @@ void newloglikfitter_testmyphasespace(
 
             TCanvas *c_mps = new TCanvas(c_mps_name, c_mps_name);
             c_mps_v.push_back(c_mps);
-            c_mps = nullptr;
+            //c_mps = nullptr;
 
-            int n_param_1 = 100;
-            int n_param_2 = 100;
+            int n_param_1 = 200;
+            int n_param_2 = 1000;
+            int n_param_max = n_param_1 * n_param_2;
+            int c_param = 0;
 
             double param_1 = AdjustActs[param_1_ix];
             double sigma_1 = AdjustActs_Err[param_1_ix];
@@ -276,12 +302,38 @@ void newloglikfitter_testmyphasespace(
             double param_1_min = param_1 + width_1 * sigma_1 * (-0.5); //(-n_param_1 / 2);
             double param_1_max = param_1 + width_1 * sigma_1 * 0.5; //(n_param_1 - n_param_1 / 2);
 
+            // param 1 is gA
+            // custom range
+            param_1_min = -1.0;
+            param_1_max = 3.0;
+            sigma_1 = 1.0;
+            width_1 = param_1_max - param_1_min;
+            width_1 *= 2.0;
+    
+
             double param_2 = AdjustActs[param_2_ix];
             double sigma_2 = AdjustActs_Err[param_2_ix];
             double width_2 = 5.0;
             double param_2_min = param_2 + width_2 * sigma_2 * (-0.5); //(-n_param_2 / 2);
             double param_2_max = param_2 + width_2 * sigma_2 * 0.5; //(n_param_2 - n_param_2 / 2);
             
+            // param 2 is 150Nd amplitude
+            // custom range
+            param_2_min = 0.0;
+            param_2_max = 4.0;
+            sigma_2 = 1.0;
+            width_2 = param_1_max - param_1_min;
+            width_2 *= 2.0;
+
+            // -1.0, 1.0
+            // 0.0 .. 2.5
+
+            // x: 0.42: 0.36 .. 0.56
+            // y: 1.6: 1.5 .. 1.7
+
+            // x: -0.6 .. -0.4
+            // y: 0 .. 0.2
+
             TString h_mps_name_base = "h_mps";
             TString h_mps_name = h_mps_name_base + "_" + param_1_ix_str_external + "_" + param_2_ix_str_external;
 
@@ -320,6 +372,8 @@ void newloglikfitter_testmyphasespace(
             double fval_min = 0.0;
             logLikelihood(n_params, nullptr, fval_min, params, 0);
 
+            double min = std::numeric_limits<double>::infinity();
+
             // modify parameters
             //for(int n_1 = 0; n_1 <= n_param_1; ++ n_1)
             for(int n_1 = 0; n_1 < n_param_1; ++ n_1)
@@ -337,11 +391,24 @@ void newloglikfitter_testmyphasespace(
 
                     double t_param_1 = param_1 + width_1 * sigma_1 * a_1;
                     double t_param_2 = param_2 + width_2 * sigma_2 * a_2;
+                    t_param_1 = param_1_min + a_1 * (param_1_max - param_1_min);
+                    t_param_2 = param_2_min + a_2 * (param_2_max - param_2_min);
+
+
+                    //t_param_1 = h_mps->GetXaxis()->GetBinCenter(1 + n_1);
+                    t_param_1 = h_mps->GetXaxis()->GetBinCenter(h_mps->GetNbinsX() - n_1);
+                    //t_param_2 = h_mps->GetYaxis()->GetBinCenter(1 + n_2);
+                    t_param_2 = h_mps->GetYaxis()->GetBinCenter(h_mps->GetNbinsY() - n_2);
+
+                    std::cout << "t_param_1=" << t_param_1 << " t_param_2=" << t_param_2 << std::endl;
 
                     params[param_1_ix] = t_param_1;
                     params[param_2_ix] = t_param_2;
 
                     logLikelihood(n_params, nullptr, fval, params, 0);
+
+                    if(fval < min)
+                        min = fval;
 
                     /*
                     if(m == 50)
@@ -357,9 +424,11 @@ void newloglikfitter_testmyphasespace(
                     //h_mps->SetBinContent(n_1 + 1, n_2 + 1, fval - fval_min);
                     double step_1 = width_1 * sigma_1 * (double)1 / (double)n_param_1;
                     double step_2 = width_2 * sigma_2 * (double)1 / (double)n_param_2;
-                    h_mps->Fill(t_param_1 + step_1 / 2.0, t_param_2 + step_2 / 2.0, fval - fval_min);
+                    //h_mps->Fill(t_param_1 + step_1 / 2.0, t_param_2 + step_2 / 2.0, fval - fval_min);
+                    h_mps->Fill(t_param_1, t_param_2, fval);
                     // TODO: fval_min does not appear to always be the minimum
 
+                    /*
                     if(fval - fval_min <= 0.0)
                     {
                         std::cout << "dbg1: " << n_1 << " " << n_2 << " " << h_mps->GetBinContent(n_1, n_2) << std::endl;
@@ -371,18 +440,24 @@ void newloglikfitter_testmyphasespace(
                             std::cout << "dbg2: " << n_param_1 / 2 << " " << n_param_2 / 2 << " " << h_mps->GetBinContent(n_1, n_2) << std::endl;
                         }
                     }
+                    */
+
+                    ++ c_param;
+                    std::cout << c_param << " / " << n_param_max << std::endl;
                 }
             }
 
             h_mps->Draw("colz");
+            std::cout << "min=" << min << std::endl;
 
             h_mps = nullptr;
+            c_mps->SaveAs("mps.png");
             
         }
     }
 
 
-
+#if 0
     // reset params array
     // now code moved to new function, simply use new variables (local)
     int n_params = minuit->GetNumPars();
@@ -460,11 +535,11 @@ void newloglikfitter_testmyphasespace(
     }
 
     h_mps->Draw("colz");
-
+#endif
 
     
-    delete [] params;
-    delete [] param_errs;
+    //delete [] params;
+    //delete [] param_errs;
 
 
 }

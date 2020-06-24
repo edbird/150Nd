@@ -25,6 +25,14 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
 {
 
 
+    // error mode
+    // 1 = data
+    // 2 = MC
+    // 3 = both in quadrature
+
+    const int EMODE = 2;
+    // TODO
+
 
 
     // 2020-06-17
@@ -222,6 +230,7 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
         // NOTE: 2020-06-17 this was a bug, removed
 
         TH1F *hWeight = nullptr;
+        std::cout << "before reweight_apply()" << std::endl;
         reweight_apply(
             hTotalE,
             hSingleEnergy,
@@ -239,6 +248,7 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
             psiN0,
             psiN2,
             bb_Q);
+        std::cout << "after reweight_apply()" << std::endl;
 
         // TODO: just another example of manual code edits
         // make a file describing the channels to fit as well as the parameters
@@ -432,7 +442,7 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
             // this may not be correct, since all plots appear identical
             // indicating that something is not being computed correctly
 
-            if(nMC > 0.)
+            if(nMC >= 0.)
             {
                 Double_t poisson = TMath::Poisson(nData, nMC);
                 if(poisson > 0.)
@@ -542,7 +552,7 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
 
                 double nMC = getNumberMC2D(channel, bin_ix, bin_iy, p);
 
-                if(nMC > 0.)
+                if(nMC >= 0.)
                 {
                     Double_t poisson = TMath::Poisson(nData, nMC);
                     if(poisson > 0.)
@@ -764,7 +774,14 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
 
         double value = param_value * activity_value_Bq;
         //double penalty = std::pow((param_value - constraint) / error, 2.0);
-        double penalty = std::pow((value - constraint) / error, 2.0);
+        double penalty = 0.0;
+        if(EMODE == 1)
+        {
+            penalty = std::pow((value - constraint) / error, 2.0);
+        }
+        // TODO
+
+
         // TODO: penalty term should be a Gaussian constraint?
         // NOTE: gaussian constraint, after taking log, is the same as
         // quadratic constraint - however there is the issue of a remaining
@@ -942,6 +959,12 @@ Double_t getNumberMC1D(
                 std::cin.get();
             }
 
+            if(which_param == 1)
+            {
+                std::cout << "Error: which_param == 1 !" << std::endl;
+                std::cin.get();
+            }
+
             nMC += p[which_param] * (double)tmpHist->GetBinContent(bin_ix);
 
         }
@@ -1033,6 +1056,12 @@ Double_t getNumberMC2D(
             {
                 //std::cout << "parameter number " << param_number << " is disabled" << std::endl;
                 std::cout << "ERROR: which_param=" << which_param << " - parameter is DISABLED" << std::endl;
+                std::cin.get();
+            }
+
+            if(which_param == 1)
+            {
+                std::cout << "Error: which_param == 1 !" << std::endl;
                 std::cin.get();
             }
 

@@ -385,8 +385,17 @@ void loadFiles()
     // need to fit Nd150 parameter only
     // disabled in fitBackgrounds function
     
+    // needs to remain enabled to define parameters in minuit
     TMinuit *minuit = fitBackgrounds(AdjustActs, AdjustActs_Err, CovMatrix, number_free_params, thePhase);
 
+
+
+
+    std::cout << "ready to test MPS" << std::endl;
+    newloglikfitter_testmyphasespace(minuit, AdjustActs, AdjustActs_Err);
+    std::cout << "MPS done" << std::endl;
+
+   
 
     if(0)
     {
@@ -623,8 +632,10 @@ void loadFiles()
     ofoutaux.close();
     */
 
+// TODO
+/*
     draw_all(AdjustActs, AdjustActs_Err, CovMatrix, number_free_params);
-
+*/
 
 
 
@@ -998,8 +1009,10 @@ TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&Co
     //minuit->mnsimp();
     std::cout << "calling: minuit->Migrad()" << std::endl;
 
-    
-    newloglikfitter_gA_chisquaretest(minuit, AdjustActs, AdjustActs_Err);
+
+// draw 1D histograms, write chisquare values to file for range of
+// different gA values
+//    newloglikfitter_gA_chisquaretest(minuit, AdjustActs, AdjustActs_Err);
 
     /*
     Int_t npar = 0;
@@ -1022,7 +1035,9 @@ TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&Co
     std::cin.get();
     */
 
-    minuit->Migrad();
+
+// TODO: re-enable
+//    minuit->Migrad();
 
 
     // Then get results
