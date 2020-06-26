@@ -442,43 +442,65 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
             // this may not be correct, since all plots appear identical
             // indicating that something is not being computed correctly
 
-            if(nMC >= 0.)
+            if(nMC >= 1.0e-05)
+//            if(nMC >= 0.0)
             {
-                Double_t poisson = TMath::Poisson(nData, nMC);
-                if(poisson > 0.)
+                //
+                // if n is large, then exp(-n) may fail in Poisson calc
+                // n! may also fail, so use Stirling
+                //
+                // so calculate LL from expansion of log
+                //
+                if(nMC > 100.0)
                 {
-                    //std::cout << "adding loglik value : " << TMath::Log(poisson) << " bin_ix=" << bin_ix << " poisson=" << poisson << std::endl;
-	                ll_channel += TMath::Log(poisson);
-                    // adding positive number makes fval go down
-                    // NOTE: Log(poisson) is always negative! so fval goes UP NOT DOWN
-                    // log is taken here, should I take log of the penalty term?
-                    // TODO: answer above question
-                    // TODO: are there any conditions for which this can be negative?
-                    // poisson is a probability, so values are between 0 and 1 which means that
-                    // log of this value is always negative
+                    // nMC > 1.0e-05 here already
+                    const double l = nMC;
+                    const double n = nData;
+                    const double stirling = n*TMath::Log(n) - n;
+                    ll_channel += -l + n*TMath::Log(l) - stirling;
                 }
                 else
                 {
-                    // MARK have not tested this yet
-                    // can this ever happen? is this the correct way to deal
-                    // with the problem?
-                    //std::cout << "catch: poisson" << std::endl;
-                    // this does not appear to happen
+                    Double_t poisson = TMath::Poisson(nData, nMC);
+                    if(poisson > 0.)
+                    {
+                        //std::cout << "adding loglik value : " << TMath::Log(poisson) << " bin_ix=" << bin_ix << " poisson=" << poisson << std::endl;
+                        ll_channel += TMath::Log(poisson);
+                        // adding positive number makes fval go down
+                        // NOTE: Log(poisson) is always negative! so fval goes UP NOT DOWN
+                        // log is taken here, should I take log of the penalty term?
+                        // TODO: answer above question
+                        // TODO: are there any conditions for which this can be negative?
+                        // poisson is a probability, so values are between 0 and 1 which means that
+                        // log of this value is always negative
+                    }
+                    else
+                    {
+                        // MARK have not tested this yet
+                        // can this ever happen? is this the correct way to deal
+                        // with the problem?
+                        //std::cout << "catch: poisson" << std::endl;
+                        // this does not appear to happen
 
-                    //std::cout << "adding penalty of -10. to loglik bin_ix=" << bin_ix << " nMC=" << nMC << " poisson=" << poisson << std::endl;
-                    // TODO: should this be removed? check for bins where ndata = 0?
+                        //std::cout << "adding penalty of -10. to loglik bin_ix=" << bin_ix << " nMC=" << nMC << " poisson=" << poisson << std::endl;
+                        // TODO: should this be removed? check for bins where ndata = 0?
 
-                    // TODO: there were a lot of failures here
-                    //std::cout << "ERROR: failed to evaluate TMath::Poisson()=" << poisson << " -> nData=" << nData << ", nMC=" << nMC << "; bin_ix=" << bin_ix << std::endl;
-	                //loglik -= 10.;
-                    // subtracting positive number makes fval go up
-                    // TODO: this may not be a large enough penalty
+                        // TODO: there were a lot of failures here
+                        //std::cout << "ERROR: failed to evaluate TMath::Poisson()=" << poisson << " -> nData=" << nData << ", nMC=" << nMC << "; bin_ix=" << bin_ix << std::endl;
+                        //loglik -= 10.;
+                        // subtracting positive number makes fval go up
+                        // TODO: this may not be a large enough penalty
 
-                    // TODO: removed this
+                        // TODO: removed this
+                        std::cout << "poisson = " << poisson << std::endl;
+                        std::cout << "bin_ix=" << bin_ix << std::endl;
+                        std::cout << "(1): " << nData << ", " << nMC << std::endl;
+                        throw "poisson > 0.";
+                    }
                 }
             }
-            else
-            {
+            //else
+            //{
                 // MARK have not tested this yet
                 // not sure we are dealing with zero bins correctly, should
                 // ignore?
@@ -489,6 +511,27 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
                 // subtracting positive number makes fval go up
                 //loglik -= 10.;
                 // 2020-04-17: removed, should I have something here?
+            //}
+            else
+            {
+                if(nMC >= 1.0e-05)
+                {
+                    std::cout << "nMC=" << nMC << std::endl;
+                }
+
+                std::cout << "nMC=" << nMC << std::endl;
+                Double_t poisson = TMath::Poisson(nData, 1.0e-05);
+                if(poisson > 0.)
+                {
+                    ll_channel += TMath::Log(poisson); 
+                }
+                else
+                {
+                    std::cout << "poisson = " << poisson << std::endl;
+                    std::cout << "bin_ix=" << bin_ix << std::endl;
+                    std::cout << "(2): " << nData << ", " << nMC << std::endl;
+                    throw "poisson > 0.";
+                }
             }
         
         } //~bins

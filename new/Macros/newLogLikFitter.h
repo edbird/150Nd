@@ -206,7 +206,7 @@ static const int number2DHists = 1;
 const double channel_enable_1D[number1DHists] =
 {
 0, // ch 0 = hTotalE
-0, // ch 1 = hSingleEnergy
+1, // ch 1 = hSingleEnergy
 0, // ch 2 = hHighEnergy
 0, // ch 3 = hLowEnergy
 0, // ch 4 = hEnergySum
@@ -215,7 +215,7 @@ const double channel_enable_1D[number1DHists] =
 
 const double channel_enable_2D[number2DHists] =
 {
-1  // hHighLowEnergy
+0  // hHighLowEnergy
 };
 
 // global variable to hold chisquare result

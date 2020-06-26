@@ -291,8 +291,8 @@ void newloglikfitter_testmyphasespace(
             c_mps_v.push_back(c_mps);
             //c_mps = nullptr;
 
-            int n_param_1 = 200;
-            int n_param_2 = 1000;
+            int n_param_1 = 50;
+            int n_param_2 = 50;
             int n_param_max = n_param_1 * n_param_2;
             int c_param = 0;
 
@@ -304,8 +304,8 @@ void newloglikfitter_testmyphasespace(
 
             // param 1 is gA
             // custom range
-            param_1_min = -1.0;
-            param_1_max = 3.0;
+            param_1_min = -0.5;
+            param_1_max = 2.5;
             sigma_1 = 1.0;
             width_1 = param_1_max - param_1_min;
             width_1 *= 2.0;

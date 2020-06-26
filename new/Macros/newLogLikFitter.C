@@ -386,15 +386,61 @@ void loadFiles()
     // disabled in fitBackgrounds function
     
     // needs to remain enabled to define parameters in minuit
+//    TMinuit *minuit = nullptr;
     TMinuit *minuit = fitBackgrounds(AdjustActs, AdjustActs_Err, CovMatrix, number_free_params, thePhase);
 
 
+#if 0
+    std::ofstream os("parab.csv");
+    const double gA_param_min = -0.5;
+    const double gA_param_max = 3.0;
+    const int nsteps = 20;
+    for(int i = 0; i <= nsteps; ++ i)
+    {
+        int number_free_params = -1;
+        double *CovMatrix = nullptr;
+
+        double gA_param = gA_param_min + (gA_param_max - gA_param_min) * ((double)i / (double)(nsteps));
+        AdjustActs[1] = gA_param;
+//        std::cout << "gA=" << gA_param << std::endl;
+//        std::cin.get();
+        //fitBackgrounds_setparams(minuit, AdjustActs, AdjustActs_Err);
+        TMinuit *new_minuit = fitBackgrounds(AdjustActs, AdjustActs_Err, CovMatrix, number_free_params, thePhase);
 
 
-    std::cout << "ready to test MPS" << std::endl;
-    newloglikfitter_testmyphasespace(minuit, AdjustActs, AdjustActs_Err);
-    std::cout << "MPS done" << std::endl;
+        const double width = 0.1;
+        const double nnsteps = 20;
+        int n_params = new_minuit->GetNumPars();
+        double *params = new double[n_params];
+        double *params_err = new double[n_params];
+        for(int jx = 0; jx < n_params; ++ jx)
+        {
+            new_minuit->GetParameter(jx, params[jx], params_err[jx]);
+        }
+//        std::cout << "params[1]=" << params[1] << std::endl;
+//        std::cin.get();
+        const double min = params[0] - width;
+        const double max = params[0] + width;
+        os << "i=" << i << std::endl;
+        for(int i = 0; i <= nnsteps; ++ i)
+        {
+            double fval = 0.0;
+            double a = (double)i / (double)nnsteps;
+            params[0] = min + (max - min) * a;
+            logLikelihood(n_params, nullptr, fval, params, 0);
+            os << params[0] << "," << params[1] << "," << fval << std::endl;
+        }
+    }
+    return 0;
+#endif
 
+
+    if(1)
+    {
+        std::cout << "ready to test MPS" << std::endl;
+        newloglikfitter_testmyphasespace(minuit, AdjustActs, AdjustActs_Err);
+        std::cout << "MPS done" << std::endl;
+    }
    
 
     if(0)
@@ -685,14 +731,14 @@ void loadFiles()
 // fitBackgrounds
 ///////////////////////////////////////////////////////////////////////////////
 
-//void fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&CovMatrix, int& number_free_params, Int_t thePhase)
-TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&CovMatrix, int& number_free_params, Int_t thePhase)
+
+
+TMinuit* fitBackgrounds_init(double *AdjustActs, double *AdjustActs_Err)
 {
+//    std::cout << " 1 " << AdjustActs[1] << std::endl;
+//    std::cin.get();
 
-    
-    
-
-    std::cout << ">>>>> fitBackgrounds()" << std::endl;
+    std::cout << ">>>>> fitBackgrounds_init()" << std::endl;
 
     //TVirtualFitter::SetDefaultFitter("Minuit2");
     
@@ -784,6 +830,8 @@ TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&Co
             // 2020-06-17
             if(i == 1)
             {
+//                std::cout << "i 1 fixed " << AdjustActs[i] << std::endl;
+//                std::cin.get();
                 minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_FIXED", AdjustActs[i], 0.5, 0.0, 50.0);
             }
             else
@@ -822,6 +870,8 @@ TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&Co
             
             if(i == 1)
             {
+//                std::cout << "i 1 not fixed " << AdjustActs[i] << std::endl;
+//                std::cin.get();
                 // TODO: fix this
                 // does not work if xi_31 paramter is not number 1
                 //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", xi_31_init, 0.5, 0.0, 1000.0);
@@ -1036,9 +1086,24 @@ TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&Co
     */
 
 
-// TODO: re-enable
-//    minuit->Migrad();
+    return minuit;
+}
 
+
+
+void fitBackgrounds_setparams(TMinuit *minuit, double *AdjustActs, double *AdjustActs_Err)
+{
+
+}
+
+
+void fitBackgrounds_exec(TMinuit *minuit, double *AdjustActs, double *AdjustActs_Err)
+{
+//                std::cout << "i 1 exec: " << AdjustActs[i] << std::endl;
+//                std::cin.get();
+
+    // TODO: re-enable
+    minuit->Migrad();
 
     // Then get results
     //for(int i = 0; i < numberParams; i++)
@@ -1046,16 +1111,21 @@ TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&Co
     {
         minuit->GetParameter(i, AdjustActs[i], AdjustActs_Err[i]);
     }
+ }
 
-   
+
+
+void fitBackgrounds_postexectest(TMinuit *minuit, double *AdjustActs, double *AdjustActs_Err)
+{
+
+
+    // TODO: remove AdjustActs, AdjustActs_Err arguments?
+    // Do I want these to be copy of original values
+
     if(0)
     {
         newloglikfitter_100Mo_chisquaretest(minuit, AdjustActs, AdjustActs_Err);
     }
-
-
-    
-
 
     // Some people have seen further by standing on the shoulders of giants.
     // In my case, my vision has been obscured by floundering hopeless idiots
@@ -1070,6 +1140,11 @@ TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&Co
     }
 
 
+}
+
+
+void fitBackgrounds_getcovmatrix(TMinuit* minuit, double *&CovMatrix, int& number_free_params)
+{
 
     // TODO: this no longer works, or does it?
     // needs to take into account the number of ENABLED free params
@@ -1080,14 +1155,27 @@ TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&Co
     {
         CovMatrix[ix] = 0.;
     }
-    minuit->mnemat(CovMatrix, number_free_params);
-
-  
-    return minuit;
+    minuit->mnemat(CovMatrix, number_free_params);  
 
 }
 
 
+
+
+//void fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&CovMatrix, int& number_free_params, Int_t thePhase)
+TMinuit* fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&CovMatrix, int& number_free_params, Int_t thePhase)
+{
+
+    std::cout << ">>>>> fitBackgrounds()" << std::endl;
+    
+    TMinuit* minuit = fitBackgrounds_init(AdjustActs, AdjustActs_Err);
+    //fitBackgrounds_exec(minuit, AdjustActs, AdjustActs_Err);
+    //fitBackgrounds_postexectest(minuit, AdjustActs, AdjustActs_Err);
+    //fitBackgrounds_getcovmatrix(minuit, CovMatrix, number_free_params);
+
+    return minuit;
+
+}
 
 
 
