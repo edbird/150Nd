@@ -202,5 +202,6 @@ TString NeighbourFiles[nNeighbours] =
 
 
 TString DataFile = "data_2e";
+//TString FakeDataFile = "data_2e_fake";
 
 #endif

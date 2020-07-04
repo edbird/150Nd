@@ -46,8 +46,9 @@ void do_test_xi_31_test1(double *const AdjustActs, double* const AdjustActs_Err)
             TH1F *hHighEnergy_data = nullptr;
             TH1F *hLowEnergy_data = nullptr;
 
-            draw(AdjustActs, AdjustActs_Err, std::string("hTotalE_") + std::string(xi_31_str) + std::string(".png"),
-                    hHighEnergy_allMC, hLowEnergy_allMC, hHighEnergy_data, hLowEnergy_data);
+            draw(AdjustActs, AdjustActs_Err, -1.0,
+                    hHighEnergy_allMC, hLowEnergy_allMC, hHighEnergy_data, hLowEnergy_data,
+                    std::string("hTotalE_") + std::string(xi_31_str) + std::string(".png"));
             
             draw_2D(AdjustActs, AdjustActs_Err, std::string("hHighLowEnergy_") + std::string(xi_31_str) + std::string(".png"),
                     hHighEnergy_allMC, hLowEnergy_allMC, hHighEnergy_data, hLowEnergy_data);
@@ -135,7 +136,7 @@ void newloglikfitter_gA_chisquaretest(
         TH1F *hLowEnergy_allMC = nullptr;
         TH1F *hHighEnergy_data = nullptr;
         TH1F *hLowEnergy_data = nullptr;
-        draw(params, param_errs, saveas_filename, hHighEnergy_allMC, hLowEnergy_allMC, hHighEnergy_data, hLowEnergy_data);
+        draw(params, param_errs, fval, hHighEnergy_allMC, hLowEnergy_allMC, hHighEnergy_data, hLowEnergy_data, saveas_filename, ".", false);
 
         ofstream_testvalue << "value," << test_value << ",chisquare," << fval << std::endl;
 
@@ -241,8 +242,8 @@ void newloglikfitter_testmyphasespace(
     ///////////////////////////////////////////////////////////////////////////
 
 
-    std::vector<TCanvas*> c_mps_v;
-    std::vector<TH2D*> h_mps_v;
+    //std::vector<TCanvas*> c_mps_v;
+    //std::vector<TH2D*> h_mps_v;
 
     std::cout << "numberEnabledParams=" << numberEnabledParams << std::endl;
     std::cout << "numberFreeParams=" << free_params.size() << std::endl;
@@ -287,43 +288,45 @@ void newloglikfitter_testmyphasespace(
             
             std::cout << "rendering: " << c_mps_name << std::endl;
 
-            TCanvas *c_mps = new TCanvas(c_mps_name, c_mps_name);
-            c_mps_v.push_back(c_mps);
-            //c_mps = nullptr;
-
-            int n_param_1 = 50;
-            int n_param_2 = 50;
+            int n_param_1 = 1000; //300;
+            int n_param_2 = 1000; //300;
             int n_param_max = n_param_1 * n_param_2;
             int c_param = 0;
 
-            double param_1 = AdjustActs[param_1_ix];
-            double sigma_1 = AdjustActs_Err[param_1_ix];
-            double width_1 = 5.0;
-            double param_1_min = param_1 + width_1 * sigma_1 * (-0.5); //(-n_param_1 / 2);
-            double param_1_max = param_1 + width_1 * sigma_1 * 0.5; //(n_param_1 - n_param_1 / 2);
+            //double param_1 = AdjustActs[param_1_ix];
+            //double sigma_1 = AdjustActs_Err[param_1_ix];
+            //double width_1 = 5.0;
+            //double param_1_min = param_1 + width_1 * sigma_1 * (-0.5); //(-n_param_1 / 2);
+            //double param_1_max = param_1 + width_1 * sigma_1 * 0.5; //(n_param_1 - n_param_1 / 2);
+
+            double param_1_min;
+            double param_1_max;
 
             // param 1 is gA
             // custom range
-            param_1_min = -0.5;
-            param_1_max = 2.5;
-            sigma_1 = 1.0;
-            width_1 = param_1_max - param_1_min;
-            width_1 *= 2.0;
+            param_1_min = -0.5; //1.0; //-0.5;
+            param_1_max = 2.5; //5.0; //2.5;
+            //sigma_1 = 1.0;
+            //width_1 = param_1_max - param_1_min;
+            //width_1 *= 2.0;
     
 
-            double param_2 = AdjustActs[param_2_ix];
-            double sigma_2 = AdjustActs_Err[param_2_ix];
-            double width_2 = 5.0;
-            double param_2_min = param_2 + width_2 * sigma_2 * (-0.5); //(-n_param_2 / 2);
-            double param_2_max = param_2 + width_2 * sigma_2 * 0.5; //(n_param_2 - n_param_2 / 2);
+            //double param_2 = AdjustActs[param_2_ix];
+            //double sigma_2 = AdjustActs_Err[param_2_ix];
+            //double width_2 = 5.0;
+            //double param_2_min = param_2 + width_2 * sigma_2 * (-0.5); //(-n_param_2 / 2);
+            //double param_2_max = param_2 + width_2 * sigma_2 * 0.5; //(n_param_2 - n_param_2 / 2);
+
+            double param_2_min;
+            double param_2_max;
             
             // param 2 is 150Nd amplitude
             // custom range
             param_2_min = 0.0;
             param_2_max = 4.0;
-            sigma_2 = 1.0;
-            width_2 = param_1_max - param_1_min;
-            width_2 *= 2.0;
+            //sigma_2 = 1.0;
+            //width_2 = param_2_max - param_2_min;
+            //width_2 *= 2.0;
 
             // -1.0, 1.0
             // 0.0 .. 2.5
@@ -337,22 +340,22 @@ void newloglikfitter_testmyphasespace(
             TString h_mps_name_base = "h_mps";
             TString h_mps_name = h_mps_name_base + "_" + param_1_ix_str_external + "_" + param_2_ix_str_external;
 
-            std::cout << h_mps_name << " param_1=" << param_1 << " sigma_1=" << sigma_1
-                                    << " param_1_min=" << param_1_min << " param_1_max=" << param_1_max
-                                    << " param_2=" << param_2 << " sigma_2=" << sigma_2
-                                    << " param_2_min=" << param_2_min << " param_2_max=" << param_2_max
-                                    << std::endl;
+            //std::cout << h_mps_name << " param_1=" << param_1 << " sigma_1=" << sigma_1
+            //                        << " param_1_min=" << param_1_min << " param_1_max=" << param_1_max
+            //                        << " param_2=" << param_2 << " sigma_2=" << sigma_2
+            //                        << " param_2_min=" << param_2_min << " param_2_max=" << param_2_max
+            //                        << std::endl;
 
             TH2D *h_mps = new TH2D(h_mps_name, h_mps_name,
                                    n_param_1, param_1_min, param_1_max,
                                    n_param_2, param_2_min, param_2_max); 
-            h_mps_v.push_back(h_mps);
+            //h_mps_v.push_back(h_mps);
             //h_mps = nullptr;
 
             //h_mps->GetZaxis()->SetRangeUser(0.0, 1.0e+04);
             h_mps->SetContour(1000);
             
-            TString param_1_name_str = TString(paramNameMap[param_1_ix_external].c_str());
+            TString param_1_name_str = TString(paramNameMap[param_1_ix_external]);
             TString param_2_name_str = TString(paramNameMap[param_2_ix_external]);
 
             h_mps->GetXaxis()->SetTitle(param_1_name_str);
@@ -366,6 +369,7 @@ void newloglikfitter_testmyphasespace(
             for(int jx = 0; jx < n_params; ++ jx)
             {
                 minuit->GetParameter(jx, params[jx], param_errs[jx]);
+                //std::cout << "jx=" << jx << " params[" << jx << "]=" << params[jx] << std::endl;
             }
 
             // get minimum
@@ -373,6 +377,8 @@ void newloglikfitter_testmyphasespace(
             logLikelihood(n_params, nullptr, fval_min, params, 0);
 
             double min = std::numeric_limits<double>::infinity();
+            double min_x = -1.0;
+            double min_y = -1.0;
 
             // modify parameters
             //for(int n_1 = 0; n_1 <= n_param_1; ++ n_1)
@@ -386,29 +392,44 @@ void newloglikfitter_testmyphasespace(
 
                     double fval = 0.;
 
-                    double a_1 = (double)n_1 / (double)n_param_1 - 0.5;
-                    double a_2 = (double)n_2 / (double)n_param_2 - 0.5;
+                    //double a_1 = (double)n_1 / (double)n_param_1 - 0.5;
+                    //double a_2 = (double)n_2 / (double)n_param_2 - 0.5;
 
-                    double t_param_1 = param_1 + width_1 * sigma_1 * a_1;
-                    double t_param_2 = param_2 + width_2 * sigma_2 * a_2;
-                    t_param_1 = param_1_min + a_1 * (param_1_max - param_1_min);
-                    t_param_2 = param_2_min + a_2 * (param_2_max - param_2_min);
+                    //double t_param_1 = param_1 + width_1 * sigma_1 * a_1;
+                    //double t_param_2 = param_2 + width_2 * sigma_2 * a_2;
+                    //t_param_1 = param_1_min + a_1 * (param_1_max - param_1_min);
+                    //t_param_2 = param_2_min + a_2 * (param_2_max - param_2_min);
 
+                    double t_param_1 = 0.0;
+                    double t_param_2 = 0.0;
 
                     //t_param_1 = h_mps->GetXaxis()->GetBinCenter(1 + n_1);
                     t_param_1 = h_mps->GetXaxis()->GetBinCenter(h_mps->GetNbinsX() - n_1);
                     //t_param_2 = h_mps->GetYaxis()->GetBinCenter(1 + n_2);
                     t_param_2 = h_mps->GetYaxis()->GetBinCenter(h_mps->GetNbinsY() - n_2);
 
-                    std::cout << "t_param_1=" << t_param_1 << " t_param_2=" << t_param_2 << std::endl;
+                    //std::cout << "t_param_1=" << t_param_1 << " t_param_2=" << t_param_2 << std::endl;
 
                     params[param_1_ix] = t_param_1;
                     params[param_2_ix] = t_param_2;
 
+                    TH1F *junk1, *junk2, *junk3, *junk4;
+                    TString savename;
+                    savename.Form("%s_%d_%d.png", h_mps_name.Data(), n_1, n_2);
+                    //draw(params, nullptr, fval, junk1, junk2, junk3, junk4, std::string(savename), ".", true);
+                    //draw_channel(1, params, -1.0, "NOSAVE");
+
+                    //std::cin.get();
+
                     logLikelihood(n_params, nullptr, fval, params, 0);
+                    //draw(params, nullptr, fval, junk1, junk2, junk3, junk4, std::string(savename), ".", true);
 
                     if(fval < min)
+                    {
                         min = fval;
+                        min_x = t_param_1;
+                        min_y = t_param_2;
+                    }
 
                     /*
                     if(m == 50)
@@ -422,8 +443,8 @@ void newloglikfitter_testmyphasespace(
 
                     //h_mps->Fill(n, m, fval);
                     //h_mps->SetBinContent(n_1 + 1, n_2 + 1, fval - fval_min);
-                    double step_1 = width_1 * sigma_1 * (double)1 / (double)n_param_1;
-                    double step_2 = width_2 * sigma_2 * (double)1 / (double)n_param_2;
+                    //double step_1 = width_1 * sigma_1 * (double)1 / (double)n_param_1;
+                    //double step_2 = width_2 * sigma_2 * (double)1 / (double)n_param_2;
                     //h_mps->Fill(t_param_1 + step_1 / 2.0, t_param_2 + step_2 / 2.0, fval - fval_min);
                     h_mps->Fill(t_param_1, t_param_2, fval);
                     // TODO: fval_min does not appear to always be the minimum
@@ -443,12 +464,30 @@ void newloglikfitter_testmyphasespace(
                     */
 
                     ++ c_param;
-                    std::cout << c_param << " / " << n_param_max << std::endl;
+                    //std::cout << c_param << " / " << n_param_max << std::endl;
                 }
+                std::cout << c_param << " / " << n_param_max << std::endl;
             }
 
-            h_mps->Draw("colz");
-            std::cout << "min=" << min << std::endl;
+            TCanvas *c_mps = new TCanvas(c_mps_name, c_mps_name);
+            c_mps->SetLogz();
+            TVirtualPad *padret = c_mps->cd();
+            if(padret == nullptr)
+            {
+                std::cout << "PAD FAIL" << std::endl;
+                std::cin.get();
+            }
+            //c_mps->GetPad()->cd();
+            //c_mps_v.push_back(c_mps);
+            //c_mps = nullptr;
+            //c_mps->cd();
+            h_mps->DrawClone("colz");
+            std::cout << "min=" << min << " min_x=" << min_x << " min_y=" << min_y << std::endl;
+            //double clevels[3] = {min + 1.0, min + 2.0, min + 3.0};
+            double clevels[3] = {min + 2.30, min + 4.61, min + 9.21};
+            h_mps->SetLineColor(kWhite);
+            h_mps->SetContour(3, clevels);
+            h_mps->DrawClone("cont2same");
 
             h_mps = nullptr;
             c_mps->SaveAs("mps.png");

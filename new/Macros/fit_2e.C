@@ -106,7 +106,6 @@ void loadFiles()
     makeHistograms("betabeta/", DataFile, ofile_cutcount, 1);
     std::cout << "... DONE." << std::endl;
 
-
     // Read in all the backgrounds: externals, Rn222, Rn220, internals and neighbouring foils
     std::cout << std::endl;
     std::cout << ">>>>> Reading in external backgrounds..." << std::endl;
@@ -2244,7 +2243,7 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
         if(hit_counter != nTotalClusterHits)
         {
             std::cout << "hit_counter=" << hit_counter << ", nTotalClusterHits=" << nTotalClusterHits << std::endl;
-            std:cin.get();
+            std::cin.get();
         }
 
 

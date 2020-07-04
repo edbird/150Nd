@@ -199,6 +199,7 @@ void book2DHistograms(Int_t channel_counter, TString theChannel, TString thePhas
     //std::string name(theHistogram + "data_2e");
     std::string directory("processeddata/" + theHistogram + "/");
     std::string name(theHistogram + "data_2e");
+    //std::string fake_data_name(theHistogram + "data_2e_fake");
     std::string fullname = directory + name;
     std::cout << "fullname=" << fullname << std::endl;
 

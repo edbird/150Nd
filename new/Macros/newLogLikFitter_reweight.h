@@ -66,57 +66,146 @@ void reweight_apply(
     const Double_t bb_Q)
 {
 
+    std::cout << "reweight_apply" << std::endl;
+
     //const TString sampleName = "nd150_rot_2n2b_m4";
     const TString sampleName = Nd150Files[0];
     const TString name_append = "";
 
 
-    delete gROOT->FindObject("hTotalE_" + sampleName + name_append + "_reweight");
-    delete gROOT->FindObject("hSingleEnergy_" + sampleName + name_append + "_reweight");
-    delete gROOT->FindObject("hHighEnergy_" + sampleName + name_append + "_reweight");
-    delete gROOT->FindObject("hLowEnergy_" + sampleName + name_append + "_reweight");
-    delete gROOT->FindObject("hEnergySum_" + sampleName + name_append + "_reweight");
-    delete gROOT->FindObject("hEnergyDiff_" + sampleName + name_append + "_reweight");
-    delete gROOT->FindObject("hHighLowEnergy_" + sampleName + name_append + "_reweight");
-    delete gROOT->FindObject("hWeight_" + sampleName + name_append + "_reweight");
+    TH1F *hTotalE = (TH1F*)gROOT->FindObject("hTotalE_" + sampleName + name_append + "_reweight");
+    if(hTotalE == nullptr)
+    {
+        std::cout << "hTotalE nullptr!" << std::endl;
+        //std::cin.get();
+    }
+    else
+    {
+        delete hTotalE;
+    }
+
+    TH1F *hSingleEnergy = (TH1F*)gROOT->FindObject("hSingleEnergy_" + sampleName + name_append + "_reweight");
+    if(hSingleEnergy == nullptr)
+    {
+        std::cout << "hSingleEnergy nullptr!" << std::endl;
+    }
+    else
+    {
+        delete hSingleEnergy;
+    }
+    
+    TH1F *hHighEnergy =  (TH1F*)gROOT->FindObject("hHighEnergy_" + sampleName + name_append + "_reweight");
+    if(hHighEnergy == nullptr)
+    {
+        std::cout << "hHighEnergy nullptr!" << std::endl;
+    }
+    else
+    {
+        delete hHighEnergy;
+    }
+    
+    TH1F* hLowEnergy = (TH1F*)gROOT->FindObject("hLowEnergy_" + sampleName + name_append + "_reweight");
+    if(hLowEnergy == nullptr)
+    {
+        std::cout << "hLowEnergy nullptr!" << std::endl;
+    }
+    else
+    {
+        delete hLowEnergy;
+    }
+    
+    TH1F* hEnergySum = (TH1F*)gROOT->FindObject("hEnergySum_" + sampleName + name_append + "_reweight");
+    if(hEnergySum == nullptr)
+    {
+        std::cout << "hEnergySum nullptr!" << std::endl;
+    }
+    else
+    {
+        delete hEnergySum;
+    }
+    
+    TH1F* hEnergyDiff = (TH1F*)gROOT->FindObject("hEnergyDiff_" + sampleName + name_append + "_reweight");
+    if(hEnergyDiff == nullptr)
+    {
+        std::cout << "hEnergyDiff nullptr!" << std::endl;
+    }
+    else
+    {
+        delete hEnergyDiff;
+    }
+    
+    TH2F* hHighLowEnergy = (TH2F*)gROOT->FindObject("hHighLowEnergy_" + sampleName + name_append + "_reweight");
+    if(hHighLowEnergy == nullptr)
+    {
+        std::cout << "hHighLowEnergy nullptr!" << std::endl;
+    }
+    else
+    {
+        delete hHighLowEnergy;
+    }
+    
+    TH1F* hWeight = (TH1F*)gROOT->FindObject("hWeight_" + sampleName + name_append + "_reweight");
+    if(hWeight == nullptr)
+    {
+        std::cout << "hWeight nullptr!" << std::endl;
+    }
+    else
+    {
+        delete hWeight;
+    }
+
+    //std::cout << "gROOT" << std::endl;
+    //std::cout << gROOT->GetListOfClasses() << std::endl;
+    //gROOT->GetListOfClasses()->Print();
+    //gDirectory->ls();
 
 
     // TODO: this does not work, need to re-Fill histogram using file
     //output = input->Clone(input->GetName() + "_reweight");
+    std::cout << "Total new" << std::endl;
     hTotalE_output = new TH1F("hTotalE_" + sampleName + name_append + "_reweight",
                        //"Phase " + Phase + " " + sampleName + name_append + " total energy; #SigmaE_{e} (MeV)",
                        "Phase " + Phase + " " + sampleName + name_append + " total energy; Total Energy #SigmaE_{e} (MeV)",
                        50, 0.0, 5.0);
                        // TODO: changed from 4
 
+    std::cout << "Single new" << std::endl;
     hSingleEnergy_output    = new TH1F("hSingleEnergy_" + sampleName + name_append + "_reweight",
                                 "Phase " + Phase + " " + sampleName  + name_append + " Single Energy",
                                 50, 0.0, 5.0);
-
+    
+    std::cout << "High new" << std::endl;
     hHighEnergy_output     = new TH1F("hHighEnergy_" + sampleName + name_append + "_reweight",
                                 "Phase " + Phase + " " + sampleName + name_append + " High Energy; Energy (MeV)",
                                 50, 0.0, 5.0);
 
+    std::cout << "Low new" << std::endl;
     hLowEnergy_output     = new TH1F("hLowEnergy_" + sampleName + name_append + "_reweight",
                                 "Phase " + Phase + " " + sampleName + name_append + " Low Energy",
                                 50, 0.0, 5.0);
 
+    std::cout << "Sum new" << std::endl;
     hEnergySum_output     = new TH1F("hEnergySum_" + sampleName + name_append + "_reweight",
                                 "Phase " + Phase + " " + sampleName + name_append + " Low Energy",
                                 50, 0.0, 5.0);
 
+    std::cout << "Diff new" << std::endl;
     hEnergyDiff_output     = new TH1F("hEnergyDiff_" + sampleName + name_append + "_reweight",
                                 "Phase " + Phase + " " + sampleName + name_append + " Low Energy",
                                 50, 0.0, 5.0);
-
+    
+    std::cout << "HighLow new" << std::endl;
     hHighLowEnergy_output     = new TH2F("hHighLowEnergy_" + sampleName + name_append + "_reweight",
                                 "Phase " + Phase + " " + sampleName + name_append + ";Low Energy Electron Energy (MeV);High Energy Electron Energy (MeV)",
                                 50, 0.0, 5.0, 50, 0.0, 5.0);
 
+    std::cout << "Weight new" << std::endl;
     hWeight_output       = new TH1F("hWeight_" + sampleName + name_append + "_reweight",
                                 "Phase " + Phase + " " + sampleName + name_append + ";Weight",
                                 //50, -2.0, 4.0);
                                 50, 0.0, 0.0);
+
+    std::cout << "end of new" << std::endl;
 
     hTotalE_output->Sumw2();
     hSingleEnergy_output->Sumw2();
@@ -677,11 +766,21 @@ void reweight_apply(
         //std::cin.get();
         hTotalE_output->Scale(scale_factor);
         hSingleEnergy_output->Scale(scale_factor);
-        hLowEnergy_output->Scale(scale_factor);
         hHighEnergy_output->Scale(scale_factor);
+        hLowEnergy_output->Scale(scale_factor);
         hHighLowEnergy_output->Scale(scale_factor);
         hEnergySum_output->Scale(scale_factor);
         hEnergyDiff_output->Scale(scale_factor);
+
+        // NOTE: Scale factor
+        // samples are scaled by
+        // TotalTime / sampleNGenMC
+        // such that scale factor at this point matches that of
+        // the scale factor applied in fit_2e.C to other histograms
+        // and then
+        // activity (Bq)
+        // such that overall scale factor matches that of histograms
+        // in book1DHistograms function
 
         /*
         std::cout << "Integrals after scaling: " << hTotalE_output->Integral()

@@ -1360,10 +1360,19 @@ void read_parameter_list_file()
         if(thePhase == 0)
         {
             paramLastValueMap[i] = paramInitValueP1Map[i];
+            paramInitValueMap[i] = paramInitValueP1Map[i];
+
         }
         else if(thePhase == 1)
         {
             paramLastValueMap[i] = paramInitValueP2Map[i];
+            paramInitValueMap[i] = paramInitValueP2Map[i];
+        }
+
+        int axial_vector_parameter_0_param_number = get_axial_vector_parameter_index(); 
+        if(i == axial_vector_parameter_0_param_number)
+        {
+            paramLastValueMap[i] = 0.0; // HSD, forces reweighting
         }
     }
     // set initial values map

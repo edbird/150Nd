@@ -99,6 +99,9 @@ void book1DHistograms_helper(TFile *myFile, Int_t channel_counter, TString theCh
                         //std::cout << "mc_name=" << mc_name << " applying additional scaling factor of 0.36" << std::endl;
                         //std::cin.get();
                         scale_factor *= 0.36;
+                        // TODO: check that this is not already applied in
+                        // fit_2e
+                        // NOTE: it isn't
                     }
 
                     // NOTE: TODO
@@ -110,6 +113,18 @@ void book1DHistograms_helper(TFile *myFile, Int_t channel_counter, TString theCh
                     tmpHist->Scale(scale_factor);
                     // samples are now scaled by activity
                     // changed input, and pre-scaling, now need to change output
+
+                    // NOTE: Scale factor
+                    // samples scaled by param_init_value (activity in Bq)
+                    // after being read from file
+                    // however objects in file are scaled by
+                    // TotalTime / sampleNGenMC
+                    // also scale by 0.36 for relevant samples to account for
+                    // branching ratio here
+                    
+                    // in loglikelihood function the getNumberMC() functions
+                    // multiply the bin content by AdjustActs parameter
+                    // (minuit parameter)
 
 
 // NOTE: do NOT apply xi reweighting here
@@ -178,7 +193,8 @@ void book1DHistograms_helper(TFile *myFile, Int_t channel_counter, TString theCh
 // theChannel = "2e_"
 // thePhase = "P1"
 // theHistogram = "hTotalE_"
-void book1DHistograms(Int_t channel_counter, TString theChannel, TString thePhase_arg, TString theHistogram) {
+void book1DHistograms(Int_t channel_counter, TString theChannel, TString thePhase_arg, TString theHistogram)
+{
 
     std::cout << "booking 1D hists for " << theChannel << " " << thePhase_arg << std::endl;
     allMCSamples1D[channel_counter] = new TObjArray();
@@ -243,6 +259,7 @@ void book1DHistograms(Int_t channel_counter, TString theChannel, TString thePhas
     //std::string directory("processeddata/hTotalE_/");
     std::string directory("processeddata/" + theHistogram + "/");
     std::string name(theHistogram + "data_2e");
+    //std::string fake_data_name(theHistogram + "data_2e_fake");
     std::string fullname = directory + name;
     std::cout << "fullname=" << fullname << std::endl;
     //if(gDirectory->GetListOfKeys()->Contains(fullname.c_str()))

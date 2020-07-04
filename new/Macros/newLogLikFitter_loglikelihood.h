@@ -12,17 +12,247 @@ Double_t getNumberMC1D(const Int_t channel, const Int_t bin_ix, const Double_t *
 Double_t getNumberMC2D(const Int_t channel, const Int_t bin_ix, const Int_t bin_iy, const Double_t *const p);
 
 
+/*
+double logpoisson(const double nData, const double nMC)
+{
+    double x = nData;
+    double par = nMC;
+    return x * std::log(par) - par - TMath::LnGamma(x + 1.0);
+}
+*/
 
+
+//double logpoisson_sterling(const double nData, const double nMC)
+double logpoisson(const double nData, const double nMC)
+{
+    double mnu = nMC;
+    double dnu = nData;
+
+    if(mnu < 0.0001)
+    {
+        mnu = 0.0001;
+    }
+    if(dnu)
+    {
+        return -1.0 * (mnu - dnu + dnu * std::log(dnu / mnu));
+    }
+    else
+    {
+        return -1.0 * (mnu - dnu);
+    }
+}
+
+
+
+void build_fake_data()
+{
+
+    std::cout << "build_fake_data()" << std::endl;
+//    std::cin.get();
+
+    TH1F *hAllMC1D[number1DHists];
+    TH2F *hAllMC2D[number2DHists]; // TODO
+
+    std::cout << "debug: number of data samples: " << allDataSamples1D->GetEntries() << std::endl;
+    std::cout << "debug: number of MC samples: " << allMCSamples1D[0]->GetEntries() << std::endl;
+        
+    allFakeDataSamples1D = new TObjArray();
+    allFakeDataSamples2D = new TObjArray();
+
+
+    // each channel 1D hists
+    // this is for(i = 0; i < 1; ++ i)
+    // TODO: this isn't right. should this be iterating over the "channel" ?
+    for(int i = 0; i < allDataSamples1D->GetEntries(); i++)
+    {
+
+        // because this isn't right TODO
+        // uses at(i), but i should always be zero and there should be an
+        // additional array index
+        //data1D[i] = (TH1F*)allDataSamples1D->At(i)->Clone();
+        
+
+        TH1F *tmpHist;
+
+        // j list MC samples for this channel i
+        //std::cout << "debug: number of MC samples (i=" << i << "): " << allMCSamples1D[i]->GetEntries() << std::endl;
+
+
+        // allMCSamples1D[0] contains objects such as: "zr96_rot_k40_2e_P2"
+
+        // TODO i should be channel here?
+        for(int j = 0; j < allMCSamples1D[i]->GetEntries(); j++)
+        {
+
+            //std::cout << "j=" << j << std::endl;
+
+            TString j_str;
+            j_str.Form("%i", j);
+
+            tmpHist = (TH1F*)allMCSamples1D[i]->At(j)->Clone();
+            TString tmpName = tmpHist->GetName();
+
+            //std::cout << "(1) tmpName=" << tmpName << std::endl;
+
+            //std::cout << "looking for " << tmpName << std::endl;
+            int which_param = -1;
+            bool found_param = false;
+
+            // search through parameters to find right one
+            // the histogram names are formatted like:
+            // hTotalE_bi214_mylar_fit
+            // histogram_name + "_" + mc_sample_name + "_fit"
+            
+            // used later
+            double activity_scale_branching_ratio = 1.0;
+
+            {
+                std::string tmp_hist_name(tmpName);
+                auto i_start = tmp_hist_name.find('_') + 1;
+                auto i_end = tmp_hist_name.rfind('_');
+                if(i_end - i_start > 0)
+                {
+                    std::string tmp_sample_name = tmp_hist_name.substr(i_start, i_end - i_start);
+
+                    // TODO
+                    // do not have to scale by 0.36 after reading from file
+                    // as scaling is done when reading
+                    /*
+                    // set branching ratio fraction
+                    if(tmp_sample_name == std::string("tl208_int_rot") ||
+                       tmp_sample_name == std::string("tl208_feShield") ||
+                       tmp_sample_name == std::string("tl208_pmt"))
+                    {
+                        activity_scale_branching_ratio = 0.36;
+                    }
+                    */
+
+                    if(MCNameToParamNumberMap.count(tmp_sample_name) > 0)
+                    {
+                        int paramNumber = MCNameToParamNumberMap.at(tmp_sample_name);
+                        // TODO: removed std::string, change tmpName type to be std::string from TString
+                    
+                        //which_param = paramNumber;
+                        which_param = paramNumberToMinuitParamNumberMap.at(paramNumber);
+                        found_param = true;
+                        //std::cout << "j=" << j << ": paramNumber=" << paramNumber << " -> tmp_sample_name=" << tmp_sample_name << " ~> tmpName=" << tmpName << " which_param=" << which_param << std::endl;
+                    }
+                    else
+                    {
+                       std::cout << "ERROR: could not find " << tmp_sample_name << " in MCNameToParamNumberMap" << std::endl;
+                    }
+                }
+            }
+
+
+
+            if(found_param == true)
+            {
+                //std::cout << "found histogram: tmpName=" << tmpName << " which_param=" << which_param << std::endl;
+
+                // scale histogram to correct size using output parameter
+                // from fit
+                if(which_param >= numberEnabledParams)
+                {
+                    std::cout << "throwing exception, which_param=" << which_param << std::endl;
+                    throw std::runtime_error("which_param invalid value");
+                }
+
+
+
+                // no error thrown, which_param is presumably the correct index
+                //Double_t activity_scale = AdjustActs[which_param] * activity_scale_branching_ratio;
+                Double_t activity_scale = paramInitValueMap[which_param]; // * activity_scale_branching_ratio;
+                //std::cout << "activity_scale=" << activity_scale << std::endl;
+//                tmpHist->Scale(activity_scale);
+// TODO: has already been scaled by this activity when read in
+
+                if(tmpHist->Integral() > 0)
+                {
+
+                    TString hname = tmpHist->GetName();
+
+                    if(j == 0)
+                    {
+                        //std::cout << "Clone() done" << "j=" << j << std::endl;
+                        // TODO: bug here if Integral() for j == 0 is zero
+                        
+                        hAllMC1D[i] = (TH1F*)tmpHist->Clone("Total MC Fake Data");
+                        //hAllMC1D[i] = (TH1F*)tmpHist_drawpointer->Clone("Total MC");
+                        
+                        /*
+                        std::cout << "j=" << j << std::endl;
+                        for(int k = 0; k < tmpHist->GetNbinsX(); ++ k)
+                        {
+                            std::cout << "k=" << k << " " << tmpHist->GetBinContent(k) << std::endl;
+                        }
+                        */
+                    }
+                    else
+                    {
+                        hAllMC1D[i]->Add((TH1F*)tmpHist);
+                        //hAllMC1D[i]->Add((TH1F*)tmpHist_drawpointer);
+                        
+                        /*
+                        std::cout << "j=" << j << std::endl;
+                        for(int k = 0; k < tmpHist->GetNbinsX(); ++ k)
+                        {
+                            std::cout << "k=" << k << " " << tmpHist->GetBinContent(k) << std::endl;
+                        }
+                        */
+                    }
+	            }
+                else
+                {
+                    //std::cout << "not adding to stack, Integral() <= 0: " << tmpHist->GetName() << std::endl;
+                }
+            }
+            else
+            {
+                std::cout << "error could not find histogram: tmpName=" << tmpName << std::endl;
+            } 
+
+        }
+
+        /*
+        std::cout << "integral for fakedata sample " << i << " is " << hAllMC1D[i]->Integral() << std::endl;
+        for(int k = 0; k < hAllMC1D[i]->GetNbinsX(); ++ k)
+        {
+            std::cout << "k=" << k << " " << hAllMC1D[i]->GetBinContent(k) << std::endl;
+        }
+        */
+        allFakeDataSamples1D->Add((TH1F*)hAllMC1D[i]);
+    }
+
+
+}
 
 
 ///////////////////////////////////////////////////////////////////////////////
 // logLikelihood
 ///////////////////////////////////////////////////////////////////////////////
 
+static int counter = 0;
 
 // TODO don't appear to work with parameters with more than one MC
 void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p, Int_t /*iflag */)
 {
+
+    if(allFakeDataSamples1D == nullptr)
+    {
+        build_fake_data();
+    }
+
+
+
+    bool debugprint = false;
+
+
+    // draw the output
+    TString fname;
+    fname.Form("lliter_%d", counter);
+    //draw_channel(1, p, std::string(fname));
+
 
 
     // error mode
@@ -36,6 +266,7 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
 
 
     // 2020-06-17
+    /*
     std::string mc_name = "axial_vector_parameter_0";
     std::string search_object = MCNameToParamNameMap.at(mc_name);
     int axial_vector_parameter_0_param_number = -1;
@@ -53,17 +284,22 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
     {
         throw "mc_name not found in paramNameToNumberMap";
     }
+    */
+    int axial_vector_parameter_0_param_number = get_axial_vector_parameter_index(); 
 
 
 
 
 
-    std::cout << std::scientific;
-    std::cout << "logLikelihood" << std::endl;
-    //std::cout << "p[0]=" << p[0] << " p[1]=" << p[1] << std::endl;
-    std::cout << "p[0]=" << p[0] << " p[" << axial_vector_parameter_0_param_number << "]="
-              << p[axial_vector_parameter_0_param_number] << std::endl;
-    // TODO: use non fixed parameter number index
+    if(debugprint)
+    {
+        std::cout << std::scientific;
+        std::cout << "logLikelihood" << std::endl;
+        //std::cout << "p[0]=" << p[0] << " p[1]=" << p[1] << std::endl;
+        std::cout << "p[0]=" << p[0] << " p[" << axial_vector_parameter_0_param_number << "]="
+                  << p[axial_vector_parameter_0_param_number] << std::endl;
+        // TODO: use non fixed parameter number index
+    }
 
 
     // TODO: will not work if parameter number changes
@@ -75,6 +311,7 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
     {
 
         // TODO: rebuild nd150 xi_31 paramter histogram here
+        std::cout << "rebuilding 150 Nd MC" << std::endl;
 
 
         ///////////////////////////////////////////////////////////////////////
@@ -225,12 +462,18 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
         ////const double xi_31_init{param_init_value};
         ////const double xi_31{xi_31_init * p[axial_vector_parameter_0_param_number]};
         const double xi_31{p[axial_vector_parameter_0_param_number]};
-        std::cout << "xi_31=" << xi_31 << " xi_31_baseline=" << xi_31_baseline << std::endl;
+        if(debugprint)
+        {
+            std::cout << "xi_31=" << xi_31 << " xi_31_baseline=" << xi_31_baseline << std::endl;
+        }
         //const double xi_31_baseline{0.296};
         // NOTE: 2020-06-17 this was a bug, removed
 
         TH1F *hWeight = nullptr;
-        std::cout << "before reweight_apply()" << std::endl;
+        if(debugprint || true)
+        {
+            std::cout << "before reweight_apply()" << std::endl;
+        }
         reweight_apply(
             hTotalE,
             hSingleEnergy,
@@ -248,7 +491,10 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
             psiN0,
             psiN2,
             bb_Q);
-        std::cout << "after reweight_apply()" << std::endl;
+        if(debugprint || true)
+        {
+            std::cout << "after reweight_apply()" << std::endl;
+        }
 
         // TODO: just another example of manual code edits
         // make a file describing the channels to fit as well as the parameters
@@ -259,6 +505,16 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
         allMCSamples1D[4]->Add(hEnergySum);
         allMCSamples1D[5]->Add(hEnergyDiff);
         allMCSamples2D[0]->Add(hHighLowEnergy);
+
+
+/*
+        TCanvas *ctmp = new TCanvas("ctmp", "ctmp");
+        hSingleEnergy->Draw();
+        TString fname;
+        fname.Form("ctmp_%d.png", counter);
+        ctmp->SaveAs(fname);
+        ++ counter;
+*/
 
         /*
         for(int channel{0}; channel < number1DHists; ++ channel)
@@ -367,6 +623,7 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
 //   std::cout << "getting 1D histograms" << std::endl;
 
     TH1F *tmpData1D;
+    TH1F *tmpFakeData1D;
     // std::cout << allDataSamples1D->GetEntries()  << std::endl;
 
     // there are i samples for each channel
@@ -375,7 +632,10 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
 
         if(channel_enable_1D[channel] == 0)
         {
-            std::cout << "1D: channel " << channel << " disabled, skip" << std::endl;
+            if(debugprint)
+            {
+                std::cout << "1D: channel " << channel << " disabled, skip" << std::endl;
+            }
             continue;
         }
         
@@ -391,22 +651,52 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
         // TODO: can I remove this Clone() call safely to improve speed?
         //tmpData1D = (TH1F*)allDataSamples1D->At(i)->Clone("tmpData1D" + i_str + "_");
         tmpData1D = (TH1F*)allDataSamples1D->At(channel);
+        tmpFakeData1D = (TH1F*)allFakeDataSamples1D->At(channel);
+        bool mode_fake_data = true; // TODO
 
         // std::cout << tmpData1D->Integral() << std::endl;
 
         int nBinsX = tmpData1D->GetNbinsX();
         for(int bin_ix = 1; bin_ix <= nBinsX; ++ bin_ix)
         {
-            Int_t nData = (Int_t)tmpData1D->GetBinContent(bin_ix);
+            Int_t nData = 0;
+            if(mode_fake_data == false)
+            {
+                nData = (Int_t)tmpData1D->GetBinContent(bin_ix);
+            }
+            if(mode_fake_data)
+            {
+                nData = (Int_t)tmpFakeData1D->GetBinContent(bin_ix);
+            }
             // i is the index of the sample ?
             // ix is the bin index
             // p is a pointer to an array of parameter values
+
+            // fake data
+            //double nFakeData = getNumberMC1D(channel, bin_ix, paramInitValueMap);
+            //for(int k = 0; k < numberEnabledParams; ++ k)
+            //{
+            //    std::cout << "minuitParamInit[" << k << "]=" << minuitParamInit[k] << " p[" << k << "]=" << p[k] << std::endl;
+            //}
+            //double nFakeData = getNumberMC1D(channel, bin_ix, minuitParamInit);
+            // TODO: double or int
+            // TODO: I don't know if this works. param index might be different
+            // internal vs external issue
+            // the index for paramInitValueMap must be an external param index
+            // this is because paramInitValueP1Map and paramInitValueP2Map
+            // are indexed using an external param index and therefore
+            // paramInitValueMap is also
+            // The function getNumberMC1D uses internal index format
 
             // TODO:
             // think there is a bug here
             // i appears to be the index of the data sample not the MC sample?
             // it becomes channel index
             double nMC = getNumberMC1D(channel, bin_ix, p);
+
+            //std::cout << "bin_ix=" << bin_ix << " nFakeData=" << nFakeData << " nMC=" << nMC << std::endl;
+            //if(nFakeData != nMC)
+            //std::cin.get();
 
             //std::cout << "for bin_ix=" << bin_ix << " nMC=" << nMC << " nData=" << nData << std::endl;
 
@@ -451,16 +741,17 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
                 //
                 // so calculate LL from expansion of log
                 //
-                if(nMC > 100.0)
-                {
-                    // nMC > 1.0e-05 here already
-                    const double l = nMC;
-                    const double n = nData;
-                    const double stirling = n*TMath::Log(n) - n;
-                    ll_channel += -l + n*TMath::Log(l) - stirling;
-                }
-                else
-                {
+                //if(nMC > 10.0)
+                //{
+                //    // nMC > 1.0e-05 here already
+                //    const double l = nMC;
+                //    const double n = nData;
+                //    const double stirling = n*TMath::Log(n) - n;
+                //    ll_channel += -l + n*TMath::Log(l) - stirling;
+                //}
+                //else
+                //{
+                    /*
                     Double_t poisson = TMath::Poisson(nData, nMC);
                     if(poisson > 0.)
                     {
@@ -497,7 +788,17 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
                         std::cout << "(1): " << nData << ", " << nMC << std::endl;
                         throw "poisson > 0.";
                     }
-                }
+                    */
+                    double lp = logpoisson(nData, nMC);
+                    //double lp = logpoisson(nFakeData, nMC);
+                    //double lp = logpoisson_sterling(nFakeData, nMC);
+                    ll_channel += lp;
+
+                    if(debugprint)
+                    {
+                        std::cout << "bin_ix=" << bin_ix << " lp=" << lp << " nData=" << nData << " nMC=" << nMC << " (1)" << std::endl;
+                    }
+                //}
             }
             //else
             //{
@@ -514,12 +815,13 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
             //}
             else
             {
-                if(nMC >= 1.0e-05)
-                {
-                    std::cout << "nMC=" << nMC << std::endl;
-                }
+                //if(nMC >= 1.0e-05)
+                //{
+                //    std::cout << "nMC=" << nMC << std::endl;
+                //}
 
-                std::cout << "nMC=" << nMC << std::endl;
+                //std::cout << "nMC=" << nMC << std::endl;
+                /*
                 Double_t poisson = TMath::Poisson(nData, 1.0e-05);
                 if(poisson > 0.)
                 {
@@ -532,11 +834,24 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
                     std::cout << "(2): " << nData << ", " << nMC << std::endl;
                     throw "poisson > 0.";
                 }
+                */
+                double lp = logpoisson(nData, 1.0e-05);
+                //double lp = logpoisson(nFakeData, 1.0e-05);
+                //double lp = logpoisson_sterling(nFakeData, 1.0e-05);
+                ll_channel += lp;
+
+                if(debugprint)
+                {
+                    std::cout << "bin_ix=" << bin_ix << " lp=" << lp << " nData=" << nData << " nMC=" << nMC << " (2)" << std::endl;
+                }
             }
         
         } //~bins
 
-        std::cout << "1D: channel " << channel << " enabled, ll=" << ll_channel << std::endl;
+        if(debugprint)
+        {
+            std::cout << "1D: channel " << channel << " enabled, ll=" << ll_channel << std::endl;
+        }
         loglik += ll_channel;
 
     } //channels
@@ -559,12 +874,16 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
     // std::cout << allDataSamples2D->GetEntries()  << std::endl;
 
     // there are i samples for each channel
+#if 0
     for(int channel = 0; channel < allDataSamples2D->GetEntries(); ++ channel)
     {
 
         if(channel_enable_2D[channel] == 0)
         {
-            std::cout << "2D: channel " << channel << " disabled, skip" << std::endl;
+            if(debugprint)
+            {
+                std::cout << "2D: channel " << channel << " disabled, skip" << std::endl;
+            }
             continue;
         }
 
@@ -595,25 +914,38 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
 
                 double nMC = getNumberMC2D(channel, bin_ix, bin_iy, p);
 
-                if(nMC >= 0.)
+                if(nMC >= 1.0e-05)
                 {
-                    Double_t poisson = TMath::Poisson(nData, nMC);
-                    if(poisson > 0.)
-                    {
-                        ll_channel += TMath::Log(poisson);
+                    //Double_t poisson = TMath::Poisson(nData, nMC);
+                    //if(poisson > 0.)
+                    //{
+                    //    ll_channel += TMath::Log(poisson);
                         // adding positive number makes fval go down
                         // NOTE: Log(poisson) is always negative! so fval goes UP NOT DOWN
                         // log is taken here, should I take log of the penalty term?
-                    }
+                    //}
+                    //double lp = logpoisson(nData, nMC);
+                    double lp = logpoisson_sterling(nData, nMC);
+                    ll_channel += lp;
+                }
+                else
+                {
+                    //double lp = logpoisson(nData, 1.0e-05);
+                    double lp = logpoisson_sterling(nData, 1.0e-05);
+                    ll_channel += lp;
                 }
 
             } // binsY
         } // binX
 
-        std::cout << "2D: channel " << channel << " enabled, ll=" << ll_channel << std::endl;
+        if(debugprint)
+        {
+            std::cout << "2D: channel " << channel << " enabled, ll=" << ll_channel << std::endl;
+        }
         loglik += ll_channel;
 
     } // channels
+#endif
 
  
     // add constraints to improve likelihood
@@ -642,6 +974,7 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
 
     int mode = MODE_PARAM_UNDEFINED;
 
+#if 0
     // penalty terms section
     double penalty_term = 0.0;
 
@@ -845,7 +1178,12 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
     }
 
 
-    std::cout << "penalty_term=" << penalty_term << std::endl;
+
+    if(debugprint)
+    {
+        std::cout << "penalty_term=" << penalty_term << std::endl;
+    }
+#endif
     //std::cin.get();
   
     //fval = -2.0 * loglik; 
@@ -855,7 +1193,11 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
     //fval = -2.0 * loglik_no_penalty_terms + 2.0 * penalty_terms_positive_sign;
     // then fix factor of 2.0 bug to get
     //fval = -2.0 * loglik_no_penalty_terms + penalty_terms_positive_sign;
-    fval = -2.0 * loglik + penalty_term;
+    //fval = -2.0 * loglik + penalty_term;
+    fval = -2.0 * loglik;
+#if 0
+    fval += penalty_term;
+#endif
     //tmpData->Delete();
 
     // hook
@@ -864,9 +1206,24 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
 
     // set last parameter values
     // could also loop over nPar?
-    for(int i = 0; i < numberParams; ++ i)
+    //for(int i = 0; i < numberParams; ++ i)
+    for(int i = 0; i < nPar; ++ i)
     {
         paramLastValueMap[i] = p[i];
+    }
+    // TODO: bug here since paramLastValueMap should use internal index
+    // not external
+    // FIXED
+
+    //int num_params = minuit->GetNumFreePars(); 
+    //for(int i = 0; i < numberEnabledParams; ++ i)
+    for(int i = 0; i < nPar; ++ i)
+    {
+        //double value, error;
+        //minuit->GetParameter(i, value, error);
+        double value = p[i];
+        minuitParamCurrent[i] = value;
+        minuitParamLast[i] = value;
     }
 
     return;

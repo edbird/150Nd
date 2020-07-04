@@ -185,15 +185,23 @@ void draw_inputdata()
 
 
 
+
+
+
+
+
+
 void draw(
     const Double_t *const AdjustActs,
     const Double_t *const AdjustActs_Err,
-    const std::string& saveas_filename,
+    const double fval,
     TH1F *&hHighEnergy_allMC_out,
     TH1F *&hLowEnergy_allMC_out,
     TH1F *&hHighEnergy_data_out,
-    TH1F *&hLowEnergy_data_out
-    )
+    TH1F *&hLowEnergy_data_out,
+    const std::string& saveas_filename,
+    const std::string& saveas_dir = ".",
+    bool mode_fake_data = false)
 {
 
     ///////////////////////////////////////////////////////////////////////////
@@ -230,6 +238,7 @@ void draw(
     TH1F *hRatio[number1DHists];
     TH1F *hAllMC1D[number1DHists];
     TH1F *data1D[number1DHists];
+    TH1F *fakeData1D[number1DHists];
 
     // TODO: copy over legend code from fit_2e.C
 
@@ -242,11 +251,27 @@ void draw(
     // TODO: this isn't right. should this be iterating over the "channel" ?
     for(int i = 0; i < allDataSamples1D->GetEntries(); i++)
     {
+        if(i != 1) continue;
+        // TODO: remove
+
 
         // because this isn't right TODO
         // uses at(i), but i should always be zero and there should be an
         // additional array index
         data1D[i] = (TH1F*)allDataSamples1D->At(i)->Clone();
+        if(mode_fake_data)
+        {
+            fakeData1D[i] = (TH1F*)allFakeDataSamples1D->At(i)->Clone(); // TODO
+            // TODO: will not work if logLikelihood not called before
+            // because LL function calls function to construct fakedata
+
+            /*
+            for(int k = 0; k < fakeData1D[i]->GetNbinsX(); ++ k)
+            {
+                std::cout << "k=" << k << " " << fakeData1D[i]->GetBinContent(k) << std::endl;
+            }
+            */
+        }
 
         TString i_str;
         i_str.Form("%i", i);
@@ -283,17 +308,6 @@ void draw(
         }
         */
 
-        // what does this code actually do?
-        // loops through all MC samples using index j
-        // gets name of MC sample into tmpName
-        // eg: WHAT
-        // loops over 0..numberParams-1 with k
-        // loops over 0..paramNameMap[k].size()-1 with n
-        // checks if tmpName contains paramNameMap[k].at(n)
-        // what is paramNameMap[k].at(n)?
-        // it is: std::string paramNameMap[numberParams]
-        // this code appears to be broken - was not updated from a previous
-        // version perhaps?
         // allMCSamples1D[0] contains objects such as: "zr96_rot_k40_2e_P2"
         
         
@@ -326,21 +340,6 @@ void draw(
             bool found_param = false;
 
             // search through parameters to find right one
-            // this code is broken: it is SUPPOSED to select k such that
-            // which_param = k
-            // using tmpName.Contains(paramNameMap[k].at(i))
-            // which_param corresponds to an MC sample (it is an index, or
-            // in other words it is paramNumber)
-            // paramNameMap was expected to be a list of parameter names/MC
-            // samples corresponding to parameter number/index k
-            // in other words, I have a data structure called
-            // MCNameToParamNumberMap which maps a parameterMCSample to the
-            // parameter index. let's try it and see if it works
-            // what is it trying to do? use the names of the histograms to 
-            // map what to what? name of histogram to parameter number?
-            // so that parameter number can be used to get fitted activity
-            // for scaling ? - yes this is what it is trying to do, but
-            // includes an error check for if the parameter is not found
             // the histogram names are formatted like:
             // hTotalE_bi214_mylar_fit
             // histogram_name + "_" + mc_sample_name + "_fit"
@@ -362,16 +361,15 @@ void draw(
                     std::string tmp_sample_name = tmp_hist_name.substr(i_start, i_end - i_start);
 
                     // set branching ratio fraction
+                    /*
                     if(tmp_sample_name == std::string("tl208_int_rot") ||
                        tmp_sample_name == std::string("tl208_feShield") ||
                        tmp_sample_name == std::string("tl208_pmt"))
                     {
-                        //std::cout << "tmp_sample_name=" << tmp_sample_name << std::endl;
-                        //std::cin.get();
                         activity_scale_branching_ratio = 0.36;
                     }
+                    */
 
-                    //std::cout << "tmp_sample_name=" << tmp_sample_name << std::endl;
                     if(MCNameToParamNumberMap.count(tmp_sample_name) > 0)
                     {
                         int paramNumber = MCNameToParamNumberMap.at(tmp_sample_name);
@@ -445,7 +443,7 @@ void draw(
               */
 
                 // no error thrown, which_param is presumably the correct index
-                Double_t activity_scale = AdjustActs[which_param] * activity_scale_branching_ratio;
+                Double_t activity_scale = AdjustActs[which_param]; // * activity_scale_branching_ratio;
                 tmpHist_draw1D->Scale(activity_scale);
 
                 //TH1F *tmpHist_drawpointer = tmpHist_draw1D;
@@ -456,6 +454,19 @@ void draw(
                 {
                     stacks1D[i]->Add((TH1F*)tmpHist_draw1D->Clone());
                     //stacks1D[i]->Add(tmpHist_drawpointer);
+
+                    stacker_helper(tmpHist_draw1D,
+                                 h_2nubb[i],
+                                 h_tl208_int[i],
+                                 h_bi214_int[i],
+                                 h_bi207_int[i],
+                                 h_internal[i],
+                                 h_neighbours[i],
+                                 h_radon[i],
+                                 h_external[i],
+                                 h_other[i]);
+
+                    /*
 
                     TString hname = tmpHist_draw1D->GetName();
 
@@ -599,6 +610,7 @@ void draw(
                         }
                     }
                     
+                    */
 
                     if(j == 0)
                     {
@@ -610,6 +622,8 @@ void draw(
                         hAllMC1D[i]->Add((TH1F*)tmpHist_draw1D);
                         //hAllMC1D[i]->Add((TH1F*)tmpHist_drawpointer);
                     }
+
+                
 	            }
                 else
                 {
@@ -641,6 +655,17 @@ void draw(
 
         THStack *stacks1D_major[number1DHists];
         stacks1D_major[i] = new THStack("stacks1D_major" + i_str, i_str);
+        stacker_helper_2(stacks1D_major[i],
+                         h_2nubb[i],
+                         h_tl208_int[i],
+                         h_bi214_int[i],
+                         h_bi207_int[i],
+                         h_internal[i],
+                         h_neighbours[i],
+                         h_radon[i],
+                         h_external[i],
+                         h_other[i]);
+        /*
         if(h_external[i] != nullptr)
         {
             //h_external[i]->SetLineWidth(1);
@@ -710,6 +735,7 @@ void draw(
             stacks1D_major[i]->Add((TH1F*)h_other[i]);
             std::cout << "h_other is non zero" << std::endl;
         }
+        */
 
 
         double PAD_U_Y_MIN = 0.0;
@@ -756,16 +782,29 @@ void draw(
         //stacks1D_major[i]->SetMinimum(PAD_U_Y_MIN);
         //stacks1D_major[i]->GetYaxis()->SetRangeUser(PAD_U_Y_MIN, PAD_U_Y_MAX);
         // TODO moved
-        hAllMC1D[i]->SetMaximum(PAD_U_Y_MAX);
-        hAllMC1D[i]->SetMinimum(PAD_U_Y_MIN);
+
+        //hAllMC1D[i]->SetMaximum(PAD_U_Y_MAX);
+        //hAllMC1D[i]->SetMinimum(PAD_U_Y_MIN);
         hAllMC1D[i]->GetYaxis()->SetRangeUser(PAD_U_Y_MIN, PAD_U_Y_MAX);
-        data1D[i]->SetMaximum(PAD_U_Y_MAX);
-        data1D[i]->SetMinimum(PAD_U_Y_MIN);
+        //data1D[i]->SetMaximum(PAD_U_Y_MAX);
+        //data1D[i]->SetMinimum(PAD_U_Y_MIN);
         data1D[i]->GetYaxis()->SetRangeUser(PAD_U_Y_MIN, PAD_U_Y_MAX);
+        if(mode_fake_data)
+        {
+            //fakeData1D[i]->SetMaximum(PAD_U_Y_MAX);
+            //fakeData1D[i]->SetMinimum(PAD_U_Y_MIN);
+            fakeData1D[i]->GetYaxis()->SetRangeUser(PAD_U_Y_MIN, PAD_U_Y_MAX);
+        }
 
 
-
-        hRatio[i] = (TH1F*)data1D[i]->Clone();
+        if(mode_fake_data == false)
+        {
+            hRatio[i] = (TH1F*)data1D[i]->Clone();
+        }
+        if(mode_fake_data)
+        {
+            hRatio[i] = (TH1F*)fakeData1D[i]->Clone();
+        }
         hRatio[i]->Sumw2();
         hRatio[i]->Divide(hAllMC1D[i]);
         hRatio[i]->SetTitle("");
@@ -890,7 +929,7 @@ void draw(
         hAllMC1D[i]->SetLineColor(kBlack);
         hAllMC1D[i]->SetFillColor(kWhite);
         hAllMC1D[i]->SetFillStyle(0);
-        hAllMC1D[i]->Sumw2();
+        //hAllMC1D[i]->Sumw2();
         //hAllMC1D[i]->Draw("hist sames");
         TString Nmc_str;
         Nmc_str.Form("%i", (int)hAllMC1D[i]->Integral()); // TODO: float?
@@ -900,26 +939,52 @@ void draw(
         data1D[i]->SetLineWidth(2);
         data1D[i]->SetMarkerStyle(20);
         data1D[i]->SetMarkerSize(1.0);
+        if(mode_fake_data)
+        {
+            fakeData1D[i]->SetLineWidth(2);
+            fakeData1D[i]->SetMarkerStyle(20);
+            fakeData1D[i]->SetMarkerSize(1.0);
+        }
         TString Ndata_str;
         Ndata_str.Form("%i", (int)data1D[i]->Integral()); // TODO: float?
         data1D[i]->SetTitle("Data (" + Ndata_str + ")");
-        //data1D[i]->Draw("PEsames");
-        data1D[i]->Draw("PEsame");
-        data1D[i]->GetYaxis()->SetRangeUser(PAD_U_Y_MIN, PAD_U_Y_MAX);
+        TString Nfakedata_str;
+        if(mode_fake_data)
+        {
+            Nfakedata_str.Form("%i", (int)fakeData1D[i]->Integral()); // TODO: float?
+            fakeData1D[i]->SetTitle("Fake Data (" + Ndata_str + ")");
+        }
+        if(mode_fake_data == false)
+        {
+            //data1D[i]->Draw("PEsames");
+            data1D[i]->Draw("PEsame");
+            data1D[i]->GetYaxis()->SetRangeUser(PAD_U_Y_MIN, PAD_U_Y_MAX);
+        }
+        if(mode_fake_data)
+        {
+            fakeData1D[i]->Draw("PEsame");
+            fakeData1D[i]->GetYaxis()->SetRangeUser(PAD_U_Y_MIN, PAD_U_Y_MAX);
+        }
 
-        double chi2;
-        int ndf;
-        int igood;
-        TString chi2_str;
+        //double chi2;
+        int ndf = -1;
+        //int ndf;
+        //int igood;
+        //TString chi2_str;
         TString ndf_str;
 
         // TODO: should chisquare value include the constraints? because at
         // the moment it does not
 
         // TODO: chi2 value is different from fit_2e code
-        double prob = data1D[i]->Chi2TestX(hAllMC1D[i], chi2, ndf, igood, "UW");
+        //double prob = data1D[i]->Chi2TestX(hAllMC1D[i], chi2, ndf, igood, "UW");
+        // TODO this number produced by Chi2TestX is nonsense
+        // TODO: fakedata
+
         // TODO: check if I can get fcn value from the minuit fit object
-        chi2_str.Form("%4.3f", chi2);
+        //chi2_str.Form("%4.3f", chi2);
+        TString fval_str;
+        fval_str.Form("%4.3f", fval);
         ndf_str.Form("%i", ndf);
 
 
@@ -935,7 +1000,14 @@ void draw(
         axis2->Draw();
 
         TLegend *leg = new TLegend(0.6, 0.1, 0.85, 0.85);
-        leg->AddEntry(data1D[i], "Data (" + Ndata_str + ")", "PE");
+        if(mode_fake_data == false)
+        {
+            leg->AddEntry(data1D[i], "Data (" + Ndata_str + ")", "PE");
+        }
+        if(mode_fake_data)
+        {
+            leg->AddEntry(fakeData1D[i], "Fake Data (" + Nfakedata_str + ")", "PE");
+        }
         leg->AddEntry(hAllMC1D[i], "Total MC (" + Nmc_str + ")", "L");
         leg->AddEntry(h_2nubb[i], "2#nu#beta#beta", "F");
         leg->AddEntry(h_tl208_int[i], "^{208}Tl Int", "F");
@@ -945,7 +1017,8 @@ void draw(
         leg->AddEntry(h_neighbours[i], "Neighbour Foil", "F");
         leg->AddEntry(h_radon[i], "Radon", "F");
         leg->AddEntry(h_external[i], "External", "F");
-        leg->AddEntry((TObject*)nullptr, "#chi^{2}/ndf=" + chi2_str + "/" + ndf_str, "");
+        //leg->AddEntry((TObject*)nullptr, "#chi^{2}/ndf=" + chi2_str + "/" + ndf_str, "");
+        leg->AddEntry((TObject*)nullptr, "#chi^{2}/ndf=" + fval_str + "/" + ndf_str, "");
         //leg->AddEntry(h_other[i], "other", "f");
         leg->SetBorderSize(0);
         leg->SetFillColor(0);
@@ -986,32 +1059,57 @@ void draw(
 
 
         c[i]->Show();
+        //c[i]->Draw();
+        c[i]->Update();
 
-        std::string base_name;
-        std::string extension;
-        filename_split_extension(saveas_filename, base_name, extension);
-
-        std::string dir = base_name + "_c" + "_" + std::string(i_str);
-        std::string name = base_name + "_c" + "_" + std::string(i_str) + extension;
-        canvas_saveas_helper(dir, name, c[i]);
     
+        if(saveas_filename != "NOSAVE")
+        {
+            std::string base_name;
+            std::string extension;
+            filename_split_extension(saveas_filename, base_name, extension);
+
+            //std::string dir = base_name + "_c" + "_" + std::string(i_str);
+            std::string dir = saveas_dir;
+            std::string name = base_name + "_c" + "_" + std::string(i_str) + extension;
+            canvas_saveas_helper(dir, name, c[i]);
+        }
+    
+        delete c[i];
+        c[i] = nullptr;
 
         // channel 2 = high energy
         // channel 3 = low energy
 
+
+/*
         if(i == 2)
         {
             hHighEnergy_allMC_out = (TH1F*)hAllMC1D[i]->Clone();
-            hHighEnergy_data_out = (TH1F*)data1D[i]->Clone();
+            if(mode_fake_data == false)
+            {
+                hHighEnergy_data_out = (TH1F*)data1D[i]->Clone();
+            }
+            if(mode_fake_data)
+            {
+                hHighEnergy_data_out = (TH1F*)fakeData1D[i]->Clone();
+            }
         }
         else if(i == 3)
         {
             hLowEnergy_allMC_out = (TH1F*)hAllMC1D[i]->Clone();
-            hLowEnergy_data_out = (TH1F*)data1D[i]->Clone();
+            if(mode_fake_data == false)
+            {
+                hLowEnergy_data_out = (TH1F*)data1D[i]->Clone();
+            }
+            if(mode_fake_data)
+            {
+                hLowEnergy_data_out = (TH1F*)fakeData1D[i]->Clone();
+            }
         }
+*/
 
     }
-
 
 
 

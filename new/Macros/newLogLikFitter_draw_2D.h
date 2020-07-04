@@ -109,6 +109,7 @@ void draw_2D(
                     std::string tmp_sample_name = tmp_hist_name.substr(i_start, i_end - i_start);
 
                     // set branching ratio fraction
+                    /*
                     if(tmp_sample_name == std::string("tl208_int_rot") ||
                        tmp_sample_name == std::string("tl208_feShield") ||
                        tmp_sample_name == std::string("tl208_pmt"))
@@ -117,6 +118,7 @@ void draw_2D(
                         //std::cin.get();
                         activity_scale_branching_ratio = 0.36;
                     }
+                    */
 
                     //std::cout << "tmp_sample_name=" << tmp_sample_name << std::endl;
                     if(MCNameToParamNumberMap.count(tmp_sample_name) > 0)
@@ -149,7 +151,7 @@ void draw_2D(
 
 
                 // no error thrown, which_param is presumably the correct index
-                Double_t activity_scale = AdjustActs[which_param] * activity_scale_branching_ratio;
+                Double_t activity_scale = AdjustActs[which_param]; // * activity_scale_branching_ratio;
                 tmpHist_draw2D->Scale(activity_scale);
                 // TODO: fix this
 
