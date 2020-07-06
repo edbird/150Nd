@@ -66,7 +66,7 @@ void reweight_apply(
     const Double_t bb_Q)
 {
 
-    std::cout << "reweight_apply" << std::endl;
+    //std::cout << "reweight_apply" << std::endl;
 
     //const TString sampleName = "nd150_rot_2n2b_m4";
     const TString sampleName = Nd150Files[0];
@@ -162,50 +162,50 @@ void reweight_apply(
 
     // TODO: this does not work, need to re-Fill histogram using file
     //output = input->Clone(input->GetName() + "_reweight");
-    std::cout << "Total new" << std::endl;
+    //std::cout << "Total new" << std::endl;
     hTotalE_output = new TH1F("hTotalE_" + sampleName + name_append + "_reweight",
                        //"Phase " + Phase + " " + sampleName + name_append + " total energy; #SigmaE_{e} (MeV)",
                        "Phase " + Phase + " " + sampleName + name_append + " total energy; Total Energy #SigmaE_{e} (MeV)",
                        50, 0.0, 5.0);
                        // TODO: changed from 4
 
-    std::cout << "Single new" << std::endl;
+    //std::cout << "Single new" << std::endl;
     hSingleEnergy_output    = new TH1F("hSingleEnergy_" + sampleName + name_append + "_reweight",
                                 "Phase " + Phase + " " + sampleName  + name_append + " Single Energy",
                                 50, 0.0, 5.0);
     
-    std::cout << "High new" << std::endl;
+    //std::cout << "High new" << std::endl;
     hHighEnergy_output     = new TH1F("hHighEnergy_" + sampleName + name_append + "_reweight",
                                 "Phase " + Phase + " " + sampleName + name_append + " High Energy; Energy (MeV)",
                                 50, 0.0, 5.0);
 
-    std::cout << "Low new" << std::endl;
+    //std::cout << "Low new" << std::endl;
     hLowEnergy_output     = new TH1F("hLowEnergy_" + sampleName + name_append + "_reweight",
                                 "Phase " + Phase + " " + sampleName + name_append + " Low Energy",
                                 50, 0.0, 5.0);
 
-    std::cout << "Sum new" << std::endl;
+    //std::cout << "Sum new" << std::endl;
     hEnergySum_output     = new TH1F("hEnergySum_" + sampleName + name_append + "_reweight",
                                 "Phase " + Phase + " " + sampleName + name_append + " Low Energy",
                                 50, 0.0, 5.0);
 
-    std::cout << "Diff new" << std::endl;
+    //std::cout << "Diff new" << std::endl;
     hEnergyDiff_output     = new TH1F("hEnergyDiff_" + sampleName + name_append + "_reweight",
                                 "Phase " + Phase + " " + sampleName + name_append + " Low Energy",
                                 50, 0.0, 5.0);
     
-    std::cout << "HighLow new" << std::endl;
+    //std::cout << "HighLow new" << std::endl;
     hHighLowEnergy_output     = new TH2F("hHighLowEnergy_" + sampleName + name_append + "_reweight",
                                 "Phase " + Phase + " " + sampleName + name_append + ";Low Energy Electron Energy (MeV);High Energy Electron Energy (MeV)",
                                 50, 0.0, 5.0, 50, 0.0, 5.0);
 
-    std::cout << "Weight new" << std::endl;
+    //std::cout << "Weight new" << std::endl;
     hWeight_output       = new TH1F("hWeight_" + sampleName + name_append + "_reweight",
                                 "Phase " + Phase + " " + sampleName + name_append + ";Weight",
                                 //50, -2.0, 4.0);
                                 50, 0.0, 0.0);
 
-    std::cout << "end of new" << std::endl;
+    //std::cout << "end of new" << std::endl;
 
     hTotalE_output->Sumw2();
     hSingleEnergy_output->Sumw2();
@@ -229,7 +229,7 @@ void reweight_apply(
     //}
 
 
-    std::cout << "xi_31=" << xi_31 << ", xi_31_baseline=" << xi_31_baseline << std::endl;
+    //std::cout << "xi_31=" << xi_31 << ", xi_31_baseline=" << xi_31_baseline << std::endl;
 
     //const double &epsilon_31_baseline{xi_31_baseline};
     //const double &epsilon_31{xi_31};

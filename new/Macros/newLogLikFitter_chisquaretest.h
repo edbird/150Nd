@@ -288,8 +288,8 @@ void newloglikfitter_testmyphasespace(
             
             std::cout << "rendering: " << c_mps_name << std::endl;
 
-            int n_param_1 = 1000; //300;
-            int n_param_2 = 1000; //300;
+            int n_param_1 = 100; //300;
+            int n_param_2 = 100; //300;
             int n_param_max = n_param_1 * n_param_2;
             int c_param = 0;
 
@@ -305,7 +305,7 @@ void newloglikfitter_testmyphasespace(
             // param 1 is gA
             // custom range
             param_1_min = -0.5; //1.0; //-0.5;
-            param_1_max = 2.5; //5.0; //2.5;
+            param_1_max = 0.5; //2.5; //5.0; //2.5;
             //sigma_1 = 1.0;
             //width_1 = param_1_max - param_1_min;
             //width_1 *= 2.0;
@@ -323,7 +323,7 @@ void newloglikfitter_testmyphasespace(
             // param 2 is 150Nd amplitude
             // custom range
             param_2_min = 0.0;
-            param_2_max = 4.0;
+            param_2_max = 2.0; //4.0;
             //sigma_2 = 1.0;
             //width_2 = param_2_max - param_2_min;
             //width_2 *= 2.0;
@@ -492,6 +492,45 @@ void newloglikfitter_testmyphasespace(
             h_mps = nullptr;
             c_mps->SaveAs("mps.png");
             
+
+    
+            ///////////////////////////////////////////////////////////////////////////
+            // draw the minimum and draw the point (0,1)
+            ///////////////////////////////////////////////////////////////////////////
+
+
+            params[param_1_ix] = 0.0;
+            params[param_2_ix] = 1.0;
+
+            double fval;
+            logLikelihood(n_params, nullptr, fval, params, 0);
+            std::cout << "fval(" << params[param_1_ix] << "," << param_2_ix << ")=" << fval << std::endl;
+
+            TH1F *junk1, *junk2, *junk3, *junk4;
+            TString savename;
+            savename.Form("%s_%d_%d_expected_minimum.png", h_mps_name.Data(), 1, 0);
+            draw(params, nullptr, fval, junk1, junk2, junk3, junk4, std::string(savename), ".", true);
+
+
+            //draw_channel(1, params, -1.0, "NOSAVE");
+            std::cin.get();
+            //draw(params, nullptr, fval, junk1, junk2, junk3, junk4, std::string(savename), ".", true);
+
+
+            params[param_1_ix] = min_x;
+            params[param_2_ix] = min_y;
+
+            logLikelihood(n_params, nullptr, fval, params, 0);
+            std::cout << "fval(" << params[param_1_ix] << "," << param_2_ix << ")=" << fval << std::endl;
+
+            //TH1F *junk1, *junk2, *junk3, *junk4;
+            //TString savename;
+            savename.Form("%s_%d_%d_measured_minimum.png", h_mps_name.Data(), 1, 0);
+            draw(params, nullptr, fval, junk1, junk2, junk3, junk4, std::string(savename), ".", true);
+
+            std::cin.get();
+
+
         }
     }
 
@@ -579,6 +618,8 @@ void newloglikfitter_testmyphasespace(
     
     //delete [] params;
     //delete [] param_errs;
+
+
 
 
 }

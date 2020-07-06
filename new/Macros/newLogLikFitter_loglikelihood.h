@@ -28,11 +28,11 @@ double logpoisson(const double nData, const double nMC)
     double mnu = nMC;
     double dnu = nData;
 
-    if(mnu < 0.0001)
+    if(mnu < 0.000001)
     {
-        mnu = 0.0001;
+        mnu = 0.000001;
     }
-    if(dnu)
+    if(dnu > 0.0)
     {
         return -1.0 * (mnu - dnu + dnu * std::log(dnu / mnu));
     }
@@ -44,6 +44,18 @@ double logpoisson(const double nData, const double nMC)
 
 
 
+// changing resolution has moved fit point
+// does changing x maximum move the contours? (it used to)
+// does not appear to do so by changing x upper limit
+// or x lower limit
+// or y axis upper limit
+// disable other backgrounds and check result
+
+
+// NOTE:
+// this function does not work if reweight is called before this function is
+// called
+// for obvious reasons
 void build_fake_data()
 {
 
@@ -65,6 +77,7 @@ void build_fake_data()
     // TODO: this isn't right. should this be iterating over the "channel" ?
     for(int i = 0; i < allDataSamples1D->GetEntries(); i++)
     {
+//        std::cout << "i=" << i << std::endl;
 
         // because this isn't right TODO
         // uses at(i), but i should always be zero and there should be an
@@ -135,7 +148,7 @@ void build_fake_data()
                         //which_param = paramNumber;
                         which_param = paramNumberToMinuitParamNumberMap.at(paramNumber);
                         found_param = true;
-                        //std::cout << "j=" << j << ": paramNumber=" << paramNumber << " -> tmp_sample_name=" << tmp_sample_name << " ~> tmpName=" << tmpName << " which_param=" << which_param << std::endl;
+//                        std::cout << "j=" << j << ": paramNumber=" << paramNumber << " -> tmp_sample_name=" << tmp_sample_name << " ~> tmpName=" << tmpName << " which_param=" << which_param << std::endl;
                     }
                     else
                     {
@@ -144,7 +157,7 @@ void build_fake_data()
                 }
             }
 
-
+//            std::cin.get();
 
             if(found_param == true)
             {
@@ -163,6 +176,15 @@ void build_fake_data()
                 // no error thrown, which_param is presumably the correct index
                 //Double_t activity_scale = AdjustActs[which_param] * activity_scale_branching_ratio;
                 Double_t activity_scale = paramInitValueMap[which_param]; // * activity_scale_branching_ratio;
+                if(which_param == 0)
+                {
+                    std::cout << "in build_fake_data(): activity_scale=" << activity_scale << std::endl;
+                }
+                else if(which_param == 1)
+                {
+                    std::cout << "ERROR: which_param == 1 !" << std::endl;
+                    std::cin.get();
+                }
                 //std::cout << "activity_scale=" << activity_scale << std::endl;
 //                tmpHist->Scale(activity_scale);
 // TODO: has already been scaled by this activity when read in
@@ -311,7 +333,7 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
     {
 
         // TODO: rebuild nd150 xi_31 paramter histogram here
-        std::cout << "rebuilding 150 Nd MC" << std::endl;
+        //std::cout << "rebuilding 150 Nd MC" << std::endl;
 
 
         ///////////////////////////////////////////////////////////////////////
@@ -470,7 +492,7 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
         // NOTE: 2020-06-17 this was a bug, removed
 
         TH1F *hWeight = nullptr;
-        if(debugprint || true)
+        if(debugprint || false)
         {
             std::cout << "before reweight_apply()" << std::endl;
         }
@@ -491,7 +513,7 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
             psiN0,
             psiN2,
             bb_Q);
-        if(debugprint || true)
+        if(debugprint || false)
         {
             std::cout << "after reweight_apply()" << std::endl;
         }
@@ -664,7 +686,7 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
             {
                 nData = (Int_t)tmpData1D->GetBinContent(bin_ix);
             }
-            if(mode_fake_data)
+            if(mode_fake_data == true)
             {
                 nData = (Int_t)tmpFakeData1D->GetBinContent(bin_ix);
             }
