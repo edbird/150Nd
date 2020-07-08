@@ -259,7 +259,7 @@ void draw(
         // uses at(i), but i should always be zero and there should be an
         // additional array index
         data1D[i] = (TH1F*)allDataSamples1D->At(i)->Clone();
-        if(mode_fake_data)
+        if(mode_fake_data == true)
         {
             fakeData1D[i] = (TH1F*)allFakeDataSamples1D->At(i)->Clone(); // TODO
             // TODO: will not work if logLikelihood not called before
@@ -418,33 +418,17 @@ void draw(
 
             /* if I rebuild the MC in the fitHistograms loop
              * then I don't need to reweight it here
-                // check if MC sample is 150Nd, if so need to apply xi
-                // reweighting
-                TString tmpHist_name = tmpHist_draw1D->GetName();
-                if(tmpHist_name.CompareTo("nd150_rot_2n2b_m4") == 0)
-                {
-                    std::cout << "found the 150Nd MC" << std::endl;
-                    std::cin.get();
-
-                    //TH1F *tmpHist_draw1D_clone = nullptr;
-                    TH1F *tmpHist_reweight = nullptr;
-                    //reweight_apply(tmpHist_draw1D_clone, tmpHist_draw1D, ... );
-                    reweight_apply(tmpHist_reweight, "Nd150_2eNg_output_truth_postprocessed.root", xi_31, xi_31_baseline, h_nEqNull, h_nEqTwo, psiN0, psiN2, bb_Q);
-                    // TODO: after reweight function called, replace 150nd MC
-                    // in containers, or add a _reweight version to containers
-
-                    tmpHist_drawpointer = tmpHist_draw1D_clone;
-                }
-                else
-                {
-                    std::cout << "it is not " << tmpHist_draw1D->GetName() << std::endl;
-                    std::cin.get();
-                }
               */
 
                 // no error thrown, which_param is presumably the correct index
                 Double_t activity_scale = AdjustActs[which_param]; // * activity_scale_branching_ratio;
                 tmpHist_draw1D->Scale(activity_scale);
+
+                if(which_param == 1)
+                {
+                    std::cout << "error " << __func__ << std::endl;
+                    throw "error";
+                }
 
                 //TH1F *tmpHist_drawpointer = tmpHist_draw1D;
 
@@ -466,151 +450,6 @@ void draw(
                                  h_external[i],
                                  h_other[i]);
 
-                    /*
-
-                    TString hname = tmpHist_draw1D->GetName();
-
-                    // 150 Nd
-                    if(hname.Contains("150"))
-                    {
-                        //stacks1D_2nubb[i]->Add((TH1F*)tmpHist_draw1D->Clone());
-                        if(h_2nubb[i] == nullptr)
-                        {
-                            h_2nubb[i] = (TH1F*)tmpHist_draw1D->Clone();
-                        }
-                        else
-                        {
-                            h_2nubb[i]->Add((TH1F*)tmpHist_draw1D->Clone());
-                        }
-                    }
-                    // tl208 internal
-                    else if(hname.Contains("tl208_int"))// ||
-                            //hname.Contains("ac228_int") ||
-                            //hname.Contains("bi212_int"))
-                    {
-                        //stacks1D_tl208_int[i]->Add((TH1F*)tmpHist_draw1D->Clone());
-                        if(h_tl208_int[i] == nullptr)
-                        {
-                            h_tl208_int[i] = (TH1F*)tmpHist_draw1D->Clone();
-                        }
-                        else
-                        {
-                            h_tl208_int[i]->Add((TH1F*)tmpHist_draw1D->Clone());
-                        }
-                    }
-                    // bi 214 internal
-                    else if(hname.Contains("bi214_int") ||
-                            hname.Contains("pb214_int")
-                            )
-                    {
-                        //stacks1D_bi214_int[i]->Add((TH1F*)tmpHist_draw1D->Clone());
-                        if(h_bi214_int[i] == nullptr)
-                        {
-                            h_bi214_int[i] = (TH1F*)tmpHist_draw1D->Clone();
-                        }
-                        else
-                        {
-                            h_bi214_int[i]->Add((TH1F*)tmpHist_draw1D->Clone());
-                        }
-                    }
-                    // bi 207 internal
-                    else if(hname.Contains("bi207_int"))
-                    {
-                        //stacks1D_bi207_int[i]->Add((TH1F*)tmpHist_draw1D->Clone());
-                        if(h_bi207_int[i] == nullptr)
-                        {
-                            h_bi207_int[i] = (TH1F*)tmpHist_draw1D->Clone();
-                        }
-                        else
-                        {
-                            h_bi207_int[i]->Add((TH1F*)tmpHist_draw1D->Clone());
-                        }
-                    }
-                    // internals (other)
-                    else if(
-                        hname.Contains("int") ||
-                        hname.Contains("mylar")
-                        )
-                    {
-                        //stacks1D_internal[i]->Add((TH1F*)tmpHist_draw1D->Clone());
-                        if(h_internal[i] == nullptr)
-                        {
-                            h_internal[i] = (TH1F*)tmpHist_draw1D->Clone();
-                        }
-                        else
-                        {
-                            h_internal[i]->Add((TH1F*)tmpHist_draw1D->Clone());
-                        }
-                    }
-                    // neighbours
-                    else if(
-                        hname.Contains("mo100") ||
-                        hname.Contains("zr96") ||
-                        hname.Contains("ca48")
-                        )
-                    {
-                        //stacks1D_neighbours[i]->Add((TH1F*)tmpHist_draw1D->Clone());
-                        if(h_neighbours[i] == nullptr)
-                        {
-                            h_neighbours[i] = (TH1F*)tmpHist_draw1D->Clone();
-                        }
-                        else
-                        {
-                            h_neighbours[i]->Add((TH1F*)tmpHist_draw1D->Clone());
-                        }
-                    }
-                    // radon
-                    else if(
-                        hname.Contains("swire") ||
-                        hname.Contains("sfoil")
-                        )
-                    {
-                        //stacks1D_radon[i]->Add((TH1F*)tmpHist_draw1D->Clone());
-                        if(h_radon[i] == nullptr)
-                        {
-                            h_radon[i] = (TH1F*)tmpHist_draw1D->Clone();
-                        }
-                        else
-                        {
-                            h_radon[i]->Add((TH1F*)tmpHist_draw1D->Clone());
-                        }
-                    }
-                    // external
-                    else if(
-                        hname.Contains("feShield") ||
-                        hname.Contains("pmt") ||
-                        hname.Contains("cuTower") ||
-                        hname.Contains("sscin") ||
-                        hname.Contains("scint") ||
-                        hname.Contains("air") // TODO: air now included with externals
-                        )
-                    {
-                        //stacks1D_external[i]->Add((TH1F*)tmpHist_draw1D->Clone());
-                        if(h_external[i] == nullptr)
-                        {
-                            h_external[i] = (TH1F*)tmpHist_draw1D->Clone();
-                        }
-                        else
-                        {
-                            h_external[i]->Add((TH1F*)tmpHist_draw1D->Clone());
-                        }
-                    }
-                    // everything else
-                    else
-                    {
-                        std::cout << "adding " << tmpHist_draw1D->GetName() << " to others TODO: FIX" << std::endl;
-                        //stacks1D_other[i]->Add((TH1F*)tmpHist_draw1D->Clone());
-                        if(h_other[i] == nullptr)
-                        {
-                            h_other[i] = (TH1F*)tmpHist_draw1D->Clone();
-                        }
-                        else
-                        {
-                            h_other[i]->Add((TH1F*)tmpHist_draw1D->Clone());
-                        }
-                    }
-                    
-                    */
 
                     if(j == 0)
                     {
@@ -665,83 +504,12 @@ void draw(
                          h_radon[i],
                          h_external[i],
                          h_other[i]);
-        /*
-        if(h_external[i] != nullptr)
-        {
-            //h_external[i]->SetLineWidth(1);
-            //h_external[i]->SetLineColor(kBlack);
-            h_external[i]->SetFillColor(ExternalBkgColor);
-            h_external[i]->SetLineStyle(0);
-            h_external[i]->SetLineWidth(0);
-            stacks1D_major[i]->Add((TH1F*)h_external[i]);
-        }
-        if(h_radon[i] != nullptr)
-        {
-            //h_radon[i]->SetLineWidth(1);
-            //h_radon[i]->SetLineColor(kBlack);
-            h_radon[i]->SetFillColor(RadonBkgColor);
-            h_radon[i]->SetLineStyle(0);
-            h_radon[i]->SetLineWidth(0);
-            stacks1D_major[i]->Add((TH1F*)h_radon[i]);
-        }
-        if(h_neighbours[i] != nullptr)
-        {
-            h_neighbours[i]->SetFillColor(NeighbourColor);
-            h_neighbours[i]->SetLineStyle(0);
-            h_neighbours[i]->SetLineWidth(0);
-            stacks1D_major[i]->Add((TH1F*)h_neighbours[i]);
-        }
-        if(h_internal[i] != nullptr)
-        {
-            //h_internal[i]->SetLineWidth(1);
-            //h_internal[i]->SetLineColor(kBlack);
-            h_internal[i]->SetFillColor(InternalBkgColor);
-            h_internal[i]->SetLineStyle(0);
-            h_internal[i]->SetLineWidth(0);
-            stacks1D_major[i]->Add((TH1F*)h_internal[i]);
-        }
-        if(h_bi207_int[i] != nullptr)
-        {
-            h_bi207_int[i]->SetFillColor(bi207InternalBkgColor);
-            h_bi207_int[i]->SetLineStyle(0);
-            h_bi207_int[i]->SetLineWidth(0);
-            stacks1D_major[i]->Add((TH1F*)h_bi207_int[i]);
-        }
-        if(h_bi214_int[i] != nullptr)
-        {
-            h_bi214_int[i]->SetFillColor(bi214InternalBkgColor);
-            h_bi214_int[i]->SetLineStyle(0);
-            h_bi214_int[i]->SetLineWidth(0);
-            stacks1D_major[i]->Add((TH1F*)h_bi214_int[i]);
-        }
-        if(h_tl208_int[i] != nullptr)
-        {
-            h_tl208_int[i]->SetFillColor(tl208InternalBkgColor);
-            h_tl208_int[i]->SetLineStyle(0);
-            h_tl208_int[i]->SetLineWidth(0);
-            stacks1D_major[i]->Add((TH1F*)h_tl208_int[i]);
-        }
-        if(h_2nubb[i] != nullptr)
-        {
-            h_2nubb[i]->SetFillColor(Nd150Color);
-            h_2nubb[i]->SetLineStyle(0);
-            h_2nubb[i]->SetLineWidth(0);
-            stacks1D_major[i]->Add((TH1F*)h_2nubb[i]);
-        }
-        if(h_other[i] != nullptr)
-        {
-            h_other[i]->SetLineStyle(0);
-            h_other[i]->SetLineWidth(0);
-            stacks1D_major[i]->Add((TH1F*)h_other[i]);
-            std::cout << "h_other is non zero" << std::endl;
-        }
-        */
 
 
         double PAD_U_Y_MIN = 0.0;
         double PAD_U_Y_MAX = 500.0;
-        double PAD_L_Y_MAX = 1.2; //3.0;
-        double PAD_L_Y_MIN = 0.8; //0.0;
+        double PAD_L_Y_MAX = 1.05; //3.0; // 1.2
+        double PAD_L_Y_MIN = 0.95; //0.0; // 0.8
 
         if(i == 0)
         {
@@ -789,7 +557,7 @@ void draw(
         //data1D[i]->SetMaximum(PAD_U_Y_MAX);
         //data1D[i]->SetMinimum(PAD_U_Y_MIN);
         data1D[i]->GetYaxis()->SetRangeUser(PAD_U_Y_MIN, PAD_U_Y_MAX);
-        if(mode_fake_data)
+        if(mode_fake_data == true)
         {
             //fakeData1D[i]->SetMaximum(PAD_U_Y_MAX);
             //fakeData1D[i]->SetMinimum(PAD_U_Y_MIN);
@@ -801,13 +569,25 @@ void draw(
         {
             hRatio[i] = (TH1F*)data1D[i]->Clone();
         }
-        if(mode_fake_data)
+        if(mode_fake_data == true)
         {
             hRatio[i] = (TH1F*)fakeData1D[i]->Clone();
         }
         hRatio[i]->Sumw2();
         hRatio[i]->Divide(hAllMC1D[i]);
+        /*
+        for(int ii = 1; ii < hRatio[i]->GetNbinsX(); ++ ii)
+        {
+            std::cout << "bin " << ii << ": " << hRatio[i]->GetBinContent(ii) << std::endl;
+        }
+        */
         hRatio[i]->SetTitle("");
+
+        std::cout << "draw-> MC Integral() = " << hAllMC1D[i]->Integral() << std::endl;
+        if(mode_fake_data == true)
+        {
+            std::cout << "draw-> fakeData Integral() = " << fakeData1D[i]->Integral() << std::endl;
+        }
 
 
     // TODO: some other stuff goes here
@@ -939,17 +719,23 @@ void draw(
         data1D[i]->SetLineWidth(2);
         data1D[i]->SetMarkerStyle(20);
         data1D[i]->SetMarkerSize(1.0);
-        if(mode_fake_data)
+        data1D[i]->SetLineColor(kBlack);
+        data1D[i]->SetMarkerColor(kBlack);
+        data1D[i]->SetFillColor(kBlack);
+        if(mode_fake_data == true)
         {
             fakeData1D[i]->SetLineWidth(2);
             fakeData1D[i]->SetMarkerStyle(20);
             fakeData1D[i]->SetMarkerSize(1.0);
+            fakeData1D[i]->SetLineColor(kBlack);
+            fakeData1D[i]->SetMarkerColor(kBlack);
+            fakeData1D[i]->SetFillColor(kBlack);
         }
         TString Ndata_str;
         Ndata_str.Form("%i", (int)data1D[i]->Integral()); // TODO: float?
         data1D[i]->SetTitle("Data (" + Ndata_str + ")");
         TString Nfakedata_str;
-        if(mode_fake_data)
+        if(mode_fake_data == true)
         {
             Nfakedata_str.Form("%i", (int)fakeData1D[i]->Integral()); // TODO: float?
             fakeData1D[i]->SetTitle("Fake Data (" + Ndata_str + ")");
@@ -960,7 +746,7 @@ void draw(
             data1D[i]->Draw("PEsame");
             data1D[i]->GetYaxis()->SetRangeUser(PAD_U_Y_MIN, PAD_U_Y_MAX);
         }
-        if(mode_fake_data)
+        if(mode_fake_data == true)
         {
             fakeData1D[i]->Draw("PEsame");
             fakeData1D[i]->GetYaxis()->SetRangeUser(PAD_U_Y_MIN, PAD_U_Y_MAX);
@@ -968,6 +754,27 @@ void draw(
 
         //double chi2;
         int ndf = -1;
+        ndf = 0;
+        for(Int_t bin_ix = 0; bin_ix <= data1D[i]->GetNbinsX(); ++ bin_ix)
+        {
+            if(hAllMC1D[i]->GetBinContent(bin_ix) > 0.0)
+            {
+                if(mode_fake_data == false)
+                {
+                    if(data1D[i]->GetBinContent(bin_ix) > 0.0)
+                    {
+                        ++ ndf;
+                    }
+                }
+                if(mode_fake_data == true)
+                {
+                    if(fakeData1D[i]->GetBinContent(bin_ix) > 0.0)
+                    {
+                        ++ ndf;
+                    }
+                }
+            }
+        }
         //int ndf;
         //int igood;
         //TString chi2_str;
@@ -1004,7 +811,7 @@ void draw(
         {
             leg->AddEntry(data1D[i], "Data (" + Ndata_str + ")", "PE");
         }
-        if(mode_fake_data)
+        if(mode_fake_data == true)
         {
             leg->AddEntry(fakeData1D[i], "Fake Data (" + Nfakedata_str + ")", "PE");
         }

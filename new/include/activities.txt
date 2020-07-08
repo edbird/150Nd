@@ -4,8 +4,8 @@ nd150_rot_2b2n_m4	    0.345e-3	0.345e-3
 bi214_int_rot           0.29e-3     0.29e-3
 pb214_int_rot           0.29e-3     0.29e-3
 tl208_int_rot           0.62e-3     0.62e-3
-ac228_int_rot           1.72e-3     1.72e-3
-bi212_int_rot           1.72e-3     1.72e-3
+ac228_int_rot           1.70e-3     1.70e-3
+bi212_int_rot           1.70e-3     1.70e-3
 bi207_int_rot           5.66e-3     5.66e-3
 eu152_int_rot           2.98e-3     2.98e-3
 eu154_int_rot           1.08e-3     1.08e-3
@@ -44,7 +44,7 @@ pb214_swire_OUTL0	    29.9e-3     0.4e-3
 bi214_swire_Lg0	        857.5e-3	101.3e-3
 pb214_swire_Lg0	        857.5e-3	101.3e-3
 
-bi210_swire             11.7e-3     11.7e-3
+bi210_swire             9.0         9.0
 bi210_sfoil             1.3e-3      1.3e-3
 bi210_sscin	            34.0		34.0
 

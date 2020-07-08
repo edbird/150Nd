@@ -738,22 +738,7 @@ void reweight_apply(
         Double_t param_init_value = 0.;
         Double_t param_init_error = 0.; 
         get_paramInitValueError(thePhase, param_number, param_init_value, param_init_error);
-        /*
-        if(thePhase == 0)
-        {
-            param_init_value = paramInitValueP1Map[param_number];
-            param_init_error = paramInitErrorP1Map[param_number];
-        }
-        else if(thePhase == 1)
-        {
-            param_init_value = paramInitValueP2Map[param_number];
-            param_init_error = paramInitErrorP2Map[param_number];
-        }
-        else
-        {
-            std::cout << "ERROR: Invalid value for thePhase: thePhase=" << thePhase << std::endl;
-        }
-        */
+
         Double_t scale_factor = param_init_value;
 
         // NOTE: TODO
