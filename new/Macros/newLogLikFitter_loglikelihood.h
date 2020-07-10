@@ -120,7 +120,8 @@ void build_fake_data()
 
 
     std::cout << "rebuild: xi_31_baseline=" << xi_31_baseline << std::endl;
-    rebuild_150Nd_MC(/*xi_31_baseline*/ 0.296, xi_31_baseline);
+    //rebuild_150Nd_MC(/*xi_31_baseline*/ 0.296, xi_31_baseline);
+    rebuild_150Nd_MC(xi_31_baseline, xi_31_baseline);
 
 
     TH1F *hAllMC1D[number1DHists];
@@ -240,6 +241,10 @@ void build_fake_data()
                 if(which_param == 0)
                 {
                     std::cout << "in build_fake_data(): activity_scale=" << activity_scale << std::endl;
+
+                    // SSD
+                    //activity_scale *= 1.2;
+                    //tmpHist->Scale(1.5);
                 }
                 else if(which_param == 1)
                 {
@@ -309,6 +314,150 @@ void build_fake_data()
 
         std::cout << "The integral for fake data is " << hAllMC1D[i]->Integral() << std::endl;
     }
+
+
+
+
+
+
+
+    // each channel 2D hists
+    for(int i = 0; i < allDataSamples2D->GetEntries(); i++)
+    {
+
+        TH2F *tmpHist;
+
+        // allMCSamples2D[0] contains objects such as: "zr96_rot_k40_2e_P2"
+
+        for(int channel = 0; channel < allMCSamples2D[i]->GetEntries(); ++ channel)
+        {
+
+            TString channel_str;
+            channel_str.Form("%i", channel);
+
+            tmpHist = (TH2F*)allMCSamples2D[i]->At(channel)->Clone();
+            TString tmpName = tmpHist->GetName();
+
+            //std::cout << "looking for " << tmpName << std::endl;
+            int which_param = -1;
+            bool found_param = false;
+
+            // search through parameters to find right one
+            // the histogram names are formatted like:
+            // hTotalE_bi214_mylar_fit
+            // histogram_name + "_" + mc_sample_name + "_fit"
+            
+            // used later
+            double activity_scale_branching_ratio = 1.0;
+
+            {
+                std::string tmp_hist_name(tmpName);
+                auto i_start = tmp_hist_name.find('_') + 1;
+                auto i_end = tmp_hist_name.rfind('_');
+                if(i_end - i_start > 0)
+                {
+                    std::string tmp_sample_name = tmp_hist_name.substr(i_start, i_end - i_start);
+
+                    // TODO
+                    // do not have to scale by 0.36 after reading from file
+                    // as scaling is done when reading
+                    /*
+                    // set branching ratio fraction
+                    if(tmp_sample_name == std::string("tl208_int_rot") ||
+                       tmp_sample_name == std::string("tl208_feShield") ||
+                       tmp_sample_name == std::string("tl208_pmt"))
+                    {
+                        activity_scale_branching_ratio = 0.36;
+                    }
+                    */
+
+                    if(MCNameToParamNumberMap.count(tmp_sample_name) > 0)
+                    {
+                        int paramNumber = MCNameToParamNumberMap.at(tmp_sample_name);
+                        // TODO: removed std::string, change tmpName type to be std::string from TString
+                    
+                        //which_param = paramNumber;
+                        which_param = paramNumberToMinuitParamNumberMap.at(paramNumber);
+                        found_param = true;
+//                        std::cout << "j=" << j << ": paramNumber=" << paramNumber << " -> tmp_sample_name=" << tmp_sample_name << " ~> tmpName=" << tmpName << " which_param=" << which_param << std::endl;
+                    }
+                    else
+                    {
+                       std::cout << "ERROR: could not find " << tmp_sample_name << " in MCNameToParamNumberMap" << std::endl;
+                    }
+                }
+            }
+
+            if(found_param == true)
+            {
+                //std::cout << "found histogram: tmpName=" << tmpName << " which_param=" << which_param << std::endl;
+
+                // scale histogram to correct size using output parameter
+                // from fit
+                if(which_param >= numberEnabledParams)
+                {
+                    std::cout << "throwing exception, which_param=" << which_param << std::endl;
+                    throw std::runtime_error("which_param invalid value");
+                }
+
+                // no error thrown, which_param is presumably the correct index
+                //Double_t activity_scale = AdjustActs[which_param] * activity_scale_branching_ratio;
+                Double_t activity_scale = paramInitValueMap[which_param]; // * activity_scale_branching_ratio;
+                if(which_param == 0)
+                {
+                    std::cout << "in build_fake_data(): activity_scale=" << activity_scale << std::endl;
+
+                    // SSD
+                    //activity_scale *= 1.2;
+                    //tmpHist->Scale(1.5);
+                }
+                else if(which_param == 1)
+                {
+                    std::cout << "ERROR: which_param == 1 !" << std::endl;
+                    std::cin.get();
+                }
+                //std::cout << "activity_scale=" << activity_scale << std::endl;
+//                tmpHist->Scale(activity_scale);
+// TODO: has already been scaled by this activity when read in
+
+                if(tmpHist->Integral() > 0)
+                {
+
+                    TString hname = tmpHist->GetName();
+
+                    if(channel == 0)
+                    {
+                        //std::cout << "Clone() done" << "j=" << j << std::endl;
+                        // TODO: bug here if Integral() for j == 0 is zero
+                        
+                        hAllMC2D[i] = (TH2F*)tmpHist->Clone("Total MC Fake Data");
+                    }
+                    else
+                    {
+                        hAllMC2D[i]->Add((TH2F*)tmpHist);
+                    }
+	            }
+                else
+                {
+                    //std::cout << "not adding to stack, Integral() <= 0: " << tmpHist->GetName() << std::endl;
+                }
+            }
+            else
+            {
+                std::cout << "error could not find histogram: tmpName=" << tmpName << std::endl;
+            } 
+
+        }
+
+        allFakeDataSamples2D->Add((TH2F*)hAllMC2D[i]);
+
+
+        std::cout << "The integral for fake data is " << hAllMC2D[i]->Integral() << std::endl;
+    }
+
+
+
+
 
 
 }
@@ -509,6 +658,8 @@ void rebuild_150Nd_MC(const double xi_31, const double xi_31_baseline)
     }
     std::cin.get();
     */
+
+
 
     // TODO: just another example of manual code edits
     // make a file describing the channels to fit as well as the parameters
@@ -828,10 +979,6 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
         if(debugprint)
         {
             std::cout << "2D: channel " << channel << " enabled, ll=" << ll_channel << std::endl;
-        }
-        if(ll_channel != 0.0)
-        {
-            std::cout << "ll_channel = " << ll_channel << std::endl;
         }
         loglik += ll_channel;
 

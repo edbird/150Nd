@@ -508,8 +508,8 @@ void draw(
 
         double PAD_U_Y_MIN = 0.0;
         double PAD_U_Y_MAX = 500.0;
-        double PAD_L_Y_MAX = 1.05; //3.0; // 1.2
-        double PAD_L_Y_MIN = 0.95; //0.0; // 0.8
+        double PAD_L_Y_MAX = 3.0; // 1.2
+        double PAD_L_Y_MIN = 0.0; // 0.8
 
         if(i == 0)
         {
