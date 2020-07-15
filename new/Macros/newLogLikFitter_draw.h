@@ -251,7 +251,7 @@ void draw(
     // TODO: this isn't right. should this be iterating over the "channel" ?
     for(int i = 0; i < allDataSamples1D->GetEntries(); i++)
     {
-        if(i != 1) continue;
+        //if(i != 1) continue;
         // TODO: remove
 
 

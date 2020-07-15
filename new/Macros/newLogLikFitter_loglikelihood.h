@@ -706,9 +706,12 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
     }
 
 
+    // save the walk
+    ll_walk.push_back(std::make_pair(p[1], p[0]));
+
 
     bool debugprint = false;
-    bool mode_fake_data = true;
+    bool mode_fake_data = false; //true;
 
 
     // draw the output

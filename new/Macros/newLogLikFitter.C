@@ -408,7 +408,6 @@ void loadFiles()
 //    fitBackgrounds_exec(minuit, AdjustActs, AdjustActs_Err);
 
 
-/*
     // draw my data for a parameter xi = 0.0
     double fval = 0.;
     int n_params = minuit->GetNumPars();
@@ -425,11 +424,12 @@ void loadFiles()
     std::cout << "fval=" << fval << " for params[0]=" << params[0] << " params[1]=" << params[1] << std::endl;
 //    draw_channel(1, params, fval, "test_channel_1.png");
     TH1F *j1, *j2, *j3, *j4;
-    draw(params, nullptr, "NOSAVE", fval, j1, j2, j3, j4, false);
+    draw(params, nullptr, fval, j1, j2, j3, j4, "minuit_output.*", ".", false);
     //draw(params, nullptr, "NOSAVE", fval, j1, j2, j3, j4, true);
 
     std::cin.get();
 
+/*
 //    params[0] = 1.0;
     params[1] = 0.0 + 0.001;
     std::cout << params[0] << " " << params[1] << std::endl;
@@ -462,8 +462,9 @@ void loadFiles()
     //draw(params, nullptr, "NOSAVE", fval, j1, j2, j3, j4, true);
 
     std::cin.get();
-    return 0;
+    //return 0;
 */
+
 
 #if 0
     std::ofstream os("parab.csv");

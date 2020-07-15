@@ -158,7 +158,8 @@ TMinuit* fitBackgrounds_init(double *AdjustActs, double *AdjustActs_Err)
             {
                 if(i == 0)
                 {
-                    minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", 1.0, 0.5, 0.0, 1000.0);
+                    //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", 1.0, 0.5, 0.0, 1000.0);
+                    minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", 1.705, 0.005, 0.0, 1000.0);
                     //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", 2.5, 0.5, 0.0, 1000.0);
                 }
                 else
@@ -422,7 +423,11 @@ void fitBackgrounds_exec(TMinuit *minuit, double *AdjustActs, double *AdjustActs
 //                std::cin.get();
 
     // TODO: re-enable
+    ll_walk.clear();
     minuit->Migrad();
+    ll_walk_save = ll_walk;
+    std::cout << "walk length: " << ll_walk_save.size() << std::endl;
+    ll_walk.clear();
 
     // Then get results
     //for(int i = 0; i < numberParams; i++)
@@ -488,7 +493,7 @@ TMinuit* fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&Cov
     std::cout << ">>>>> fitBackgrounds()" << std::endl;
     
     TMinuit* minuit = fitBackgrounds_init(AdjustActs, AdjustActs_Err);
-    if(0)
+    if(1)
     {
         fitBackgrounds_exec(minuit, AdjustActs, AdjustActs_Err);
         fitBackgrounds_postexectest(minuit, AdjustActs, AdjustActs_Err);
