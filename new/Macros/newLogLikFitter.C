@@ -565,17 +565,9 @@ void loadFiles()
 
     ///////////////////////////////////////////////////////////////////////////
 
-    std::cout << "The following adjustments (in minuit parameter units) should be made:" << std::endl;
-    std::cout << "Note that gA (1) is a special parameter" << std::endl;
-    // TODO: after homogenizing gA is no longer a special parameter
-    //for(int i = 0; i < numberParams; i++)
+    print_adjustacts(std::cout);
     std::ofstream myFileFitResults("fit_results.txt", std::ios::out | std::ios::app);
-    timestamp(myFileFitResults);
-    for(int i = 0; i < numberEnabledParams; i++)
-    {
-        std::cout << i << " :\t" << AdjustActs[i] << " +- " << AdjustActs_Err[i] << std::endl;  
-        myFileFitResults << AdjustActs[i] << " +- " << AdjustActs_Err[i] << std::endl;
-    }
+    print_adjustacts(myFileFitResults);
     myFileFitResults.close();
 
     std::cout << "The following adjustments (in units of Bq) should be made:" << std::endl;

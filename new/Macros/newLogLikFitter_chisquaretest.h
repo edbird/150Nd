@@ -267,6 +267,11 @@ void newloglikfitter_testmyphasespace(
     {
         for(int free_params_index_2 = 0; free_params_index_2 < free_params_index_1; ++ free_params_index_2)
         {
+            if(free_params_index_1 != 1)
+                continue;
+            if(free_params_index_2 != 0)
+                continue;
+
             int free_param_1 = free_params.at(free_params_index_1);
             int free_param_2 = free_params.at(free_params_index_2);
 
@@ -301,7 +306,7 @@ void newloglikfitter_testmyphasespace(
             
             std::cout << "rendering: " << c_mps_name << std::endl;
 
-            const int n_param_xy = 301; // 1001
+            const int n_param_xy = 55; // 1001
             int n_param_1 = n_param_xy; //300;
             int n_param_2 = n_param_xy; //300;
             int n_param_max = n_param_1 * n_param_2;
@@ -372,7 +377,7 @@ void newloglikfitter_testmyphasespace(
 
 
 
-            if(1) 
+            if(0) 
             {
                 ///////////////////////////////////////////////////////////////////////////
                 // draw the minimum and draw the point (0,1)
