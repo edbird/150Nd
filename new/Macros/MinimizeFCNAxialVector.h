@@ -12,6 +12,9 @@
 
 
 
+
+
+
 Double_t getNumberMC1D(const Int_t channel, const Int_t bin_ix, const std::vector<double> &p);
 Double_t getNumberMC2D(const Int_t channel, const Int_t bin_ix, const Int_t bin_iy, const std::vector<double> &p);
 
@@ -65,8 +68,8 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
 
 
         // draw the output
-        TString fname;
-        fname.Form("lliter_%d", counter);
+        //TString fname;
+        //fname.Form("lliter_%d", counter);
         //draw_channel(1, p, std::string(fname));
 
 
@@ -369,6 +372,8 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
 
         // TODO: I don't like this - should loop over the enabled params
         // however, this should still work as it is
+        // NOTE: this also loops over the xi parameter, but since it is
+        // free and not soft, nothing happens
         for(int i = 0; i < numberParams; ++ i)
         {
 
@@ -509,6 +514,11 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                 // quadrature
             }
             
+            std::cout << "i=" << i
+                      << " value=" << value
+                      << " constraint=" << constraint
+                      << " error=" << error << std::endl;
+            std::cin.get();
             penalty = std::pow((value - constraint) / error, 2.0);
 
 

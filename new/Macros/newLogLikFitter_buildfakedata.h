@@ -1,5 +1,5 @@
-#ifndef NEWLOGLIKFITTER_LOGPOISSON_H
-#define NEWLOGLIKFITTER_LOGPOISSON_H
+#ifndef NEWLOGLIKFITTER_BUILDFAKEDATA_H
+#define NEWLOGLIKFITTER_BUILDFAKEDATA_H
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -591,4 +591,4 @@ void rebuild_150Nd_MC(const double xi_31, const double xi_31_baseline)
 
 
 
-#endif // NEWLOGLIKFITTER_LOGPOISSON_H
+#endif // NEWLOGLIKFITTER_BUILDFAKEDATA_H
