@@ -124,8 +124,8 @@ void build_fake_data()
     rebuild_150Nd_MC(xi_31_baseline, xi_31_baseline);
 
 
-    TH1F *hAllMC1D[number1DHists];
-    TH2F *hAllMC2D[number2DHists]; // TODO
+    TH1D *hAllMC1D[number1DHists];
+    TH2D *hAllMC2D[number2DHists]; // TODO
 
     std::cout << "debug: number of data samples: " << allDataSamples1D->GetEntries() << std::endl;
     std::cout << "debug: number of MC samples: " << allMCSamples1D[0]->GetEntries() << std::endl;
@@ -144,10 +144,10 @@ void build_fake_data()
         // because this isn't right TODO
         // uses at(i), but i should always be zero and there should be an
         // additional array index
-        //data1D[i] = (TH1F*)allDataSamples1D->At(i)->Clone();
+        //data1D[i] = (TH1D*)allDataSamples1D->At(i)->Clone();
         
 
-        TH1F *tmpHist;
+        TH1D *tmpHist;
 
         // j list MC samples for this channel i
         //std::cout << "debug: number of MC samples (i=" << i << "): " << allMCSamples1D[i]->GetEntries() << std::endl;
@@ -164,7 +164,7 @@ void build_fake_data()
             TString j_str;
             j_str.Form("%i", j);
 
-            tmpHist = (TH1F*)allMCSamples1D[i]->At(j)->Clone();
+            tmpHist = (TH1D*)allMCSamples1D[i]->At(j)->Clone();
             TString tmpName = tmpHist->GetName();
 
             //std::cout << "(1) tmpName=" << tmpName << std::endl;
@@ -265,8 +265,8 @@ void build_fake_data()
                         //std::cout << "Clone() done" << "j=" << j << std::endl;
                         // TODO: bug here if Integral() for j == 0 is zero
                         
-                        hAllMC1D[i] = (TH1F*)tmpHist->Clone("Total MC Fake Data");
-                        //hAllMC1D[i] = (TH1F*)tmpHist_drawpointer->Clone("Total MC");
+                        hAllMC1D[i] = (TH1D*)tmpHist->Clone("Total MC Fake Data");
+                        //hAllMC1D[i] = (TH1D*)tmpHist_drawpointer->Clone("Total MC");
                         
                         /*
                         std::cout << "j=" << j << std::endl;
@@ -278,8 +278,8 @@ void build_fake_data()
                     }
                     else
                     {
-                        hAllMC1D[i]->Add((TH1F*)tmpHist);
-                        //hAllMC1D[i]->Add((TH1F*)tmpHist_drawpointer);
+                        hAllMC1D[i]->Add((TH1D*)tmpHist);
+                        //hAllMC1D[i]->Add((TH1D*)tmpHist_drawpointer);
                         
                         /*
                         std::cout << "j=" << j << std::endl;
@@ -309,7 +309,7 @@ void build_fake_data()
             std::cout << "k=" << k << " " << hAllMC1D[i]->GetBinContent(k) << std::endl;
         }
         */
-        allFakeDataSamples1D->Add((TH1F*)hAllMC1D[i]);
+        allFakeDataSamples1D->Add((TH1D*)hAllMC1D[i]);
 
 
         std::cout << "The integral for fake data is " << hAllMC1D[i]->Integral() << std::endl;
@@ -325,7 +325,7 @@ void build_fake_data()
     for(int i = 0; i < allDataSamples2D->GetEntries(); i++)
     {
 
-        TH2F *tmpHist;
+        TH2D *tmpHist;
 
         // allMCSamples2D[0] contains objects such as: "zr96_rot_k40_2e_P2"
 
@@ -335,7 +335,7 @@ void build_fake_data()
             TString channel_str;
             channel_str.Form("%i", channel);
 
-            tmpHist = (TH2F*)allMCSamples2D[i]->At(channel)->Clone();
+            tmpHist = (TH2D*)allMCSamples2D[i]->At(channel)->Clone();
             TString tmpName = tmpHist->GetName();
 
             //std::cout << "looking for " << tmpName << std::endl;
@@ -430,11 +430,11 @@ void build_fake_data()
                         //std::cout << "Clone() done" << "j=" << j << std::endl;
                         // TODO: bug here if Integral() for j == 0 is zero
                         
-                        hAllMC2D[i] = (TH2F*)tmpHist->Clone("Total MC Fake Data");
+                        hAllMC2D[i] = (TH2D*)tmpHist->Clone("Total MC Fake Data");
                     }
                     else
                     {
-                        hAllMC2D[i]->Add((TH2F*)tmpHist);
+                        hAllMC2D[i]->Add((TH2D*)tmpHist);
                     }
 	            }
                 else
@@ -449,7 +449,7 @@ void build_fake_data()
 
         }
 
-        allFakeDataSamples2D->Add((TH2F*)hAllMC2D[i]);
+        allFakeDataSamples2D->Add((TH2D*)hAllMC2D[i]);
 
 
         std::cout << "The integral for fake data is " << hAllMC2D[i]->Integral() << std::endl;
@@ -539,16 +539,16 @@ void rebuild_150Nd_MC(const double xi_31, const double xi_31_baseline)
     // new code to reweight 150Nd by xi_{31} parameter
 
     // pointers of histograms to pass to reweight function
-    TH1F *hTotalE = nullptr;
-    TH1F *hSingleEnergy = nullptr;
-    TH1F *hHighEnergy = nullptr;
-    TH1F *hLowEnergy = nullptr;
-    TH1F *hEnergySum = nullptr;
-    TH1F *hEnergyDiff = nullptr;
-    TH2F *hHighLowEnergy = nullptr;
+    TH1D *hTotalE = nullptr;
+    TH1D *hSingleEnergy = nullptr;
+    TH1D *hHighEnergy = nullptr;
+    TH1D *hLowEnergy = nullptr;
+    TH1D *hEnergySum = nullptr;
+    TH1D *hEnergyDiff = nullptr;
+    TH2D *hHighLowEnergy = nullptr;
 
     /*
-    TH1F *hSingleEnergyClone = nullptr;
+    TH1D *hSingleEnergyClone = nullptr;
     */
 
     // search through each channel for 150nd samples
@@ -559,7 +559,7 @@ void rebuild_150Nd_MC(const double xi_31, const double xi_31_baseline)
         // search through each sample for this channel
         for(int i = 0; i < allMCSamples1D[channel]->GetEntries(); ++ i)
         {
-            TH1F *tmpHist = (TH1F*)allMCSamples1D[channel]->At(i);
+            TH1D *tmpHist = (TH1D*)allMCSamples1D[channel]->At(i);
             TString tmpHist_name = tmpHist->GetName();
             // TODO: had to add "_fit" here - might not work after 1 iteration
             //if(tmpHist_name.CompareTo("hTotalE_nd150_rot_2n2b_m4_fit") == 0 ||
@@ -572,7 +572,7 @@ void rebuild_150Nd_MC(const double xi_31, const double xi_31_baseline)
                 /*
                 if(channel == 1)
                 {
-                    hSingleEnergyClone = (TH1F*)allMCSamples1D[channel]->At(i)->Clone();
+                    hSingleEnergyClone = (TH1D*)allMCSamples1D[channel]->At(i)->Clone();
                 }
                 */
 
@@ -596,7 +596,7 @@ void rebuild_150Nd_MC(const double xi_31, const double xi_31_baseline)
         // search through each sample for this channel
         for(int i = 0; i < allMCSamples2D[channel]->GetEntries(); ++ i)
         {
-            TH1F *tmpHist = (TH1F*)allMCSamples2D[channel]->At(i);
+            TH1D *tmpHist = (TH1D*)allMCSamples2D[channel]->At(i);
             TString tmpHist_name = tmpHist->GetName();
 
             // if name contains this string, it needs to be reweighted
@@ -622,7 +622,7 @@ void rebuild_150Nd_MC(const double xi_31, const double xi_31_baseline)
     //const double xi_31_baseline{0.296};
     // NOTE: 2020-06-17 this was a bug, removed
 
-    TH1F *hWeight = nullptr;
+    TH1D *hWeight = nullptr;
     if(debugprint || false)
     {
         std::cout << "before reweight_apply()" << std::endl;
@@ -700,6 +700,23 @@ static int counter = 0;
 void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p, Int_t /*iflag */)
 {
 
+
+    /*
+    if(p[1] < -0.4)
+    {
+        std::cout << __func__ << " p[1]=" << p[1] << std::endl;
+        
+        for(Int_t pix = 0; pix < nPar; ++ pix)
+        {
+            std::cout << p[pix] << std::endl;
+        }
+
+        std::cin.get();
+
+    }
+    */
+
+
     if(allFakeDataSamples1D == nullptr)
     {
         build_fake_data();
@@ -708,6 +725,7 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
 
     // save the walk
     ll_walk.push_back(std::make_pair(p[1], p[0]));
+    //std::cout << __func__ << " ll_walk: " << "p[1]=" << p[1] << " p[0]=" << p[0] << std::endl;
 
 
     bool debugprint = false;
@@ -785,8 +803,8 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
 
 //   std::cout << "getting 1D histograms" << std::endl;
 
-    TH1F *tmpData1D;
-    TH1F *tmpFakeData1D;
+    TH1D *tmpData1D;
+    TH1D *tmpFakeData1D;
     // std::cout << allDataSamples1D->GetEntries()  << std::endl;
 
     // there are i samples for each channel
@@ -809,8 +827,8 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
         i_str.Form("%i", channel);
         //std::cout << i << std::endl;
 
-        tmpData1D = (TH1F*)allDataSamples1D->At(channel);
-        tmpFakeData1D = (TH1F*)allFakeDataSamples1D->At(channel);
+        tmpData1D = (TH1D*)allDataSamples1D->At(channel);
+        tmpFakeData1D = (TH1D*)allFakeDataSamples1D->At(channel);
 
         // std::cout << tmpData1D->Integral() << std::endl;
 
@@ -910,8 +928,8 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
     
     //  std::cout << "getting 2D histograms" << std::endl;
 
-    TH2F *tmpData2D;
-    TH2F *tmpFakeData2D;
+    TH2D *tmpData2D;
+    TH2D *tmpFakeData2D;
     // std::cout << allDataSamples2D->GetEntries()  << std::endl;
 
     // there are i samples for each channel
@@ -934,9 +952,9 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
         //std::cout << i << std::endl;
 
         // TODO: can I remove this Clone() call safely to improve speed?
-        //tmpData1D = (TH1F*)allDataSamples1D->At(i)->Clone("tmpData1D" + i_str + "_");
-        tmpData2D = (TH2F*)allDataSamples2D->At(channel);
-        tmpFakeData2D = (TH2F*)allFakeDataSamples2D->At(channel);
+        //tmpData1D = (TH1D*)allDataSamples1D->At(i)->Clone("tmpData1D" + i_str + "_");
+        tmpData2D = (TH2D*)allDataSamples2D->At(channel);
+        tmpFakeData2D = (TH2D*)allFakeDataSamples2D->At(channel);
 
         // std::cout << tmpData2D->Integral() << std::endl;
 
@@ -1228,7 +1246,7 @@ Double_t getNumberMC1D(
 
     // (1) grab a hist from the sample list of this channel
     // (2) figure out which parameter it corresponds to
-    TH1F *tmpHist;
+    TH1D *tmpHist;
     //int which_param;
 
     //std::cout << "getting number of MC... "  << channel << std::endl;
@@ -1244,7 +1262,7 @@ Double_t getNumberMC1D(
 
         // disabled params do not appear in this array
 
-        tmpHist = (TH1F*)allMCSamples1D[channel]->At(j);
+        tmpHist = (TH1D*)allMCSamples1D[channel]->At(j);
 
         TString tmpName = tmpHist->GetName();
 
@@ -1365,7 +1383,7 @@ Double_t getNumberMC2D(
 
     // (1) grab a hist from the sample list of this channel
     // (2) figure out which parameter it corresponds to
-    TH1F *tmpHist;
+    TH1D *tmpHist;
     //int which_param;
 
     //std::cout << "getting number of MC... "  << channel << std::endl;
@@ -1377,7 +1395,7 @@ Double_t getNumberMC2D(
     {
 
         // get histogram name
-        tmpHist = (TH1F*)allMCSamples2D[channel]->At(j);
+        tmpHist = (TH1D*)allMCSamples2D[channel]->At(j);
         TString tmpName = tmpHist->GetName();
 
         // set paramter to default value

@@ -41,10 +41,10 @@ void do_test_xi_31_test1(double *const AdjustActs, double* const AdjustActs_Err)
             xi_31_str.Form("%f", xi_31_value);
 
             // TODO, put in custom directory with text file containing params
-            TH1F *hHighEnergy_allMC = nullptr;
-            TH1F *hLowEnergy_allMC = nullptr;
-            TH1F *hHighEnergy_data = nullptr;
-            TH1F *hLowEnergy_data = nullptr;
+            TH1D *hHighEnergy_allMC = nullptr;
+            TH1D *hLowEnergy_allMC = nullptr;
+            TH1D *hHighEnergy_data = nullptr;
+            TH1D *hLowEnergy_data = nullptr;
 
             draw(AdjustActs, AdjustActs_Err, -1.0,
                     hHighEnergy_allMC, hLowEnergy_allMC, hHighEnergy_data, hLowEnergy_data,
@@ -132,10 +132,10 @@ void newloglikfitter_gA_chisquaretest(
         saveas_filename += std::to_string(ix) + ".png";
         //draw(AdjustActs, AdjustActs_Err, saveas_filename);
 
-        TH1F *hHighEnergy_allMC = nullptr;
-        TH1F *hLowEnergy_allMC = nullptr;
-        TH1F *hHighEnergy_data = nullptr;
-        TH1F *hLowEnergy_data = nullptr;
+        TH1D *hHighEnergy_allMC = nullptr;
+        TH1D *hLowEnergy_allMC = nullptr;
+        TH1D *hHighEnergy_data = nullptr;
+        TH1D *hLowEnergy_data = nullptr;
         draw(params, param_errs, fval, hHighEnergy_allMC, hLowEnergy_allMC, hHighEnergy_data, hLowEnergy_data, saveas_filename, ".", false);
 
         ofstream_testvalue << "value," << test_value << ",chisquare," << fval << std::endl;
@@ -381,7 +381,7 @@ void newloglikfitter_testmyphasespace(
                 logLikelihood(n_params, nullptr, fval, params, 0);
                 std::cout << "fval(" << params[param_1_ix] << "," << params[param_2_ix] << ")=" << fval << std::endl;
 
-                TH1F *junk1, *junk2, *junk3, *junk4;
+                TH1D *junk1, *junk2, *junk3, *junk4;
                 TString savename;
                 savename.Form("%s_%d_%d_expected_minimum.png", h_mps_name.Data(), 1, 0);
                 draw(params, nullptr, fval, junk1, junk2, junk3, junk4, std::string(savename), ".", mode_fake_data);
@@ -398,7 +398,7 @@ void newloglikfitter_testmyphasespace(
                 logLikelihood(n_params, nullptr, fval, params, 0);
                 std::cout << "fval(" << params[param_1_ix] << "," << params[param_2_ix] << ")=" << fval << std::endl;
 
-                //TH1F *junk1, *junk2, *junk3, *junk4;
+                //TH1D *junk1, *junk2, *junk3, *junk4;
                 //TString savename;
                 savename.Form("%s_%d_%d_minuit_measured_minimum.png", h_mps_name.Data(), 1, 0);
                 draw(params, nullptr, fval, junk1, junk2, junk3, junk4, std::string(savename), ".", mode_fake_data);
@@ -464,7 +464,7 @@ void newloglikfitter_testmyphasespace(
                     params[param_1_ix] = t_param_1;
                     params[param_2_ix] = t_param_2;
 
-                    TH1F *junk1, *junk2, *junk3, *junk4;
+                    TH1D *junk1, *junk2, *junk3, *junk4;
                     TString savename;
                     savename.Form("%s_%d_%d.png", h_mps_name.Data(), n_1, n_2);
                     //draw(params, nullptr, fval, junk1, junk2, junk3, junk4, std::string(savename), ".", true);
@@ -568,7 +568,7 @@ void newloglikfitter_testmyphasespace(
             h_mps->GetXaxis()->SetTitleOffset(1.5);
             h_mps->GetXaxis()->SetLabelOffset(0.01);
             h_mps->GetYaxis()->SetLabelOffset(0.01);
-            TH2F *h_mps_contour = (TH2F*)h_mps->Clone("h_mps_1_0_clone");
+            TH2D *h_mps_contour = (TH2D*)h_mps->Clone("h_mps_1_0_clone");
             h_mps->Draw("colz");
 
 
@@ -660,7 +660,7 @@ void newloglikfitter_testmyphasespace(
                 logLikelihood(n_params, nullptr, fval, params, 0);
                 std::cout << "fval(" << params[param_1_ix] << "," << params[param_2_ix] << ")=" << fval << std::endl;
 
-                TH1F *junk1, *junk2, *junk3, *junk4;
+                TH1D *junk1, *junk2, *junk3, *junk4;
                 TString savename;
                 savename.Form("%s_%d_%d_HSD.png", h_mps_name.Data(), 1, 0);
                 //draw(params, nullptr, fval, junk1, junk2, junk3, junk4, std::string(savename), ".", true);
@@ -681,7 +681,7 @@ void newloglikfitter_testmyphasespace(
                 logLikelihood(n_params, nullptr, fval, params, 0);
                 std::cout << "fval(" << params[param_1_ix] << "," << params[param_2_ix] << ")=" << fval << std::endl;
 
-                TH1F *junk1, *junk2, *junk3, *junk4;
+                TH1D *junk1, *junk2, *junk3, *junk4;
                 TString savename;
                 savename.Form("%s_%d_%d_minuit_1_minimum.png", h_mps_name.Data(), 1, 0);
                 //draw(params, nullptr, fval, junk1, junk2, junk3, junk4, std::string(savename), ".", true);
@@ -702,7 +702,7 @@ void newloglikfitter_testmyphasespace(
                 logLikelihood(n_params, nullptr, fval, params, 0);
                 std::cout << "fval(" << params[param_1_ix] << "," << params[param_2_ix] << ")=" << fval << std::endl;
 
-                TH1F *junk1, *junk2, *junk3, *junk4;
+                TH1D *junk1, *junk2, *junk3, *junk4;
                 TString savename;
                 savename.Form("%s_%d_%d_mps_measured_minimum.png", h_mps_name.Data(), 1, 0);
                 //draw(params, nullptr, fval, junk1, junk2, junk3, junk4, std::string(savename), ".", true);
@@ -718,7 +718,7 @@ void newloglikfitter_testmyphasespace(
                 logLikelihood(n_params, nullptr, fval, params, 0);
                 std::cout << "fval(" << params[param_1_ix] << "," << params[param_2_ix] << ")=" << fval << std::endl;
 
-                //TH1F *junk1, *junk2, *junk3, *junk4;
+                //TH1D *junk1, *junk2, *junk3, *junk4;
                 //TString savename;
                 savename.Form("%s_%d_%d_predicted_minimum.png", h_mps_name.Data(), 1, 0);
                 //draw(params, nullptr, fval, junk1, junk2, junk3, junk4, std::string(savename), ".", true);
@@ -733,7 +733,7 @@ void newloglikfitter_testmyphasespace(
                 logLikelihood(n_params, nullptr, fval, params, 0);
                 std::cout << "fval(" << params[param_1_ix] << "," << params[param_2_ix] << ")=" << fval << std::endl;
 
-                //TH1F *junk1, *junk2, *junk3, *junk4;
+                //TH1D *junk1, *junk2, *junk3, *junk4;
                 //TString savename;
                 savename.Form("%s_%d_%d_expected_scaled_SSD_minimum.png", h_mps_name.Data(), 1, 0);
                 //draw(params, nullptr, fval, junk1, junk2, junk3, junk4, std::string(savename), ".", true);
@@ -779,7 +779,7 @@ void newloglikfitter_testmyphasespace(
     std::cout << p_nd150_cv << ", " << p_nd150_sigma << ", " << p_min_nd150 << ", " << p_max_nd150 << std::endl;
     std::cout << p_mo100_cv << ", " << p_mo100_sigma << ", " << p_min_mo100 << ", " << p_max_mo100 << std::endl;
 
-    TH2F *h_mps = new TH2F("h_mps", "h_mps", n_nd150, p_min_nd150, p_max_nd150, n_mo100, p_min_mo100, p_max_mo100); 
+    TH2D *h_mps = new TH2D("h_mps", "h_mps", n_nd150, p_min_nd150, p_max_nd150, n_mo100, p_min_mo100, p_max_mo100); 
     //h_mps->GetZaxis()->SetRangeUser(0.0, 1.0e+04);
     h_mps->SetContour(256);
     h_mps->GetXaxis()->SetTitle("^{150}Nd");

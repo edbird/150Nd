@@ -6,19 +6,19 @@ void draw_2D(
     const Double_t *const AdjustActs,
     const Double_t *const AdjustActs_Err,
     const std::string &saveas_filename,
-    TH1F* const hHighEnergy_allMC,
-    TH1F* const hLowEnergy_allMC,
-    TH1F* const hHighEnergy_data,
-    TH1F* const hLowEnergy_data)
+    TH1D* const hHighEnergy_allMC,
+    TH1D* const hLowEnergy_allMC,
+    TH1D* const hHighEnergy_data,
+    TH1D* const hLowEnergy_data)
 {
     
 
-    TH2F *h_data[number2DHists] = { nullptr };
-    TH2F *h_MC[number2DHists] = { nullptr };
-    TH2F *h_diff[number2DHists] = { nullptr };
-    TH2F *h_ratio[number2DHists] = { nullptr };
-    TH2F *h_err[number2DHists] = { nullptr };
-    TH2F *h_pull[number2DHists] = { nullptr };
+    TH2D *h_data[number2DHists] = { nullptr };
+    TH2D *h_MC[number2DHists] = { nullptr };
+    TH2D *h_diff[number2DHists] = { nullptr };
+    TH2D *h_ratio[number2DHists] = { nullptr };
+    TH2D *h_err[number2DHists] = { nullptr };
+    TH2D *h_pull[number2DHists] = { nullptr };
 
     TCanvas *c_data[number2DHists] = { nullptr };
     TCanvas *c_MC[number2DHists] = { nullptr };
@@ -37,8 +37,8 @@ void draw_2D(
     //TCanvas c_MC_low_e_projection[number2DHists] = { nullptr };
     //TCanvas c_MC_high_e_projection[number2DHists] = { nullptr };
 
-    TH2F *hAllMC2D[number2DHists] = { nullptr };
-    TH2F *data2D[number2DHists] = { nullptr };
+    TH2D *hAllMC2D[number2DHists] = { nullptr };
+    TH2D *data2D[number2DHists] = { nullptr };
 
 
 
@@ -54,9 +54,9 @@ void draw_2D(
         TString i_str;
         i_str.Form("%i", channel);
 
-        data2D[channel] = (TH2F*)allDataSamples2D->At(channel)->Clone("data2D_" + i_str);
-        h_ratio[channel] = (TH2F*)allDataSamples2D->At(channel)->Clone("h_ratio" + i_str);
-        h_diff[channel] = (TH2F*)allDataSamples2D->At(channel)->Clone("h_diff" + i_str);
+        data2D[channel] = (TH2D*)allDataSamples2D->At(channel)->Clone("data2D_" + i_str);
+        h_ratio[channel] = (TH2D*)allDataSamples2D->At(channel)->Clone("h_ratio" + i_str);
+        h_diff[channel] = (TH2D*)allDataSamples2D->At(channel)->Clone("h_diff" + i_str);
     
         c_data[channel] = new TCanvas("c_data_2D" + i_str, "c_data_2D" + i_str);
         c_data[channel]->SetFillColor(kWhite);
@@ -90,7 +90,7 @@ void draw_2D(
             TString j_str;
             j_str.Form("%i", j);
 
-            TH2F *tmpHist_draw2D = (TH2F*)allMCSamples2D[channel]->At(j)->Clone();
+            TH2D *tmpHist_draw2D = (TH2D*)allMCSamples2D[channel]->At(j)->Clone();
             TString tmpName = tmpHist_draw2D->GetName();
 
             //std::cout << "looking for " << tmpName << std::endl;
@@ -158,15 +158,15 @@ void draw_2D(
                 
                 if(tmpHist_draw2D->Integral() > 0)
                 {
-                    //h_data_div_MC[i]->Add((TH2F*)tmpHist_draw2D->Clone(), -1.0);
+                    //h_data_div_MC[i]->Add((TH2D*)tmpHist_draw2D->Clone(), -1.0);
                     
                     if(j == 0)
                     {
-                        hAllMC2D[channel] = (TH2F*)tmpHist_draw2D->Clone("Total_MC_" + i_str);
+                        hAllMC2D[channel] = (TH2D*)tmpHist_draw2D->Clone("Total_MC_" + i_str);
                     }
                     else
                     {
-                        hAllMC2D[channel]->Add((TH2F*)tmpHist_draw2D);
+                        hAllMC2D[channel]->Add((TH2D*)tmpHist_draw2D);
                     }
 	            }
                 else
@@ -242,11 +242,11 @@ void draw_2D(
 
 
 
-        h_data[channel] = (TH2F*)data2D[channel]->Clone("h_data_2D_" + i_str);
-        h_MC[channel] = (TH2F*)hAllMC2D[channel]->Clone("h_MC_2D_" + i_str);
+        h_data[channel] = (TH2D*)data2D[channel]->Clone("h_data_2D_" + i_str);
+        h_MC[channel] = (TH2D*)hAllMC2D[channel]->Clone("h_MC_2D_" + i_str);
 
-        h_err[channel] = (TH2F*)h_data[channel]->Clone("h_err_2D_" + i_str);
-        //h_err[channel] = new TH2F("h_err_2D_" + i_str, "h_err_2D_" + i_str,
+        h_err[channel] = (TH2D*)h_data[channel]->Clone("h_err_2D_" + i_str);
+        //h_err[channel] = new TH2D("h_err_2D_" + i_str, "h_err_2D_" + i_str,
         //                          50, 0.0, 5.0, 50, 0.0, 5.0);
         for(int i = 1; i <= h_data[channel]->GetNbinsX(); ++ i)
         {
@@ -305,10 +305,10 @@ void draw_2D(
         h_diff[channel]->Draw("colz");
 
         // change to division
-        //h_data_div_MC[channel] = (TH2F*)data2D[channel]->Clone("h_data_div_MC_2D");
+        //h_data_div_MC[channel] = (TH2D*)data2D[channel]->Clone("h_data_div_MC_2D");
         h_ratio[channel]->Divide(hAllMC2D[channel]);
 
-        h_pull[channel] = (TH2F*)h_diff[channel]->Clone("h_pull_2D_" + i_str);
+        h_pull[channel] = (TH2D*)h_diff[channel]->Clone("h_pull_2D_" + i_str);
         h_pull[channel]->Divide(h_err[channel]);
 
         c_ratio[channel]->cd();

@@ -1,4 +1,4 @@
-#include "TH1F.h"
+#include "TH1.h"
 #include "TArray.h"
 #include "TObject.h"
 #include "TObjArray.h"
@@ -10,7 +10,7 @@
 #include "TFile.h"
 #include "TString.h"
 #include "TTree.h"
-#include "TH1F.h"
+#include "TH1.h"
 #include "TH2.h"
 #include "TStyle.h"
 #include "TNtuple.h"
@@ -423,7 +423,7 @@ void loadFiles()
     logLikelihood(n_params, nullptr, fval, params, 0);
     std::cout << "fval=" << fval << " for params[0]=" << params[0] << " params[1]=" << params[1] << std::endl;
 //    draw_channel(1, params, fval, "test_channel_1.png");
-    TH1F *j1, *j2, *j3, *j4;
+    TH1D *j1, *j2, *j3, *j4;
     draw(params, nullptr, fval, j1, j2, j3, j4, "minuit_output.*", ".", false);
     //draw(params, nullptr, "NOSAVE", fval, j1, j2, j3, j4, true);
 
@@ -680,7 +680,7 @@ void loadFiles()
     timestamp(of_numberofeventsafterfit);
     for(int i = 0; i < allMCSamples1D[0]->GetEntries(); ++ i)
     {
-        TH1F *tmpHist = (TH1F*)allMCSamples1D[0]->At(i);
+        TH1D *tmpHist = (TH1D*)allMCSamples1D[0]->At(i);
         Double_t integral = tmpHist->Integral();
         of_numberofeventsafterfit << tmpHist->GetName() << " number of events " << integral << std::endl;
     }

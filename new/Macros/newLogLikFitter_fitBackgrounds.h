@@ -151,21 +151,24 @@ TMinuit* fitBackgrounds_init(double *AdjustActs, double *AdjustActs_Err)
                 // does not work if xi_31 paramter is not number 1
                 //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", xi_31_init, 0.5, 0.0, 1000.0);
                 //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", AdjustActs[i], 0.5, 0.0, 1000.0);
-                minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", AdjustActs[i], 0.5, -1.0, 5.0);
+                minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", AdjustActs[i], 0.5, -0.4, 5.0);
+                //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", AdjustActs[i], 0.5, -1.0, 5.0);
+                //std::cout << "define parameter" << AdjustActs[i] << std::endl;
+                //std::cin.get();
                 //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", 2.0 * AdjustActs[i], 0.5, -1.0, 5.0);
             }
             else
             {
-                if(i == 0)
-                {
-                    //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", 1.0, 0.5, 0.0, 1000.0);
-                    minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", 1.705, 0.005, 0.0, 1000.0);
-                    //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", 2.5, 0.5, 0.0, 1000.0);
-                }
-                else
-                {
-                    minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", 1.0, 0.5, 0.0, 1000.0);
-                }
+                //if(i == 0)
+                //{
+                //    //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", 1.0, 0.5, 0.0, 1000.0);
+                //    minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", 1.705, 0.005, 0.0, 1000.0);
+                //    //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", 2.5, 0.5, 0.0, 1000.0);
+                //}
+                //else
+                //{
+                minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", 1.0, 0.5, 0.0, 1000.0);
+                //}
             }
             
             /*

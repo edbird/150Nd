@@ -39,8 +39,8 @@ void draw_all(const double* const AdjustActs, const double* const AdjustActs_Err
             TString hfullname = TString(auxname);
             //TString hfullname = "channel_1D_" + channel_str + "/" + hname;
 
-            allDataSamples1D->Add((TH1F*)fin->Get(hfullname));
-            allMCSamples1D[channel]->Add((TH1F*)fin->Get(hfullname));
+            allDataSamples1D->Add((TH1D*)fin->Get(hfullname));
+            allMCSamples1D[channel]->Add((TH1D*)fin->Get(hfullname));
 
         }
 
@@ -61,8 +61,8 @@ void draw_all(const double* const AdjustActs, const double* const AdjustActs_Err
             TString hfullname = TString(auxname);
             //TString hfullname = "channel_2D_" + channel_str + "/" + hname;
 
-            allDataSamples2D->Add((TH2F*)fin->Get(hfullname));
-            allMCSamples2D[channel]->Add((TH2F*)fin->Get(hfullname));
+            allDataSamples2D->Add((TH2D*)fin->Get(hfullname));
+            allMCSamples2D[channel]->Add((TH2D*)fin->Get(hfullname));
 
         }
 
@@ -71,10 +71,10 @@ void draw_all(const double* const AdjustActs, const double* const AdjustActs_Err
     }
 */
 
-    TH1F *hHighEnergy_allMC = nullptr;
-    TH1F *hLowEnergy_allMC = nullptr;
-    TH1F *hHighEnergy_data = nullptr;
-    TH1F *hLowEnergy_data = nullptr;
+    TH1D *hHighEnergy_allMC = nullptr;
+    TH1D *hLowEnergy_allMC = nullptr;
+    TH1D *hHighEnergy_data = nullptr;
+    TH1D *hLowEnergy_data = nullptr;
 
     draw(AdjustActs, AdjustActs_Err, fval,
          hHighEnergy_allMC, hLowEnergy_allMC,

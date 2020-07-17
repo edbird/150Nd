@@ -5,8 +5,8 @@
 
 
 //void draw(const Double_t *const AdjustActs, const Double_t *const AdjustActs_Err, const std::string& saveas_filename = "",
-//          TH1F* hHighEnergy_allMC = nullptr, TH1F* hLowEnergy_allMC = nullptr,
-//          TH1F* hHighEnergy_data = nullptr, TH1F* hLowEnergy_data = nullptr);
+//          TH1D* hHighEnergy_allMC = nullptr, TH1D* hLowEnergy_allMC = nullptr,
+//          TH1D* hHighEnergy_data = nullptr, TH1D* hLowEnergy_data = nullptr);
 
 void draw_covariance_matrix(const double * const CovMatrix, const int number_free_params, const std::string& saveas_filename);
 
@@ -15,7 +15,7 @@ void draw_2D(
     const Double_t *const AdjustActs,
     const Double_t *const AdjustActs_Err,
     const std::string &saveas_filename,
-    TH1F*, TH1F*);
+    TH1D*, TH1D*);
 */
 
 
@@ -32,10 +32,10 @@ void untitledfunction()
 
     // each channel 1D hists
     THStack *stacks2D[number2DHists];
-    TH2F *data2D[number2DHists];
+    TH2D *data2D[number2DHists];
     for(int i = 0; i < allDataSamples2D->GetEntries(); i++)
     {
-        data2D[i] = (TH2F*)allDataSamples2D->At(i)->Clone();
+        data2D[i] = (TH2D*)allDataSamples2D->At(i)->Clone();
         TString i_str;
         i_str.Form("%i",i);
         c = new TCanvas("c_"+i_str);
@@ -43,12 +43,12 @@ void untitledfunction()
         stacks2D[i] = new THStack("stacks2D"+i_str,i_str);
 
         // j list MC samples for this channel i
-        TH2F *tmpHist_draw2D;
+        TH2D *tmpHist_draw2D;
         for(int j = 0; j < allMCSamples2D[i]->GetEntries(); j++)
         {
             TString j_str;
             j_str.Form("%i",j);
-            tmpHist_draw2D = (TH2F*)allMCSamples2D[i]->At(j)->Clone();
+            tmpHist_draw2D = (TH2D*)allMCSamples2D[i]->At(j)->Clone();
             TString tmpName = tmpHist_draw2D->GetName();
 
             //std::cout << "looking for " << tmpName << std::endl;
@@ -113,7 +113,7 @@ void draw_inputdata()
     // debug
     TCanvas *c_nEqNull;
     c_nEqNull = new TCanvas("c_nEqNull", "c_nEqNull"); //, 4000, 3000);
-    TH2F *h_nEqNull_clone = (TH2F*)h_nEqNull->Clone();
+    TH2D *h_nEqNull_clone = (TH2D*)h_nEqNull->Clone();
     h_nEqNull_clone->SetTitle("");
     h_nEqNull_clone->GetXaxis()->SetTitle("Electron Energy 2");
     h_nEqNull_clone->GetXaxis()->SetTitleFont(43);
@@ -150,7 +150,7 @@ void draw_inputdata()
     // debug
     TCanvas *c_nEqTwo;
     c_nEqTwo = new TCanvas("c_nEqTwo", "c_nEqTwo"); //, 4000, 3000);
-    TH2F *h_nEqTwo_clone = (TH2F*)h_nEqTwo->Clone();
+    TH2D *h_nEqTwo_clone = (TH2D*)h_nEqTwo->Clone();
     h_nEqTwo_clone->SetTitle("");
     h_nEqTwo_clone->GetXaxis()->SetTitle("Electron Energy 2");
     h_nEqTwo_clone->GetXaxis()->SetTitleFont(43);
@@ -195,10 +195,10 @@ void draw(
     const Double_t *const AdjustActs,
     const Double_t *const AdjustActs_Err,
     const double fval,
-    TH1F *&hHighEnergy_allMC_out,
-    TH1F *&hLowEnergy_allMC_out,
-    TH1F *&hHighEnergy_data_out,
-    TH1F *&hLowEnergy_data_out,
+    TH1D *&hHighEnergy_allMC_out,
+    TH1D *&hLowEnergy_allMC_out,
+    TH1D *&hHighEnergy_data_out,
+    TH1D *&hLowEnergy_data_out,
     const std::string& saveas_filename,
     const std::string& saveas_dir = ".",
     bool mode_fake_data = false)
@@ -221,24 +221,24 @@ void draw(
     //THStack *stacks1D_other[number1DHists];
 
 
-    TH1F *h_2nubb[number1DHists] = { nullptr, nullptr, nullptr, nullptr };
-    TH1F *h_tl208_int[number1DHists] = { nullptr, nullptr, nullptr, nullptr };
-    TH1F *h_bi214_int[number1DHists] = { nullptr, nullptr, nullptr, nullptr };
-    TH1F *h_bi207_int[number1DHists] = { nullptr, nullptr, nullptr, nullptr };
-    TH1F *h_internal[number1DHists] = { nullptr, nullptr, nullptr, nullptr };
-    TH1F *h_external[number1DHists] = { nullptr, nullptr, nullptr, nullptr };
-    TH1F *h_radon[number1DHists] = { nullptr, nullptr, nullptr, nullptr };
-    TH1F *h_neighbours[number1DHists] = { nullptr, nullptr, nullptr, nullptr };
-    TH1F *h_other[number1DHists] = { nullptr, nullptr, nullptr, nullptr };
+    TH1D *h_2nubb[number1DHists] = { nullptr, nullptr, nullptr, nullptr };
+    TH1D *h_tl208_int[number1DHists] = { nullptr, nullptr, nullptr, nullptr };
+    TH1D *h_bi214_int[number1DHists] = { nullptr, nullptr, nullptr, nullptr };
+    TH1D *h_bi207_int[number1DHists] = { nullptr, nullptr, nullptr, nullptr };
+    TH1D *h_internal[number1DHists] = { nullptr, nullptr, nullptr, nullptr };
+    TH1D *h_external[number1DHists] = { nullptr, nullptr, nullptr, nullptr };
+    TH1D *h_radon[number1DHists] = { nullptr, nullptr, nullptr, nullptr };
+    TH1D *h_neighbours[number1DHists] = { nullptr, nullptr, nullptr, nullptr };
+    TH1D *h_other[number1DHists] = { nullptr, nullptr, nullptr, nullptr };
 
 
     TCanvas *c[number1DHists];
     TPad *p0[number1DHists]; // 2020-06-12
     TPad *p1[number1DHists];
-    TH1F *hRatio[number1DHists];
-    TH1F *hAllMC1D[number1DHists];
-    TH1F *data1D[number1DHists];
-    TH1F *fakeData1D[number1DHists];
+    TH1D *hRatio[number1DHists];
+    TH1D *hAllMC1D[number1DHists];
+    TH1D *data1D[number1DHists];
+    TH1D *fakeData1D[number1DHists];
 
     // TODO: copy over legend code from fit_2e.C
 
@@ -258,10 +258,10 @@ void draw(
         // because this isn't right TODO
         // uses at(i), but i should always be zero and there should be an
         // additional array index
-        data1D[i] = (TH1F*)allDataSamples1D->At(i)->Clone();
+        data1D[i] = (TH1D*)allDataSamples1D->At(i)->Clone();
         if(mode_fake_data == true)
         {
-            fakeData1D[i] = (TH1F*)allFakeDataSamples1D->At(i)->Clone(); // TODO
+            fakeData1D[i] = (TH1D*)allFakeDataSamples1D->At(i)->Clone(); // TODO
             // TODO: will not work if logLikelihood not called before
             // because LL function calls function to construct fakedata
 
@@ -292,7 +292,7 @@ void draw(
         //stacks1D_other[i] = new THStack("stacks1D_other" + i_str, i_str);
 
 
-        TH1F *tmpHist_draw1D;
+        TH1D *tmpHist_draw1D;
 
         // j list MC samples for this channel i
         //std::cout << "debug: number of MC samples (i=" << i << "): " << allMCSamples1D[i]->GetEntries() << std::endl;
@@ -301,8 +301,8 @@ void draw(
         std::cout << "list of all objects in allMCSamples1D[i=" << i << "]" << std::endl;
         for(int j = 0; j < allMCSamples1D[i]->GetEntries(); j++)
         {
-            //std::cout << (((TH1F*)allMCSamples1D[i])->At(j))->GetName() << std::endl;
-            tmpHist_draw1D = (TH1F*)allMCSamples1D[i]->At(j)->Clone();
+            //std::cout << (((TH1D*)allMCSamples1D[i])->At(j))->GetName() << std::endl;
+            tmpHist_draw1D = (TH1D*)allMCSamples1D[i]->At(j)->Clone();
             TString tmpName = tmpHist_draw1D->GetName();
             std::cout << tmpName << std::endl;
         }
@@ -330,7 +330,7 @@ void draw(
             TString j_str;
             j_str.Form("%i", j);
 
-            tmpHist_draw1D = (TH1F*)allMCSamples1D[i]->At(j)->Clone();
+            tmpHist_draw1D = (TH1D*)allMCSamples1D[i]->At(j)->Clone();
             TString tmpName = tmpHist_draw1D->GetName();
 
             //std::cout << "(1) tmpName=" << tmpName << std::endl;
@@ -430,13 +430,13 @@ void draw(
                     throw "error";
                 }
 
-                //TH1F *tmpHist_drawpointer = tmpHist_draw1D;
+                //TH1D *tmpHist_drawpointer = tmpHist_draw1D;
 
                 
                 if(tmpHist_draw1D->Integral() > 0)
                 //if(tmpHist_drawpointer->Integral() > 0)
                 {
-                    stacks1D[i]->Add((TH1F*)tmpHist_draw1D->Clone());
+                    stacks1D[i]->Add((TH1D*)tmpHist_draw1D->Clone());
                     //stacks1D[i]->Add(tmpHist_drawpointer);
 
                     stacker_helper(tmpHist_draw1D,
@@ -453,13 +453,13 @@ void draw(
 
                     if(j == 0)
                     {
-                        hAllMC1D[i] = (TH1F*)tmpHist_draw1D->Clone("Total MC");
-                        //hAllMC1D[i] = (TH1F*)tmpHist_drawpointer->Clone("Total MC");
+                        hAllMC1D[i] = (TH1D*)tmpHist_draw1D->Clone("Total MC");
+                        //hAllMC1D[i] = (TH1D*)tmpHist_drawpointer->Clone("Total MC");
                     }
                     else
                     {
-                        hAllMC1D[i]->Add((TH1F*)tmpHist_draw1D);
-                        //hAllMC1D[i]->Add((TH1F*)tmpHist_drawpointer);
+                        hAllMC1D[i]->Add((TH1D*)tmpHist_draw1D);
+                        //hAllMC1D[i]->Add((TH1D*)tmpHist_drawpointer);
                     }
 
                 
@@ -567,11 +567,11 @@ void draw(
 
         if(mode_fake_data == false)
         {
-            hRatio[i] = (TH1F*)data1D[i]->Clone();
+            hRatio[i] = (TH1D*)data1D[i]->Clone();
         }
         if(mode_fake_data == true)
         {
-            hRatio[i] = (TH1F*)fakeData1D[i]->Clone();
+            hRatio[i] = (TH1D*)fakeData1D[i]->Clone();
         }
         hRatio[i]->Sumw2();
         hRatio[i]->Divide(hAllMC1D[i]);
@@ -892,26 +892,26 @@ void draw(
 /*
         if(i == 2)
         {
-            hHighEnergy_allMC_out = (TH1F*)hAllMC1D[i]->Clone();
+            hHighEnergy_allMC_out = (TH1D*)hAllMC1D[i]->Clone();
             if(mode_fake_data == false)
             {
-                hHighEnergy_data_out = (TH1F*)data1D[i]->Clone();
+                hHighEnergy_data_out = (TH1D*)data1D[i]->Clone();
             }
             if(mode_fake_data)
             {
-                hHighEnergy_data_out = (TH1F*)fakeData1D[i]->Clone();
+                hHighEnergy_data_out = (TH1D*)fakeData1D[i]->Clone();
             }
         }
         else if(i == 3)
         {
-            hLowEnergy_allMC_out = (TH1F*)hAllMC1D[i]->Clone();
+            hLowEnergy_allMC_out = (TH1D*)hAllMC1D[i]->Clone();
             if(mode_fake_data == false)
             {
-                hLowEnergy_data_out = (TH1F*)data1D[i]->Clone();
+                hLowEnergy_data_out = (TH1D*)data1D[i]->Clone();
             }
             if(mode_fake_data)
             {
-                hLowEnergy_data_out = (TH1F*)fakeData1D[i]->Clone();
+                hLowEnergy_data_out = (TH1D*)fakeData1D[i]->Clone();
             }
         }
 */

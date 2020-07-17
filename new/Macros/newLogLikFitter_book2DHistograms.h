@@ -14,10 +14,10 @@ void book2DHistograms_helper(
     TString theHistogram,
     const int nBkgs,
     TString *BkgFiles)
-    //, TH1F *tmpHist)
+    //, TH1D *tmpHist)
 {
         
-    TH2F *tmpHist = nullptr;
+    TH2D *tmpHist = nullptr;
 
     for(int i = 0; i < nBkgs; i++)
     {
@@ -52,7 +52,7 @@ void book2DHistograms_helper(
 
                 // TODO: try catch block
                 // load sample
-                tmpHist = (TH2F*)myFile->Get(fullname.c_str())->Clone(new_name.c_str());
+                tmpHist = (TH2D*)myFile->Get(fullname.c_str())->Clone(new_name.c_str());
 
                 if(tmpHist != nullptr)
                 {
@@ -205,16 +205,16 @@ void book2DHistograms(Int_t channel_counter, TString theChannel, TString thePhas
 
     // load histogram from file
     // TODO: try catch block
-    TH1F *tmpHist = (TH1F*)aFile->Get(fullname.c_str())->Clone();
+    TH1D *tmpHist = (TH1D*)aFile->Get(fullname.c_str())->Clone();
     if(tmpHist != nullptr)
     {
-        //TH1F *tmpHist = nullptr;
+        //TH1D *tmpHist = nullptr;
         // 2020-04-03: removed changing of histogram name
         //std::string hist_name("data_" + theChannel + thePhase_arg);
         //std::cout << "Get() : " << name << " from file, Clone() : " << hist_name << std::endl;
-        //tmpHist = (TH1F*)gDirectory->Get(name.c_str())->Clone(hist_name.c_str());
-        //tmpHist = (TH1F*)gDirectory->Get(fullname.c_str())->Clone();
-        allDataSamples2D->Add((TH1F*)tmpHist);
+        //tmpHist = (TH1D*)gDirectory->Get(name.c_str())->Clone(hist_name.c_str());
+        //tmpHist = (TH1D*)gDirectory->Get(fullname.c_str())->Clone();
+        allDataSamples2D->Add((TH1D*)tmpHist);
     }
     else
     {
