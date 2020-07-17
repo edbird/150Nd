@@ -7,7 +7,7 @@
 
 void LD_REWEIGHT_DATA(TTree *&outputG0, TTree *&outputG2, Long64_t &countG0, Long64_t &countG2)
 {
-    //TH1F* out = nullptr;
+    //TH1D* out = nullptr;
 
     TTree *t_G0 = new TTree();
     Long64_t count_G0 = t_G0->ReadFile("../../data/150Nd-data/dG150Nd/G0/dG0.dat", "electronEnergy1:electronEnergy2:electronWeight");
@@ -46,16 +46,16 @@ static int ctmp_counter = 0;
 
 
 // xi31 reweighting function for 150Nd spectra
-//void reweight_apply(TH2F *output, const TH1F *const input,
+//void reweight_apply(TH2D *output, const TH1D *const input,
 void reweight_apply(
-    TH1F *&hTotalE_output,
-    TH1F *&hSingleEnergy_output,
-    TH1F *&hHighEnergy_output,
-    TH1F *&hLowEnergy_output,
-    TH1F *&hEnergySum_output,
-    TH1F *&hEnergyDiff_output,
-    TH2F *&hHighLowEnergy_output,
-    TH1F *&hWeight_output,
+    TH1D *&hTotalE_output,
+    TH1D *&hSingleEnergy_output,
+    TH1D *&hHighEnergy_output,
+    TH1D *&hLowEnergy_output,
+    TH1D *&hEnergySum_output,
+    TH1D *&hEnergyDiff_output,
+    TH2D *&hHighLowEnergy_output,
+    TH1D *&hWeight_output,
     const std::string& tinput_filename,
     const Double_t xi_31,
     const Double_t xi_31_baseline,
@@ -73,7 +73,7 @@ void reweight_apply(
     const TString name_append = "";
 
 
-    TH1F *hTotalE = (TH1F*)gROOT->FindObject("hTotalE_" + sampleName + name_append + "_reweight");
+    TH1D *hTotalE = (TH1D*)gROOT->FindObject("hTotalE_" + sampleName + name_append + "_reweight");
     if(hTotalE == nullptr)
     {
         std::cout << "hTotalE nullptr!" << std::endl;
@@ -84,7 +84,7 @@ void reweight_apply(
         delete hTotalE;
     }
 
-    TH1F *hSingleEnergy = (TH1F*)gROOT->FindObject("hSingleEnergy_" + sampleName + name_append + "_reweight");
+    TH1D *hSingleEnergy = (TH1D*)gROOT->FindObject("hSingleEnergy_" + sampleName + name_append + "_reweight");
     if(hSingleEnergy == nullptr)
     {
         std::cout << "hSingleEnergy nullptr!" << std::endl;
@@ -94,7 +94,7 @@ void reweight_apply(
         delete hSingleEnergy;
     }
     
-    TH1F *hHighEnergy =  (TH1F*)gROOT->FindObject("hHighEnergy_" + sampleName + name_append + "_reweight");
+    TH1D *hHighEnergy =  (TH1D*)gROOT->FindObject("hHighEnergy_" + sampleName + name_append + "_reweight");
     if(hHighEnergy == nullptr)
     {
         std::cout << "hHighEnergy nullptr!" << std::endl;
@@ -104,7 +104,7 @@ void reweight_apply(
         delete hHighEnergy;
     }
     
-    TH1F* hLowEnergy = (TH1F*)gROOT->FindObject("hLowEnergy_" + sampleName + name_append + "_reweight");
+    TH1D* hLowEnergy = (TH1D*)gROOT->FindObject("hLowEnergy_" + sampleName + name_append + "_reweight");
     if(hLowEnergy == nullptr)
     {
         std::cout << "hLowEnergy nullptr!" << std::endl;
@@ -114,7 +114,7 @@ void reweight_apply(
         delete hLowEnergy;
     }
     
-    TH1F* hEnergySum = (TH1F*)gROOT->FindObject("hEnergySum_" + sampleName + name_append + "_reweight");
+    TH1D* hEnergySum = (TH1D*)gROOT->FindObject("hEnergySum_" + sampleName + name_append + "_reweight");
     if(hEnergySum == nullptr)
     {
         std::cout << "hEnergySum nullptr!" << std::endl;
@@ -124,7 +124,7 @@ void reweight_apply(
         delete hEnergySum;
     }
     
-    TH1F* hEnergyDiff = (TH1F*)gROOT->FindObject("hEnergyDiff_" + sampleName + name_append + "_reweight");
+    TH1D* hEnergyDiff = (TH1D*)gROOT->FindObject("hEnergyDiff_" + sampleName + name_append + "_reweight");
     if(hEnergyDiff == nullptr)
     {
         std::cout << "hEnergyDiff nullptr!" << std::endl;
@@ -134,7 +134,7 @@ void reweight_apply(
         delete hEnergyDiff;
     }
     
-    TH2F* hHighLowEnergy = (TH2F*)gROOT->FindObject("hHighLowEnergy_" + sampleName + name_append + "_reweight");
+    TH2D* hHighLowEnergy = (TH2D*)gROOT->FindObject("hHighLowEnergy_" + sampleName + name_append + "_reweight");
     if(hHighLowEnergy == nullptr)
     {
         std::cout << "hHighLowEnergy nullptr!" << std::endl;
@@ -144,7 +144,7 @@ void reweight_apply(
         delete hHighLowEnergy;
     }
     
-    TH1F* hWeight = (TH1F*)gROOT->FindObject("hWeight_" + sampleName + name_append + "_reweight");
+    TH1D* hWeight = (TH1D*)gROOT->FindObject("hWeight_" + sampleName + name_append + "_reweight");
     if(hWeight == nullptr)
     {
         std::cout << "hWeight nullptr!" << std::endl;
@@ -163,44 +163,44 @@ void reweight_apply(
     // TODO: this does not work, need to re-Fill histogram using file
     //output = input->Clone(input->GetName() + "_reweight");
     //std::cout << "Total new" << std::endl;
-    hTotalE_output = new TH1F("hTotalE_" + sampleName + name_append + "_reweight",
+    hTotalE_output = new TH1D("hTotalE_" + sampleName + name_append + "_reweight",
                        //"Phase " + Phase + " " + sampleName + name_append + " total energy; #SigmaE_{e} (MeV)",
                        "Phase " + Phase + " " + sampleName + name_append + " total energy; Total Energy #SigmaE_{e} (MeV)",
                        50, 0.0, 5.0);
                        // TODO: changed from 4
 
     //std::cout << "Single new" << std::endl;
-    hSingleEnergy_output    = new TH1F("hSingleEnergy_" + sampleName + name_append + "_reweight",
+    hSingleEnergy_output    = new TH1D("hSingleEnergy_" + sampleName + name_append + "_reweight",
                                 "Phase " + Phase + " " + sampleName  + name_append + " Single Energy",
                                 50, 0.0, 5.0);
     
     //std::cout << "High new" << std::endl;
-    hHighEnergy_output     = new TH1F("hHighEnergy_" + sampleName + name_append + "_reweight",
+    hHighEnergy_output     = new TH1D("hHighEnergy_" + sampleName + name_append + "_reweight",
                                 "Phase " + Phase + " " + sampleName + name_append + " High Energy; Energy (MeV)",
                                 50, 0.0, 5.0);
 
     //std::cout << "Low new" << std::endl;
-    hLowEnergy_output     = new TH1F("hLowEnergy_" + sampleName + name_append + "_reweight",
+    hLowEnergy_output     = new TH1D("hLowEnergy_" + sampleName + name_append + "_reweight",
                                 "Phase " + Phase + " " + sampleName + name_append + " Low Energy",
                                 50, 0.0, 5.0);
 
     //std::cout << "Sum new" << std::endl;
-    hEnergySum_output     = new TH1F("hEnergySum_" + sampleName + name_append + "_reweight",
+    hEnergySum_output     = new TH1D("hEnergySum_" + sampleName + name_append + "_reweight",
                                 "Phase " + Phase + " " + sampleName + name_append + " Low Energy",
                                 50, 0.0, 5.0);
 
     //std::cout << "Diff new" << std::endl;
-    hEnergyDiff_output     = new TH1F("hEnergyDiff_" + sampleName + name_append + "_reweight",
+    hEnergyDiff_output     = new TH1D("hEnergyDiff_" + sampleName + name_append + "_reweight",
                                 "Phase " + Phase + " " + sampleName + name_append + " Low Energy",
                                 50, 0.0, 5.0);
     
     //std::cout << "HighLow new" << std::endl;
-    hHighLowEnergy_output     = new TH2F("hHighLowEnergy_" + sampleName + name_append + "_reweight",
+    hHighLowEnergy_output     = new TH2D("hHighLowEnergy_" + sampleName + name_append + "_reweight",
                                 "Phase " + Phase + " " + sampleName + name_append + ";Low Energy Electron Energy (MeV);High Energy Electron Energy (MeV)",
                                 50, 0.0, 5.0, 50, 0.0, 5.0);
 
     //std::cout << "Weight new" << std::endl;
-    hWeight_output       = new TH1F("hWeight_" + sampleName + name_append + "_reweight",
+    hWeight_output       = new TH1D("hWeight_" + sampleName + name_append + "_reweight",
                                 "Phase " + Phase + " " + sampleName + name_append + ";Weight",
                                 //50, -2.0, 4.0);
                                 50, 0.0, 0.0);
@@ -494,6 +494,21 @@ void reweight_apply(
 
         // ReWeight = baseline 0.0, ReWeight2 = baseline = 0.382
         //Double_t weight{ReWeight3(trueT1, trueT2, epsilon_31_baseline, epsilon_31, h_nEqNull, h_nEqTwo, psiN0, psiN2, "true")}; // TODO remove true?
+        
+        /*
+        if(xi_31_baseline != 0.0)
+        {
+            std::cout << "xi_31_baseline=" << xi_31_baseline << " != 0.0" << std::endl;
+            std::cin.get();
+        }
+        
+        if((xi_31 < -0.4) || (xi_31 > 1.0))
+        {
+            std::cout << "xi_31=" << xi_31 << " considered to be an unusual value" << std::endl;
+            std::cin.get();
+        }
+        */
+
         Double_t weight{ReWeight3(trueT0, trueT1, xi_31_baseline, xi_31, h_nEqNull, h_nEqTwo, psiN0, psiN2, "true")}; // TODO remove true?
 
         /*
@@ -844,13 +859,15 @@ Double_t ReWeight3(const Double_t T1, const Double_t T2,
     {
         if(std::isnan(weight_2 / weight_1))
         {
+            std::cout << std::scientific;
             std::cout << "T1=" << T1 << " T2=" << T2 << std::endl;
             std::cout << "bin_x=" << bin_x << " bin_y=" << bin_y << std::endl;
             std::cout << "h_nEqNull->GetBinContent(bin_x, bin_y)=" << h_nEqNull->GetBinContent(bin_x, bin_y) << std::endl;
             std::cout << "h_nEqTwo->GetBinContent(bin_x, bin_y)=" << h_nEqTwo->GetBinContent(bin_x, bin_y) << std::endl;
             std::cout << "weight_1=" << weight_1 << " weight_2=" << weight_2 << std::endl;
             std::cout << "phase_1=" << phase_1 << " phase_2=" << phase_2 << std::endl;
-            std::cout << psiN0 << " " << psiN2 << " " << epsilon << " " << epsilon_baseline << std::endl;
+            std::cout << "psiN0=" << psiN0 << " psiN2=" << psiN2 << std::endl;
+            std::cout << "epsilon=" << epsilon << " epsilon_baseline=" << epsilon_baseline << std::endl;
             std::cin.get();
         }
     }
@@ -880,7 +897,7 @@ Double_t ReWeight3(const Double_t T1, const Double_t T2,
 }
 
 // TODO: move elsewhere
-//void reweight_apply(TH1F *output, const TH1F *const input, ...)
+//void reweight_apply(TH1D *output, const TH1D *const input, ...)
 //{
 //
 //    for(Int_t bin_ix{1}; bin_ix <= input->GetNBinsX(); ++ bin_ix)

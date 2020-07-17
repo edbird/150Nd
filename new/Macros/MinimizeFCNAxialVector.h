@@ -12,6 +12,11 @@
 
 
 
+Double_t getNumberMC1D(const Int_t channel, const Int_t bin_ix, const std::vector<double> &p);
+Double_t getNumberMC2D(const Int_t channel, const Int_t bin_ix, const Int_t bin_iy, const std::vector<double> &p);
+
+
+
 // TODO: may need to change precision to float not double using
 // MnMachinePrecision::setPrecision
 
@@ -95,7 +100,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             // TODO: rebuild nd150 xi_31 paramter histogram here
             //std::cout << "rebuilding 150 Nd MC" << std::endl;
 
-            const double xi_31{p[axial_vector_parameter_0_param_number]};
+            const double xi_31{param[axial_vector_parameter_0_param_number]};
             rebuild_150Nd_MC(xi_31, xi_31_baseline);
 
 

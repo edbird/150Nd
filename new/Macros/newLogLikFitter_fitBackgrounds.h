@@ -9,7 +9,7 @@
 
 
 void fitBackgrounds_init(
-    ROOT::Minuit2::MinuitUserParameterState& theParameterState,
+    ROOT::Minuit2::MnUserParameterState& theParameterState,
     ROOT::Minuit2::VariableMetricMinimizer& theMinimizer,
     double *AdjustActs,
     double *AdjustActs_Err
@@ -40,7 +40,7 @@ void fitBackgrounds_init(
     //std::cin.get();
 
     // set debug level
-    minuit->SetPrintLevel(3);
+    //minuit->SetPrintLevel(3);
 
     // moved reading of parameter list file to before book histogram function
     // calls
@@ -138,7 +138,7 @@ void fitBackgrounds_init(
 
             //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_FIXED", 1.0, 0.5, 0.0, 50.0);
             //minuit->FixParameter(minuit_param_number);
-            theParameterState.Fix(minuit_param_name);
+            theParameterState.Fix(std::string(minuit_param_name));
         }
         else
         {
@@ -166,6 +166,11 @@ void fitBackgrounds_init(
                 //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", AdjustActs[i], 0.5, 0.0, 1000.0);
                 //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", AdjustActs[i], 0.5, -1.0, 5.0);
                 theParameterState.Add(std::string(minuit_param_name), AdjustActs[i], AdjustActs_Err[i]); // instead of _Err was 0.5
+                theParameterState.SetLowerLimit(i, -0.4);
+                //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", AdjustActs[i], 0.5, -0.4, 5.0);
+                //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", AdjustActs[i], 0.5, -1.0, 5.0);
+                //std::cout << "define parameter" << AdjustActs[i] << std::endl;
+                //std::cin.get();
                 //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", 2.0 * AdjustActs[i], 0.5, -1.0, 5.0);
             }
             else
@@ -184,6 +189,16 @@ void fitBackgrounds_init(
                     theParameterState.Add(std::string(minuit_param_name), 1.0, 0.5);
                     theParameterState.SetLowerLimit(i, 0.0);
             //    }
+                //if(i == 0)
+                //{
+                //    //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", 1.0, 0.5, 0.0, 1000.0);
+                //    minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", 1.705, 0.005, 0.0, 1000.0);
+                //    //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", 2.5, 0.5, 0.0, 1000.0);
+                //}
+                //else
+                //{
+                //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", 1.0, 0.5, 0.0, 1000.0);
+                //}
             }
             
             /*
@@ -439,8 +454,9 @@ void fitBackgrounds_setparams(TMinuit *minuit, double *AdjustActs, double *Adjus
 
 
 ROOT::Minuit2::FunctionMinimum fitBackgrounds_exec(
-    ROOT::Minuit2::MinuitUserParameterState& theParameterState,
-    ROOT::Minuit2::VariableMetricMinimizer& theMinimizer
+    ROOT::Minuit2::MnUserParameterState& theParameterState,
+    ROOT::Minuit2::VariableMetricMinimizer& theMinimizer,
+    MinimizeFCNAxialVector &theFCN
     )
 {
 //                std::cout << "i 1 exec: " << AdjustActs[i] << std::endl;
@@ -449,11 +465,13 @@ ROOT::Minuit2::FunctionMinimum fitBackgrounds_exec(
     // TODO: re-enable
     ll_walk.clear();
     //minuit->Migrad();
-    ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, theParameterState);
+    ROOT::Minuit2::MnStrategy theStrategy(1);
+    ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, theParameterState, theStrategy);
     ll_walk_save = ll_walk;
     std::cout << "walk length: " << ll_walk_save.size() << std::endl;
     ll_walk.clear();
 
+    #if 0
     // Then get results
     //for(int i = 0; i < numberParams; i++)
     for(int i = 0; i < numberEnabledParams; i++)
@@ -464,7 +482,7 @@ ROOT::Minuit2::FunctionMinimum fitBackgrounds_exec(
         AdjustActs[i] = value;
         AdjustActs_Err[i] = error;
     }
-
+    #endif
 
     return FCN_min;
 
@@ -481,7 +499,7 @@ void fitBackgrounds_postexectest(TMinuit *minuit, double *AdjustActs, double *Ad
 
     if(0)
     {
-        newloglikfitter_100Mo_chisquaretest(minuit, AdjustActs, AdjustActs_Err);
+        //newloglikfitter_100Mo_chisquaretest(minuit, AdjustActs, AdjustActs_Err);
     }
 
     // Some people have seen further by standing on the shoulders of giants.
@@ -493,7 +511,7 @@ void fitBackgrounds_postexectest(TMinuit *minuit, double *AdjustActs, double *Ad
 
     if(0)
     {
-        newloglikfitter_testmyphasespace(minuit, AdjustActs, AdjustActs_Err);
+        //newloglikfitter_testmyphasespace(minuit, AdjustActs, AdjustActs_Err);
     }
 
 
@@ -521,9 +539,10 @@ void fitBackgrounds_getcovmatrix(TMinuit* minuit, double *&CovMatrix, int& numbe
 
 //void fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&CovMatrix, int& number_free_params, Int_t thePhase)
 //TMinuit* fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&CovMatrix, int& number_free_params, Int_t thePhase)
-void fitBackgrounds(
-    ROOT::Minuit2::MinuitUserParameterState& theParameterState,
+ROOT::Minuit2::FunctionMinimum fitBackgrounds(
+    ROOT::Minuit2::MnUserParameterState& theParameterState,
     ROOT::Minuit2::VariableMetricMinimizer& theMinimizer,
+    MinimizeFCNAxialVector &theFCN,
     double *AdjustActs,
     double *AdjustActs_Err,
     double *&CovMatrix,
@@ -536,16 +555,19 @@ void fitBackgrounds(
     
     //TMinuit* minuit = fitBackgrounds_init(AdjustActs, AdjustActs_Err);
     fitBackgrounds_init(theParameterState, theMinimizer, AdjustActs, AdjustActs_Err);
+    /*ROOT::Minuit2::FunctionMinimum FCN_min*/
     if(1)
     {
         //fitBackgrounds_exec(minuit, AdjustActs, AdjustActs_Err);
-        ROOT::Minuit2::FunctionMinimum FCN_min = fitBackgrounds_exec(theParameterState, theMinimizer);
+        ROOT::Minuit2::FunctionMinimum FCN_min = fitBackgrounds_exec(theParameterState, theMinimizer, theFCN);
         //fitBackgrounds_postexectest(minuit, AdjustActs, AdjustActs_Err);
         //fitBackgrounds_getcovmatrix(minuit, CovMatrix, number_free_params);
         // TODO
+
+    
+    return FCN_min;
     }
 
-    //return minuit;
 
 }
 

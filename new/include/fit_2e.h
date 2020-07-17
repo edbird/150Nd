@@ -1,7 +1,7 @@
 #ifndef FIT_H
 #define FIT_H
 
-#include "TH1F.h"
+#include "TH1D.h"
 #include "TFractionFitter.h"
 #include "TArray.h"
 #include "TObject.h"
@@ -13,7 +13,7 @@
 #include "TFile.h"
 #include "TString.h"
 #include "TTree.h"
-#include "TH1F.h"
+#include "TH1.h"
 #include "TH2.h"
 #include "TStyle.h"
 #include "TNtuple.h"

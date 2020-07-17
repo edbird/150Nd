@@ -9,10 +9,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 void book1DHistograms_helper(TFile *myFile, Int_t channel_counter, TString theChannel, TString thePhase_arg, TString theHistogram,
-    const int nBkgs, TString *BkgFiles)//, TH1F *tmpHist)
+    const int nBkgs, TString *BkgFiles)//, TH1D *tmpHist)
 {
         
-    TH1F *tmpHist = nullptr;
+    TH1D *tmpHist = nullptr;
 
 
     for(int i = 0; i < nBkgs; i++)
@@ -42,8 +42,8 @@ void book1DHistograms_helper(TFile *myFile, Int_t channel_counter, TString theCh
 
                 //gDirectory->GetListOfKeys();
 
-                //tmpHist = (TH1F*)gDirectory->Get(fullname.c_str())->Clone();
-                tmpHist = (TH1F*)myFile->Get(fullname.c_str())->Clone(new_name.c_str());
+                //tmpHist = (TH1D*)gDirectory->Get(fullname.c_str())->Clone();
+                tmpHist = (TH1D*)myFile->Get(fullname.c_str())->Clone(new_name.c_str());
 
                 if(tmpHist != nullptr)
                 //if(gDirectory->GetListOfKeys()->Contains(fullname.c_str()))
@@ -57,8 +57,8 @@ void book1DHistograms_helper(TFile *myFile, Int_t channel_counter, TString theCh
                     //check if the histograms exists 
                     //std::string hist_name(BkgFiles[i] + "_" + theChannel + thePhase_arg);
                     //std::cout << "Get() : " << name << " from file, Clone() : " << hist_name << std::endl;
-                    //tmpHist = (TH1F*)gDirectory->Get(name.c_str())->Clone(hist_name.c_str());
-                    //tmpHist = (TH1F*)gDirectory->Get(fullname.c_str())->Clone();
+                    //tmpHist = (TH1D*)gDirectory->Get(name.c_str())->Clone(hist_name.c_str());
+                    //tmpHist = (TH1D*)gDirectory->Get(fullname.c_str())->Clone();
 
                     // scale by activity
 
@@ -134,7 +134,7 @@ void book1DHistograms_helper(TFile *myFile, Int_t channel_counter, TString theCh
                     std::cout << "found the 150Nd MC" << std::endl;
                     std::cin.get();
 
-                    TH1F *tmpHist_draw_1d_clone = nullptr;
+                    TH1D *tmpHist_draw_1d_clone = nullptr;
                     reweight_apply(tmpHist_draw1D_clone, tmpHist_draw1D, ... );
                 }
                 else
@@ -199,7 +199,7 @@ void book1DHistograms(Int_t channel_counter, TString theChannel, TString thePhas
     //gDirectory->ls();
 
 
-    //TH1F *tmpHist = nullptr; //new TH1F("tmpHist_" + theChannel + thePhase_arg, "" , 1, 0, 1);
+    //TH1D *tmpHist = nullptr; //new TH1D("tmpHist_" + theChannel + thePhase_arg, "" , 1, 0, 1);
     
     std::cout << "External" << std::endl;
     book1DHistograms_helper(aFile, channel_counter, theChannel,
@@ -257,17 +257,17 @@ void book1DHistograms(Int_t channel_counter, TString theChannel, TString thePhas
     std::string fullname = directory + name;
     std::cout << "fullname=" << fullname << std::endl;
     //if(gDirectory->GetListOfKeys()->Contains(fullname.c_str()))
-    //TH1F *tmpHist = (TH1F*)gDirectory->Get(fullname.c_str())->Clone();
-    TH1F *tmpHist = (TH1F*)aFile->Get(fullname.c_str())->Clone();
+    //TH1D *tmpHist = (TH1D*)gDirectory->Get(fullname.c_str())->Clone();
+    TH1D *tmpHist = (TH1D*)aFile->Get(fullname.c_str())->Clone();
     if(tmpHist != nullptr)
     {
-        //TH1F *tmpHist = nullptr;
+        //TH1D *tmpHist = nullptr;
         // 2020-04-03: removed changing of histogram name
         //std::string hist_name("data_" + theChannel + thePhase_arg);
         //std::cout << "Get() : " << name << " from file, Clone() : " << hist_name << std::endl;
-        //tmpHist = (TH1F*)gDirectory->Get(name.c_str())->Clone(hist_name.c_str());
-        //tmpHist = (TH1F*)gDirectory->Get(fullname.c_str())->Clone();
-        allDataSamples1D->Add((TH1F*)tmpHist);
+        //tmpHist = (TH1D*)gDirectory->Get(name.c_str())->Clone(hist_name.c_str());
+        //tmpHist = (TH1D*)gDirectory->Get(fullname.c_str())->Clone();
+        allDataSamples1D->Add((TH1D*)tmpHist);
     }
     else
     {
@@ -278,8 +278,8 @@ void book1DHistograms(Int_t channel_counter, TString theChannel, TString thePhas
     {
         std::string name(theHistogram + "Data");
         std::cout << "Get() : " << name << " from file, Clone() : " << "Data_" + theChannel + thePhase_arg << std::endl;
-        tmpHist = (TH1F*)gDirectory->Get(name.c_str())->Clone("Data_" + theChannel + thePhase_arg);
-        allDataSamples1D->Add((TH1F*)tmpHist);
+        tmpHist = (TH1D*)gDirectory->Get(name.c_str())->Clone("Data_" + theChannel + thePhase_arg);
+        allDataSamples1D->Add((TH1D*)tmpHist);
     }
     else
     {

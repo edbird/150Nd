@@ -88,11 +88,11 @@ BREAK
 #0	enabled     4.10996e-04 6.19840e-06 same        same        none        none        none        none        free    free    nd150_rot_2n2b_m4               END
 #0	enabled     3.45e-04    3.45e-05    same        same        none        none        none        none        free    free    nd150_rot_2n2b_m4               END # 470215
 #0	enabled     1.459       0.1         same        same        none        none        none        none        hard    hard    nd150_rot_2n2b_m4               END
-#0	enabled     3.45e-04    3.45e-05    same        same        none        none        none        none        free    free    nd150_rot_2n2b_m4               END # 470215
-0	enabled     3.45e-04    2.00e-04    same        same        none        none        none        none        free    free    nd150_rot_2n2b_m4               END # 470215
+0	enabled     3.45e-04    3.45e-05    same        same        none        none        none        none        free    free    nd150_rot_2n2b_m4               END # 470215
+#0	enabled     3.45e-04    2.00e-04    same        same        none        none        none        none        free    free    nd150_rot_2n2b_m4               END # 470215
 #1   enabled     0.368       0.1         same        same        none        none        none        none        hard    hard    axial_vector_parameter_0        END
-#1   enabled     0.296       0.25         same        same        none        none        none        none        free    free    axial_vector_parameter_0        END
-1   enabled     0.570       0.001         same        same        none        none        none        none        free    free    axial_vector_parameter_0        END
+1   enabled     0.296       0.1         same        same        none        none        none        none        free    free    axial_vector_parameter_0        END
+#1   enabled     0.570       0.001         same        same        none        none        none        none        free    free    axial_vector_parameter_0        END
 #1   enabled     0.0         0.1         same        same        none        none        none        none        free    free    axial_vector_parameter_0        END
 #1   enabled     0.296       0.1         same        same        none        none        none        none        hard    hard    axial_vector_parameter_0        END
 BREAK
