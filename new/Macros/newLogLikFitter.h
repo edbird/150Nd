@@ -60,7 +60,11 @@ double last_xi_31_parameter_value;
 // store last parameter values used in logliklihood function
 static const int numberParams = 40;
 double paramLastValueMap[numberParams];
+double paramInitValueMap[numberParams];
 
+double *minuitParamCurrent;
+double *minuitParamInit;
+double *minuitParamLast;
 
 
 // TODO: set numberParams dynamically
@@ -227,6 +231,13 @@ TObjArray *allMCSamples1D[number1DHists];
 TObjArray *allMCSamples2D[number2DHists];
 TObjArray *allDataSamples1D;
 TObjArray *allDataSamples2D;
+TObjArray *allFakeDataSamples1D;
+TObjArray *allFakeDataSamples2D;
+
+
+std::vector<std::pair<double,double>> ll_walk;
+std::vector<std::pair<double,double>> ll_walk_save;
+
 
 
 #if 0

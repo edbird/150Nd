@@ -70,24 +70,7 @@ void book1DHistograms_helper(TFile *myFile, Int_t channel_counter, TString theCh
                     Double_t param_init_value = 0.;
                     Double_t param_init_error = 0.; 
                     get_paramInitValueError(thePhase, param_number, param_init_value, param_init_error);
-                    /*
-                    if(thePhase == 0)
-                    {
-                        int i = param_number;
-                        param_init_value = paramInitValueP1Map[i];
-                        param_init_error = paramInitErrorP1Map[i];
-                    }
-                    else if(thePhase == 1)
-                    {
-                        int i = param_number;
-                        param_init_value = paramInitValueP2Map[i];
-                        param_init_error = paramInitErrorP2Map[i];
-                    }
-                    else
-                    {
-                        std::cout << "ERROR: Invalid value for thePhase: thePhase=" << thePhase << std::endl;
-                    }
-                    */
+
                     Double_t scale_factor = param_init_value;
 
                     // account for 208 Tl branching ratio of 36 %
@@ -99,6 +82,9 @@ void book1DHistograms_helper(TFile *myFile, Int_t channel_counter, TString theCh
                         //std::cout << "mc_name=" << mc_name << " applying additional scaling factor of 0.36" << std::endl;
                         //std::cin.get();
                         scale_factor *= 0.36;
+                        // TODO: check that this is not already applied in
+                        // fit_2e
+                        // NOTE: it isn't
                     }
 
                     // NOTE: TODO
@@ -111,6 +97,29 @@ void book1DHistograms_helper(TFile *myFile, Int_t channel_counter, TString theCh
                     // samples are now scaled by activity
                     // changed input, and pre-scaling, now need to change output
 
+                    // NOTE: Scale factor
+                    // samples scaled by param_init_value (activity in Bq)
+                    // after being read from file
+                    // however objects in file are scaled by
+                    // TotalTime / sampleNGenMC
+                    // also scale by 0.36 for relevant samples to account for
+                    // branching ratio here
+                    
+                    // in loglikelihood function the getNumberMC() functions
+                    // multiply the bin content by AdjustActs parameter
+                    // (minuit parameter)
+
+        if(param_number == 0)
+        {
+            //std::cout << "book1DHistograms function" << std::endl;
+            //std::cout << "Integrals after scaling: " << tmpHist->Integral()
+            //      << std::endl;
+        }
+        if(param_number == 1)
+        {
+            std::cout << "ERROR" << std::endl;
+            throw "Error";
+        }
 
 // NOTE: do NOT apply xi reweighting here
 // this section just LOADS histograms from file and we want to LOAD
@@ -178,7 +187,8 @@ void book1DHistograms_helper(TFile *myFile, Int_t channel_counter, TString theCh
 // theChannel = "2e_"
 // thePhase = "P1"
 // theHistogram = "hTotalE_"
-void book1DHistograms(Int_t channel_counter, TString theChannel, TString thePhase_arg, TString theHistogram) {
+void book1DHistograms(Int_t channel_counter, TString theChannel, TString thePhase_arg, TString theHistogram)
+{
 
     std::cout << "booking 1D hists for " << theChannel << " " << thePhase_arg << std::endl;
     allMCSamples1D[channel_counter] = new TObjArray();
@@ -243,6 +253,7 @@ void book1DHistograms(Int_t channel_counter, TString theChannel, TString thePhas
     //std::string directory("processeddata/hTotalE_/");
     std::string directory("processeddata/" + theHistogram + "/");
     std::string name(theHistogram + "data_2e");
+    //std::string fake_data_name(theHistogram + "data_2e_fake");
     std::string fullname = directory + name;
     std::cout << "fullname=" << fullname << std::endl;
     //if(gDirectory->GetListOfKeys()->Contains(fullname.c_str()))

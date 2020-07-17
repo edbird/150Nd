@@ -3,6 +3,36 @@
 
 
 ///////////////////////////////////////////////////////////////////////////////
+// internal / external index manipulation
+///////////////////////////////////////////////////////////////////////////////
+
+int get_axial_vector_parameter_index()
+{
+
+    std::string mc_name = "axial_vector_parameter_0";
+    std::string search_object = MCNameToParamNameMap.at(mc_name);
+    int axial_vector_parameter_0_param_number = -1;
+    if(paramNameToNumberMap.count(search_object) > 0)
+    {
+        int param_number = paramNameToNumberMap.at(search_object);
+        axial_vector_parameter_0_param_number = param_number;
+   
+        if(param_number != 1)
+        {
+            throw "param_number != 1";
+        }
+
+    }
+    else
+    {
+        throw "mc_name not found in paramNameToNumberMap";
+    }
+    
+    return axial_vector_parameter_0_param_number;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
 // Get initial value and error of parameter depending on phase
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -92,7 +122,12 @@ void canvas_saveas_helper(const std::string &directory, const std::string &savea
             {
                 //std::string name = base_name + "_" + std::string(i_str) + "." + *it;
                 std::string name = base_name + "." + *it;
-                std::string fullname = directory + "/" + name;
+                std::string fullname;
+                if(directory.size() > 0)
+                {
+                    fullname = directory + "/";
+                }
+                fullname += name;
                 std::cout << "saving as " << fullname << std::endl;
                 canvas->SaveAs(fullname.c_str());
             }
@@ -137,7 +172,12 @@ void canvas_saveas_helper(const std::string &directory, const std::string &savea
             {
                 name += extension;
             }
-            std::string fullname = directory + "/" + name; 
+            std::string fullname;
+            if(directory.size() > 0)
+            {
+                fullname = directory + "/";
+            }
+            fullname += name;
             std::cout << "saving as " << fullname << std::endl;
             canvas->SaveAs(fullname.c_str());
         }

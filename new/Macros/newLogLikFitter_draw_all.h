@@ -3,7 +3,7 @@
 
 
 
-void draw_all(const double* const AdjustActs, const double* const AdjustActs_Err, const double* const CovMatrix, const int number_free_params)
+void draw_all(const double* const AdjustActs, const double* const AdjustActs_Err, const double* const CovMatrix, const int number_free_params, const double fval)
 {
     // TODO: load AdjustActs, AdjustActs_Err from file
 
@@ -76,9 +76,10 @@ void draw_all(const double* const AdjustActs, const double* const AdjustActs_Err
     TH1F *hHighEnergy_data = nullptr;
     TH1F *hLowEnergy_data = nullptr;
 
-    draw(AdjustActs, AdjustActs_Err, "hTotalE.*",
+    draw(AdjustActs, AdjustActs_Err, fval,
          hHighEnergy_allMC, hLowEnergy_allMC,
-         hHighEnergy_data, hLowEnergy_data);
+         hHighEnergy_data, hLowEnergy_data,
+         "hTotalE.*");
     
     draw_2D(AdjustActs, AdjustActs_Err, "hHighLowEnergy.*",
             hHighEnergy_allMC, hLowEnergy_allMC,

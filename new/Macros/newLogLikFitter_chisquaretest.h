@@ -46,8 +46,9 @@ void do_test_xi_31_test1(double *const AdjustActs, double* const AdjustActs_Err)
             TH1F *hHighEnergy_data = nullptr;
             TH1F *hLowEnergy_data = nullptr;
 
-            draw(AdjustActs, AdjustActs_Err, std::string("hTotalE_") + std::string(xi_31_str) + std::string(".png"),
-                    hHighEnergy_allMC, hLowEnergy_allMC, hHighEnergy_data, hLowEnergy_data);
+            draw(AdjustActs, AdjustActs_Err, -1.0,
+                    hHighEnergy_allMC, hLowEnergy_allMC, hHighEnergy_data, hLowEnergy_data,
+                    std::string("hTotalE_") + std::string(xi_31_str) + std::string(".png"));
             
             draw_2D(AdjustActs, AdjustActs_Err, std::string("hHighLowEnergy_") + std::string(xi_31_str) + std::string(".png"),
                     hHighEnergy_allMC, hLowEnergy_allMC, hHighEnergy_data, hLowEnergy_data);
@@ -135,7 +136,7 @@ void newloglikfitter_gA_chisquaretest(
         TH1F *hLowEnergy_allMC = nullptr;
         TH1F *hHighEnergy_data = nullptr;
         TH1F *hLowEnergy_data = nullptr;
-        draw(params, param_errs, saveas_filename, hHighEnergy_allMC, hLowEnergy_allMC, hHighEnergy_data, hLowEnergy_data);
+        draw(params, param_errs, fval, hHighEnergy_allMC, hLowEnergy_allMC, hHighEnergy_data, hLowEnergy_data, saveas_filename, ".", false);
 
         ofstream_testvalue << "value," << test_value << ",chisquare," << fval << std::endl;
 
@@ -388,8 +389,10 @@ void newloglikfitter_testmyphasespace(
     ///////////////////////////////////////////////////////////////////////////
 
 
-    std::vector<TCanvas*> c_mps_v;
-    std::vector<TH2D*> h_mps_v;
+    bool mode_fake_data = false; //true;
+
+    //std::vector<TCanvas*> c_mps_v;
+    //std::vector<TH2D*> h_mps_v;
 
     std::cout << "numberEnabledParams=" << numberEnabledParams << std::endl;
     std::cout << "numberFreeParams=" << free_params.size() << std::endl;
@@ -434,72 +437,57 @@ void newloglikfitter_testmyphasespace(
             
             std::cout << "rendering: " << c_mps_name << std::endl;
 
-            TCanvas *c_mps = new TCanvas(c_mps_name, c_mps_name);
-            c_mps_v.push_back(c_mps);
-            //c_mps = nullptr;
-
-            int n_param_1 = 16; //512;
-            int n_param_2 = 16; //512;
+            const int n_param_xy = 301; // 1001
+            int n_param_1 = n_param_xy; //300;
+            int n_param_2 = n_param_xy; //300;
             int n_param_max = n_param_1 * n_param_2;
             int c_param = 0;
 
-            double param_1 = AdjustActs[param_1_ix];
-            double sigma_1 = AdjustActs_Err[param_1_ix];
-            double width_1 = 5.0;
-            double param_1_min = param_1 + width_1 * sigma_1 * (-0.5); //(-n_param_1 / 2);
-            double param_1_max = param_1 + width_1 * sigma_1 * 0.5; //(n_param_1 - n_param_1 / 2);
+            //double param_1 = AdjustActs[param_1_ix];
+
+            double param_1_min;
+            double param_1_max;
 
             // param 1 is gA
             // custom range
-            param_1_min = -0.5;
-            param_1_max = 2.5;
-            sigma_1 = 1.0;
-            width_1 = param_1_max - param_1_min;
-            width_1 *= 2.0;
+            param_1_min = 0.1; //-0.4; //-0.5; //1.0; //-0.5;
+            param_1_max = 1.7; //0.6; //1.6; //0.5; //2.5; //5.0; //2.5;
+            //param_1_min = -0.4;
+            //param_1_max = 1.6; TODO
     
 
-            double param_2 = AdjustActs[param_2_ix];
-            double sigma_2 = AdjustActs_Err[param_2_ix];
-            double width_2 = 5.0;
-            double param_2_min = param_2 + width_2 * sigma_2 * (-0.5); //(-n_param_2 / 2);
-            double param_2_max = param_2 + width_2 * sigma_2 * 0.5; //(n_param_2 - n_param_2 / 2);
+            //double param_2 = AdjustActs[param_2_ix];
+
+            double param_2_min;
+            double param_2_max;
             
             // param 2 is 150Nd amplitude
             // custom range
-            param_2_min = 0.0;
-            param_2_max = 4.0;
-            sigma_2 = 1.0;
-            width_2 = param_1_max - param_1_min;
-            width_2 *= 2.0;
+            param_2_min = 0.8; //1.1; //0.0; //0.0;
+            param_2_max = 2.6; //2.6; //1.8; //2.0; //2.0; //4.0;
+            //param_2_min = 0.0;
+            //param_2_max = 3.0;  //TODO
 
-            // -1.0, 1.0
-            // 0.0 .. 2.5
-
-            // x: 0.42: 0.36 .. 0.56
-            // y: 1.6: 1.5 .. 1.7
-
-            // x: -0.6 .. -0.4
-            // y: 0 .. 0.2
 
             TString h_mps_name_base = "h_mps";
             TString h_mps_name = h_mps_name_base + "_" + param_1_ix_str_external + "_" + param_2_ix_str_external;
 
-            std::cout << h_mps_name << " param_1=" << param_1 << " sigma_1=" << sigma_1
-                                    << " param_1_min=" << param_1_min << " param_1_max=" << param_1_max
-                                    << " param_2=" << param_2 << " sigma_2=" << sigma_2
-                                    << " param_2_min=" << param_2_min << " param_2_max=" << param_2_max
-                                    << std::endl;
+            //std::cout << h_mps_name << " param_1=" << param_1 << " sigma_1=" << sigma_1
+            //                        << " param_1_min=" << param_1_min << " param_1_max=" << param_1_max
+            //                        << " param_2=" << param_2 << " sigma_2=" << sigma_2
+            //                        << " param_2_min=" << param_2_min << " param_2_max=" << param_2_max
+            //                        << std::endl;
 
             TH2D *h_mps = new TH2D(h_mps_name, h_mps_name,
                                    n_param_1, param_1_min, param_1_max,
                                    n_param_2, param_2_min, param_2_max); 
-            h_mps_v.push_back(h_mps);
+            //h_mps_v.push_back(h_mps);
             //h_mps = nullptr;
 
             //h_mps->GetZaxis()->SetRangeUser(0.0, 1.0e+04);
             h_mps->SetContour(1000);
             
-            TString param_1_name_str = TString(paramNameMap[param_1_ix_external].c_str());
+            TString param_1_name_str = TString(paramNameMap[param_1_ix_external]);
             TString param_2_name_str = TString(paramNameMap[param_2_ix_external]);
 
             h_mps->GetXaxis()->SetTitle(param_1_name_str);
@@ -513,18 +501,82 @@ void newloglikfitter_testmyphasespace(
             for(int jx = 0; jx < n_params; ++ jx)
             {
                 minuit->GetParameter(jx, params[jx], param_errs[jx]);
+                //std::cout << "jx=" << jx << " params[" << jx << "]=" << params[jx] << std::endl;
             }
+
+
+
+            double min = std::numeric_limits<double>::infinity();
+            double min_x = -1.0; //-0.085;
+            double min_y = -1.0; //0.87;
+
+
+
+
+
+            if(1) 
+            {
+                ///////////////////////////////////////////////////////////////////////////
+                // draw the minimum and draw the point (0,1)
+                ///////////////////////////////////////////////////////////////////////////
+
+
+                params[param_1_ix] = 0.0;
+                params[param_2_ix] = 1.0;
+
+                double fval;
+                logLikelihood(n_params, nullptr, fval, params, 0);
+                std::cout << "fval(" << params[param_1_ix] << "," << params[param_2_ix] << ")=" << fval << std::endl;
+
+                TH1F *junk1, *junk2, *junk3, *junk4;
+                TString savename;
+                savename.Form("%s_%d_%d_expected_minimum.png", h_mps_name.Data(), 1, 0);
+                draw(params, nullptr, fval, junk1, junk2, junk3, junk4, std::string(savename), ".", mode_fake_data);
+
+
+                //draw_channel(1, params, -1.0, "NOSAVE");
+                //std::cin.get();
+                //draw(params, nullptr, fval, junk1, junk2, junk3, junk4, std::string(savename), ".", true);
+
+
+                params[param_1_ix] = 1.651043;//-0.085; //min_x;
+                params[param_2_ix] = 0.521986;//0.87; //min_y;
+
+                logLikelihood(n_params, nullptr, fval, params, 0);
+                std::cout << "fval(" << params[param_1_ix] << "," << params[param_2_ix] << ")=" << fval << std::endl;
+
+                //TH1F *junk1, *junk2, *junk3, *junk4;
+                //TString savename;
+                savename.Form("%s_%d_%d_minuit_measured_minimum.png", h_mps_name.Data(), 1, 0);
+                draw(params, nullptr, fval, junk1, junk2, junk3, junk4, std::string(savename), ".", mode_fake_data);
+
+                std::cin.get();
+            }
+
+
+
+
+
+
+
+
+
+
 
             // get minimum
             double fval_min = 0.0;
             logLikelihood(n_params, nullptr, fval_min, params, 0);
 
-            double min = std::numeric_limits<double>::infinity();
-            const int NUM_THREADS = 2;
-            TThread *thread[NUM_THREADS];
-            ThreadData td[NUM_THREADS];
-            // TODO: can I make this multithreaded
-            for(int i = 0; i < NUM_THREADS; ++ i)
+//<<<<<<< HEAD
+//            double min = std::numeric_limits<double>::infinity();
+//            const int NUM_THREADS = 2;
+//            TThread *thread[NUM_THREADS];
+//            ThreadData td[NUM_THREADS];
+//            // TODO: can I make this multithreaded
+//            for(int i = 0; i < NUM_THREADS; ++ i)
+//=======
+            if(1)
+//>>>>>>> f680bdeea5541e237bbccd1b9f86a5ed017405cf
             {
 
                 td[i].threadid = i;
@@ -592,6 +644,14 @@ void newloglikfitter_testmyphasespace(
             //for(int n_1 = 0; n_1 <= n_param_1; ++ n_1)
             for(int n_1 = 0; n_1 < n_param_1; ++ n_1)
             {
+
+                double t_param_1 = 0.0;
+                t_param_1 = h_mps->GetXaxis()->GetBinCenter(h_mps->GetNbinsX() - n_1);
+                std::cout << "test: t_param_1=" << t_param_1 << std::endl;
+
+                double min_stripe = std::numeric_limits<double>::infinity();
+                double min_stripe_y = 0.0;
+
                 //for(int n_2 = 0; n_2 <= n_param_2; ++ n_2)
                 for(int n_2 = 0; n_2 < n_param_2; ++ n_2)
                 {
@@ -600,29 +660,53 @@ void newloglikfitter_testmyphasespace(
 
                     double fval = 0.;
 
-                    double a_1 = (double)n_1 / (double)n_param_1 - 0.5;
-                    double a_2 = (double)n_2 / (double)n_param_2 - 0.5;
+                    //double a_1 = (double)n_1 / (double)n_param_1 - 0.5;
+                    //double a_2 = (double)n_2 / (double)n_param_2 - 0.5;
 
-                    double t_param_1 = param_1 + width_1 * sigma_1 * a_1;
-                    double t_param_2 = param_2 + width_2 * sigma_2 * a_2;
-                    t_param_1 = param_1_min + a_1 * (param_1_max - param_1_min);
-                    t_param_2 = param_2_min + a_2 * (param_2_max - param_2_min);
+                    //double t_param_1 = param_1 + width_1 * sigma_1 * a_1;
+                    //double t_param_2 = param_2 + width_2 * sigma_2 * a_2;
+                    //t_param_1 = param_1_min + a_1 * (param_1_max - param_1_min);
+                    //t_param_2 = param_2_min + a_2 * (param_2_max - param_2_min);
 
+                    //double t_param_1 = 0.0;
+                    double t_param_2 = 0.0;
 
                     //t_param_1 = h_mps->GetXaxis()->GetBinCenter(1 + n_1);
-                    t_param_1 = h_mps->GetXaxis()->GetBinCenter(h_mps->GetNbinsX() - n_1);
+                    //t_param_1 = h_mps->GetXaxis()->GetBinCenter(h_mps->GetNbinsX() - n_1);
                     //t_param_2 = h_mps->GetYaxis()->GetBinCenter(1 + n_2);
                     t_param_2 = h_mps->GetYaxis()->GetBinCenter(h_mps->GetNbinsY() - n_2);
 
-                    std::cout << "t_param_1=" << t_param_1 << " t_param_2=" << t_param_2 << std::endl;
+                    //std::cout << "t_param_1=" << t_param_1 << " t_param_2=" << t_param_2 << std::endl;
 
                     params[param_1_ix] = t_param_1;
                     params[param_2_ix] = t_param_2;
 
+                    TH1F *junk1, *junk2, *junk3, *junk4;
+                    TString savename;
+                    savename.Form("%s_%d_%d.png", h_mps_name.Data(), n_1, n_2);
+                    //draw(params, nullptr, fval, junk1, junk2, junk3, junk4, std::string(savename), ".", true);
+                    //draw(params, nullptr, fval, junk1, junk2, junk3, junk4, std::string(savename), ".", mode_fake_data);
+                    //draw_channel(1, params, -1.0, "NOSAVE");
+
+                    //std::cin.get();
+
                     logLikelihood(n_params, nullptr, fval, params, 0);
+                    //std::cout << "fval(" << params[param_1_ix] << "," << params[param_2_ix] << ")=" << fval << std::endl;
+                    //draw(params, nullptr, fval, junk1, junk2, junk3, junk4, std::string(savename), ".", true);
+                    //draw(params, nullptr, fval, junk1, junk2, junk3, junk4, std::string(savename), ".", mode_fake_data);
 
                     if(fval < min)
+                    {
                         min = fval;
+                        min_x = t_param_1;
+                        min_y = t_param_2;
+                    }
+
+                    if(fval < min_stripe)
+                    {
+                        min_stripe = fval;
+                        min_stripe_y = t_param_2;
+                    }
 
                     /*
                     if(m == 50)
@@ -636,8 +720,8 @@ void newloglikfitter_testmyphasespace(
 
                     //h_mps->Fill(n, m, fval);
                     //h_mps->SetBinContent(n_1 + 1, n_2 + 1, fval - fval_min);
-                    double step_1 = width_1 * sigma_1 * (double)1 / (double)n_param_1;
-                    double step_2 = width_2 * sigma_2 * (double)1 / (double)n_param_2;
+                    //double step_1 = width_1 * sigma_1 * (double)1 / (double)n_param_1;
+                    //double step_2 = width_2 * sigma_2 * (double)1 / (double)n_param_2;
                     //h_mps->Fill(t_param_1 + step_1 / 2.0, t_param_2 + step_2 / 2.0, fval - fval_min);
                     h_mps->Fill(t_param_1, t_param_2, fval);
                     // TODO: fval_min does not appear to always be the minimum
@@ -657,17 +741,223 @@ void newloglikfitter_testmyphasespace(
                     */
 
                     ++ c_param;
-                    std::cout << c_param << " / " << n_param_max << std::endl;
+                    //std::cout << c_param << " / " << n_param_max << std::endl;
                 }
+                std::cout << c_param << " / " << n_param_max << std::endl;
+                std::cout << "min_stripe=" << min_stripe << " min_stripe_x=" << t_param_1 << " min_stripe_y=" << min_stripe_y << std::endl;
             }
 #endif
 
-            h_mps->Draw("colz");
-            std::cout << "min=" << min << std::endl;
+            } // if(0)
 
-            h_mps = nullptr;
-            c_mps->SaveAs("mps.png");
+            TFile *f = new TFile("h_mps_1_0_2020-07-15_singleenergy.root", "recreate");
+            h_mps->Write();
+            f->Close();
+
+            TCanvas *c_mps = new TCanvas(c_mps_name, c_mps_name);
+            c_mps->SetTicks(2, 2);
+            c_mps->SetRightMargin(0.15);
+            c_mps->SetBottomMargin(0.15);
+            c_mps->SetLogz();
+            TVirtualPad *padret = c_mps->cd();
+            if(padret == nullptr)
+            {
+                std::cout << "PAD FAIL" << std::endl;
+                std::cin.get();
+            }
+            //c_mps->GetPad()->cd();
+            //c_mps_v.push_back(c_mps);
+            //c_mps = nullptr;
+            //c_mps->cd();
+            h_mps->SetTitle("");
+            h_mps->GetZaxis()->SetLabelOffset(0.005);
+            h_mps->GetXaxis()->SetLabelSize(17.0);
+            h_mps->GetXaxis()->SetLabelFont(63);
+            h_mps->GetYaxis()->SetLabelSize(17.0);
+            h_mps->GetYaxis()->SetLabelFont(63);
+            h_mps->GetZaxis()->SetLabelSize(17.0);
+            h_mps->GetZaxis()->SetLabelFont(63);
+            h_mps->GetXaxis()->SetTitleSize(18.0);
+            h_mps->GetXaxis()->SetTitleFont(43);
+            h_mps->GetYaxis()->SetTitleSize(18.0);
+            h_mps->GetYaxis()->SetTitleFont(43);
+            h_mps->GetYaxis()->SetTitle("^{150}Nd Amplitude Scale Factor");
+            h_mps->GetXaxis()->SetTitle("#xi^{2#nu#beta#beta}_{31}");
+            h_mps->GetXaxis()->SetTitleOffset(1.5);
+            h_mps->GetXaxis()->SetLabelOffset(0.01);
+            h_mps->GetYaxis()->SetLabelOffset(0.01);
+            TH2F *h_mps_contour = (TH2F*)h_mps->Clone("h_mps_1_0_clone");
+            h_mps->Draw("colz");
+
+
+            std::cout << "min=" << min << " min_x=" << min_x << " min_y=" << min_y << std::endl;
+            //double clevels[3] = {min + 1.0, min + 2.0, min + 3.0};
+            double clevels[3] = {min + 2.30, min + 4.61, min + 9.21};
+            //double clevels[3] = {2.30, 4.61, 9.21}; // true minimum is 0.0 for HSD
+            h_mps_contour->SetLineColor(kBlack);
+            h_mps_contour->SetContour(3, clevels);
+
+            c_mps->Update();
+            TPaletteAxis *palette = (TPaletteAxis*)h_mps->GetListOfFunctions()->FindObject("palette");
+            //((TPave*)palette)->SetX1NDC(0.7);
+            //((TPave*)palette)->SetX2NDC(0.8);
+            palette->SetX1NDC(0.88 + 0.02);
+            palette->SetX2NDC(0.92 + 0.02);
+            palette->SetY1NDC(0.15);
+            palette->SetY2NDC(0.9);
+            palette->Draw();
+            gPad->Modified();
+            gPad->Update();
+            c_mps->Modified();
             
+
+            TLine *lineHSD = new TLine(0.0, param_2_min, 0.0, param_2_max);
+            TLine *lineSSD = new TLine(0.296, param_2_min, 0.296, param_2_max);
+            TLine *lineY = new TLine(param_1_min, 1.0, param_1_max, 1.0);
+            TLine *lineXc = new TLine(param_1_min, min_y, param_1_max, min_y);
+            TLine *lineYc = new TLine(min_x, param_2_min, min_x, param_2_max);
+            //lineHSD->SetLineColor(kWhite);
+            //lineSSD->SetLineColor(kWhite);
+            //lineY->SetLineColor(kWhite);
+            lineHSD->SetLineColorAlpha(kWhite, 0.5);
+            lineSSD->SetLineColorAlpha(kWhite, 0.5);
+            lineY->SetLineColorAlpha(kWhite, 0.5);
+            lineXc->SetLineColorAlpha(kBlack, 0.5);
+            lineYc->SetLineColorAlpha(kBlack, 0.5);
+            lineHSD->Draw();
+            lineSSD->Draw();
+            lineY->Draw();
+            Int_t min_ix = h_mps->GetXaxis()->FindBin(min_x);
+            Int_t min_iy = h_mps->GetXaxis()->FindBin(min_y);
+            Int_t ix_0 = h_mps->GetXaxis()->FindBin(0.0);
+            Int_t iy_1 = h_mps->GetXaxis()->FindBin(1.0);
+            if(min_ix != ix_0 && min_iy != iy_1)
+            {
+                lineXc->Draw();
+                lineYc->Draw();
+            }
+            //TMarker *bestfitpoint = new TMarker(min_x, min_y, 106);
+            //bestfitpoint->SetMarkerColorAlpha(kBlack, 0.5);
+            //bestfitpoint->SetMarkerSize(2.0);
+            //bestfitpoint->Draw();
+
+            std::vector<TLine*> linesteps;
+            for(std::size_t ix_walk = 0; ix_walk < ll_walk_save.size() - 1; ++ ix_walk)
+            {
+                std::pair<double, double> p1 = ll_walk_save.at(ix_walk);
+                std::pair<double, double> p2 = ll_walk_save.at(ix_walk + 1);
+                Double_t x1 = p1.first;
+                Double_t x2 = p2.first;
+                Double_t y1 = p1.second;
+                Double_t y2 = p2.second;
+                std::cout << "ix_walk=" << ix_walk << " " << x1 << " " << y1 << std::endl;
+                TLine *linestep = new TLine(x1, y1, x2, y2);
+                linestep->SetLineColorAlpha(kRed, 0.1);
+                linestep->SetLineWidth(2);
+                linestep->Draw();
+                linesteps.push_back(linestep);
+            }
+
+            h_mps_contour->Draw("cont2same");
+            h_mps = nullptr;
+            c_mps->SaveAs("mps_2020-07-15.png");
+            c_mps->SaveAs("mps_2020-07-15.pdf");
+
+
+    
+            ///////////////////////////////////////////////////////////////////////////
+            // draw the minimum and draw the point (0,1)
+            ///////////////////////////////////////////////////////////////////////////
+
+            if(1)
+            {
+                params[param_1_ix] = 0.0;
+                params[param_2_ix] = 1.0;
+
+                double fval;
+                logLikelihood(n_params, nullptr, fval, params, 0);
+                std::cout << "fval(" << params[param_1_ix] << "," << params[param_2_ix] << ")=" << fval << std::endl;
+
+                TH1F *junk1, *junk2, *junk3, *junk4;
+                TString savename;
+                savename.Form("%s_%d_%d_HSD.png", h_mps_name.Data(), 1, 0);
+                //draw(params, nullptr, fval, junk1, junk2, junk3, junk4, std::string(savename), ".", true);
+                draw(params, nullptr, fval, junk1, junk2, junk3, junk4, std::string(savename), ".", mode_fake_data);
+            }
+
+            if(1)
+            {
+                //draw_channel(1, params, -1.0, "NOSAVE");
+                //std::cin.get();
+                //draw(params, nullptr, fval, junk1, junk2, junk3, junk4, std::string(savename), ".", true);
+
+
+                params[param_1_ix] = ll_walk_save.back().first;
+                params[param_2_ix] = ll_walk_save.back().second;
+
+                double fval;
+                logLikelihood(n_params, nullptr, fval, params, 0);
+                std::cout << "fval(" << params[param_1_ix] << "," << params[param_2_ix] << ")=" << fval << std::endl;
+
+                TH1F *junk1, *junk2, *junk3, *junk4;
+                TString savename;
+                savename.Form("%s_%d_%d_minuit_1_minimum.png", h_mps_name.Data(), 1, 0);
+                //draw(params, nullptr, fval, junk1, junk2, junk3, junk4, std::string(savename), ".", true);
+                draw(params, nullptr, fval, junk1, junk2, junk3, junk4, std::string(savename), ".", mode_fake_data);
+            }
+
+            if(1)
+            {
+                //draw_channel(1, params, -1.0, "NOSAVE");
+                //std::cin.get();
+                //draw(params, nullptr, fval, junk1, junk2, junk3, junk4, std::string(savename), ".", true);
+
+
+                params[param_1_ix] = min_x;
+                params[param_2_ix] = min_y;
+
+                double fval;
+                logLikelihood(n_params, nullptr, fval, params, 0);
+                std::cout << "fval(" << params[param_1_ix] << "," << params[param_2_ix] << ")=" << fval << std::endl;
+
+                TH1F *junk1, *junk2, *junk3, *junk4;
+                TString savename;
+                savename.Form("%s_%d_%d_mps_measured_minimum.png", h_mps_name.Data(), 1, 0);
+                //draw(params, nullptr, fval, junk1, junk2, junk3, junk4, std::string(savename), ".", true);
+                draw(params, nullptr, fval, junk1, junk2, junk3, junk4, std::string(savename), ".", mode_fake_data);
+            }
+
+            if(0)
+            {
+                #if 0
+                params[param_1_ix] = 0.005941;
+                params[param_2_ix] = 1.017822;
+
+                logLikelihood(n_params, nullptr, fval, params, 0);
+                std::cout << "fval(" << params[param_1_ix] << "," << params[param_2_ix] << ")=" << fval << std::endl;
+
+                //TH1F *junk1, *junk2, *junk3, *junk4;
+                //TString savename;
+                savename.Form("%s_%d_%d_predicted_minimum.png", h_mps_name.Data(), 1, 0);
+                //draw(params, nullptr, fval, junk1, junk2, junk3, junk4, std::string(savename), ".", true);
+                draw(params, nullptr, fval, junk1, junk2, junk3, junk4, std::string(savename), ".", mode_fake_data);
+
+
+
+
+                params[param_1_ix] = 0.296;
+                params[param_2_ix] = 1.5;
+
+                logLikelihood(n_params, nullptr, fval, params, 0);
+                std::cout << "fval(" << params[param_1_ix] << "," << params[param_2_ix] << ")=" << fval << std::endl;
+
+                //TH1F *junk1, *junk2, *junk3, *junk4;
+                //TString savename;
+                savename.Form("%s_%d_%d_expected_scaled_SSD_minimum.png", h_mps_name.Data(), 1, 0);
+                //draw(params, nullptr, fval, junk1, junk2, junk3, junk4, std::string(savename), ".", true);
+                draw(params, nullptr, fval, junk1, junk2, junk3, junk4, std::string(savename), ".", mode_fake_data);
+                #endif
+            }
         }
     }
 
@@ -755,6 +1045,8 @@ void newloglikfitter_testmyphasespace(
     
     //delete [] params;
     //delete [] param_errs;
+
+
 
 
 }

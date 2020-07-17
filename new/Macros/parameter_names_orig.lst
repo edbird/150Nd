@@ -91,6 +91,14 @@ BREAK
 #1   enabled     0.368       0.1         same        same        none        none        none        none        hard    hard    axial_vector_parameter_0        END
 1   enabled     0.296       0.1         same        same        none        none        none        none        free    free    axial_vector_parameter_0        END
 #0	enabled     1.459       0.1         same        same        none        none        none        none        hard    hard    nd150_rot_2n2b_m4               END
+#0	enabled     1.459       0.1         same        same        none        none        none        none        hard    hard    nd150_rot_2n2b_m4               END
+#0	enabled     3.45e-04    3.45e-05    same        same        none        none        none        none        free    free    nd150_rot_2n2b_m4               END # 470215
+#0	enabled     3.45e-04    2.00e-04    same        same        none        none        none        none        free    free    nd150_rot_2n2b_m4               END # 470215
+#1   enabled     0.368       0.1         same        same        none        none        none        none        hard    hard    axial_vector_parameter_0        END
+#1   enabled     0.296       0.25         same        same        none        none        none        none        free    free    axial_vector_parameter_0        END
+#1   enabled     0.570       0.001         same        same        none        none        none        none        free    free    axial_vector_parameter_0        END
+#1   enabled     0.0         0.1         same        same        none        none        none        none        free    free    axial_vector_parameter_0        END
+#1   enabled     0.296       0.1         same        same        none        none        none        none        hard    hard    axial_vector_parameter_0        END
 BREAK
 # TODO: bug: line with whitespace crashes
 BREAK
@@ -121,7 +129,6 @@ BREAK
 21  enabled     29.6e-03    0.1e-03     same        same        29.6e-03    0.1e-03     same        same        hard    hard    ca48_63_rot_y90	                END
 #10  enabled     5.27e-03    0.07e-03    same        same        5.27e-03    0.07e-03    same        same        hard    hard    mo100_99_rot_k40	            END # 0 # TODO: something wrong in cov matrix output for this sample
 BREAK
-# TODO what numbers here - disabled?
 # NO EVENTS
 22  enabled     1.3e-3      0.2e-3      same        same        useinit     useinit     same        same        hard    hard    bi210_sfoil 	                END     # 0 events
 #25  enabled     11.7e-3     1.2e-3      same        same        useinit     useinit     same        same        hard    hard    bi210_swire 	                END     # 5 events

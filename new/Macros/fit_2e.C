@@ -106,7 +106,6 @@ void loadFiles()
     makeHistograms("betabeta/", DataFile, ofile_cutcount, 1);
     std::cout << "... DONE." << std::endl;
 
-
     // Read in all the backgrounds: externals, Rn222, Rn220, internals and neighbouring foils
     std::cout << std::endl;
     std::cout << ">>>>> Reading in external backgrounds..." << std::endl;
@@ -1752,7 +1751,8 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
                     cluster_total_energy += clusterEnergy[i];
                 }
                 //if(cesum > 0) continue;
-                if(cluster_total_energy > 0.2) continue;
+                //if(cluster_total_energy > 0.2) continue;
+                if(cluster_total_energy > 0.0) continue;
                 
             }
         }
@@ -1833,7 +1833,54 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
         {
             if(mode_flag_2 == 1)
             {
-                if(vertexInHotSpot[0] || vertexInHotSpot[1]) continue;
+                //if(vertexInHotSpot[0] || vertexInHotSpot[1]) continue;
+
+                double vertexZ_1 = vertexZ[0];
+                double vertexZ_2 = vertexZ[1];
+                double vertexSec_1 = vertexSec[0];
+                double vertexSec_2 = vertexSec[1];
+
+                bool flag_continue = false;
+
+                for(int elix = 0; elix < N_HOTSPOT_ELIPSE; ++ elix)
+                {
+
+                    double x1 = vertexSec_1;
+                    double y1 = vertexZ_1;
+                    double h1 = hotspot_elipse[elix][0];
+                    double k1 = hotspot_elipse[elix][1];
+                    double a1 = hotspot_elipse[elix][2];
+                    double b1 = hotspot_elipse[elix][3];
+
+                    double p1 = (std::pow(x1 - h1, 2.0) / pow(a1, 2.0)) +
+                               (std::pow(y1 - k1, 2.0) / pow(b1, 2.0));
+
+                    if(p1 <= 1.0)
+                    {
+                        flag_continue = true;
+                        break;
+                    }
+
+                    double x2 = vertexSec_2;
+                    double y2 = vertexZ_2;
+                    double h2 = hotspot_elipse[elix][0];
+                    double k2 = hotspot_elipse[elix][1];
+                    double a2 = hotspot_elipse[elix][2];
+                    double b2 = hotspot_elipse[elix][3];
+
+                    double p2 = (std::pow(x2 - h2, 2.0) / pow(a2, 2.0)) +
+                               (std::pow(y2 - k2, 2.0) / pow(b2, 2.0));
+
+                    if(p2 <= 1.0)
+                    {
+                        flag_continue = true;
+                        break;
+                    }
+                               
+                }
+
+                if(flag_continue == true) continue;
+
             }
         }
         ++ cut_counter[cc]; // cut 7 (was cut 9) - track hot spot
@@ -2244,7 +2291,7 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
         if(hit_counter != nTotalClusterHits)
         {
             std::cout << "hit_counter=" << hit_counter << ", nTotalClusterHits=" << nTotalClusterHits << std::endl;
-            std:cin.get();
+            std::cin.get();
         }
 
 

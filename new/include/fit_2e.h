@@ -89,7 +89,8 @@ double AcceptedTime[3];
             //TString filePath = "/media/ecb/Maxtor/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2e/";
             //TString filePath = "/media/ecb/backup/users/ecb/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2e/";
             // change to using md0 over network
-            TString filePath = "/mnt/md0/users/ecb/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2e/";
+            //TString filePath = "/mnt/md0/users/ecb/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2e/";
+            TString filePath = "/mnt/ecb/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2e/";
         #endif
     #else
         TString filePath = "/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2e/";
@@ -108,7 +109,8 @@ double AcceptedTime[3];
             //TString filePath = "/media/ecb/Maxtor/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2eNg_29Sep2015/";
             //TString filePath = "/media/ecb/backup/users/ecb/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2eNg_29Sep2015/";
             // change to using md0 over network
-            TString filePath = "/mnt/md0/users/ecb/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2eNg_29Sep2015/";
+            //TString filePath = "/mnt/md0/users/ecb/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2eNg_29Sep2015/";
+            TString filePath = "/mnt/ecb/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2eNg_29Sep2015/";
         #endif
     #else
         TString filePath = "/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2eNg_29Sep2015/";
@@ -393,6 +395,23 @@ Int_t histogramDrawFlag_rawdata = 0;
 //std::map<TString, TH1*> histogramPointers_rawdata;
 // map for data structure for processed data
 //std::map<TString, TH1*> histogramPointers;
+
+const int N_HOTSPOT_ELIPSE = 13;
+double hotspot_elipse[13][4] = {
+    {5.799247,  107.017857, 0.07 / 2.0,        5.0 / 2.0},
+    {5.851,     7.65,       0.029573 / 2.0,    8.81 / 2.0},
+    {5.765,     88.0,       0.0191346 / 2.0,   4.78448 / 2.0},
+    {5.792,     80.98,      0.0143 / 2.0,      3.5846 / 2.0},
+    {5.744,     54.5,       0.026385 / 2.0,    6.92231 / 2.0},
+    {5.83,      48.,        0.042556 / 2.0,    10.2898 / 2.0},
+    {5.805,     37.5,       0.034152 / 2.0,    12.4745 / 2.0},
+    {5.76,      15.44,      0.0111 / 2.0,      5.1315 / 2.0},
+    {5.785,     1.0,        0.0212464 / 2.0,   4.24026 / 2.0},
+    {5.7388,    -12.829,    0.01413 / 2.0,     6.8421 / 2.0},
+    {5.745,     -25.0,      0.029942 / 2.0,    6.2256 / 2.0},
+    {5.798,     -80.955,    0.030184 / 2.0,    12.471 / 2.0},
+    {5.8045,    -113.702,   0.023622 / 2.0,    6.852 / 2.0}
+};
 
 
 #endif

@@ -383,11 +383,16 @@ void draw_outputdiff(const double *const AdjustActs,
     hWeight_fit->Draw("histsame");
 */
 
+
+
     hTotalE_fit->Scale(AdjustActs[0]);
     hSingleEnergy_fit->Scale(AdjustActs[0]);
     hLowEnergy_fit->Scale(AdjustActs[0]);
     hHighEnergy_fit->Scale(AdjustActs[0]);
     hHighLowEnergy_fit->Scale(AdjustActs[0]);
+
+    // TODO: 150 Nd is scaled by AdjustActs[0] later in this code.
+    // check!
     
 /*    hTotalE_orig->Sumw2();
     hSingleEnergy_orig->Sumw2();
@@ -633,7 +638,7 @@ void draw_outputdiff(const double *const AdjustActs,
         bool found_param = false;
 
         
-        double activity_scale_branching_ratio = 1.0;
+        //double activity_scale_branching_ratio = 1.0;
 
         {
             std::string tmp_hist_name(tmpName);
@@ -644,12 +649,14 @@ void draw_outputdiff(const double *const AdjustActs,
                 std::string tmp_sample_name = tmp_hist_name.substr(i_start, i_end - i_start);
 
                 // set branching ratio fraction
+                /*
                 if(tmp_sample_name == std::string("tl208_int_rot") ||
                    tmp_sample_name == std::string("tl208_feShield") ||
                    tmp_sample_name == std::string("tl208_pmt"))
                 {
                     activity_scale_branching_ratio = 0.36;
                 }
+                */
 
                 if(MCNameToParamNumberMap.count(tmp_sample_name) > 0)
                 {
@@ -680,8 +687,10 @@ void draw_outputdiff(const double *const AdjustActs,
 
 
             // no error thrown, which_param is presumably the correct index
-            Double_t activity_scale = AdjustActs[which_param] * activity_scale_branching_ratio;
+            Double_t activity_scale = AdjustActs[which_param]; // * activity_scale_branching_ratio;
             tmpHist->Scale(activity_scale);
+
+            // TODO: already scaled by AdjustActs[0] in the case of 150 Nd ?
 
                 
             if(tmpHist->Integral() > 0)
