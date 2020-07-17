@@ -1,4 +1,4 @@
-#include "TH1F.h"
+#include "TH1D.h"
 #include "TFractionFitter.h"
 #include "TArray.h"
 #include "TObject.h"
@@ -11,7 +11,7 @@
 #include "TFile.h"
 #include "TString.h"
 #include "TTree.h"
-#include "TH1F.h"
+#include "TH1D.h"
 #include "TH2.h"
 #include "TStyle.h"
 #include "TNtuple.h"
@@ -46,9 +46,9 @@ void loadFiles();
 void makeHistograms(TString thePath, TString sampleName, std::ofstream &ofile_cutcount, const Int_t mode_flag, const uint64_t sample_split_flags = 0);
 //void  makeHistograms(TTree *tree, TString sampleName, Int_t isotope);
 void fitHistograms();
-void drawPlots(TH1F *data,TH1F *mc, THStack *hs);
+void drawPlots(TH1D *data,TH1D *mc, THStack *hs);
 double getActErr(double Npass, double Ngen, double Ndata, double sf_err );
-double getChi2(TH1F *data, TH1F* mc, Int_t &ndof);
+double getChi2(TH1D *data, TH1D* mc, Int_t &ndof);
 
 void loadFiles()
 {
@@ -262,84 +262,84 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
 
 
     //Declare the histograms.
-    TH1F* hRun; // 0
-    TH1F* hNElectrons;
-    TH1F* hTotalE;
-    TH1F* hInternalPullee;
-    TH1F* hInternalProbee; 
-    TH1F* hExternalPullee; // 5
-    TH1F* hExternalProbee;
-    TH1F* hCosee;
-    TH1F* hCoseeWeighted;
-    TH1F* hVertexDZ;
-    TH1F* hVertexDR; // 10
-    TH1F* hVertexDRPhi;
-    TH1F* hNAPromptGgHits;
+    TH1D* hRun; // 0
+    TH1D* hNElectrons;
+    TH1D* hTotalE;
+    TH1D* hInternalPullee;
+    TH1D* hInternalProbee; 
+    TH1D* hExternalPullee; // 5
+    TH1D* hExternalProbee;
+    TH1D* hCosee;
+    TH1D* hCoseeWeighted;
+    TH1D* hVertexDZ;
+    TH1D* hVertexDR; // 10
+    TH1D* hVertexDRPhi;
+    TH1D* hNAPromptGgHits;
 
-    TH1F* hEeMax;
-    TH1F* hElectronLengthMax;
-    TH1F* hVertexZMax; // 15
-    TH1F* hVertexSectorMax;
-    TH1F* hVertexRMax;
-    TH1F* hElectronFirstGgMax;
-    TH1F* hElectronLastGgMax;
-    TH1F* hVertexMinDistPromptGgMax; // 20
-    TH1F* hElectronLDCorrMax;
-    TH2F* hVertexZSecMax; // usefull really only for data.
+    TH1D* hEeMax;
+    TH1D* hElectronLengthMax;
+    TH1D* hVertexZMax; // 15
+    TH1D* hVertexSectorMax;
+    TH1D* hVertexRMax;
+    TH1D* hElectronFirstGgMax;
+    TH1D* hElectronLastGgMax;
+    TH1D* hVertexMinDistPromptGgMax; // 20
+    TH1D* hElectronLDCorrMax;
+    TH2D* hVertexZSecMax; // usefull really only for data.
 
-    TH1F* hEeMin;
-    TH1F* hElectronLengthMin;
-    TH1F* hVertexZMin; // 25
-    TH1F* hVertexSectorMin;
-    TH1F* hVertexRMin;
-    TH1F* hElectronFirstGgMin;
-    TH1F* hElectronLastGgMin;
-    TH1F* hVertexMinDistPromptGgMin; // 30
-    TH1F* hElectronLDCorrMin;
-    TH2F* hVertexZSecMin; // usefull really only for data.
+    TH1D* hEeMin;
+    TH1D* hElectronLengthMin;
+    TH1D* hVertexZMin; // 25
+    TH1D* hVertexSectorMin;
+    TH1D* hVertexRMin;
+    TH1D* hElectronFirstGgMin;
+    TH1D* hElectronLastGgMin;
+    TH1D* hVertexMinDistPromptGgMin; // 30
+    TH1D* hElectronLDCorrMin;
+    TH2D* hVertexZSecMin; // usefull really only for data.
 
     // TODO: obsolete, delete these
-    TH1F* hNLowEGammas;
-    TH1F* hLowEGammaEnergy;
-    TH1F* hSummedLowEGammaE; // 35
-    TH1F *hLowEMinDistPromptGg;
+    TH1D* hNLowEGammas;
+    TH1D* hLowEGammaEnergy;
+    TH1D* hSummedLowEGammaE; // 35
+    TH1D *hLowEMinDistPromptGg;
 
-    TH2F *hEeMaxVEeMin;
+    TH2D *hEeMaxVEeMin;
 
     //Histograms for keeping track of analysis cuts
-    TH1F* hNAfterCuts;
-    TH1F* hEffAfterCuts;
+    TH1D* hNAfterCuts;
+    TH1D* hEffAfterCuts;
 
     // my new histograms
     //
     //
     // missing items?
-    TH1F* hNAPromptGgHitsDist2VertexMin; // 40
-    TH1F *hTrackSignMin;
-    TH1F *hTrackSignMax;
-    TH1F *hnGammaClusters;
-    TH1F *hnInCluster;
-    TH1F *hclusterHitEnergy; // 45
-    TH1F *hclusterHitEnergyMin;
-    TH1F *hclusterHitEnergyMax;
-    TH1F *hnLowEnergyHits;
-    TH1F *hclusterEnergy;
+    TH1D* hNAPromptGgHitsDist2VertexMin; // 40
+    TH1D *hTrackSignMin;
+    TH1D *hTrackSignMax;
+    TH1D *hnGammaClusters;
+    TH1D *hnInCluster;
+    TH1D *hclusterHitEnergy; // 45
+    TH1D *hclusterHitEnergyMin;
+    TH1D *hclusterHitEnergyMax;
+    TH1D *hnLowEnergyHits;
+    TH1D *hclusterEnergy;
 
-    TH1F *hFoilSide;
-    TH1F *hTrueVertexR;
-    TH2F *hFoilSideTrueVertexR;
-    TH1F *hTrueVertexLayer;
+    TH1D *hFoilSide;
+    TH1D *hTrueVertexR;
+    TH2D *hFoilSideTrueVertexR;
+    TH1D *hTrueVertexLayer;
 
-    TH1F *hSingleEnergy;
-    TH1F *hHighEnergy;
-    TH1F *hLowEnergy;
-    TH2F *hHighLowEnergy;
+    TH1D *hSingleEnergy;
+    TH1D *hHighEnergy;
+    TH1D *hLowEnergy;
+    TH2D *hHighLowEnergy;
 
-    TH1F *hTotalClusterEnergy;
-    TH2F *hHotSpotLocation;
+    TH1D *hTotalClusterEnergy;
+    TH2D *hHotSpotLocation;
 
-    TH1F *hEnergySum;
-    TH1F *hEnergyDiff;
+    TH1D *hEnergySum;
+    TH1D *hEnergyDiff;
 
     // NOTE: this idea (multuplying histograms) will not work because
     // we lose the information of which true energy values match which
@@ -385,270 +385,270 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
 
     std::cout << "name_sample_split_additional=" << name_sample_split_additional << std::endl;
 
-    hRun                    = new TH1F("hRun_" + sampleName + name_sample_split_additional + name_append,
+    hRun                    = new TH1D("hRun_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " runs; run numbers",
                                        8000, 0, 10000); // 1000, 8000
 
-    hNElectrons             = new TH1F("hNElectrons_" + sampleName + name_sample_split_additional + name_append,
+    hNElectrons             = new TH1D("hNElectrons_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " N tracks; N tracks/event",
                                        20, -0.5, 19.5); // limits? all events are 2 for nd150
 
-    hNAPromptGgHits         = new TH1F("hNAPromptGgHits_" + sampleName + name_sample_split_additional + name_append,
+    hNAPromptGgHits         = new TH1D("hNAPromptGgHits_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " N unassoc. prompt gg hits; N unassoc prompt gg hits",
                                        20, -0.5, 19.5); // limits? blank histogram for nd150?
 
-    hTotalE                 = new TH1F("hTotalE_" + sampleName + name_sample_split_additional + name_append,
+    hTotalE                 = new TH1D("hTotalE_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " total energy; #SigmaE_{e} (MeV)",
                                        50, 0.0, 5.0); // 0.0, 2.2
                                        // TODO was 4.0
 
-    hInternalPullee         = new TH1F("hInternalPullee_" + sampleName + name_sample_split_additional + name_append,
+    hInternalPullee         = new TH1D("hInternalPullee_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " internal hypothesis; ee Pull",
                                        50, -40., 40.); // limits? all events within -10, 10 for nd150
 
-    hInternalProbee         = new TH1F("hInternalProbee_" + sampleName + name_sample_split_additional + name_append,
+    hInternalProbee         = new TH1D("hInternalProbee_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " internal hypothesis; ee Probability",
                                        50, 0.0, 1.); // limits?
 
-    hExternalPullee         = new TH1F("hExternalPullee_" + sampleName + name_sample_split_additional + name_append,
+    hExternalPullee         = new TH1D("hExternalPullee_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " external hypothesis; ee Pull",
                                        50, -20., 20.); // limits? all events within -30, 10 for nd150
 
-    hExternalProbee         = new TH1F("hExternalProbee_" + sampleName + name_sample_split_additional + name_append,
+    hExternalProbee         = new TH1D("hExternalProbee_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " external hypothesis; ee Probability",
                                        50, 0.0, 1.); // limits?
 
-    hCosee                  = new TH1F("hCosee_" + sampleName + name_sample_split_additional + name_append,
+    hCosee                  = new TH1D("hCosee_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " angular correlation of electron tracks; cos(#theta)_{ee}",
                                        50, -1., 1.); // limits?
 
-    hCoseeWeighted          = new TH1F("hCoseeWeighted_" + sampleName + name_sample_split_additional + name_append,
+    hCoseeWeighted          = new TH1D("hCoseeWeighted_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + "corrected angular correlation of electron tracks; cos(#theta)_{ee}",
                                        50, -1., 1.); // limits?
 
-    hVertexDZ               = new TH1F("hVertexDZ_" + sampleName + name_sample_split_additional + name_append,
+    hVertexDZ               = new TH1D("hVertexDZ_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + "distance between recon vertices; #DeltaZ (cm)",
                                        50, -10., 10.); // limits? all events within -10, 10 for nd150
 
-    hVertexDR               = new TH1F("hVertexDR_" + sampleName + name_sample_split_additional + name_append,
+    hVertexDR               = new TH1D("hVertexDR_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + "distance between recon vertices; #DeltaR (cm)",
                                        50, -0.01, 0.01); // limits?
 
-    hVertexDRPhi            = new TH1F("hVertexDRPhi_" + sampleName + name_sample_split_additional + name_append,
+    hVertexDRPhi            = new TH1D("hVertexDRPhi_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + "distance between recon vertices; #DeltaR#phi (cm*rad)",
                                        50, -5., 5.); // limits? all events witnin -10, 10 for nd150
 
-    hEeMax                  = new TH1F("hEeMax_" + sampleName + name_sample_split_additional + name_append,
+    hEeMax                  = new TH1D("hEeMax_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " higher energy Ee; E_{e} (MeV)"              ,
                                        50, 0.0, 5.0); // limits ok
                                        // TODO was 4.0
 
-    hElectronLengthMax      = new TH1F("hElectronLengthMax_" + sampleName + name_sample_split_additional + name_append,
+    hElectronLengthMax      = new TH1D("hElectronLengthMax_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " higher energy e^{-} track length;  track length (cm)",
                                        50, 0, 600); // limits?
 
-    hVertexZMax             = new TH1F("hVertexZMax_" + sampleName + name_sample_split_additional + name_append,
+    hVertexZMax             = new TH1D("hVertexZMax_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " higher energy vertex position;  Z (cm)"                  ,
                                        50, -120, 120); // limits?
                                        //50, -150, 150); // limits?
 
-    hVertexSectorMax        = new TH1F("hVertexSectorMax_" + sampleName + name_sample_split_additional + name_append,
+    hVertexSectorMax        = new TH1D("hVertexSectorMax_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " higher energy vertex position;  sector"                 ,
                                        50, 5.7, 5.9); // limits?
                                        //50, 5.5, 6.1); // limits?
 
-    hVertexRMax             = new TH1F("hVertexRMax_" + sampleName + name_sample_split_additional + name_append,
+    hVertexRMax             = new TH1D("hVertexRMax_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " higher energy vertex position;  R (cm)"                  ,
                                        //50, 154.7, 155.0); // limits? all events within 154.85, 154.9 for nd150
                                        50, 154.8904, 154.8908); // limits? all events within 154.85, 154.9 for nd150
 
-    hElectronFirstGgMax     = new TH1F("hElectronFirstGgMax_" + sampleName + name_sample_split_additional + name_append,
+    hElectronFirstGgMax     = new TH1D("hElectronFirstGgMax_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " higher energy e^{-} first gg hit location;first gg layer",
                                        9, -0.5, 8.5); // all in 0 for nd150
 
-    hElectronLastGgMax      = new TH1F("hElectronLastGgMax_" + sampleName + name_sample_split_additional + name_append,
+    hElectronLastGgMax      = new TH1D("hElectronLastGgMax_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " higher energy e^{-} last gg hit location;last gg layer",
                                        9, -0.5, 8.5); // all in 7/8 for nd150
 
-    hVertexMinDistPromptGgMax  = new TH1F("hVertexMinDistPromptGgMax_" + sampleName + name_sample_split_additional + name_append,
+    hVertexMinDistPromptGgMax  = new TH1D("hVertexMinDistPromptGgMax_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " distance from higher energy vertex to closest, prompt unassoc. gg hit;(v_{x}, v_{y}, v_{z}) - (gg_{x},gg_{y},gg_{z}) (cm)",
                                        50, 0, 600); // blank?
 
-    hElectronLDCorrMax      = new TH1F("hElectronLDCorrMax_" + sampleName + name_sample_split_additional + name_append,
+    hElectronLDCorrMax      = new TH1D("hElectronLDCorrMax_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase "+Phase+" "+sampleName + name_sample_split_additional + name_append+" higher energy e^{-} LD correction;LD corr", 
                                        50, 0.9,1.1); // limits? don't know what this histogram is
 
 
-    hVertexZSecMax          = new TH2F("hVertexZSecMax_" + sampleName + name_sample_split_additional + name_append,
+    hVertexZSecMax          = new TH2D("hVertexZSecMax_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase "+Phase+" "+sampleName + name_sample_split_additional + name_append+" higher energy vertex location; sector; Z (cm)",
                                        100, 5.7, 5.9,
                                        //100, 5.5, 6.1,
                                        100, -120, 120); 
 
-    hEeMin                  = new TH1F("hEeMin_" + sampleName + name_sample_split_additional + name_append,
+    hEeMin                  = new TH1D("hEeMin_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase "+Phase+" "+sampleName + name_sample_split_additional + name_append+" lower energy Ee; E_{e} (MeV)",
                                        50, 0.0, 5.0);
 
-    hElectronLengthMin      = new TH1F("hElectronLengthMin_" + sampleName + name_sample_split_additional + name_append,
+    hElectronLengthMin      = new TH1D("hElectronLengthMin_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase "+Phase+" "+sampleName + name_sample_split_additional + name_append+" lower energy e^{-} track length;  track length (cm)",
                                        50, 0, 600);
 
-    hVertexZMin             = new TH1F("hVertexZMin_" + sampleName + name_sample_split_additional + name_append,
+    hVertexZMin             = new TH1D("hVertexZMin_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase "+Phase+" "+sampleName + name_sample_split_additional + name_append+" lower energy vertex position;  Z (cm)"                  ,
                                        50, -120, 120);
                                        //50, -150, 150);
 
-    hVertexSectorMin        = new TH1F("hVertexSectorMin_" + sampleName + name_sample_split_additional + name_append,
+    hVertexSectorMin        = new TH1D("hVertexSectorMin_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase "+Phase+" "+sampleName + name_sample_split_additional + name_append+" lower energy vertex position;  sector"                 ,
                                        50, 5.7, 5.9);
                                        //50, 5.5, 6.1);
 
-    hVertexRMin             = new TH1F("hVertexRMin_" + sampleName + name_sample_split_additional + name_append,
+    hVertexRMin             = new TH1D("hVertexRMin_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase "+Phase+" "+sampleName + name_sample_split_additional + name_append+" lower energy vertex position;  R (cm)"                  ,
                                        //50, 154.7, 155.0);
                                        50, 154.8904, 154.8908);
 
-    hElectronFirstGgMin     = new TH1F("hElectronFirstGgMin_" + sampleName + name_sample_split_additional + name_append,
+    hElectronFirstGgMin     = new TH1D("hElectronFirstGgMin_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase "+Phase+" "+sampleName + name_sample_split_additional + name_append+" lower energy e^{-} first gg hit location;first gg layer",
                                        9, -0.5, 8.5);
 
-    hElectronLastGgMin      = new TH1F("hElectronLastGgMin_" + sampleName + name_sample_split_additional + name_append,
+    hElectronLastGgMin      = new TH1D("hElectronLastGgMin_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase "+Phase+" "+sampleName + name_sample_split_additional + name_append+" lower energy e^{-} last gg hit location;last gg layer",
                                        9, -0.5, 8.5);
 
-    hVertexMinDistPromptGgMin   = new TH1F("hVertexMinDistPromptGgMin_" + sampleName + name_sample_split_additional + name_append,
+    hVertexMinDistPromptGgMin   = new TH1D("hVertexMinDistPromptGgMin_" + sampleName + name_sample_split_additional + name_append,
                                            "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " distance from lower energy vertex to closest, prompt unassoc. gg hit;(v_{x},v_{y},v_{z}) - (gg_{x},gg_{y},gg_{z}) (cm)",
                                            50, 0, 600);
 
-    hElectronLDCorrMin      = new TH1F("hElectronLDCorrMin_" + sampleName + name_sample_split_additional + name_append,
+    hElectronLDCorrMin      = new TH1D("hElectronLDCorrMin_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase "+Phase+" "+sampleName + name_sample_split_additional + name_append+" lower energy e^{-} LD correction;LD corr"            ,
                                        50, 0.9, 1.1);
 
-    hVertexZSecMin          = new TH2F("hVertexZSecMin_" + sampleName + name_sample_split_additional + name_append,
+    hVertexZSecMin          = new TH2D("hVertexZSecMin_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase "+Phase+" "+sampleName + name_sample_split_additional + name_append+" lower energy vertex location; sector; Z (cm)"              ,
                                        150, 5.8904, 5.8907,
                                        100, -120, 120);
 
 
-    hNLowEGammas            = new TH1F("hNLowEGammas_" + sampleName + name_sample_split_additional + name_append,
+    hNLowEGammas            = new TH1D("hNLowEGammas_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase "+Phase+" "+sampleName + name_sample_split_additional + name_append+" unassoc. scint hits E < 200 keV; N hits"     ,
                                        11, -0.5, 10.5);
 
-    hLowEGammaEnergy        = new TH1F("hLowEGammaEnergy_" + sampleName + name_sample_split_additional + name_append,
+    hLowEGammaEnergy        = new TH1D("hLowEGammaEnergy_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase "+Phase+" "+sampleName + name_sample_split_additional + name_append+" unassoc. scint hits E < 200 keV; Energy (indiv. hits) (MeV)" ,
                                        50, 0, 0.2);
 
-    hSummedLowEGammaE       = new TH1F("hSummedLowEGammaE_" + sampleName + name_sample_split_additional + name_append,
+    hSummedLowEGammaE       = new TH1D("hSummedLowEGammaE_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase "+Phase+" "+sampleName + name_sample_split_additional + name_append+" unassoc. scint hits E < 200 keV; Energy (indiv. hits) (MeV)" ,
                                        50, 0, 0.5);
 
-    hLowEMinDistPromptGg    = new TH1F("hLowEMinDistPromptGg_" + sampleName + name_sample_split_additional + name_append,
+    hLowEMinDistPromptGg    = new TH1D("hLowEMinDistPromptGg_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase "+Phase+" "+sampleName + name_sample_split_additional + name_append+" distance from unassoc. calo hits to closest, prompt unassoc. gg hit;(v_{x},v_{y},v_{z}) - (gg_{x},gg_{y},gg_{z}) (cm)",
                                        100, 0, 600.);//all low E hits
 
 
-    hEeMaxVEeMin = new TH2F("hEeMaxVEeMin_" + sampleName + name_sample_split_additional + name_append,
+    hEeMaxVEeMin = new TH2D("hEeMaxVEeMin_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " electron energies; Ee^{Max} (MeV); Ee^{min} (MeV)",
                                        50, 0, 4, 50, 0, 4);
 
-    hNAPromptGgHitsDist2VertexMin = new TH1F("hNAPromptGgHitsDist2VertexMin_" + sampleName + name_sample_split_additional + name_append,
+    hNAPromptGgHitsDist2VertexMin = new TH1D("hNAPromptGgHitsDist2VertexMin_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " min vertex distance to unassociated prompt geiger hit; min vertex distance (cm); y label",
                                        50, 0., 100.);
                                         
 
 
 
-    hNAfterCuts      = new TH1F("hNAfterCuts_" + sampleName + name_sample_split_additional + name_append,
+    hNAfterCuts      = new TH1D("hNAfterCuts_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Analysis Cut Flow; ; N events",
                                        20, 0, 20); //never know how many we'll make... :)
 
-    hEffAfterCuts      = new TH1F("hEffAfterCuts_" + sampleName + name_sample_split_additional + name_append,
+    hEffAfterCuts      = new TH1D("hEffAfterCuts_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Analysis Cut Flow; ; efficiency",
                                        20, 0, 20); //never know how many we'll make... :)
 
-    hTrackSignMax   = new TH1F("hTrackSignMax_" + sampleName + name_sample_split_additional + name_append,
+    hTrackSignMax   = new TH1D("hTrackSignMax_" + sampleName + name_sample_split_additional + name_append,
                                 "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Track Sign (Max)",
                                 3, -1, 1);
 
-    hTrackSignMin   = new TH1F("hTrackSignMin_" + sampleName + name_sample_split_additional + name_append,
+    hTrackSignMin   = new TH1D("hTrackSignMin_" + sampleName + name_sample_split_additional + name_append,
                                 "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Track Sign (Min)",
                                 3, -1, 1);
 
-    hnGammaClusters = new TH1F("hnGammaClusters_" + sampleName + name_sample_split_additional + name_append,
+    hnGammaClusters = new TH1D("hnGammaClusters_" + sampleName + name_sample_split_additional + name_append,
                                 "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Num Gamma Clusters",
                                 11, 0, 10);
 
-    hnInCluster     = new TH1F("hnInCluster_" + sampleName + name_sample_split_additional + name_append,
+    hnInCluster     = new TH1D("hnInCluster_" + sampleName + name_sample_split_additional + name_append,
                                 "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Num in Cluster",
                                 11, 0, 10);
 
-    hclusterHitEnergy     = new TH1F("hclusterHitEnergy_" + sampleName + name_sample_split_additional + name_append,
+    hclusterHitEnergy     = new TH1D("hclusterHitEnergy_" + sampleName + name_sample_split_additional + name_append,
                                 "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Cluster Hit Energy",
                                 50, 0, 0.5);
     
-    hclusterHitEnergyMin     = new TH1F("hclusterHitEnergyMin_" + sampleName + name_sample_split_additional + name_append,
+    hclusterHitEnergyMin     = new TH1D("hclusterHitEnergyMin_" + sampleName + name_sample_split_additional + name_append,
                                 "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Cluster Hit Energy Min",
                                 50, 0, 0.5);
 
-    hclusterHitEnergyMax     = new TH1F("hclusterHitEnergyMax_" + sampleName + name_sample_split_additional + name_append,
+    hclusterHitEnergyMax     = new TH1D("hclusterHitEnergyMax_" + sampleName + name_sample_split_additional + name_append,
                                 "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Cluster Hit Energy Max",
                                 50, 0, 0.5);
 
-    hnLowEnergyHits     = new TH1F("hnLowEnergyHits_" + sampleName + name_sample_split_additional + name_append,
+    hnLowEnergyHits     = new TH1D("hnLowEnergyHits_" + sampleName + name_sample_split_additional + name_append,
                                 "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Num in Cluster",
                                 11, 0, 10);
 
-    hclusterEnergy     = new TH1F("hclusterEnergy_" + sampleName + name_sample_split_additional + name_append,
+    hclusterEnergy     = new TH1D("hclusterEnergy_" + sampleName + name_sample_split_additional + name_append,
                                 "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Cluster Energy",
                                 50, 0, 1.0);
 
 
-    hFoilSide     = new TH1F("hFoilSide_" + sampleName + name_sample_split_additional + name_append,
+    hFoilSide     = new TH1D("hFoilSide_" + sampleName + name_sample_split_additional + name_append,
                                 "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Foil Side",
                                 21, -10, 10);
 
-    hTrueVertexR     = new TH1F("hTrueVertexR_" + sampleName + name_sample_split_additional + name_append,
+    hTrueVertexR     = new TH1D("hTrueVertexR_" + sampleName + name_sample_split_additional + name_append,
                                 "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " True Vertex R",
                                 100, -10.0, 400.0);
 
-    hFoilSideTrueVertexR  = new TH2F("hFoilSideTrueVertexR_" + sampleName + name_sample_split_additional + name_append,
+    hFoilSideTrueVertexR  = new TH2D("hFoilSideTrueVertexR_" + sampleName + name_sample_split_additional + name_append,
                                 "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Foil Side True Vertex R",
                                 21, -10, 10, 100, -10.0, 400.0);
 
-    hTrueVertexLayer     = new TH1F("hTrueVertexLayer_" + sampleName + name_sample_split_additional + name_append,
+    hTrueVertexLayer     = new TH1D("hTrueVertexLayer_" + sampleName + name_sample_split_additional + name_append,
                                 "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " True Vertex Layer",
                                 20, -5, 14);
 
-    hSingleEnergy     = new TH1F("hSingleEnergy_" + sampleName + name_sample_split_additional + name_append,
+    hSingleEnergy     = new TH1D("hSingleEnergy_" + sampleName + name_sample_split_additional + name_append,
                                 "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Single Electron Energy;Energy (MeV)",
                                 50, 0.0, 5.0);
 
-    hHighEnergy     = new TH1F("hHighEnergy_" + sampleName + name_sample_split_additional + name_append,
+    hHighEnergy     = new TH1D("hHighEnergy_" + sampleName + name_sample_split_additional + name_append,
                                 "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " High Energy Electron Energy; Energy (MeV)",
                                 50, 0.0, 5.0);
 
-    hLowEnergy     = new TH1F("hLowEnergy_" + sampleName + name_sample_split_additional + name_append,
+    hLowEnergy     = new TH1D("hLowEnergy_" + sampleName + name_sample_split_additional + name_append,
                                 "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Low Energy Electron Energy;Energy (MeV)",
                                 50, 0.0, 5.0);
 
-    hHighLowEnergy     = new TH2F("hHighLowEnergy_" + sampleName + name_sample_split_additional + name_append,
+    hHighLowEnergy     = new TH2D("hHighLowEnergy_" + sampleName + name_sample_split_additional + name_append,
                                 "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Electron Energy;Low Energy Electron Energy (MeV);High Energy Electron Energy (MeV)",
                                 50, 0.0, 5.0, 50, 0.0, 5.0);
 
 
-    hTotalClusterEnergy     = new TH1F("hTotalClusterEnergy_" + sampleName + name_sample_split_additional + name_append,
+    hTotalClusterEnergy     = new TH1D("hTotalClusterEnergy_" + sampleName + name_sample_split_additional + name_append,
                                 "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Total Cluster Hit Energy",
                                 50, 0, 1.0);
 
-    hHotSpotLocation = new TH2F("hHotSpotLocation_" + sampleName + name_sample_split_additional + name_append,
+    hHotSpotLocation = new TH2D("hHotSpotLocation_" + sampleName + name_sample_split_additional + name_append,
                         "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Hot Spot Locations",
                         50, 5.7371, 5.8706, 50, -120.0, 120.0);
 
-    hEnergySum     = new TH1F("hEnergySum_" + sampleName + name_sample_split_additional + name_append,
+    hEnergySum     = new TH1D("hEnergySum_" + sampleName + name_sample_split_additional + name_append,
                                 "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Single Electron Energy;Energy (MeV)",
                                 50, 0.0, 5.0);
                                 
-    hEnergyDiff     = new TH1F("hEnergyDiff_" + sampleName + name_sample_split_additional + name_append,
+    hEnergyDiff     = new TH1D("hEnergyDiff_" + sampleName + name_sample_split_additional + name_append,
                                 "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " Single Electron Energy;Energy (MeV)",
                                 50, 0.0, 5.0);
 
@@ -2482,7 +2482,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
 
 
 
-    TH1F *tmpHist; //we'll be using this later.
+    TH1D *tmpHist; //we'll be using this later.
 
     //Let's get the internals/externals/data and add them to an array
     //TObjArray *allSamples[nSamples];
@@ -2611,7 +2611,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
                 {
                     std::cout << "Get() : " << name << " from file, Clone() : " << new_histogram_name << std::endl;
                 }
-                //tmpHist = (TH1F*)myFile->Get(name)->Clone(new_histogram_name);
+                //tmpHist = (TH1D*)myFile->Get(name)->Clone(new_histogram_name);
             }
             else if(mode_flag == 1)
             {
@@ -2620,11 +2620,11 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
                 {
                     std::cout << "Get() : " << name << " from file, Clone() : " << new_histogram_name << std::endl;
                 }
-                //tmpHist = (TH1F*)myFile->Get(name)->Clone(new_histogram_name);
+                //tmpHist = (TH1D*)myFile->Get(name)->Clone(new_histogram_name);
             }
             try
             {
-                tmpHist = (TH1F*)myFile->Get(name)->Clone(new_histogram_name);
+                tmpHist = (TH1D*)myFile->Get(name)->Clone(new_histogram_name);
             }
             catch(std::exception &e)
             {
@@ -2639,7 +2639,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
             // this code was replaced with above: 2020-05-03
             //std::string name("singleHistos/unscaled/" + histogramNames[j] + sampleFiles[i]);
             //std::cout << "Get() : " << name << " from file, Clone() : " << histogramNames[j] + sampleFiles[i] + "_fit" << std::endl;
-            //tmpHist = (TH1F*)myFile->Get(name.c_str())->Clone(histogramNames[j] + sampleFiles[i] + "_fit");
+            //tmpHist = (TH1D*)myFile->Get(name.c_str())->Clone(histogramNames[j] + sampleFiles[i] + "_fit");
             
             //calculate efficiency
             // TODO: this is calculated using the 0th histogram, should perhaps
@@ -2700,7 +2700,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
             
             // moved from stackFunction()
             // 2020-03-30: 
-            //(TH1F*)allSamples[j]->At(i)->Write();
+            //(TH1D*)allSamples[j]->At(i)->Write();
             // saving the histogram without scaling it by the activity will
             // cause the fit output (and input) to be in units of activty
             // is this actually the case, what about the factor of the detector
@@ -2749,7 +2749,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
                 // write into scaled / histogram_name subdirectory
                 myFile->cd("scaled/" + histogram_name);
                 TString clone_name = TString(tmpHist->GetName()) + TString("_scaled");
-                TH1F *tmpHistClone = (TH1F*)tmpHist->Clone(clone_name);
+                TH1D *tmpHistClone = (TH1D*)tmpHist->Clone(clone_name);
                 tmpHistClone->Write();
             }
             //if(sampleActivity[thePhase * nSamples + i] <= 0.0)
@@ -2766,7 +2766,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
                 // write into scaled2 / histogram_name subdirectory
                 myFile->cd("scaled2/" + histogram_name);
                 TString clone_name = TString(tmpHist->GetName()) + TString("_scaled2");
-                TH1F *tmpHistClone = (TH1F*)tmpHist->Clone(clone_name);
+                TH1D *tmpHistClone = (TH1D*)tmpHist->Clone(clone_name);
                 tmpHistClone->Write();
             }
 
@@ -2804,10 +2804,10 @@ void stackfunction(int i,                           // INPUT: histogram index, s
                    THStack **hMajorStacks,          // OUTPUT: ?
                    const TString& sampleHumanName,  // INPUT:
                    const TString& sampleName,       // INPUT: "Nd150", "Externals", "Internals", "Radon", used to when calling Clone() to change histogram name
-                   TH1F **hAllSamples,              // OUTPUT: single histogram stack composed of samples components added together by function call to TH1::Add()
+                   TH1D **hAllSamples,              // OUTPUT: single histogram stack composed of samples components added together by function call to TH1::Add()
                    const TString *const sampleNames,
                    const TString *const sampleFiles,
-                   TH1F **hAllMC,
+                   TH1D **hAllMC,
                    bool allMC_first,
                    bool hAllSamples_addtoexisting,  // INPUT: flag, if true objects in allSamples are added to hAllSamples without call to Clone to change name
                    Color_t majorStackColor,
@@ -2818,7 +2818,7 @@ void stackfunction(int i,                           // INPUT: histogram index, s
     TString h_name;
     try
     {
-        h_name = ((TH1F*)allSamples[0]->At(i))->GetName();
+        h_name = ((TH1D*)allSamples[0]->At(i))->GetName();
     }
     catch(std::exception& e)
     {
@@ -2829,7 +2829,7 @@ void stackfunction(int i,                           // INPUT: histogram index, s
     // i = histogram index (type, eg; electron energy min/max, total energy, track length...)
     // j = background/data/mc index
 
-    TH1F *tmpHist; //we'll be using this later.
+    TH1D *tmpHist; //we'll be using this later.
 
     // this block relating to hAllSamples
     // which is one of hAllExternals, hAllInternals, etc...
@@ -2846,39 +2846,39 @@ void stackfunction(int i,                           // INPUT: histogram index, s
             if(j == 0)
             {
                 // NOTE: allSamples is either allExternals, allInternals, etc...
-                hAllSamples[i] = (TH1F*)allSamples[j]->At(i)->Clone(sampleName);
+                hAllSamples[i] = (TH1D*)allSamples[j]->At(i)->Clone(sampleName);
                 if(h_name.Contains("hTotalE"))
                 {
-                    std::cout << "adding to hAllSamples[" << i << "]: " << ((TH1F*)allSamples[j]->At(i))->GetName() << " (clone)" << std::endl;
+                    std::cout << "adding to hAllSamples[" << i << "]: " << ((TH1D*)allSamples[j]->At(i))->GetName() << " (clone)" << std::endl;
                 }
             }
             else
             {
                 // NOTE: allSamples is either allExternals, allInternals, etc...
-                hAllSamples[i]->Add((TH1F*)allSamples[j]->At(i));
+                hAllSamples[i]->Add((TH1D*)allSamples[j]->At(i));
                 if(h_name.Contains("hTotalE"))
                 {
-                    std::cout << "adding to hAllSamples[" << i << "]: " << ((TH1F*)allSamples[j]->At(i))->GetName() << std::endl;
+                    std::cout << "adding to hAllSamples[" << i << "]: " << ((TH1D*)allSamples[j]->At(i))->GetName() << std::endl;
                 }
             }
         }
         else
         {
             // NOTE: allSamples is either allExternals, allInternals, etc...
-            hAllSamples[i]->Add((TH1F*)allSamples[j]->At(i));
+            hAllSamples[i]->Add((TH1D*)allSamples[j]->At(i));
             if(h_name.Contains("hTotalE"))
             {
-                std::cout << "adding to hAllSamples[" << i << "]: " << ((TH1F*)allSamples[j]->At(i))->GetName() << std::endl;
+                std::cout << "adding to hAllSamples[" << i << "]: " << ((TH1D*)allSamples[j]->At(i))->GetName() << std::endl;
             }
         }
 
         // 2020-03-31: moved from below block to this location
-        tmpHist = (TH1F*)allSamples[j]->At(i);
+        tmpHist = (TH1D*)allSamples[j]->At(i);
         if(tmpHist->Integral() > 0)
         {
             //std::cout << ExternalBkgFiles[j] << " " << tmpHist->Integral() << std::endl;
             tmpHist->SetTitle(sampleNames[j]); // TODO: want this above?
-            hMinorStacks[i]->Add((TH1F*)allSamples[j]->At(i)->Clone(sampleFiles[j]));
+            hMinorStacks[i]->Add((TH1D*)allSamples[j]->At(i)->Clone(sampleFiles[j]));
         }
         else
         {
@@ -2896,22 +2896,22 @@ void stackfunction(int i,                           // INPUT: histogram index, s
             if(j == 0)
             {
                 // NOTE: allSamples is either allExternals, allInternals, etc...
-                hAllMC[i] = (TH1F*)allSamples[j]->At(i)->Clone("Total MC");
+                hAllMC[i] = (TH1D*)allSamples[j]->At(i)->Clone("Total MC");
             }
             else
             {
                 // NOTE: allSamples is either allExternals, allInternals, etc...
-                hAllMC[i]->Add((TH1F*)allSamples[j]->At(i));
+                hAllMC[i]->Add((TH1D*)allSamples[j]->At(i));
             }
         }
         else
         {
             // NOTE: allSamples is either allExternals, allInternals, etc...
-            hAllMC[i]->Add((TH1F*)allSamples[j]->At(i));
+            hAllMC[i]->Add((TH1D*)allSamples[j]->At(i));
         }
 
    
-        //(TH1F*)allSamples[j]->At(i)->Write();
+        //(TH1D*)allSamples[j]->At(i)->Write();
         // 2020-03-30: removed
         
 
@@ -2922,7 +2922,7 @@ void stackfunction(int i,                           // INPUT: histogram index, s
     //std::cout << "150Nd: Add()" << std::endl;
     //events.Form("%i",(int)hAllNd150[i]->Integral());
     //hAllNd150[i]->SetTitle("^{150}Nd 2#nu2#beta ("+events+")");
-    //hMajorStacks[i]->Add((TH1F*)hAllNd150[i]);
+    //hMajorStacks[i]->Add((TH1D*)hAllNd150[i]);
     
     if(hMajorStacks_add == true)
     {
@@ -2938,12 +2938,12 @@ void stackfunction(int i,                           // INPUT: histogram index, s
         hAllSamples[i]->SetLineColor(majorStackColor);
         hAllSamples[i]->SetLineWidth(0);
         hAllSamples[i]->SetTitle(title_string);
-        hMajorStacks[i]->Add((TH1F*)hAllSamples[i]);
+        hMajorStacks[i]->Add((TH1D*)hAllSamples[i]);
         
         //std::cout << "Externals: Add()" << std::endl;
         //events.Form("%i",(int)hAllExternals[i]->Integral());
         //hAllExternals[i]->SetTitle("Externals ("+events+")");
-        //hMajorStacks[i]->Add((TH1F*)hAllExternals[i]);
+        //hMajorStacks[i]->Add((TH1D*)hAllExternals[i]);
     }
     else
     {
@@ -2999,7 +2999,7 @@ void fitHistograms()
             {
                 std::cout << "Get() : " << name << " from file, Clone() : " << histogramNames[i] + "data" << std::endl;
             }
-            allDataHistograms->Add((TH1F*)myFile->Get(name.c_str())->Clone(histogramNames[i] + "data"));
+            allDataHistograms->Add((TH1D*)myFile->Get(name.c_str())->Clone(histogramNames[i] + "data"));
             // 2020-04-02: changed "_data" to "data"
         }
 
@@ -3012,7 +3012,7 @@ void fitHistograms()
             {
                 std::cout << "Get() : " << name_rawdata << " from file, Clone() : " << histogramNames[i] + "data_raw" << std::endl;
             }
-            allDataHistograms_rawdata->Add((TH1F*)myFile->Get(name_rawdata.c_str())->Clone(histogramNames[i] + "data_raw"));
+            allDataHistograms_rawdata->Add((TH1D*)myFile->Get(name_rawdata.c_str())->Clone(histogramNames[i] + "data_raw"));
         }
 #endif
     }
@@ -3034,13 +3034,13 @@ void fitHistograms()
             {
                 TString name = "processeddata/" + histogram_name + "/" + histogram_name + sampleFiles[i]; // + name_append
                 std::cout << "Get() : " << name << " from file, Clone() : " << new_histogram_name << std::endl;
-                tmpHist = (TH1F*)myFile->Get(name)->Clone(new_histogram_name);
+                tmpHist = (TH1D*)myFile->Get(name)->Clone(new_histogram_name);
             }
             else if(mode_flag == 1)
             {
                 TString name = "rawdata/" + histogram_name + "/" + histogram_name + sampleFiles[i] + "_raw"; // + name_append;
                 std::cout << "Get() : " << name << " from file, Clone() : " << new_histogram_name << std::endl;
-                tmpHist = (TH1F*)myFile->Get(name)->Clone(new_histogram_name);
+                tmpHist = (TH1D*)myFile->Get(name)->Clone(new_histogram_name);
             }
             // NOTE: will have 2 new histograms here
             // 1: scaled, processeddata histogram (save this one to file)
@@ -3124,11 +3124,11 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
     // allInternals -> allSamples is an output, format TObjArray, contains each MC histogram (as a clone) in a TObjArray
 
     // after scale function, these contain
-    // TH1F objects
+    // TH1D objects
     // the named object below is an array of TObjArray pointers
     // the TObjArray is allocated with new in scale
     // there is one for each background type
-    // a single TH1F* object is added to the TObjArray
+    // a single TH1D* object is added to the TObjArray
     // so it is an array of length 1
     TObjArray *allExternals[nExternalBkgs];
     TObjArray *allRn220Bkgs[nRn220Bkgs];
@@ -3384,20 +3384,20 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
     
     // single histogram containing sum of all sub-samples, created using
     // TH1::Add()
-    TH1F *hAllExternals[numHistograms];
-    TH1F *hAllRadon[numHistograms];
-    TH1F *hAllInternals[numHistograms];
-    TH1F *hAllNeighbours[numHistograms];
-    TH1F *hAllNd150[numHistograms];
+    TH1D *hAllExternals[numHistograms];
+    TH1D *hAllRadon[numHistograms];
+    TH1D *hAllInternals[numHistograms];
+    TH1D *hAllNeighbours[numHistograms];
+    TH1D *hAllNd150[numHistograms];
     // rawdata versions
-    TH1F *hAllExternals_rawdata[numHistograms];
-    TH1F *hAllRadon_rawdata[numHistograms];
-    TH1F *hAllInternals_rawdata[numHistograms];
-    TH1F *hAllNeighbours_rawdata[numHistograms];
-    TH1F *hAllNd150_rawdata[numHistograms];
+    TH1D *hAllExternals_rawdata[numHistograms];
+    TH1D *hAllRadon_rawdata[numHistograms];
+    TH1D *hAllInternals_rawdata[numHistograms];
+    TH1D *hAllNeighbours_rawdata[numHistograms];
+    TH1D *hAllNd150_rawdata[numHistograms];
 
-    TH1F *hAllMC[numHistograms];
-    TH1F *hAllMC_rawdata[numHistograms];
+    TH1D *hAllMC[numHistograms];
+    TH1D *hAllMC_rawdata[numHistograms];
     // for all MC samples to calculate chi2
     // also used to draw black line around stack of all MC samples
 
@@ -3439,7 +3439,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
         stackfunction(i, nExternalBkgs,
                       hMinorStacks, allExternals, // TObjArray *allExternals[nExternalBkgs]
                       hMajorStacks, "External Backgrounds",
-                      "Externals", hAllExternals, // TH1F *hAllExt[numHistograms]
+                      "Externals", hAllExternals, // TH1D *hAllExt[numHistograms]
                       ExternalBkgNames, ExternalBkgFiles, hAllMC,
                       true, false,
                       ExternalBkgColor,
@@ -3449,7 +3449,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
         stackfunction(i, nExternalBkgs,
                       hMinorStacks_rawdata, allExternals_rawdata, // TObjArray *allExternals[nExternalBkgs]
                       hMajorStacks_rawdata, "External Backgrounds",
-                      "Externals", hAllExternals_rawdata, // TH1F *hAllExt[numHistograms]
+                      "Externals", hAllExternals_rawdata, // TH1D *hAllExt[numHistograms]
                       ExternalBkgNames, ExternalBkgFiles, hAllMC_rawdata,
                       true, false,
                       ExternalBkgColor,
@@ -3642,8 +3642,8 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
 
     // stack functions for 2D histograms
 /*
-    TH2F *hAllMC2D[numHistograms]; //for all MC samples to calculate chi2
-    TH2F *tmp2D;
+    TH2D *hAllMC2D[numHistograms]; //for all MC samples to calculate chi2
+    TH2D *tmp2D;
     for(int i = numHistograms-1; i < numHistograms; i++)
     {
         //stack doesnt support 3D hist
@@ -3653,15 +3653,15 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
         #if EXTERNALS_ON
         for( int j = 0; j < nExternalBkgs; j++)
         {
-            (TH2F*)allExternals[j]->At(i)->Write();
+            (TH2D*)allExternals[j]->At(i)->Write();
             if(j == 0)
             {
                 // TODO: this one different because of clone option
-                hAllMC2D[i] = (TH2F*)allExternals[j]->At(i)->Clone("allMC"+histogramNames[i]);
+                hAllMC2D[i] = (TH2D*)allExternals[j]->At(i)->Clone("allMC"+histogramNames[i]);
             }
             else
             {
-                hAllMC2D[i]->Add((TH2F*)allExternals[j]->At(i)->Clone());
+                hAllMC2D[i]->Add((TH2D*)allExternals[j]->At(i)->Clone());
             }
         }//externals
         #endif
@@ -3669,44 +3669,44 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
         #if RADON_ON
         for(int j = 0; j < nRn222Bkgs; j++)
         {
-            (TH2F*)allRn222Bkgs[j]->At(i)->Write();
-            hAllMC2D[i]->Add((TH2F*)allRn222Bkgs[j]->At(i)->Clone());
+            (TH2D*)allRn222Bkgs[j]->At(i)->Write();
+            hAllMC2D[i]->Add((TH2D*)allRn222Bkgs[j]->At(i)->Clone());
         }//radon222
 
         for(int j = 0; j < nRn220Bkgs; j++)
         {
-            (TH2F*)allRn220Bkgs[j]->At(i)->Write();
-            hAllMC2D[i]->Add((TH2F*)allRn220Bkgs[j]->At(i)->Clone());
+            (TH2D*)allRn220Bkgs[j]->At(i)->Write();
+            hAllMC2D[i]->Add((TH2D*)allRn220Bkgs[j]->At(i)->Clone());
         }//radon220
         #endif
 
         #if INTERNALS_ON
         for(int j = 0; j < nInternalBkgs; j++)
         {
-            (TH2F*)allInternals[j]->At(i)->Write();
-            hAllMC2D[i]->Add((TH2F*)allInternals[j]->At(i)->Clone());
+            (TH2D*)allInternals[j]->At(i)->Write();
+            hAllMC2D[i]->Add((TH2D*)allInternals[j]->At(i)->Clone());
         }//internals
         #endif
 
         #if NEIGHBOURS_ON
         for(int j = 0; j < nNeighbours; j++)
         {
-            (TH2F*)allNeighbours[j]->At(i)->Write();
-            hAllMC2D[i]->Add((TH2F*)allNeighbours[j]->At(i)->Clone());
+            (TH2D*)allNeighbours[j]->At(i)->Write();
+            hAllMC2D[i]->Add((TH2D*)allNeighbours[j]->At(i)->Clone());
         }//neighbours
         #endif
 
         #if ND_ON
         for(int j = 0; j < nNd150Samples; j++)
         {
-            (TH2F*)allNd150Samples[j]->At(i)->Write();
-            hAllMC2D[i]->Add((TH2F*)allNd150Samples[j]->At(i)->Clone());
+            (TH2D*)allNd150Samples[j]->At(i)->Write();
+            hAllMC2D[i]->Add((TH2D*)allNd150Samples[j]->At(i)->Clone());
         }//150Nd
         #endif
 
         hAllMC2D[i]->Write();
 
-        tmp2D = (TH2F*)allDataHistograms->At(i);
+        tmp2D = (TH2D*)allDataHistograms->At(i);
         tmp2D->SetName(histogramNames[i]+DataName);
         tmp2D->Write();
     }
@@ -3717,11 +3717,11 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
 
     // loop to write out histograms before running canvas loop
     // also sets hist structure for use in following loop
-    TH1F* hist[numHistograms];
+    TH1D* hist[numHistograms];
     for(int i = 0; i < numHistograms; i++)
     {
 
-        hist[i] = (TH1F*)allDataHistograms->At(i);
+        hist[i] = (TH1D*)allDataHistograms->At(i);
         //hist[i]->SetName(histogramNames[i] + DataName);
 
         // inserted from below loop (2)
@@ -3749,11 +3749,11 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
     }
     #if RAWENABLE
     // same for rawdata versions
-    TH1F* hist_rawdata[numHistograms];
+    TH1D* hist_rawdata[numHistograms];
     for(int i = 0; i < numHistograms; i++)
     {
 
-        hist_rawdata[i] = (TH1F*)allDataHistograms_rawdata->At(i);
+        hist_rawdata[i] = (TH1D*)allDataHistograms_rawdata->At(i);
         hist_rawdata[i]->SetName(histogramNames[i] + DataName);
         // TODO: bug here: same name
 
@@ -3791,7 +3791,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
         it != histogramPointers.end(); ++ it)
     {
 
-        TH1F *histtmp = (TH1F*)it->second;
+        TH1D *histtmp = (TH1D*)it->second;
 
         std::ofstream of_hTotalE_numberofevents("hTotalE_numberofevents.txt")
         if(TString(histtmp->GetName()).Contains("hTotalE"))
@@ -3949,9 +3949,9 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
             //c2->SetTicks(1,1);
 
             //make ratio plot
-            //TH1F *ratio = (TH1F*)hist[i]->Clone("ratio_" + histogramNames[i]);
+            //TH1D *ratio = (TH1D*)hist[i]->Clone("ratio_" + histogramNames[i]);
             //ratio->Sumw2();
-            //ratio->Divide((TH1F*)allMC[i]);
+            //ratio->Divide((TH1D*)allMC[i]);
             //ratio->SetLineWidth(2);
             //ratio->SetMarkerStyle(7);
             //ratio->SetTitle("");
@@ -4096,9 +4096,9 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
             */
 
             //make ratio plot
-            //TH1F *ratio = (TH1F*)hist[i]->Clone("ratio_" + histogramNames[i]);
+            //TH1D *ratio = (TH1D*)hist[i]->Clone("ratio_" + histogramNames[i]);
             //ratio->Sumw2();
-            //ratio->Divide((TH1F*)allMC[i]);
+            //ratio->Divide((TH1D*)allMC[i]);
             //ratio->SetLineWidth(2);
             //ratio->SetMarkerStyle(7);
             //ratio->SetTitle("");
@@ -4121,7 +4121,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
 
 /*
     TCanvas *c[numHistograms];
-    TH1F* hist[numHistograms];
+    TH1D* hist[numHistograms];
     TLegend *leg[numHistograms];
     TPad *c0;
     TPad *c1;
@@ -4146,7 +4146,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
         c0->SetGrid(1,1);
         c0->SetTicks(1,1);
 
-        hist[i] = (TH1F*)allDataHistograms->At(i);
+        hist[i] = (TH1D*)allDataHistograms->At(i);
         hist[i]->SetName(histogramNames[i]+DataName);
         hist[i]->Write();
 
@@ -4202,9 +4202,9 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
         c2->SetTicks(1,1);
 
         //make ratio plot
-        TH1F *ratio = (TH1F*)hist[i]->Clone("ratio_" + histogramNames[i]);
+        TH1D *ratio = (TH1D*)hist[i]->Clone("ratio_" + histogramNames[i]);
         ratio->Sumw2();
-        ratio->Divide((TH1F*)allMC[i]);
+        ratio->Divide((TH1D*)allMC[i]);
         ratio->SetLineWidth(2);
         ratio->SetMarkerStyle(7);
         ratio->SetTitle("");
@@ -4232,7 +4232,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
 }
 
 
-void drawPlots(TH1F *data,TH1F *mc, THStack *hs)
+void drawPlots(TH1D *data,TH1D *mc, THStack *hs)
 {
     TString whichHist = mc->GetName();
     gStyle->SetTitleFillColor(kWhite);
@@ -4298,7 +4298,7 @@ void drawPlots(TH1F *data,TH1F *mc, THStack *hs)
     c1_3->SetPad(xmin, ymin + ((ymax - ymin) / 4.), xmax, ymax - ((ymax - ymin) / 4.));
     // c1_2->SetBottomMargin(3.);
 
-    TH1F *ratio = (TH1F*)data->Clone("ratio_" + whichHist); 
+    TH1D *ratio = (TH1D*)data->Clone("ratio_" + whichHist); 
     ratio->Sumw2();
     ratio->Divide(mc);
     ratio->SetLineWidth(1);
@@ -4343,7 +4343,7 @@ double getActErr(double Npass, double Ngen, double Ndata, double sf_err)
     return err;
 }
 
-double getChi2(TH1F *data, TH1F* mc, Int_t &ndof)
+double getChi2(TH1D *data, TH1D* mc, Int_t &ndof)
 {
 
     size_t N_bins =  data->GetXaxis()->GetNbins();

@@ -8,7 +8,12 @@
 
 
 
-TMinuit* fitBackgrounds_init(double *AdjustActs, double *AdjustActs_Err)
+void fitBackgrounds_init(
+    ROOT::Minuit2::MnUserParameterState& theParameterState,
+    ROOT::Minuit2::VariableMetricMinimizer& theMinimizer,
+    double *AdjustActs,
+    double *AdjustActs_Err
+    )
 {
 //    std::cout << " 1 " << AdjustActs[1] << std::endl;
 //    std::cin.get();
@@ -24,18 +29,18 @@ TMinuit* fitBackgrounds_init(double *AdjustActs, double *AdjustActs_Err)
     // and change numberParams to numberEnabled params
     //TMinuit *minuit = new TMinuit(numberParams);
     std::cout << "numberEnabledParams=" << numberEnabledParams << std::endl;
-    TMinuit *minuit = new TMinuit(numberEnabledParams);
+    //TMinuit *minuit = new TMinuit(numberEnabledParams);
     // TODO working here need to check all instances of numberParams
 
 
-    std::cout << "Fit created" << std::endl;
+    //std::cout << "Fit created" << std::endl;
 
     //std::cout << "minuit tests" << std::endl;
     //minuit->DefineParameter(1, "test1", 100.0, 10.0, -500.0, 500.0);
     //std::cin.get();
 
     // set debug level
-    minuit->SetPrintLevel(3);
+    //minuit->SetPrintLevel(3);
 
     // moved reading of parameter list file to before book histogram function
     // calls
@@ -94,6 +99,7 @@ TMinuit* fitBackgrounds_init(double *AdjustActs, double *AdjustActs_Err)
             // define parameter using constrained value if hard constrained
 
             std::cout << "minuit: fixed parameter i=" << i << std::endl;
+            TString minuit_param_name = "_" + i_str + "_" + minuit_param_number_str + "_FIXED";
             
             //minuit->DefineParameter(i, "_" + i_str + "_", 1.0, 0.1, 0.0, 2.0);
             //minuit->DefineParameter(i, "_" + i_str + "_FIXED", param_init_value, param_init_error, -2.0, 1.0e+06);
@@ -107,11 +113,16 @@ TMinuit* fitBackgrounds_init(double *AdjustActs, double *AdjustActs_Err)
             {
 //                std::cout << "i 1 fixed " << AdjustActs[i] << std::endl;
 //                std::cin.get();
-                minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_FIXED", AdjustActs[i], 0.5, 0.0, 50.0);
+                //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_FIXED", AdjustActs[i], 0.5, 0.0, 50.0);
+                //TString minuit_param_name = "_" + i_str + "_" + minuit_param_number_str + "_FIXED";
+                theParameterState.Add(std::string(minuit_param_name), AdjustActs[i], AdjustActs_Err[i]); // instead of _Err was 0.5
+                //theParameterState.SetLowerLimit(i, 0.0); // no limit for xi
             }
             else
             {
-                minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_FIXED", 1.0, 0.5, 0.0, 50.0);
+                //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_FIXED", 1.0, 0.5, 0.0, 50.0);
+                theParameterState.Add(std::string(minuit_param_name), 1.0, 0.5);
+                theParameterState.SetLowerLimit(i, 0.0);
             }
             /*
             if(i == 1)
@@ -126,13 +137,15 @@ TMinuit* fitBackgrounds_init(double *AdjustActs, double *AdjustActs_Err)
             */
 
             //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_FIXED", 1.0, 0.5, 0.0, 50.0);
-            minuit->FixParameter(minuit_param_number);
+            //minuit->FixParameter(minuit_param_number);
+            theParameterState.Fix(std::string(minuit_param_name));
         }
         else
         {
             // define parameter using initial value if free/soft constrained
             
             std::cout << "minuit: parameter i=" << i << " is enabled and not fixed, leaving free" << std::endl;
+            TString minuit_param_name = "_" + i_str + "_" + minuit_param_number_str + "_";
 
             //minuit->DefineParameter(i, "_" + i_str + "_", param_init_value, param_init_error, 0.0, 1.0e+06);
             
@@ -151,21 +164,41 @@ TMinuit* fitBackgrounds_init(double *AdjustActs, double *AdjustActs_Err)
                 // does not work if xi_31 paramter is not number 1
                 //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", xi_31_init, 0.5, 0.0, 1000.0);
                 //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", AdjustActs[i], 0.5, 0.0, 1000.0);
-                minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", AdjustActs[i], 0.5, -1.0, 5.0);
+                //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", AdjustActs[i], 0.5, -1.0, 5.0);
+                theParameterState.Add(std::string(minuit_param_name), AdjustActs[i], AdjustActs_Err[i]); // instead of _Err was 0.5
+                theParameterState.SetLowerLimit(i, -0.4);
+                //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", AdjustActs[i], 0.5, -0.4, 5.0);
+                //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", AdjustActs[i], 0.5, -1.0, 5.0);
+                //std::cout << "define parameter" << AdjustActs[i] << std::endl;
+                //std::cin.get();
                 //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", 2.0 * AdjustActs[i], 0.5, -1.0, 5.0);
             }
             else
             {
-                if(i == 0)
-                {
+
+            //    if(i == 0)
+            //    {
+            //        //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", 1.0, 0.5, 0.0, 1000.0);
+            //        minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", 1.705, 0.005, 0.0, 1000.0);
+            //
+            //        //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", 2.5, 0.5, 0.0, 1000.0);
+            //    }
+            //    else
+            //    {
                     //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", 1.0, 0.5, 0.0, 1000.0);
-                    minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", 1.705, 0.005, 0.0, 1000.0);
-                    //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", 2.5, 0.5, 0.0, 1000.0);
-                }
-                else
-                {
-                    minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", 1.0, 0.5, 0.0, 1000.0);
-                }
+                    theParameterState.Add(std::string(minuit_param_name), 1.0, 0.5);
+                    theParameterState.SetLowerLimit(i, 0.0);
+            //    }
+                //if(i == 0)
+                //{
+                //    //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", 1.0, 0.5, 0.0, 1000.0);
+                //    minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", 1.705, 0.005, 0.0, 1000.0);
+                //    //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", 2.5, 0.5, 0.0, 1000.0);
+                //}
+                //else
+                //{
+                //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", 1.0, 0.5, 0.0, 1000.0);
+                //}
             }
             
             /*
@@ -319,7 +352,8 @@ TMinuit* fitBackgrounds_init(double *AdjustActs, double *AdjustActs_Err)
     // arglist[0] = 50000;  // number of function calls
     // arglist[1] = 0.1;  // tolerance
 
-    minuit->SetErrorDef(0.5);
+    //minuit->SetErrorDef(0.5);
+    // TODO ? required ?
     // 1.0 = chisquare
     // 0.5 = negative log likelihood
     
@@ -335,14 +369,14 @@ TMinuit* fitBackgrounds_init(double *AdjustActs, double *AdjustActs_Err)
 
 
     //minuit->SetMaxIterations(50000);
-    minuit->SetMaxIterations(1000);
+    //minuit->SetMaxIterations(1000); TODO
     //minuit->mnexcm("SET EPS", 0.01);
     //minuit->SetEPS(1.0e-3); // TODO
     //give it the function to use
-    minuit->SetFCN(logLikelihood);
+    //minuit->SetFCN(logLikelihood); // done elsewhere
     //std::cout << "calling: minuit->mnsimp()" << std::endl;
     //minuit->mnsimp();
-    std::cout << "calling: minuit->Migrad()" << std::endl;
+    //std::cout << "calling: minuit->Migrad()" << std::endl;
 
 
 // draw 1D histograms, write chisquare values to file for range of
@@ -395,7 +429,9 @@ TMinuit* fitBackgrounds_init(double *AdjustActs, double *AdjustActs_Err)
         for(int i = 0; i < numberEnabledParams; ++ i)
         {
             double value, error;
-            minuit->GetParameter(i, value, error);
+            //minuit->GetParameter(i, value, error);
+            value = theParameterState.Value(i);
+            error = theParameterState.Error(i);
             //int j = minuitParamNumberTo
             minuitParamCurrent[i] = value;
             minuitParamInit[i] = value;
@@ -406,7 +442,7 @@ TMinuit* fitBackgrounds_init(double *AdjustActs, double *AdjustActs_Err)
 
     std::cout << "return" << std::endl;
 
-    return minuit;
+    //return minuit;
 }
 
 
@@ -417,24 +453,39 @@ void fitBackgrounds_setparams(TMinuit *minuit, double *AdjustActs, double *Adjus
 }
 
 
-void fitBackgrounds_exec(TMinuit *minuit, double *AdjustActs, double *AdjustActs_Err)
+ROOT::Minuit2::FunctionMinimum fitBackgrounds_exec(
+    ROOT::Minuit2::MnUserParameterState& theParameterState,
+    ROOT::Minuit2::VariableMetricMinimizer& theMinimizer,
+    MinimizeFCNAxialVector &theFCN
+    )
 {
 //                std::cout << "i 1 exec: " << AdjustActs[i] << std::endl;
 //                std::cin.get();
 
     // TODO: re-enable
     ll_walk.clear();
-    minuit->Migrad();
+    //minuit->Migrad();
+    ROOT::Minuit2::MnStrategy theStrategy(1);
+    ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, theParameterState, theStrategy);
     ll_walk_save = ll_walk;
     std::cout << "walk length: " << ll_walk_save.size() << std::endl;
     ll_walk.clear();
 
+    #if 0
     // Then get results
     //for(int i = 0; i < numberParams; i++)
     for(int i = 0; i < numberEnabledParams; i++)
     {
-        minuit->GetParameter(i, AdjustActs[i], AdjustActs_Err[i]);
+        //minuit->GetParameter(i, AdjustActs[i], AdjustActs_Err[i]);
+        double value = theParameterState.Value(i);
+        double error = theParameterState.Error(i);
+        AdjustActs[i] = value;
+        AdjustActs_Err[i] = error;
     }
+    #endif
+
+    return FCN_min;
+
  }
 
 
@@ -448,7 +499,7 @@ void fitBackgrounds_postexectest(TMinuit *minuit, double *AdjustActs, double *Ad
 
     if(0)
     {
-        newloglikfitter_100Mo_chisquaretest(minuit, AdjustActs, AdjustActs_Err);
+        //newloglikfitter_100Mo_chisquaretest(minuit, AdjustActs, AdjustActs_Err);
     }
 
     // Some people have seen further by standing on the shoulders of giants.
@@ -460,7 +511,7 @@ void fitBackgrounds_postexectest(TMinuit *minuit, double *AdjustActs, double *Ad
 
     if(0)
     {
-        newloglikfitter_testmyphasespace(minuit, AdjustActs, AdjustActs_Err);
+        //newloglikfitter_testmyphasespace(minuit, AdjustActs, AdjustActs_Err);
     }
 
 
@@ -487,22 +538,39 @@ void fitBackgrounds_getcovmatrix(TMinuit* minuit, double *&CovMatrix, int& numbe
 
 
 //void fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&CovMatrix, int& number_free_params, Int_t thePhase)
-TMinuit* fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&CovMatrix, int& number_free_params, Int_t thePhase)
+//TMinuit* fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double *&CovMatrix, int& number_free_params, Int_t thePhase)
+ROOT::Minuit2::FunctionMinimum fitBackgrounds(
+    ROOT::Minuit2::MnUserParameterState& theParameterState,
+    ROOT::Minuit2::VariableMetricMinimizer& theMinimizer,
+    MinimizeFCNAxialVector &theFCN,
+    double *AdjustActs,
+    double *AdjustActs_Err,
+    double *&CovMatrix,
+    int &number_free_params,
+    Int_t thePhase
+    )
 {
 
     std::cout << ">>>>> fitBackgrounds()" << std::endl;
     
-    TMinuit* minuit = fitBackgrounds_init(AdjustActs, AdjustActs_Err);
+    //TMinuit* minuit = fitBackgrounds_init(AdjustActs, AdjustActs_Err);
+    fitBackgrounds_init(theParameterState, theMinimizer, AdjustActs, AdjustActs_Err);
+    /*ROOT::Minuit2::FunctionMinimum FCN_min*/
     if(1)
     {
-        fitBackgrounds_exec(minuit, AdjustActs, AdjustActs_Err);
-        fitBackgrounds_postexectest(minuit, AdjustActs, AdjustActs_Err);
-        fitBackgrounds_getcovmatrix(minuit, CovMatrix, number_free_params);
+        //fitBackgrounds_exec(minuit, AdjustActs, AdjustActs_Err);
+        ROOT::Minuit2::FunctionMinimum FCN_min = fitBackgrounds_exec(theParameterState, theMinimizer, theFCN);
+        //fitBackgrounds_postexectest(minuit, AdjustActs, AdjustActs_Err);
+        //fitBackgrounds_getcovmatrix(minuit, CovMatrix, number_free_params);
+        // TODO
+
+    
+    return FCN_min;
     }
 
-    return minuit;
 
 }
+
 
 
 #endif // NEWLOGLIKFITTER_FITBACKGROUNDS_H

@@ -1,7 +1,7 @@
 #ifndef NEWLOGLIKFITTER_READ_PARAMETERNAMES_LST_H
 #define NEWLOGLIKFITTER_READ_PARAMETERNAMES_LST_H
 
-#include "TH1F.h"
+#include "TH1.h"
 #include "TArray.h"
 #include "TObject.h"
 #include "TObjArray.h"
@@ -13,7 +13,7 @@
 #include "TFile.h"
 #include "TString.h"
 #include "TTree.h"
-#include "TH1F.h"
+#include "TH1.h"
 #include "TH2.h"
 #include "TStyle.h"
 #include "TNtuple.h"

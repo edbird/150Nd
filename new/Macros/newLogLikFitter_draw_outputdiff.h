@@ -3,19 +3,19 @@
 
 
 // h2 must be orig
-void ratioplotOld(TH1F* h1, TH1F* h2, const double xi_31, const std::string &saveas_filename, int flag)
+void ratioplotOld(TH1D* h1, TH1D* h2, const double xi_31, const std::string &saveas_filename, int flag)
 {
 
 
     // Define the ratio plot
-    TH1F *h3 = (TH1F*)h1->Clone("hratio");
+    TH1D *h3 = (TH1D*)h1->Clone("hratio");
     h3->Sumw2();
     h3->Divide(h2);
 
    // Define two gaussian histograms. Note the X and Y title are defined
    // at booking time using the convention "Hist_title ; X_title ; Y_title"
-//   TH1F *h1 = new TH1F("h1", "Two gaussian plots and their ratio;x title; h1 and h2 gaussian histograms", 100, -5, 5);
-//   TH1F *h2 = new TH1F("h2", "h2", 100, -5, 5);
+//   TH1D *h1 = new TH1D("h1", "Two gaussian plots and their ratio;x title; h1 and h2 gaussian histograms", 100, -5, 5);
+//   TH1D *h2 = new TH1D("h2", "h2", 100, -5, 5);
 //   h1->FillRandom("gaus");
 //   h2->FillRandom("gaus");
     h1->SetTitle("");
@@ -322,14 +322,14 @@ void draw_outputdiff(const double *const AdjustActs,
     //const double xi_31_baseline{0.0};
 
     double xi_31 = xi_31_orig;
-    TH1F *hTotalE_orig = nullptr;
-    TH1F *hSingleEnergy_orig = nullptr;
-    TH1F *hHighEnergy_orig = nullptr;
-    TH1F *hLowEnergy_orig = nullptr;
-    TH1F *hEnergySum_orig = nullptr;
-    TH1F *hEnergyDiff_orig = nullptr;
-    TH2F *hHighLowEnergy_orig = nullptr;
-    TH1F *hWeight_orig = nullptr;
+    TH1D *hTotalE_orig = nullptr;
+    TH1D *hSingleEnergy_orig = nullptr;
+    TH1D *hHighEnergy_orig = nullptr;
+    TH1D *hLowEnergy_orig = nullptr;
+    TH1D *hEnergySum_orig = nullptr;
+    TH1D *hEnergyDiff_orig = nullptr;
+    TH2D *hHighLowEnergy_orig = nullptr;
+    TH1D *hWeight_orig = nullptr;
     reweight_apply(hTotalE_orig,
                    hSingleEnergy_orig,
                    hHighEnergy_orig,
@@ -348,14 +348,14 @@ void draw_outputdiff(const double *const AdjustActs,
                    bb_Q);
 
     xi_31 = xi_31_fit;
-    TH1F *hTotalE_fit = nullptr;
-    TH1F *hSingleEnergy_fit = nullptr;
-    TH1F *hHighEnergy_fit = nullptr;
-    TH1F *hLowEnergy_fit = nullptr;
-    TH1F *hEnergySum_fit = nullptr;
-    TH1F *hEnergyDiff_fit = nullptr;
-    TH2F *hHighLowEnergy_fit = nullptr;
-    TH1F *hWeight_fit = nullptr;
+    TH1D *hTotalE_fit = nullptr;
+    TH1D *hSingleEnergy_fit = nullptr;
+    TH1D *hHighEnergy_fit = nullptr;
+    TH1D *hLowEnergy_fit = nullptr;
+    TH1D *hEnergySum_fit = nullptr;
+    TH1D *hEnergyDiff_fit = nullptr;
+    TH2D *hHighLowEnergy_fit = nullptr;
+    TH1D *hWeight_fit = nullptr;
     reweight_apply(hTotalE_fit,
                    hSingleEnergy_fit,
                    hHighEnergy_fit,
@@ -497,7 +497,7 @@ void draw_outputdiff(const double *const AdjustActs,
 //    hSingleEnergy_fit->Scale(1.0 / hSingleEnergy_fit_integral);
     hSingleEnergy_fit->Scale(hSingleEnergy_orig_integral / hSingleEnergy_fit_integral);
 
-//    TH1F *hSingleEnergy_ratio = (TH1F*)hSingleEnergy_orig->Clone("hSingleEnergy_ratio");
+//    TH1D *hSingleEnergy_ratio = (TH1D*)hSingleEnergy_orig->Clone("hSingleEnergy_ratio");
 //    hSingleEnergy_ratio->Divide(hSingleEnergy_fit);
 
     ratioplotOld(hSingleEnergy_fit, hSingleEnergy_orig, xi_31_fit, "", flag);
@@ -624,13 +624,13 @@ void draw_outputdiff(const double *const AdjustActs,
 */
     
     const Int_t channel = 1; // SingleEnergy
-    TH1F *data1D = (TH1F*)allDataSamples1D->At(channel)->Clone();
+    TH1D *data1D = (TH1D*)allDataSamples1D->At(channel)->Clone();
     
     // iterate through all backgrounds except 150Nd and subtract
     // value from data1D
     for(int j = 0; j < allMCSamples1D[channel]->GetEntries(); ++ j)
     {
-        TH1F *tmpHist = (TH1F*)allMCSamples1D[channel]->At(j)->Clone();
+        TH1D *tmpHist = (TH1D*)allMCSamples1D[channel]->At(j)->Clone();
 
         TString tmpName = tmpHist->GetName();
 
@@ -802,7 +802,7 @@ void draw_outputdiff(const double *const AdjustActs,
     }
 
 
-    TH2F *hHighLowEnergy_err = (TH2F*)hHighLowEnergy_orig->Clone();
+    TH2D *hHighLowEnergy_err = (TH2D*)hHighLowEnergy_orig->Clone();
     for(Int_t ix{1}; ix <= hHighLowEnergy_err->GetNbinsX(); ++ ix)
     {
         for(Int_t iy{1}; iy <= hHighLowEnergy_err->GetNbinsY(); ++ iy)
@@ -823,7 +823,7 @@ void draw_outputdiff(const double *const AdjustActs,
     }
 
 
-    TH2F *hHighLowEnergy_div = (TH2F*)hHighLowEnergy_orig->Clone();
+    TH2D *hHighLowEnergy_div = (TH2D*)hHighLowEnergy_orig->Clone();
     //hHighLowEnergy_div->Sumw2();
     //hHighLowEnergy_div->Divide(hHighLowEnergy_orig);
     //hHighLowEnergy_div->Scale(hHighLowEnergy_div->Integral());
@@ -871,7 +871,7 @@ void draw_outputdiff(const double *const AdjustActs,
     }
 
 
-    TH2F *hHighLowEnergy_sig = (TH2F*)hHighLowEnergy_orig->Clone();
+    TH2D *hHighLowEnergy_sig = (TH2D*)hHighLowEnergy_orig->Clone();
     double hHighLowEnergy_sig_min = std::numeric_limits<double>::infinity();
     double hHighLowEnergy_sig_max = std::numeric_limits<double>::infinity();
     for(Int_t ix{1}; ix <= hHighLowEnergy_sig->GetNbinsX(); ++ ix)
@@ -926,7 +926,7 @@ void draw_outputdiff(const double *const AdjustActs,
 
     //std::cout << "make sig_2" << std::endl;
 
-    TH2F *hHighLowEnergy_sig_2 = (TH2F*)hHighLowEnergy_orig->Clone();
+    TH2D *hHighLowEnergy_sig_2 = (TH2D*)hHighLowEnergy_orig->Clone();
     double hHighLowEnergy_sig_2_min = std::numeric_limits<double>::infinity();
     double hHighLowEnergy_sig_2_max = std::numeric_limits<double>::infinity();
     for(Int_t ix{1}; ix <= hHighLowEnergy_sig_2->GetNbinsX(); ++ ix)
@@ -971,7 +971,7 @@ void draw_outputdiff(const double *const AdjustActs,
         }
     }
 
-    TH2F *hHighLowEnergy_diff = (TH2F*)hHighLowEnergy_orig->Clone(); 
+    TH2D *hHighLowEnergy_diff = (TH2D*)hHighLowEnergy_orig->Clone(); 
     for(Int_t ix{1}; ix <= hHighLowEnergy_diff->GetNbinsX(); ++ ix)
     {
         for(Int_t iy{1}; iy <= hHighLowEnergy_diff->GetNbinsY(); ++ iy)

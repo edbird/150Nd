@@ -10,30 +10,30 @@ void draw_channel(const int channel,
 {
 
     THStack *stacks1D;
-    TH1F *h_2nubb = nullptr;
-    TH1F *h_tl208_int = nullptr;
-    TH1F *h_bi214_int = nullptr;
-    TH1F *h_bi207_int = nullptr;
-    TH1F *h_internal = nullptr;
-    TH1F *h_external = nullptr;
-    TH1F *h_radon = nullptr; 
-    TH1F *h_neighbours = nullptr;
-    TH1F *h_other = nullptr;
+    TH1D *h_2nubb = nullptr;
+    TH1D *h_tl208_int = nullptr;
+    TH1D *h_bi214_int = nullptr;
+    TH1D *h_bi207_int = nullptr;
+    TH1D *h_internal = nullptr;
+    TH1D *h_external = nullptr;
+    TH1D *h_radon = nullptr; 
+    TH1D *h_neighbours = nullptr;
+    TH1D *h_other = nullptr;
 
 
     TCanvas *c;
     TPad *p0;
     TPad *p1;
-    TH1F *hRatio;
-    TH1F *hAllMC1D;
-    TH1F *data1D;
+    TH1D *hRatio;
+    TH1D *hAllMC1D;
+    TH1D *data1D;
 
     std::cout << "debug: number of data samples: " << allDataSamples1D->GetEntries() << std::endl;
     std::cout << "debug: number of MC samples: " << allMCSamples1D[0]->GetEntries() << std::endl;
 
 
     // additional array index
-    data1D = (TH1F*)allDataSamples1D->At(channel)->Clone();
+    data1D = (TH1D*)allDataSamples1D->At(channel)->Clone();
 
     TString channel_str;
     channel_str.Form("%i", channel);
@@ -45,7 +45,7 @@ void draw_channel(const int channel,
     stacks1D = new THStack("stacks1D" + channel_str, channel_str);
 
 
-    TH1F *tmpHist_draw1D;
+    TH1D *tmpHist_draw1D;
 
 
     // TODO i should be channel here?
@@ -55,7 +55,7 @@ void draw_channel(const int channel,
         TString j_str;
         j_str.Form("%i", j);
 
-        tmpHist_draw1D = (TH1F*)allMCSamples1D[channel]->At(j)->Clone();
+        tmpHist_draw1D = (TH1D*)allMCSamples1D[channel]->At(j)->Clone();
         TString tmpName = tmpHist_draw1D->GetName();
 
         //std::cout << "looking for " << tmpName << std::endl;
@@ -120,7 +120,7 @@ void draw_channel(const int channel,
             if(tmpHist_draw1D->Integral() > 0)
             {
 
-                stacks1D->Add((TH1F*)tmpHist_draw1D->Clone());
+                stacks1D->Add((TH1D*)tmpHist_draw1D->Clone());
                 stacker_helper(tmpHist_draw1D,
                                h_2nubb,
                                h_tl208_int,
@@ -135,13 +135,13 @@ void draw_channel(const int channel,
 
                 if(j == 0)
                 {
-                    hAllMC1D = (TH1F*)tmpHist_draw1D->Clone("Total MC");
-                    //hAllMC1D[i] = (TH1F*)tmpHist_drawpointer->Clone("Total MC");
+                    hAllMC1D = (TH1D*)tmpHist_draw1D->Clone("Total MC");
+                    //hAllMC1D[i] = (TH1D*)tmpHist_drawpointer->Clone("Total MC");
                 }
                 else
                 {
-                    hAllMC1D->Add((TH1F*)tmpHist_draw1D);
-                    //hAllMC1D[i]->Add((TH1F*)tmpHist_drawpointer);
+                    hAllMC1D->Add((TH1D*)tmpHist_draw1D);
+                    //hAllMC1D[i]->Add((TH1D*)tmpHist_drawpointer);
                 }
             }
             else
@@ -233,7 +233,7 @@ void draw_channel(const int channel,
     data1D->GetYaxis()->SetRangeUser(PAD_U_Y_MIN, PAD_U_Y_MAX);
 
 
-    hRatio = (TH1F*)data1D->Clone();
+    hRatio = (TH1D*)data1D->Clone();
     hRatio->Sumw2();
     hRatio->Divide(hAllMC1D);
     hRatio->SetTitle("");

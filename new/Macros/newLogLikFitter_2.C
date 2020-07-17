@@ -28,11 +28,7 @@
 #include <string>
 #include "TLegend.h"
 #include <vector>
-//#include <TMinuit.h>
-#include <Minuit2/FunctionMinimum.h>
-#include <Minuit2/MnUserParameterState.h>
-#include <Minuit2/MnPrint.h>
-#include <Minuit2/MnMigrad.h>
+#include <TMinuit.h>
 
 
 // 
@@ -54,9 +50,9 @@
 #include "newLogLikFitter_draw_2D.h"
 #include "newLogLikFitter_draw_outputdiff.h"
 #include "newLogLikFitter_draw_all.h"
-#include "MinimizeFCNAxialVector.h"
 #include "newLogLikFitter_chisquaretest.h"
 #include "newLogLikFitter_test.h"
+#include "MinimizeFCNAxialVector.h"
 #include "newLogLikFitter_fitBackgrounds.h"
 
 
@@ -364,14 +360,6 @@ void loadFiles()
 
     std::cout << "initial value is set to " << xi_31_init_value << std::endl;
 
-    std::vector<double> init_par;
-    std::vector<double> init_err;
-    for(Int_t ix{0}; ix < numberEnabledParams; ++ ix)
-    {
-        init_par.push_back(AdjustActs[ix]);
-        init_err.push_back(AdjustActs_Err[ix]);
-    }
-
     /*
     Int_t number_free_params = minuit->GetNumFreePars();
     Double_t *CovMatrix = new Double_t[number_free_params * number_free_params];
@@ -398,7 +386,7 @@ void loadFiles()
         }
         
 
-        //do_test_xi_31_test1(AdjustActs_copy, AdjustActs_Err_copy);
+        do_test_xi_31_test1(AdjustActs_copy, AdjustActs_Err_copy);
         return 0;
     }
 
@@ -417,51 +405,27 @@ void loadFiles()
     
     // needs to remain enabled to define parameters in minuit
 //    TMinuit *minuit = nullptr;
-//    TMinuit *minuit = fitBackgrounds(AdjustActs, AdjustActs_Err, CovMatrix, number_free_params, thePhase);
+    TMinuit *minuit = fitBackgrounds(AdjustActs, AdjustActs_Err, CovMatrix, number_free_params, thePhase);
 //    fitBackgrounds_exec(minuit, AdjustActs, AdjustActs_Err);
-
-    // create minimizer
-    ROOT::Minuit2::MnUserParameterState theParameterState;
-    ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
-    MinimizeFCNAxialVector theFCN;
-
-    ROOT::Minuit2::FunctionMinimum FCN_min =
-        fitBackgrounds(
-            theParameterState,
-            theMinimizer,
-            theFCN,
-            AdjustActs,
-            AdjustActs_Err,
-            CovMatrix,
-            number_free_params,
-            thePhase);
-
-//    theParameterState.add();
-
-    // minimize
-    //ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, init_par, init_err);
-    //ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, init_par, init_err);
-    std::cout << "Minimization finished" << std::endl;
-    std::cout << "minimum: " << FCN_min << std::endl;
-    std::cout << "chi2: " << FCN_min.Fval() << std::endl;
-    std::cout << "edm: " << FCN_min.Edm() << std::endl;
 
 
     // draw my data for a parameter xi = 0.0
     double fval = 0.;
-    int n_params = theParameterState.Params().size();
-    std::vector<double> params = theParameterState.Params();
-    std::vector<double> param_errs = theParameterState.Errors();
-    
+    int n_params = minuit->GetNumPars();
+    double *params = new double[n_params];
+    double *param_errs = new double[n_params];
+    for(int jx = 0; jx < n_params; ++ jx)
+    {
+        minuit->GetParameter(jx, params[jx], param_errs[jx]);
+    }
+//    params[0] = 2.0;
+//    params[1] = 0.5;
     std::cout << params[0] << " " << params[1] << std::endl;
-
-    //logLikelihood(n_params, nullptr, fval, params, 0);
-    fval = theFCN.operator()(params);
-
+    logLikelihood(n_params, nullptr, fval, params, 0);
     std::cout << "fval=" << fval << " for params[0]=" << params[0] << " params[1]=" << params[1] << std::endl;
 //    draw_channel(1, params, fval, "test_channel_1.png");
     TH1D *j1, *j2, *j3, *j4;
-    draw(params, param_errs, fval, j1, j2, j3, j4, "minuit_output.*", ".", false);
+    draw(params, nullptr, fval, j1, j2, j3, j4, "minuit_output.*", ".", false);
     //draw(params, nullptr, "NOSAVE", fval, j1, j2, j3, j4, true);
 
     std::cin.get();
@@ -551,14 +515,14 @@ void loadFiles()
     if(1)
     {
         std::cout << "ready to test MPS" << std::endl;
-        newloglikfitter_testmyphasespace(theParameterState, theFCN, FCN_min);
+        newloglikfitter_testmyphasespace(minuit, AdjustActs, AdjustActs_Err);
         std::cout << "MPS done" << std::endl;
     }
    
 
     if(0)
     {
-        //newloglikfitter_gA_chisquaretest(minuit, AdjustActs, AdjustActs_Err);
+        newloglikfitter_gA_chisquaretest(minuit, AdjustActs, AdjustActs_Err);
     }
 
 
