@@ -228,6 +228,153 @@ void newloglikfitter_100Mo_chisquaretest(
 }
 
 
+struct ThreadData
+{
+    int threadid;
+
+    double min;
+    int n_1_start;
+    int n_1_stop;
+
+    int n_param_1;
+    int n_param_2;
+    int n_param_max_thread;
+
+    double param_1;
+    double param_2;
+
+    double width_1;
+    double width_2;
+
+    double sigma_1;
+    double sigma_2;
+
+    double param_1_max;
+    double param_1_min;
+    double param_2_max;
+    double param_2_min;
+
+    int param_1_ix;
+    int param_2_ix;
+
+    TH2D *h_mps;
+
+    int n_params;
+    double *params;
+};
+
+
+void threadhandle(void *p)
+{
+
+    ThreadData *threaddata = (ThreadData*)p;
+    //ThreadData &threaddata = *threaddata_p;
+    int threadid = threaddata->threadid;
+    double min = threaddata->min;
+    int n_1_start = threaddata->n_1_start;
+    int n_1_stop = threaddata->n_1_stop;
+    int n_param_1 = threaddata->n_param_1;
+    int n_param_2 = threaddata->n_param_2;
+    int n_param_max_thread = threaddata->n_param_max_thread;
+    double param_1 = threaddata->param_1;
+    double param_2 = threaddata->param_2;
+    double width_1 = threaddata->width_1;
+    double width_2 = threaddata->width_2;
+    double sigma_1 = threaddata->sigma_1;
+    double sigma_2 = threaddata->sigma_2;
+    double param_1_max = threaddata->param_1_max;
+    double param_1_min = threaddata->param_1_min;
+    double param_2_max = threaddata->param_2_max;
+    double param_2_min = threaddata->param_2_min;
+    int param_1_ix = threaddata->param_1_ix;
+    int param_2_ix = threaddata->param_2_ix;
+    TH2D *h_mps = threaddata->h_mps;
+    int n_params = threaddata->n_params;
+    double *params = threaddata->params;
+
+    int c_param = 0;
+
+
+    TThread::Printf("MSG from THREADID=%d: n_1_start=%d n_1_stop=%d\n", threadid, n_1_start, n_1_stop);
+
+    // modify parameters
+    //for(int n_1 = 0; n_1 <= n_param_1; ++ n_1)
+    //for(int n_1 = 0; n_1 < n_param_1; ++ n_1)
+    for(int n_1 = n_1_start; n_1 < n_1_stop; ++ n_1)
+    {
+        //for(int n_2 = 0; n_2 <= n_param_2; ++ n_2)
+        for(int n_2 = 0; n_2 < n_param_2; ++ n_2)
+        {
+            // TODO: try using GetBinCenter() and looping over bins
+            // in combination with Fill method
+
+            double fval = 0.;
+
+            double t_param_1;
+            double t_param_2;
+
+            //TThread::Lock();
+            //t_param_1 = h_mps->GetXaxis()->GetBinCenter(1 + n_1);
+            t_param_1 = h_mps->GetXaxis()->GetBinCenter(h_mps->GetNbinsX() - n_1);
+            //t_param_2 = h_mps->GetYaxis()->GetBinCenter(1 + n_2);
+            t_param_2 = h_mps->GetYaxis()->GetBinCenter(h_mps->GetNbinsY() - n_2);
+            //TThread::UnLock();
+
+//            std::cout << "t_param_1=" << t_param_1 << " t_param_2=" << t_param_2 << std::endl;
+
+            params[param_1_ix] = t_param_1;
+            params[param_2_ix] = t_param_2;
+
+            logLikelihood(n_params, nullptr, fval, params, 0);
+
+            if(fval < min)
+                min = fval;
+
+            /*
+            if(m == 50)
+            {
+            std::cout << "n=" << n << " a_nd150=" << a_nd150 << " p_nd150=" << p_nd150 << " fval=" << fval << std::endl;
+            }
+            */
+
+            //std::cout << n << " " << m << " " << fval << std::endl;
+            //std::cin.get();
+
+            //h_mps->Fill(n, m, fval);
+            //h_mps->SetBinContent(n_1 + 1, n_2 + 1, fval - fval_min);
+            //TThread::Lock();
+            h_mps->Fill(t_param_1, t_param_2, fval);
+            //TThread::UnLock();
+            // TODO: fval_min does not appear to always be the minimum
+
+            /*
+            if(fval - fval_min <= 0.0)
+            {
+            std::cout << "dbg1: " << n_1 << " " << n_2 << " " << h_mps->GetBinContent(n_1, n_2) << std::endl;
+            }
+            if(n_1 == n_param_1 / 2)
+            {
+            if(n_2 == n_param_2 / 2)
+            {
+                std::cout << "dbg2: " << n_param_1 / 2 << " " << n_param_2 / 2 << " " << h_mps->GetBinContent(n_1, n_2) << std::endl;
+            }
+            }
+            */
+
+            ++ c_param;
+            if(c_param % 1 == 0)
+            {
+                TThread::Printf("MSG from THREADID=%d: %d / %d\n", threadid, c_param, n_param_max_thread);
+                //std::cout << "MSG from THREADID=" << threadid << ": " <<  c_param << " / " << n_param_max_thread << std::endl;
+            }
+	    }
+    }
+
+    threaddata->min = min;
+
+
+    TThread::Printf("MSG from THREADID=%d finished\n", threadid);
+}
 
 void newloglikfitter_testmyphasespace(
     TMinuit *minuit,
@@ -291,8 +438,8 @@ void newloglikfitter_testmyphasespace(
             c_mps_v.push_back(c_mps);
             //c_mps = nullptr;
 
-            int n_param_1 = 50;
-            int n_param_2 = 50;
+            int n_param_1 = 16; //512;
+            int n_param_2 = 16; //512;
             int n_param_max = n_param_1 * n_param_2;
             int c_param = 0;
 
@@ -373,7 +520,74 @@ void newloglikfitter_testmyphasespace(
             logLikelihood(n_params, nullptr, fval_min, params, 0);
 
             double min = std::numeric_limits<double>::infinity();
+            const int NUM_THREADS = 2;
+            TThread *thread[NUM_THREADS];
+            ThreadData td[NUM_THREADS];
+            // TODO: can I make this multithreaded
+            for(int i = 0; i < NUM_THREADS; ++ i)
+            {
 
+                td[i].threadid = i;
+                td[i].min = min;
+                //td[i].n_1_start = n_param_1 / NUM_THREADS * i;
+                //td[i].n_1_stop = td[i].n_1_start + n_param_1 / NUM_THREADS - 1;
+                td[i].n_1_start = 0 + n_param_1 / NUM_THREADS * i;
+                td[i].n_1_stop = n_param_1 / NUM_THREADS * (i + 1);
+                td[i].n_param_1 = n_param_1;
+                td[i].n_param_2 = n_param_2;
+                td[i].n_param_max_thread = n_param_max / NUM_THREADS;
+                td[i].param_1 = param_1;
+                td[i].param_2 = param_2;
+                td[i].width_1 = width_1;
+                td[i].width_2 = width_2;
+                td[i].sigma_1 = sigma_1;
+                td[i].sigma_2 = sigma_2;
+                td[i].param_1_max = param_1_max;
+                td[i].param_1_min = param_1_min;
+                td[i].param_1_ix = param_1_ix;
+                td[i].param_2_ix = param_2_ix;
+                td[i].h_mps = h_mps;
+                td[i].n_params = n_params;
+                td[i].params = new double[n_params];
+                for(int jx = 0; jx < n_params; ++ jx)
+                {
+                    td[i].params[jx] = params[jx];
+                }
+
+                //std::cout << "Exec thread " << i << std::endl;
+                TThread::Printf("Exec thread %d\n", i);
+                TString threadname;
+                threadname.Form("thread_%i", i);
+                thread[i] = new TThread(threadname, threadhandle, (void*)&(td[i]));
+                thread[i]->Run();
+            }
+
+            TThread::Ps();
+            //std::cin.get();
+
+            //std::cout << "joining" << std::endl;
+            TThread::Printf("joining\n");
+            for(int i = 0; i < NUM_THREADS; ++ i)
+            {
+            //if(thread[i]->GetState() == kFinishedState)
+            //{
+                thread[i]->Join();
+                //std::cout << "thread i=" << i << " joined" << std::endl;
+                TThread::Printf("thread i=%d joined\n", i);
+            //}
+            // would be nice to do some other work here but not necessary
+            }
+            //std::cout << "all threads joined" << std::endl;
+            TThread::Printf("all threads joined\n");
+            TThread::Ps();
+
+            for(int i = 0; i < NUM_THREADS; ++ i)
+            {
+                //delete thread[i];
+            }
+
+
+#if 0
             // modify parameters
             //for(int n_1 = 0; n_1 <= n_param_1; ++ n_1)
             for(int n_1 = 0; n_1 < n_param_1; ++ n_1)
@@ -446,6 +660,7 @@ void newloglikfitter_testmyphasespace(
                     std::cout << c_param << " / " << n_param_max << std::endl;
                 }
             }
+#endif
 
             h_mps->Draw("colz");
             std::cout << "min=" << min << std::endl;

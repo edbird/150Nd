@@ -58,11 +58,11 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
 
 
 
-    std::cout << std::scientific;
-    std::cout << "logLikelihood" << std::endl;
+//    std::cout << std::scientific;
+//    std::cout << "logLikelihood" << std::endl;
     //std::cout << "p[0]=" << p[0] << " p[1]=" << p[1] << std::endl;
-    std::cout << "p[0]=" << p[0] << " p[" << axial_vector_parameter_0_param_number << "]="
-              << p[axial_vector_parameter_0_param_number] << std::endl;
+//    std::cout << "p[0]=" << p[0] << " p[" << axial_vector_parameter_0_param_number << "]="
+//              << p[axial_vector_parameter_0_param_number] << std::endl;
     // TODO: use non fixed parameter number index
 
 
@@ -225,12 +225,12 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
         ////const double xi_31_init{param_init_value};
         ////const double xi_31{xi_31_init * p[axial_vector_parameter_0_param_number]};
         const double xi_31{p[axial_vector_parameter_0_param_number]};
-        std::cout << "xi_31=" << xi_31 << " xi_31_baseline=" << xi_31_baseline << std::endl;
+//        std::cout << "xi_31=" << xi_31 << " xi_31_baseline=" << xi_31_baseline << std::endl;
         //const double xi_31_baseline{0.296};
         // NOTE: 2020-06-17 this was a bug, removed
 
         TH1F *hWeight = nullptr;
-        std::cout << "before reweight_apply()" << std::endl;
+//        std::cout << "before reweight_apply()" << std::endl;
         reweight_apply(
             hTotalE,
             hSingleEnergy,
@@ -248,7 +248,7 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
             psiN0,
             psiN2,
             bb_Q);
-        std::cout << "after reweight_apply()" << std::endl;
+//        std::cout << "after reweight_apply()" << std::endl;
 
         // TODO: just another example of manual code edits
         // make a file describing the channels to fit as well as the parameters
@@ -375,7 +375,7 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
 
         if(channel_enable_1D[channel] == 0)
         {
-            std::cout << "1D: channel " << channel << " disabled, skip" << std::endl;
+            //std::cout << "1D: channel " << channel << " disabled, skip" << std::endl;
             continue;
         }
         
@@ -451,7 +451,9 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
                 //
                 // so calculate LL from expansion of log
                 //
-                if(nMC > 100.0)
+		// TODO: think that this might be causing a discontinuity, using 20.0 instead
+		// of 100.0 should make it WORSE. then change to 1000.0 to fix? or maybe 200.0
+                if(nMC > 20.0)
                 {
                     // nMC > 1.0e-05 here already
                     const double l = nMC;
@@ -514,12 +516,14 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
             //}
             else
             {
+                /*
                 if(nMC >= 1.0e-05)
                 {
                     std::cout << "nMC=" << nMC << std::endl;
                 }
 
                 std::cout << "nMC=" << nMC << std::endl;
+                */
                 Double_t poisson = TMath::Poisson(nData, 1.0e-05);
                 if(poisson > 0.)
                 {
@@ -536,7 +540,7 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
         
         } //~bins
 
-        std::cout << "1D: channel " << channel << " enabled, ll=" << ll_channel << std::endl;
+        //std::cout << "1D: channel " << channel << " enabled, ll=" << ll_channel << std::endl;
         loglik += ll_channel;
 
     } //channels
@@ -564,7 +568,7 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
 
         if(channel_enable_2D[channel] == 0)
         {
-            std::cout << "2D: channel " << channel << " disabled, skip" << std::endl;
+            //std::cout << "2D: channel " << channel << " disabled, skip" << std::endl;
             continue;
         }
 
@@ -610,7 +614,7 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
             } // binsY
         } // binX
 
-        std::cout << "2D: channel " << channel << " enabled, ll=" << ll_channel << std::endl;
+        //std::cout << "2D: channel " << channel << " enabled, ll=" << ll_channel << std::endl;
         loglik += ll_channel;
 
     } // channels
@@ -845,7 +849,7 @@ void logLikelihood(Int_t & nPar, Double_t* /*grad*/, Double_t &fval, Double_t *p
     }
 
 
-    std::cout << "penalty_term=" << penalty_term << std::endl;
+//    std::cout << "penalty_term=" << penalty_term << std::endl;
     //std::cin.get();
   
     //fval = -2.0 * loglik; 
