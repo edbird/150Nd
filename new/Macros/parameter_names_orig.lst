@@ -129,10 +129,10 @@ BREAK
 # NO EVENTS
 22  enabled     1.3e-3      0.2e-3      same        same        useinit     useinit     same        same        soft    soft    bi210_sfoil 	                END     # 0 events
 #25  enabled     11.7e-3     1.2e-3      same        same        useinit     useinit     same        same        soft    soft    bi210_swire 	                END     # 5 events
-23  enabled     9.0         0.0         same        same        useinit     useinit     same        same        soft    soft    bi210_swire 	                END     # 5 events
+23  enabled     9.0         0.0         same        same        useinit     useinit     same        same        hard    hard    bi210_swire 	                END     # 5 events
 24  enabled     34.0        4.0         same        same        useinit     useinit     same        same        soft    soft    bi210_sscin 	                END     # 0 events
 BREAK
-25  enabled     186.0	    62.0        same        same        none        none        same        same        soft    soft    bi214_pmt	                    END     # 22 events
+25  enabled     186.0	    62.0        same        same        186.0       62.0        same        same        soft    soft    bi214_pmt	                    END     # 22 events
 26  enabled     36.0	    5.0         same        same        36.0	    5.0         same        same        soft    soft    ac228_pmt   tl208_pmt           END     # 0 events, 18 events
 27  enabled     9295.0	    2691        same        same        9295.0	    2691        same        same        soft    soft    bi214_feShield	                END     # 17 events
 28  enabled     1090.0      529.0       same        same        1090.0      529.0       same        same        soft    soft    ac228_feShield  tl208_feShield  END     # 1 events, 2 events
@@ -140,7 +140,7 @@ BREAK
 BREAK
 29  enabled     3.1         0.5         same        same        3.1         0.5         same        same        soft    soft    pa234m_sscin                    END     # 0 events
 30  enabled     60.0    	22.0        same        same        60.0    	22.0        same        same        soft    soft    co60_cuTower	                END     # 1 events
-31  enabled     1124.0	    93.0        same        same        none        none        same        same        soft    soft    k40_pmt	                        END     # 5 events
+31  enabled     1124.0	    93.0        same        same        1124.0      93.0        same        same        soft    soft    k40_pmt	                        END     # 5 events
 32  enabled     16.0        4.0         same        same        16.0        4.0         same        same        soft    soft    k40_scintIN k40_scintOUT k40_scintPET   END     # 0 events
 BREAK
 #22  enabled     1.0e-3      0.6e-3      same        same        useinit     useinit     same        same        soft    soft    bi214_sfoil     pb214_sfoil	    END # 271, 23
@@ -154,8 +154,8 @@ BREAK
 36  enabled     29.9e-3     29.9e-4     0.4e-3      0.4e-4      29.9e-3     29.9e-4     0.4e-3      0.4e-4      soft    soft    bi214_swire_OUTL0   pb214_swire_OUTL0   END
 37  enabled     857.5e-3    857.5e-4    101.3e-3    101.3e-4    useinit     useinit     same        same        soft    soft    bi214_swire_Lg0     pb214_swire_Lg0     END
 BREAK
-38  enabled     557.0	    38.0        0.0         0.0         useinit     useinit     0.0         0.0         soft    soft    bi214_air   pb214_air           END     # 4 events
-39  enabled     9.0  	    4.0         0.0         0.0         useinit     useinit     0.0         0.0         soft    soft    tl208_air   	                END     # 0 events
+38  enabled     557.0	    38.0        0.0         0.0         useinit     useinit     0.0         0.0         hard    hard    bi214_air   pb214_air           END     # 4 events
+39  enabled     9.0  	    4.0         0.0         0.0         useinit     useinit     0.0         0.0         hard    hard    tl208_air   	                END     # 0 events
 BREAK
 #28  enabled     29.6e-03    0.1e-03     same        same        29.6e-03    0.1e-03     same        same        hard    hard    ca48_63_rot_y90	                END # 51
 #29  EXEMPT      0.?         0.?         ?           ?           ?           ?           ?           ?           hard?   hard?   axial_vector_parameter_1 (baseline) END

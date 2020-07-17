@@ -514,11 +514,13 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                 // quadrature
             }
             
+            /*
             std::cout << "i=" << i
                       << " value=" << value
                       << " constraint=" << constraint
                       << " error=" << error << std::endl;
             std::cin.get();
+            */
             penalty = std::pow((value - constraint) / error, 2.0);
 
 
@@ -533,10 +535,12 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
         {
             std::cout << "penalty_term=" << penalty_term << std::endl;
         }
+        /*
         if(penalty_term != 0.0)
         {
             std::cout << "penalty_term=" << penalty_term << std::endl;
         }
+        */
       
         fval = -2.0 * loglik + penalty_term;
 
