@@ -55,6 +55,9 @@ double psiN0;
 double psiN2;
 double bb_Q;
 
+double xi_31_init_value;
+double xi_31_init_error;
+
 // store last xi_31 value used in logliklihood function
 double last_xi_31_parameter_value;
 // store last parameter values used in logliklihood function

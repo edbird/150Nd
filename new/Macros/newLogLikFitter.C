@@ -42,8 +42,8 @@
 // note: these must appear in correct order and after general includes above
 #include "newLogLikFitter.h"
 #include "newLogLikFitter_aux.h"
-#include "newLogLikFitter_printfitresult.h"
 #include "newLogLikFitter_print.h"
+#include "newLogLikFitter_printfitresult.h"
 #include "newLogLikFitter_read_parameternames_lst.h"
 #include "newLogLikFitter_book1DHistograms.h"
 #include "newLogLikFitter_book2DHistograms.h"
@@ -57,9 +57,9 @@
 #include "newLogLikFitter_draw_outputdiff.h"
 #include "newLogLikFitter_draw_all.h"
 #include "MinimizeFCNAxialVector.h"
+#include "newLogLikFitter_fitBackgrounds.h"
 #include "newLogLikFitter_chisquaretest.h"
 #include "newLogLikFitter_test.h"
-#include "newLogLikFitter_fitBackgrounds.h"
 
 
 // TODO:
@@ -359,8 +359,8 @@ void loadFiles()
         AdjustActs_Err[ix] = 0.5; // TODO: set using parameter_names.list
     }
     // TODO: fix this
-    double xi_31_init_value = 0.0;
-    double xi_31_init_error = 0.0;
+    xi_31_init_value = 0.0;
+    xi_31_init_error = 0.0;
     get_paramInitValueError(thePhase, 1, xi_31_init_value, xi_31_init_error);
     AdjustActs[1] = xi_31_init_value;
 
@@ -435,8 +435,7 @@ void loadFiles()
             AdjustActs,
             AdjustActs_Err,
             CovMatrix,
-            number_free_params,
-            thePhase);
+            number_free_params);
 
 //    theParameterState.add();
 
@@ -566,9 +565,9 @@ void loadFiles()
 
     ///////////////////////////////////////////////////////////////////////////
 
-    print_adjustacts(std::cout);
+    print_adjustacts(std::cout, params, param_errs);
     std::ofstream myFileFitResults("fit_results.txt", std::ios::out | std::ios::app);
-    print_adjustacts(myFileFitResults);
+    print_adjustacts(myFileFitResults, params, param_errs);
     myFileFitResults.close();
 
 

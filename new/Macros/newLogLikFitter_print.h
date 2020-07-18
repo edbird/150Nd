@@ -6,7 +6,7 @@
 // add timestamp to ofstream object
 ///////////////////////////////////////////////////////////////////////////////
 
-void timestamp(std::ofstream& os)
+void timestamp(std::ostream& os)
 {
     time_t rawtime;
     time(&rawtime);

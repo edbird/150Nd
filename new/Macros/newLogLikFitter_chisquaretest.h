@@ -234,9 +234,6 @@ void newloglikfitter_100Mo_chisquaretest(
 
 
 
-    TThread::Printf("MSG from THREADID=%d finished\n", threadid);
-}
-
 
 
 
@@ -380,7 +377,27 @@ void newloglikfitter_testmyphasespace(
             double min = std::numeric_limits<double>::infinity();
             double min_x = -1.0; //-0.085;
             double min_y = -1.0; //0.87;
+            
+            double min_before = std::numeric_limits<double>::infinity();
+            double min_x_before = -1.0; //-0.085;
+            double min_y_before = -1.0; //0.87;
 
+
+
+            TString h_mps_name_base_before = "h_mps_before";
+            TString h_mps_name_before = h_mps_name_base_before + "_" + param_1_ix_str_external + "_" + param_2_ix_str_external;
+
+            TH2D *h_mps_before = new TH2D(h_mps_name_before, h_mps_name_before,
+                                   n_param_1, param_1_min, param_1_max,
+                                   n_param_2, param_2_min, param_2_max); 
+
+            h_mps_before->SetContour(1000);
+            
+            //TString param_1_name_str = TString(paramNameMap[param_1_ix_external]);
+            //TString param_2_name_str = TString(paramNameMap[param_2_ix_external]);
+
+            h_mps_before->GetXaxis()->SetTitle(param_1_name_str);
+            h_mps_before->GetYaxis()->SetTitle(param_2_name_str);
 
 
 
@@ -431,6 +448,8 @@ void newloglikfitter_testmyphasespace(
 
 
 
+// TODO: working here. params is not initialized seneibly.
+// check index order where MARK is
 
 
 
@@ -442,6 +461,7 @@ void newloglikfitter_testmyphasespace(
             //logLikelihood(n_params, nullptr, fval_min, params, 0);
             fval_min = theFCN.operator()(params);
 
+            std::ofstream os("mps.log", std::ios::out | std::ios::app);
             if(1)
             {
 
@@ -496,10 +516,53 @@ void newloglikfitter_testmyphasespace(
                     //std::cin.get();
 
                     //logLikelihood(n_params, nullptr, fval, params, 0);
-                    fval = theFCN.operator()(params);
+                    
+                    // do this for test with no additional minimization
+                    ROOT::Minuit2::MnUserParameterState theParameterState;
+                    ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
+                    MinimizeFCNAxialVector theFCN;
+
+                    const double Nd150_A = t_param_2;
+                    const double xi_31 = t_param_1;
+
+                    fitBackgrounds_phasespace_init(
+                        theParameterState,
+                        theMinimizer,
+                        AdjustActs,
+                        AdjustActs_Err,
+                        Nd150_A,
+                        xi_31);
+                    
+                    // get initial parameters
+                    std::vector<double> params_before = theParameterState.Params();
+                    std::vector<double> param_errs_before = theParameterState.Errors();
+                    double fval_before = theFCN.operator()(params_before);
+
+                    // do minuit2 fit
+                    ROOT::Minuit2::FunctionMinimum FCN_min =
+                    fitBackgrounds_phasespace_exec(
+                        theParameterState,
+                        theMinimizer,
+                        theFCN);
+
+                    // get best fit parameters
+                    std::vector<double> params = theParameterState.Params();
+                    std::vector<double> param_errs = theParameterState.Errors();
+                    print_adjustacts(os, params, param_errs);
+
                     //std::cout << "fval(" << params[param_1_ix] << "," << params[param_2_ix] << ")=" << fval << std::endl;
                    //draw(params, nullptr, fval, junk1, junk2, junk3, junk4, std::string(savename), ".", true);
                     //draw(params, nullptr, fval, junk1, junk2, junk3, junk4, std::string(savename), ".", mode_fake_data);
+
+                    os << "fval_before=" << fval_before << std::endl;
+                    fval = FCN_min.Fval();
+                    os << "fval_after=" << fval << std::endl;
+
+                    std::cout << "t_param_1=" << t_param_1
+                              << " t_param_2=" << t_param_2
+                              << " fval_before=" << fval_before
+                              << " fval_after=" << fval
+                              << std::endl;
 
                     if(fval < min)
                     {
@@ -512,6 +575,13 @@ void newloglikfitter_testmyphasespace(
                     {
                         min_stripe = fval;
                         min_stripe_y = t_param_2;
+                    }
+
+                    if(fval_before < min_before)
+                    {
+                        min_before = fval_before;
+                        min_x_before = t_param_1;
+                        min_y_before = t_param_2;
                     }
 
                     /*
@@ -530,6 +600,7 @@ void newloglikfitter_testmyphasespace(
                     //double step_2 = width_2 * sigma_2 * (double)1 / (double)n_param_2;
                     //h_mps->Fill(t_param_1 + step_1 / 2.0, t_param_2 + step_2 / 2.0, fval - fval_min);
                     h_mps->Fill(t_param_1, t_param_2, fval);
+                    h_mps_before->Fill(t_param_1, t_param_2, fval_before);
                     // TODO: fval_min does not appear to always be the minimum
 
                     /*
@@ -553,11 +624,21 @@ void newloglikfitter_testmyphasespace(
                 std::cout << "min_stripe=" << min_stripe << " min_stripe_x=" << t_param_1 << " min_stripe_y=" << min_stripe_y << std::endl;
             }
 
+            //print_adjustacts(os, params, param_errs);
+
             } // if(0)
+            os.close();
 
             TFile *f = new TFile("h_mps_1_0_2020-07-15_singleenergy.root", "recreate");
             h_mps->Write();
+            h_mps_before->Write();
             f->Close();
+
+
+
+            ///////////////////////////////////////////////////////////////////
+            // c_mps
+            ///////////////////////////////////////////////////////////////////
 
             TCanvas *c_mps = new TCanvas(c_mps_name, c_mps_name);
             c_mps->SetTicks(2, 2);
@@ -667,6 +748,119 @@ void newloglikfitter_testmyphasespace(
             h_mps = nullptr;
             c_mps->SaveAs("mps_2020-07-15.png");
             c_mps->SaveAs("mps_2020-07-15.pdf");
+
+
+
+            ///////////////////////////////////////////////////////////////////
+            // c_mps_before
+            ///////////////////////////////////////////////////////////////////
+            TString c_mps_name_base_before = "c_mps_before";
+            TString c_mps_name_before = c_mps_name_base_before + "_" + param_1_ix_str_external + "_" + param_2_ix_str_external;
+
+            TCanvas *c_mps_before = new TCanvas(c_mps_name_before, c_mps_name_before);
+            c_mps_before->SetTicks(2, 2);
+            c_mps_before->SetRightMargin(0.15);
+            c_mps_before->SetBottomMargin(0.15);
+            c_mps_before->SetLogz();
+            //c_mps_before->GetPad()->cd();
+            //c_mps_before_v.push_back(c_mps_before);
+            //c_mps_before = nullptr;
+            //c_mps_before->cd();
+            h_mps_before->SetTitle("");
+            h_mps_before->GetZaxis()->SetLabelOffset(0.005);
+            h_mps_before->GetXaxis()->SetLabelSize(17.0);
+            h_mps_before->GetXaxis()->SetLabelFont(63);
+            h_mps_before->GetYaxis()->SetLabelSize(17.0);
+            h_mps_before->GetYaxis()->SetLabelFont(63);
+            h_mps_before->GetZaxis()->SetLabelSize(17.0);
+            h_mps_before->GetZaxis()->SetLabelFont(63);
+            h_mps_before->GetXaxis()->SetTitleSize(18.0);
+            h_mps_before->GetXaxis()->SetTitleFont(43);
+            h_mps_before->GetYaxis()->SetTitleSize(18.0);
+            h_mps_before->GetYaxis()->SetTitleFont(43);
+            h_mps_before->GetYaxis()->SetTitle("^{150}Nd Amplitude Scale Factor");
+            h_mps_before->GetXaxis()->SetTitle("#xi^{2#nu#beta#beta}_{31}");
+            h_mps_before->GetXaxis()->SetTitleOffset(1.5);
+            h_mps_before->GetXaxis()->SetLabelOffset(0.01);
+            h_mps_before->GetYaxis()->SetLabelOffset(0.01);
+            TH2D *h_mps_contour_before = (TH2D*)h_mps_before->Clone("h_mps_before_1_0_clone");
+            h_mps_before->Draw("colz");
+
+
+            std::cout << "min_before=" << min_before << " min_x_before=" << min_x_before << " min_y_before=" << min_y_before << std::endl;
+            //double clevels[3] = {min + 1.0, min + 2.0, min + 3.0};
+            double clevels_before[3] = {min_before + 2.30, min_before + 4.61, min_before + 9.21};
+            //double clevels[3] = {2.30, 4.61, 9.21}; // true minimum is 0.0 for HSD
+            h_mps_contour_before->SetLineColor(kBlack);
+            h_mps_contour_before->SetContour(3, clevels_before);
+
+            c_mps_before->Update();
+            TPaletteAxis *palette_before = (TPaletteAxis*)h_mps_before->GetListOfFunctions()->FindObject("palette");
+            //((TPave*)palette)->SetX1NDC(0.7);
+            //((TPave*)palette)->SetX2NDC(0.8);
+            palette_before->SetX1NDC(0.88 + 0.02);
+            palette_before->SetX2NDC(0.92 + 0.02);
+            palette_before->SetY1NDC(0.15);
+            palette_before->SetY2NDC(0.9);
+            palette_before->Draw();
+            gPad->Modified();
+            gPad->Update();
+            c_mps_before->Modified();
+            
+
+            TLine *lineHSD_before = new TLine(0.0, param_2_min, 0.0, param_2_max);
+            TLine *lineSSD_before = new TLine(0.296, param_2_min, 0.296, param_2_max);
+            TLine *lineY_before = new TLine(param_1_min, 1.0, param_1_max, 1.0);
+            TLine *lineXc_before = new TLine(param_1_min, min_y_before, param_1_max, min_y_before);
+            TLine *lineYc_before = new TLine(min_x_before, param_2_min, min_x_before, param_2_max);
+            //lineHSD->SetLineColor(kWhite);
+            //lineSSD->SetLineColor(kWhite);
+            //lineY->SetLineColor(kWhite);
+            lineHSD_before->SetLineColorAlpha(kWhite, 0.5);
+            lineSSD_before->SetLineColorAlpha(kWhite, 0.5);
+            lineY_before->SetLineColorAlpha(kWhite, 0.5);
+            lineXc_before->SetLineColorAlpha(kBlack, 0.5);
+            lineYc_before->SetLineColorAlpha(kBlack, 0.5);
+            lineHSD_before->Draw();
+            lineSSD_before->Draw();
+            lineY_before->Draw();
+            Int_t min_ix_before = h_mps_before->GetXaxis()->FindBin(min_x_before);
+            Int_t min_iy_before = h_mps_before->GetXaxis()->FindBin(min_y_before);
+            Int_t ix_0_before = h_mps_before->GetXaxis()->FindBin(0.0);
+            Int_t iy_1_before = h_mps_before->GetXaxis()->FindBin(1.0);
+            if(min_ix_before != ix_0_before && min_iy_before != iy_1_before)
+            {
+                lineXc_before->Draw();
+                lineYc_before->Draw();
+            }
+            //TMarker *bestfitpoint = new TMarker(min_x, min_y, 106);
+            //bestfitpoint->SetMarkerColorAlpha(kBlack, 0.5);
+            //bestfitpoint->SetMarkerSize(2.0);
+            //bestfitpoint->Draw();
+
+            /*
+            std::vector<TLine*> linesteps;
+            for(std::size_t ix_walk = 0; ix_walk < ll_walk_save.size() - 1; ++ ix_walk)
+            {
+                std::pair<double, double> p1 = ll_walk_save.at(ix_walk);
+                std::pair<double, double> p2 = ll_walk_save.at(ix_walk + 1);
+                Double_t x1 = p1.first;
+                Double_t x2 = p2.first;
+                Double_t y1 = p1.second;
+                Double_t y2 = p2.second;
+                std::cout << "ix_walk=" << ix_walk << " " << x1 << " " << y1 << std::endl;
+                TLine *linestep = new TLine(x1, y1, x2, y2);
+                linestep->SetLineColorAlpha(kRed, 0.1);
+                linestep->SetLineWidth(2);
+                linestep->Draw();
+                linesteps.push_back(linestep);
+            }
+            */
+
+            h_mps_contour_before->Draw("cont2same");
+            h_mps_before = nullptr;
+            c_mps_before->SaveAs("mps_before_2020-07-15.png");
+            c_mps_before->SaveAs("mps_before_2020-07-15.pdf");
 
 
     
