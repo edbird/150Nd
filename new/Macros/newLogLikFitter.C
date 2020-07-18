@@ -42,6 +42,7 @@
 // note: these must appear in correct order and after general includes above
 #include "newLogLikFitter.h"
 #include "newLogLikFitter_aux.h"
+#include "newLogLikFitter_printfitresult.h"
 #include "newLogLikFitter_print.h"
 #include "newLogLikFitter_read_parameternames_lst.h"
 #include "newLogLikFitter_book1DHistograms.h"
@@ -465,7 +466,7 @@ void loadFiles()
     draw(params, param_errs, fval, j1, j2, j3, j4, "minuit_output.*", ".", false);
     //draw(params, nullptr, "NOSAVE", fval, j1, j2, j3, j4, true);
 
-    std::cin.get();
+//    std::cin.get();
 
 /*
 //    params[0] = 1.0;
@@ -570,72 +571,6 @@ void loadFiles()
     print_adjustacts(myFileFitResults);
     myFileFitResults.close();
 
-    std::cout << "The following adjustments (in units of Bq) should be made:" << std::endl;
-    //for(int i = 0; i < numberParams; i++)
-    //std::cout << "numberEnabledParams=" << numberEnabledParams << std::endl;
-    for(int i = 0; i < numberEnabledParams; i++)
-    {
-        //if(i == 1)
-        //{
-        //    std::cout << "skipping gA parameter TODO FIX" << std::endl;
-        //}
-
-        int j = minuitParamNumberToParamNumberMap.at(i);
-        //std::cout << "i=" << i << " j=" << j << std::endl;
-        double param_init_value = 0.;
-        double param_init_error = 0.; 
-        get_paramInitValueError(thePhase, j, param_init_value, param_init_error);
-        //std::cout << "value=" << param_init_value << " err=" << param_init_error << " AdjustActs[i]=" << AdjustActs[i] << std::endl;
-        
-        // 2020-06-17
-        
-        if(i != 1)
-        {
-            std::cout << i << " :\t" << AdjustActs[i] * param_init_value
-                           << " +- " << AdjustActs_Err[i] * param_init_value;
-            // TODO: put the mutiplication by xi_31_init INSIDE the reweight/fit functions,
-            // to restore uniformity in minuit parameters
-        }
-        else
-        {
-            std::cout << i << " :\t" << AdjustActs[i]
-                           << " +- " << AdjustActs_Err[i];
-        }
-        
-        /*
-        std::cout << i << " :\t" << AdjustActs[i] * param_init_value
-                       << " +- " << AdjustActs_Err[i] * param_init_value;
-        */
-        // TODO: put the mutiplication by xi_31_init INSIDE the reweight/fit functions,
-        // to restore uniformity in minuit parameters
-        // xi works as an additive parameter so cannot do this, in case where HSD
-        // is zero does not work
-
-
-        Double_t change = 0.0;
-        // 2020-06-17
-        if(i != 1)
-        {
-            change = 100.0 * (AdjustActs[i] - 1.0);
-        }
-        else
-        {
-            // 2020-06-17
-            //change = 100.0 * (AdjustActs[i] - xi_31_init);
-            change = 100.0 * (AdjustActs[i] - xi_31_init_value);
-            //change = 100.0 * (AdjustActs[i] - 1.0);
-        }
-        /*change = 100.0 * (AdjustActs[i] - 1.0);*/
-        if(change >= 0)
-        {
-            std::cout << " -> +";
-        }
-        else
-        {
-            std::cout << " -> -";
-        }
-        std::cout << std::abs(change) << " %" << std::endl;  
-    }
 
     {
         std::string summary_fname("fitsummary.txt");
