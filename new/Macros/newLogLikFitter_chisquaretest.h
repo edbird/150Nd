@@ -608,13 +608,29 @@ void newloglikfitter_testmyphasespace(
                     // TODO: fval_min does not appear to always be the minimum
 
 
-                    std::string mps_output_name = "mps_output_singleenergy_"
+                    std::string mps_output_name_before = "mps_output_singleenergy_before_"
                                                 + std::to_string(bin_ix)
                                                 + "_"
                                                 + std::to_string(bin_iy)
                                                 + ".png";
                     TH1D *j1, *j2, *j3, *j4;
-                    draw(params, param_errs, fval, j1, j2, j3, j4, mps_output_name, "mps_output", 1);
+                    draw(params_before, param_errs_before, fval_before,
+                         j1, j2, j3, j4,
+                         mps_output_name_before,
+                         "mps_output_before",
+                         false, 1);
+
+                    std::string mps_output_name_after = "mps_output_singleenergy_after_"
+                                                + std::to_string(bin_ix)
+                                                + "_"
+                                                + std::to_string(bin_iy)
+                                                + ".png";
+                    //TH1D *j1, *j2, *j3, *j4;
+                    draw(params, param_errs, fval,
+                         j1, j2, j3, j4,
+                         mps_output_name_after,
+                         "mps_output_after",
+                         false, 1);
 
                     /*
                     if(fval - fval_min <= 0.0)
