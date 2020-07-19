@@ -201,7 +201,8 @@ void draw(
     TH1D *&hLowEnergy_data_out,
     const std::string& saveas_filename,
     const std::string& saveas_dir = ".",
-    bool mode_fake_data = false)
+    bool mode_fake_data = false,
+    int index = -1)
 {
 
     ///////////////////////////////////////////////////////////////////////////
@@ -251,6 +252,19 @@ void draw(
     // TODO: this isn't right. should this be iterating over the "channel" ?
     for(int i = 0; i < allDataSamples1D->GetEntries(); i++)
     {
+        if(index == -1)
+        {
+            // do nothing
+            // draw all channels
+        }
+        else if((index >= 0) && (index <= allDataSamples1D->GetEntries()))
+        {
+            if(i != index)
+            {
+                continue;
+            }
+        }
+
         //if(i != 1) continue;
         // TODO: remove
 

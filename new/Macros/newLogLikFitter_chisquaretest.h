@@ -311,7 +311,7 @@ void newloglikfitter_testmyphasespace(
             
             std::cout << "rendering: " << c_mps_name << std::endl;
 
-            const int n_param_xy = 55; // 1001
+            const int n_param_xy = 15; // 1001
             int n_param_1 = n_param_xy; //300;
             int n_param_2 = n_param_xy; //300;
             int n_param_max = n_param_1 * n_param_2;
@@ -469,9 +469,10 @@ void newloglikfitter_testmyphasespace(
             //for(int n_1 = 0; n_1 <= n_param_1; ++ n_1)
             for(int n_1 = 0; n_1 < n_param_1; ++ n_1)
             {
+                int bin_ix = h_mps->GetNbinsX() - n_1;
 
                 double t_param_1 = 0.0;
-                t_param_1 = h_mps->GetXaxis()->GetBinCenter(h_mps->GetNbinsX() - n_1);
+                t_param_1 = h_mps->GetXaxis()->GetBinCenter(bin_ix);
                 std::cout << "test: t_param_1=" << t_param_1 << std::endl;
 
                 double min_stripe = std::numeric_limits<double>::infinity();
@@ -499,7 +500,8 @@ void newloglikfitter_testmyphasespace(
                     //t_param_1 = h_mps->GetXaxis()->GetBinCenter(1 + n_1);
                     //t_param_1 = h_mps->GetXaxis()->GetBinCenter(h_mps->GetNbinsX() - n_1);
                     //t_param_2 = h_mps->GetYaxis()->GetBinCenter(1 + n_2);
-                    t_param_2 = h_mps->GetYaxis()->GetBinCenter(h_mps->GetNbinsY() - n_2);
+                    int bin_iy = h_mps->GetNbinsY() - n_2;
+                    t_param_2 = h_mps->GetYaxis()->GetBinCenter(bin_iy);
 
                     //std::cout << "t_param_1=" << t_param_1 << " t_param_2=" << t_param_2 << std::endl;
 
@@ -599,9 +601,20 @@ void newloglikfitter_testmyphasespace(
                     //double step_1 = width_1 * sigma_1 * (double)1 / (double)n_param_1;
                     //double step_2 = width_2 * sigma_2 * (double)1 / (double)n_param_2;
                     //h_mps->Fill(t_param_1 + step_1 / 2.0, t_param_2 + step_2 / 2.0, fval - fval_min);
-                    h_mps->Fill(t_param_1, t_param_2, fval);
-                    h_mps_before->Fill(t_param_1, t_param_2, fval_before);
+                    //h_mps->Fill(t_param_1, t_param_2, fval);
+                    //h_mps_before->Fill(t_param_1, t_param_2, fval_before);
+                    h_mps->SetBinContent(bin_ix, bin_iy, fval);
+                    h_mps_before->SetBinContent(bin_ix, bin_iy, fval_before);
                     // TODO: fval_min does not appear to always be the minimum
+
+
+                    std::string mps_output_name = "mps_output_singleenergy_"
+                                                + std::to_string(bin_ix)
+                                                + "_"
+                                                + std::to_string(bin_iy)
+                                                + ".png";
+                    TH1D *j1, *j2, *j3, *j4;
+                    draw(params, param_errs, fval, j1, j2, j3, j4, mps_output_name, "mps_output", 1);
 
                     /*
                     if(fval - fval_min <= 0.0)
