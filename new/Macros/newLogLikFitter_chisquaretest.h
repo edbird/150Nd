@@ -239,8 +239,8 @@ void newloglikfitter_100Mo_chisquaretest(
 
 void newloglikfitter_testmyphasespace(
     ROOT::Minuit2::MnUserParameterState &theParameterState,
-    MinimizeFCNAxialVector &theFCN,
-    ROOT::Minuit2::FunctionMinimum &FCN_min
+    MinimizeFCNAxialVector &theFCN//,
+//    ROOT::Minuit2::FunctionMinimum &FCN_min
     )
 {
 
@@ -258,7 +258,7 @@ void newloglikfitter_testmyphasespace(
     ///////////////////////////////////////////////////////////////////////////
 
 
-    bool mode_fake_data = false; //true;
+    bool mode_fake_data = g_mode_fake_data; //false; //true;
 
     //std::vector<TCanvas*> c_mps_v;
     //std::vector<TH2D*> h_mps_v;
@@ -311,7 +311,7 @@ void newloglikfitter_testmyphasespace(
             
             std::cout << "rendering: " << c_mps_name << std::endl;
 
-            const int n_param_xy = 15; // 1001
+            const int n_param_xy = 1; // 1001
             int n_param_1 = n_param_xy; //300;
             int n_param_2 = n_param_xy; //300;
             int n_param_max = n_param_1 * n_param_2;
@@ -328,7 +328,12 @@ void newloglikfitter_testmyphasespace(
             param_1_max = 1.7; //0.6; //1.6; //0.5; //2.5; //5.0; //2.5;
             //param_1_min = -0.4;
             //param_1_max = 1.6; TODO
-    
+            // fake data values
+            param_1_min = -0.4;
+            param_1_max = 0.6;
+            // hack to get HSD
+            param_1_min = -0.1;
+            param_1_max = +0.1;
 
             //double param_2 = AdjustActs[param_2_ix];
 
@@ -341,9 +346,15 @@ void newloglikfitter_testmyphasespace(
             param_2_max = 2.6; //2.6; //1.8; //2.0; //2.0; //4.0;
             //param_2_min = 0.0;
             //param_2_max = 3.0;  //TODO
+            // fake data values
+            param_2_min = 0.2;
+            param_2_max = 1.8;
+            // hack to get HSD
+            param_1_min = 0.9999;
+            param_1_max = 1.0001;
 
 
-            TString h_mps_name_base = "h_mps";
+            TString h_mps_name_base = "h_mps_fake_data";
             TString h_mps_name = h_mps_name_base + "_" + param_1_ix_str_external + "_" + param_2_ix_str_external;
 
             //std::cout << h_mps_name << " param_1=" << param_1 << " sigma_1=" << sigma_1
@@ -462,7 +473,7 @@ void newloglikfitter_testmyphasespace(
             fval_min = theFCN.operator()(params);
 
             std::ofstream os("mps.log", std::ios::out | std::ios::app);
-            if(1)
+            if(0)
             {
 
             // modify parameters
@@ -558,6 +569,7 @@ void newloglikfitter_testmyphasespace(
 
                     os << "fval_before=" << fval_before << std::endl;
                     fval = FCN_min.Fval();
+                    fval = theFCN.operator()(params); // TODO: this produces a different result to above?
                     os << "fval_after=" << fval << std::endl;
 
                     std::cout << "t_param_1=" << t_param_1
@@ -565,6 +577,12 @@ void newloglikfitter_testmyphasespace(
                               << " fval_before=" << fval_before
                               << " fval_after=" << fval
                               << std::endl;
+
+                    for(int pix = 0; pix < params.size(); ++ pix)
+                    {
+                        std::cout << pix << " " << params_before[pix] << " " << params[pix] << std::endl;
+                    }
+                    std::cin.get();
 
                     if(fval < min)
                     {
@@ -658,7 +676,9 @@ void newloglikfitter_testmyphasespace(
             } // if(0)
             os.close();
 
-            TFile *f = new TFile("h_mps_1_0_2020-07-15_singleenergy.root", "recreate");
+            TString datetimestamp_TString = TString(g_datetimestamp_string);
+            TString f_name = "h_mps_1_0_" + datetimestamp_TString + "_singleenergy.root";
+            TFile *f = new TFile(f_name, "recreate");
             h_mps->Write();
             h_mps_before->Write();
             f->Close();
@@ -668,7 +688,8 @@ void newloglikfitter_testmyphasespace(
             ///////////////////////////////////////////////////////////////////
             // c_mps
             ///////////////////////////////////////////////////////////////////
-
+            if(0)
+            {
             TCanvas *c_mps = new TCanvas(c_mps_name, c_mps_name);
             c_mps->SetTicks(2, 2);
             c_mps->SetRightMargin(0.15);
@@ -774,15 +795,19 @@ void newloglikfitter_testmyphasespace(
             }
 
             h_mps_contour->Draw("cont2same");
-            h_mps = nullptr;
-            c_mps->SaveAs("mps_2020-07-15.png");
-            c_mps->SaveAs("mps_2020-07-15.pdf");
-
+            TString c_fname_png = c_mps_name + datetimestamp_TString + ".png";
+            TString c_fname_pdf = c_mps_name + datetimestamp_TString + ".pdf";
+            c_mps->SaveAs(c_fname_png);
+            c_mps->SaveAs(c_fname_pdf);
+            //h_mps = nullptr;
+            }
 
 
             ///////////////////////////////////////////////////////////////////
             // c_mps_before
             ///////////////////////////////////////////////////////////////////
+            if(0)
+            {
             TString c_mps_name_base_before = "c_mps_before";
             TString c_mps_name_before = c_mps_name_base_before + "_" + param_1_ix_str_external + "_" + param_2_ix_str_external;
 
@@ -887,10 +912,12 @@ void newloglikfitter_testmyphasespace(
             */
 
             h_mps_contour_before->Draw("cont2same");
-            h_mps_before = nullptr;
-            c_mps_before->SaveAs("mps_before_2020-07-15.png");
-            c_mps_before->SaveAs("mps_before_2020-07-15.pdf");
-
+            TString c_fname_before_png = c_mps_name_before + datetimestamp_TString + ".png";
+            TString c_fname_before_pdf = c_mps_name_before + datetimestamp_TString + ".pdf";
+            c_mps_before->SaveAs(c_fname_before_png);
+            c_mps_before->SaveAs(c_fname_before_pdf);
+            //h_mps_before = nullptr;
+            }
 
     
             ///////////////////////////////////////////////////////////////////////////
@@ -901,6 +928,18 @@ void newloglikfitter_testmyphasespace(
             {
                 params[param_1_ix] = 0.0;
                 params[param_2_ix] = 1.0;
+
+                std::cout << "the parameters before drawing HSD are" << std::endl;
+                for(int param_ix = 0; param_ix < params.size(); ++ param_ix)
+                {
+                    std::cout << params[param_ix] << std::endl;
+                    if(param_ix < 2) continue;
+                    params[param_ix] = 1.0;
+                }
+
+                // TODO: note, if multiple channels enabled then fval is wrong
+                // as it should be split between the different channels
+                // not printed as the same for both/more than 1
 
                 double fval;
                 //logLikelihood(n_params, nullptr, fval, params, 0);

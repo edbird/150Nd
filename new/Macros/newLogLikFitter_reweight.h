@@ -72,11 +72,15 @@ void reweight_apply(
     const TString sampleName = Nd150Files[0];
     const TString name_append = "";
 
+    bool debugprint = false;
 
     TH1D *hTotalE = (TH1D*)gROOT->FindObject("hTotalE_" + sampleName + name_append + "_reweight");
     if(hTotalE == nullptr)
     {
-        std::cout << "hTotalE nullptr!" << std::endl;
+        if(debugprint)
+        {
+            std::cout << "hTotalE nullptr!" << std::endl;
+        }
         //std::cin.get();
     }
     else
@@ -87,7 +91,10 @@ void reweight_apply(
     TH1D *hSingleEnergy = (TH1D*)gROOT->FindObject("hSingleEnergy_" + sampleName + name_append + "_reweight");
     if(hSingleEnergy == nullptr)
     {
-        std::cout << "hSingleEnergy nullptr!" << std::endl;
+        if(debugprint)
+        {
+            std::cout << "hSingleEnergy nullptr!" << std::endl;
+        }
     }
     else
     {
@@ -97,7 +104,10 @@ void reweight_apply(
     TH1D *hHighEnergy =  (TH1D*)gROOT->FindObject("hHighEnergy_" + sampleName + name_append + "_reweight");
     if(hHighEnergy == nullptr)
     {
-        std::cout << "hHighEnergy nullptr!" << std::endl;
+        if(debugprint)
+        {
+            std::cout << "hHighEnergy nullptr!" << std::endl;
+        }
     }
     else
     {
@@ -107,7 +117,10 @@ void reweight_apply(
     TH1D* hLowEnergy = (TH1D*)gROOT->FindObject("hLowEnergy_" + sampleName + name_append + "_reweight");
     if(hLowEnergy == nullptr)
     {
-        std::cout << "hLowEnergy nullptr!" << std::endl;
+        if(debugprint)
+        {
+            std::cout << "hLowEnergy nullptr!" << std::endl;
+        }
     }
     else
     {
@@ -117,7 +130,10 @@ void reweight_apply(
     TH1D* hEnergySum = (TH1D*)gROOT->FindObject("hEnergySum_" + sampleName + name_append + "_reweight");
     if(hEnergySum == nullptr)
     {
-        std::cout << "hEnergySum nullptr!" << std::endl;
+        if(debugprint)
+        {
+            std::cout << "hEnergySum nullptr!" << std::endl;
+        }
     }
     else
     {
@@ -127,7 +143,10 @@ void reweight_apply(
     TH1D* hEnergyDiff = (TH1D*)gROOT->FindObject("hEnergyDiff_" + sampleName + name_append + "_reweight");
     if(hEnergyDiff == nullptr)
     {
-        std::cout << "hEnergyDiff nullptr!" << std::endl;
+        if(debugprint)
+        {
+            std::cout << "hEnergyDiff nullptr!" << std::endl;
+        }
     }
     else
     {
@@ -137,7 +156,10 @@ void reweight_apply(
     TH2D* hHighLowEnergy = (TH2D*)gROOT->FindObject("hHighLowEnergy_" + sampleName + name_append + "_reweight");
     if(hHighLowEnergy == nullptr)
     {
-        std::cout << "hHighLowEnergy nullptr!" << std::endl;
+        if(debugprint)
+        {
+            std::cout << "hHighLowEnergy nullptr!" << std::endl;
+        }
     }
     else
     {
@@ -147,7 +169,10 @@ void reweight_apply(
     TH1D* hWeight = (TH1D*)gROOT->FindObject("hWeight_" + sampleName + name_append + "_reweight");
     if(hWeight == nullptr)
     {
-        std::cout << "hWeight nullptr!" << std::endl;
+        if(debugprint)
+        {
+            std::cout << "hWeight nullptr!" << std::endl;
+        }
     }
     else
     {

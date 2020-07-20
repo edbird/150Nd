@@ -149,15 +149,20 @@ BREAK
 32  enabled     16.0        4.0         same        same        16.0        4.0         same        same        soft    soft    k40_scintIN k40_scintOUT k40_scintPET   END     # 0 events
 BREAK
 #22  enabled     1.0e-3      0.6e-3      same        same        useinit     useinit     same        same        soft    soft    bi214_sfoil     pb214_sfoil	    END # 271, 23
-33  enabled     8.5e-3      8.5e-4      1.4e-3      1.4e-4      useinit     useinit     same        same        soft    soft    bi214_sfoil_IN      pb214_sfoil_IN      END
-34  enabled     5.3e-3      5.3e-4      1.8e-3      1.8e-4      useinit     useinit     same        same        soft    soft    bi214_sfoil_OUT     pb214_sfoil_OUT     END
+#33  enabled     8.5e-3      8.5e-4      1.4e-3      1.4e-4      useinit     useinit     same        same        soft    soft    bi214_sfoil_IN      pb214_sfoil_IN      END
+#34  enabled     5.3e-3      5.3e-4      1.8e-3      1.8e-4      useinit     useinit     same        same        soft    soft    bi214_sfoil_OUT     pb214_sfoil_OUT     END
+# TODO: these do not work useinit/same problem
+33  enabled     8.5e-3      8.5e-4      1.4e-3      1.4e-4      8.5e-3      8.5e-4      1.4e-3      1.4e-4      soft    soft    bi214_sfoil_IN      pb214_sfoil_IN      END
+34  enabled     5.3e-3      5.3e-4      1.8e-3      1.8e-4      5.3e-3      5.3e-4      1.8e-3      1.8e-4      soft    soft    bi214_sfoil_OUT     pb214_sfoil_OUT     END
 BREAK
 # TODO: changed error to smaller value, MINUIT complaining about larger error
 #23  enabled     1.3e-3      1.6e-3      same        same        useinit     useinit     same        same        soft    soft    bi214_swire     pb214_swire 	END
 #23  enabled     1.3e-3      1.0e-3      same        same        useinit     useinit     same        same        soft    soft    bi214_swire     pb214_swire 	END # 328, 21
 35  enabled     15.3e-3     15.3e-4     1.2e-3      1.2e-4      15.3e-3     15.3e-4     1.2e-3      1.2e-4      soft    soft    bi214_swire_INL0    pb214_swire_INL0    END
 36  enabled     29.9e-3     29.9e-4     0.4e-3      0.4e-4      29.9e-3     29.9e-4     0.4e-3      0.4e-4      soft    soft    bi214_swire_OUTL0   pb214_swire_OUTL0   END
-37  enabled     857.5e-3    857.5e-4    101.3e-3    101.3e-4    useinit     useinit     same        same        soft    soft    bi214_swire_Lg0     pb214_swire_Lg0     END
+#37  enabled     857.5e-3    857.5e-4    101.3e-3    101.3e-4   useinit     useinit     same        same    soft    soft    bi214_swire_Lg0     pb214_swire_Lg0     END
+# TODO
+37  enabled     857.5e-3    857.5e-4    101.3e-3    101.3e-4    857.5e-3    857.5e-4    101.3e-3    101.3e-4    soft    soft    bi214_swire_Lg0     pb214_swire_Lg0     END
 BREAK
 38  enabled     557.0	    38.0        0.0         0.0         useinit     useinit     0.0         0.0         hard    hard    bi214_air   pb214_air           END     # 4 events
 39  enabled     9.0  	    4.0         0.0         0.0         useinit     useinit     0.0         0.0         hard    hard    tl208_air   	                END     # 0 events

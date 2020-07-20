@@ -49,6 +49,15 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
     virtual
     double operator()(const std::vector<double> &param) const
     {
+
+        /*
+        std::cout << "operator()-> param: ";
+        for(int pix = 0; pix < param.size(); ++ pix)
+        {
+            std::cout << param[pix] << " ";
+        }
+        std::cout << std::endl;
+        */
        
         Int_t nPar = param.size();
         Double_t fval = 0.0;
@@ -63,8 +72,8 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
         ll_walk.push_back(std::make_pair(param.at(1), param.at(0)));
 
 
-        bool debugprint = false;
-        bool mode_fake_data = false; //true;
+        bool debugprint = true;//false;
+        bool mode_fake_data = g_mode_fake_data; //false; //true;
 
 
         // draw the output
@@ -514,14 +523,15 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                 // quadrature
             }
             
-            /*
-            std::cout << "i=" << i
-                      << " value=" << value
-                      << " constraint=" << constraint
-                      << " error=" << error << std::endl;
-            std::cin.get();
-            */
             penalty = std::pow((value - constraint) / error, 2.0);
+            if(debugprint)
+            {
+                std::cout << "j=" << j << std::endl;
+                std::cout << "i=" << i
+                          << " value=" << value
+                          << " constraint=" << constraint
+                          << " error=" << error << std::endl;
+            }
 
 
             // TODO: is this the correct error term?

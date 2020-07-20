@@ -528,6 +528,7 @@ void draw(
         if(i == 0)
         {
             PAD_U_Y_MAX = 350.0;
+            PAD_U_Y_MAX = 300.0;
         }
         else if(i == 1)
         {

@@ -46,6 +46,9 @@
 Int_t thePhase = 1;
 TString Phase = "2";
 
+bool g_mode_fake_data = false;
+std::string g_datetimestamp_string;
+
 // globals required in logLikelihood function but cannot be passed as
 // parameters easily
 double xi_31_baseline; // remove this? TODO

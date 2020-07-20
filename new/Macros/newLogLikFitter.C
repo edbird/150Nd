@@ -406,6 +406,8 @@ void loadFiles()
 
 
 
+
+
     int number_free_params = -1;
     double *CovMatrix = nullptr;
 
@@ -427,6 +429,47 @@ void loadFiles()
     ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
     MinimizeFCNAxialVector theFCN;
 
+    fitBackgrounds_init(theParameterState, theMinimizer, AdjustActs, AdjustActs_Err);
+
+    std::vector<double> params_before = theParameterState.Params();
+    std::vector<double> param_errs_before = theParameterState.Errors();
+    double fval_before = theFCN.operator()(params_before);
+
+    {
+        params_before[1] = 0.0;
+        double fval_before = theFCN.operator()(params_before);
+        TH1D *jj1, *jj2, *jj3, *jj4;
+        draw(params_before, param_errs_before, fval_before,
+             jj1, jj2, jj3, jj4,
+             "HSD_before.png", ".", g_mode_fake_data);
+    }
+
+    {
+        params_before[1] = 0.296;
+        params_before[0] = ;
+        double fval_before = theFCN.operator()(params_before);
+        TH1D *jj1, *jj2, *jj3, *jj4;
+        draw(params_before, param_errs_before, fval_before,
+             jj1, jj2, jj3, jj4,
+             "SSD_before.png", ".", g_mode_fake_data);
+    }
+
+    std::cout << "AdjustActs: ";
+    for(int i = 0; i < numberEnabledParams; ++ i)
+    {
+        std::cout << AdjustActs[i] << " ";
+    }
+    std::cout << std::endl;
+
+    std::cout << "params_before: ";
+    for(int i = 0; i < params_before.size(); ++ i)
+    {
+        std::cout << params_before.at(i) << " ";
+    }
+    std::cout << std::endl;
+    cin_wait();
+
+/*
     ROOT::Minuit2::FunctionMinimum FCN_min =
         fitBackgrounds(
             theParameterState,
@@ -436,17 +479,27 @@ void loadFiles()
             AdjustActs_Err,
             CovMatrix,
             number_free_params);
+*/
+
+    /*
+    ROOT::Minuit2::FunctionMinimum FCN_min =
+        fitBackgrounds_exec(
+            theParameterState,
+            theMinimizer,
+            theFCN);
+    */
 
 //    theParameterState.add();
 
     // minimize
     //ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, init_par, init_err);
     //ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, init_par, init_err);
+    /*
     std::cout << "Minimization finished" << std::endl;
     std::cout << "minimum: " << FCN_min << std::endl;
     std::cout << "chi2: " << FCN_min.Fval() << std::endl;
     std::cout << "edm: " << FCN_min.Edm() << std::endl;
-
+    */
 
     // draw my data for a parameter xi = 0.0
     double fval = 0.;
@@ -456,13 +509,26 @@ void loadFiles()
     
     std::cout << params[0] << " " << params[1] << std::endl;
 
+    std::cout << "params (after): ";
+    for(int i = 0; i < params.size(); ++ i)
+    {
+        std::cout << params.at(i) << " ";
+    }
+    std::cout << std::endl;
+
     //logLikelihood(n_params, nullptr, fval, params, 0);
     fval = theFCN.operator()(params);
 
     std::cout << "fval=" << fval << " for params[0]=" << params[0] << " params[1]=" << params[1] << std::endl;
+    std::cout << "fval_before=" << fval_before << std::endl;
+    cin_wait();
+
+
+
 //    draw_channel(1, params, fval, "test_channel_1.png");
     TH1D *j1, *j2, *j3, *j4;
-    draw(params, param_errs, fval, j1, j2, j3, j4, "minuit_output.*", ".", false);
+// TODO: re-enable
+//    draw(params, param_errs, fval, j1, j2, j3, j4, "minuit_output_fake_data.*", ".", false);
     //draw(params, nullptr, "NOSAVE", fval, j1, j2, j3, j4, true);
 
 //    std::cin.get();
@@ -502,6 +568,7 @@ void loadFiles()
     std::cin.get();
     //return 0;
 */
+
 
 
 #if 0
@@ -552,7 +619,7 @@ void loadFiles()
     if(1)
     {
         std::cout << "ready to test MPS" << std::endl;
-        newloglikfitter_testmyphasespace(theParameterState, theFCN, FCN_min);
+        newloglikfitter_testmyphasespace(theParameterState, theFCN); //, FCN_min);
         std::cout << "MPS done" << std::endl;
     }
    
@@ -564,7 +631,7 @@ void loadFiles()
 
 
     ///////////////////////////////////////////////////////////////////////////
-
+#if 0
     print_adjustacts(std::cout, params, param_errs);
     std::ofstream myFileFitResults("fit_results.txt", std::ios::out | std::ios::app);
     print_adjustacts(myFileFitResults, params, param_errs);
@@ -624,7 +691,7 @@ void loadFiles()
         }
         summary_ofstream.close();
     }
-
+#endif
     
     /*
     {
@@ -639,7 +706,7 @@ void loadFiles()
     }
     */
 
-
+#if 0
     std::ofstream of_numberofeventsafterfit("of_numberofeventsafterfit.txt", std::ofstream::out | std::ofstream::app);
     timestamp(of_numberofeventsafterfit);
     for(int i = 0; i < allMCSamples1D[0]->GetEntries(); ++ i)
@@ -649,7 +716,7 @@ void loadFiles()
         of_numberofeventsafterfit << tmpHist->GetName() << " number of events " << integral << std::endl;
     }
     of_numberofeventsafterfit.close();
- 
+#endif
 
     ///////////////////////////////////////////////////////////////////////////
     // write to output file
