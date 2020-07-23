@@ -2,11 +2,55 @@
 #define NEWLOGLIKFITTER_DRAWCHANNEL_H
 
 
+
+
+
+
+
+
+
+class draw_aux_data
+{
+
+    public:
+
+    THStack *stacks1D;
+    TH1D *h_2nubb;
+    TH1D *h_tl208_int;
+    TH1D *h_bi214_int;
+    TH1D *h_bi207_int;
+    TH1D *h_internal;
+    TH1D *h_external;
+    TH1D *h_radon; 
+    TH1D *h_neighbours;
+    TH1D *h_other;
+
+
+    TCanvas *c;
+    TPad *p0;
+    TPad *p1;
+    TH1D *hRatio;
+    TH1D *hAllMC1D;
+    TH1D *data1D;
+    TH1D *fakeData1D;
+
+};
+
+
+
+
+
+
+
+
 void draw_channel(const int channel,
-                  const Double_t *const p,
+                  const std::vector<double> &params,
+                  const std::vector<double> &param_errs,
                   const double fval,
+                  draw_aux_data &drawauxdata,
                   const std::string& saveas_filename,
-                  const std::string& saveas_dir = ".")
+                  const std::string& saveas_dir = ".",
+                  bool mode_fake_data = false)
 {
 
     THStack *stacks1D;
@@ -27,13 +71,20 @@ void draw_channel(const int channel,
     TH1D *hRatio;
     TH1D *hAllMC1D;
     TH1D *data1D;
+    TH1D *fakeData1D;
 
-    std::cout << "debug: number of data samples: " << allDataSamples1D->GetEntries() << std::endl;
-    std::cout << "debug: number of MC samples: " << allMCSamples1D[0]->GetEntries() << std::endl;
+    //std::cout << "debug: number of data samples: " << allDataSamples1D->GetEntries() << std::endl;
+    //std::cout << "debug: number of MC samples: " << allMCSamples1D[0]->GetEntries() << std::endl;
 
 
     // additional array index
     data1D = (TH1D*)allDataSamples1D->At(channel)->Clone();
+    if(mode_fake_data == true)
+    {
+        fakeData1D = (TH1D*)allFakeDataSamples1D->At(channel)->Clone();
+        // TODO: will not work if logLikelihood not called before
+        // because LL function calls function to construct fakedata
+    }
 
     TString channel_str;
     channel_str.Form("%i", channel);
@@ -44,10 +95,7 @@ void draw_channel(const int channel,
     
     stacks1D = new THStack("stacks1D" + channel_str, channel_str);
 
-
-    TH1D *tmpHist_draw1D;
-
-
+    TH1D *tmpHist;
     // TODO i should be channel here?
     for(int j = 0; j < allMCSamples1D[channel]->GetEntries(); j++)
     {
@@ -55,50 +103,15 @@ void draw_channel(const int channel,
         TString j_str;
         j_str.Form("%i", j);
 
-        tmpHist_draw1D = (TH1D*)allMCSamples1D[channel]->At(j)->Clone();
-        TString tmpName = tmpHist_draw1D->GetName();
+        tmpHist = (TH1D*)allMCSamples1D[channel]->At(j)->Clone();
+        TString tmpName = tmpHist->GetName();
 
         //std::cout << "looking for " << tmpName << std::endl;
         int which_param = -1;
         bool found_param = false;
 
-        // used later
-        //double activity_scale_branching_ratio = 1.0;
-
         // get index for parameter
-        {
-            std::string tmp_hist_name(tmpName);
-            auto i_start = tmp_hist_name.find('_') + 1;
-            auto i_end = tmp_hist_name.rfind('_');
-            if(i_end - i_start > 0)
-            {
-                std::string tmp_sample_name = tmp_hist_name.substr(i_start, i_end - i_start);
-
-                // set branching ratio fraction
-                /*
-                if(tmp_sample_name == std::string("tl208_int_rot") ||
-                   tmp_sample_name == std::string("tl208_feShield") ||
-                   tmp_sample_name == std::string("tl208_pmt"))
-                {
-                    activity_scale_branching_ratio = 0.36;
-                }
-                */
-
-                if(MCNameToParamNumberMap.count(tmp_sample_name) > 0)
-                {
-                    int paramNumber = MCNameToParamNumberMap.at(tmp_sample_name);
-                    // TODO: removed std::string, change tmpName type to be std::string from TString
-                
-                    //std::cout << "paramNumber=" << paramNumber << " -> tmp_sample_name=" << tmp_sample_name << " ~> tmpName=" << tmpName << std::endl;                    
-                    which_param = paramNumberToMinuitParamNumberMap.at(paramNumber);
-                    found_param = true;
-                }
-                else
-                {
-                   std::cout << "ERROR: could not find " << tmp_sample_name << " in MCNameToParamNumberMap" << std::endl;
-                }
-            }
-        }
+        found_param = fit_histogram_name_to_param_number(tmpName, which_param);
 
         if(found_param == true)
         {
@@ -114,14 +127,13 @@ void draw_channel(const int channel,
 
             // no error thrown, which_param is presumably the correct index
             //Double_t activity_scale = AdjustActs[which_param] * activity_scale_branching_ratio;
-            Double_t activity_scale = p[which_param]; // * activity_scale_branching_ratio; // TODO: caution: changed from AdjustActs to p
-            tmpHist_draw1D->Scale(activity_scale);
+            Double_t activity_scale = params.at(which_param); // * activity_scale_branching_ratio;
+            tmpHist->Scale(activity_scale);
 
-            if(tmpHist_draw1D->Integral() > 0)
+            if(tmpHist->Integral() > 0)
             {
-
-                stacks1D->Add((TH1D*)tmpHist_draw1D->Clone());
-                stacker_helper(tmpHist_draw1D,
+                stacks1D->Add((TH1D*)tmpHist->Clone());
+                stacker_helper(tmpHist,
                                h_2nubb,
                                h_tl208_int,
                                h_bi214_int,
@@ -132,16 +144,13 @@ void draw_channel(const int channel,
                                h_external,
                                h_other);
 
-
                 if(j == 0)
                 {
-                    hAllMC1D = (TH1D*)tmpHist_draw1D->Clone("Total MC");
-                    //hAllMC1D[i] = (TH1D*)tmpHist_drawpointer->Clone("Total MC");
+                    hAllMC1D = (TH1D*)tmpHist->Clone("Total MC");
                 }
                 else
                 {
-                    hAllMC1D->Add((TH1D*)tmpHist_draw1D);
-                    //hAllMC1D[i]->Add((TH1D*)tmpHist_drawpointer);
+                    hAllMC1D->Add((TH1D*)tmpHist);
                 }
             }
             else
@@ -155,21 +164,6 @@ void draw_channel(const int channel,
         } 
 
     }
-
-
-    //stacks1D[i]->SetMaximum(350.);
-    //stacks1D[i]->Draw("hist");
-
-    //stacks1D_2nubb[i]->SetMaximum(350.0);
-    //stacks1D_2nubb[i]->Draw("hist");
-    //stacks1D_tl208_int[i]->Draw("histsame");
-    //stacks1D_bi214_int[i]->Draw("histsame");
-    //stacks1D_bi207_int[i]->Draw("histsame");
-    //stacks1D_internal[i]->Draw("histsame");
-    //stacks1D_external[i]->Draw("histsame");
-    //stacks1D_radon[i]->Draw("histsame");
-    //stacks1D_neighbours[i]->Draw("histsame");
-    //stacks1D_other[i]->Draw("histsame");
 
 
     THStack *stacks1D_major;
@@ -194,11 +188,12 @@ void draw_channel(const int channel,
     if(channel == 0)
     {
         PAD_U_Y_MAX = 350.0;
+        PAD_U_Y_MAX = 300.0;
     }
     else if(channel == 1)
     {
         PAD_U_Y_MAX = 1000.0;
-        PAD_U_Y_MAX = 1200.0;
+        //PAD_U_Y_MAX = 1200.0;
     }
     else if(channel == 2)
     {
@@ -224,20 +219,28 @@ void draw_channel(const int channel,
     //stacks1D_major[i]->SetMaximum(PAD_U_Y_MAX);
     //stacks1D_major[i]->SetMinimum(PAD_U_Y_MIN);
 //    stacks1D_major->GetYaxis()->SetRangeUser(PAD_U_Y_MIN, PAD_U_Y_MAX);
-    // TODO moved
 //    hAllMC1D->SetMaximum(PAD_U_Y_MAX);
 //    hAllMC1D->SetMinimum(PAD_U_Y_MIN);
     hAllMC1D->GetYaxis()->SetRangeUser(PAD_U_Y_MIN, PAD_U_Y_MAX);
 //    data1D->SetMaximum(PAD_U_Y_MAX);
 //    data1D->SetMinimum(PAD_U_Y_MIN);
     data1D->GetYaxis()->SetRangeUser(PAD_U_Y_MIN, PAD_U_Y_MAX);
+    if(mode_fake_data == true)
+    {
+        fakeData1D->GetYaxis()->SetRangeUser(PAD_U_Y_MIN, PAD_U_Y_MAX);
+    }
 
-
-    hRatio = (TH1D*)data1D->Clone();
-    hRatio->Sumw2();
+    if(mode_fake_data == false)
+    {
+        hRatio = (TH1D*)data1D->Clone();
+    }
+    if(mode_fake_data == true)
+    {
+        hRatio = (TH1D*)fakeData1D->Clone();
+    }
+    //hRatio->Sumw2();
     hRatio->Divide(hAllMC1D);
     hRatio->SetTitle("");
-
 
     if(channel == 0)
     {
@@ -333,7 +336,7 @@ void draw_channel(const int channel,
     stacks1D_major->GetYaxis()->SetTickSize(0.0);
     //stacks1D_major->GetXaxis()->SetTickSize(0.0);
 
-    stacks1D_major->GetYaxis()->SetTitle("Spectrum");
+    stacks1D_major->GetYaxis()->SetTitle("Events / 0.1 MeV");
     stacks1D_major->GetYaxis()->SetTitleSize(20);
     stacks1D_major->GetYaxis()->SetTitleFont(43);
     stacks1D_major->GetYaxis()->SetTitleOffset(1.0);
@@ -364,20 +367,52 @@ void draw_channel(const int channel,
     data1D->SetLineWidth(2);
     data1D->SetMarkerStyle(20);
     data1D->SetMarkerSize(1.0);
+    data1D->SetLineColor(kBlack); // TODO: not needed? I forget reason for adding
+    data1D->SetMarkerColor(kBlack); // TODO
+    data1D->SetFillColor(kBlack); // TODO
+    if(mode_fake_data == true)
+    {
+        fakeData1D->SetLineWidth(2);
+        fakeData1D->SetMarkerStyle(20);
+        fakeData1D->SetMarkerSize(1.0);
+        fakeData1D->SetLineColor(kBlack);
+        fakeData1D->SetMarkerColor(kBlack);
+        fakeData1D->SetFillColor(kBlack);
+    }
     TString Ndata_str;
     Ndata_str.Form("%i", (int)data1D->Integral()); // TODO: float?
     data1D->SetTitle("Data (" + Ndata_str + ")");
-    //data1D->Draw("PEsames");
-    data1D->Draw("PEsame");
-    data1D->GetYaxis()->SetRangeUser(PAD_U_Y_MIN, PAD_U_Y_MAX);
+    TString Nfakedata_str;
+    if(mode_fake_data == true)
+    {
+        Nfakedata_str.Form("%i", (int)fakeData1D->Integral()); // TODO: float?
+        fakeData1D->SetTitle("Fake Data (" + Ndata_str + ")");
+    }
+    if(mode_fake_data == false)
+    {
+        //data1D[i]->Draw("PEsames");
+        data1D->Draw("PEsame");
+        data1D->GetYaxis()->SetRangeUser(PAD_U_Y_MIN, PAD_U_Y_MAX);
+    }
+    if(mode_fake_data == true)
+    {
+        fakeData1D->Draw("PEsame");
+        fakeData1D->GetYaxis()->SetRangeUser(PAD_U_Y_MIN, PAD_U_Y_MAX);
+    }
+    //data1D->GetYaxis()->SetRangeUser(PAD_U_Y_MIN, PAD_U_Y_MAX); // TODO???
 
-    double chi2;
-    int ndf;
-    int igood;
-    TString chi2_str;
+    //double chi2;
+    int ndf = -1;
+    if(mode_fake_data == false)
+    {
+        ndf = get_ndf_1D(hAllMC1D, data1D);
+    }
+    if(mode_fake_data == true)
+    {
+        ndf = get_ndf_1D(hAllMC1D, fakeData1D);
+    }
+    //int igood;
     TString ndf_str;
-    TString fval_str;
-    TString mychi2_str;
 
     // TODO: should chisquare value include the constraints? because at
     // the moment it does not
@@ -415,8 +450,9 @@ void draw_channel(const int channel,
     /*
     chi2_str.Form("%4.3f", chi2);
     */
-    ndf_str.Form("%i", ndf);
+    TString fval_str;
     fval_str.Form("%4.3f", fval);
+    ndf_str.Form("%i", ndf);
     /*
     mychi2_str.Form("%4.3f", mychi2);
     */
@@ -433,7 +469,14 @@ void draw_channel(const int channel,
     axis2->Draw();
 
     TLegend *leg = new TLegend(0.6, 0.1, 0.85, 0.85);
-    leg->AddEntry(data1D, "Data (" + Ndata_str + ")", "PE");
+    if(mode_fake_data == false)
+    {
+        leg->AddEntry(data1D, "Data (" + Ndata_str + ")", "PEL"); // TODO PEL ??? works?
+    }
+    if(mode_fake_data == true)
+    {
+        leg->AddEntry(fakeData1D, "Fake Data (" + Nfakedata_str + ")", "PEL");
+    }
     leg->AddEntry(hAllMC1D, "Total MC (" + Nmc_str + ")", "L");
     leg->AddEntry(h_2nubb, "2#nu#beta#beta", "F");
     leg->AddEntry(h_tl208_int, "^{208}Tl Int", "F");
@@ -470,6 +513,8 @@ void draw_channel(const int channel,
     hRatio->SetMarkerStyle(20);
     hRatio->SetMarkerSize(1.0);
     hRatio->Draw("EP");
+    TLine *zeroline = new TLine(0.0, 0.0, 5.0, 0.0);
+    zeroline->Draw();
 
 
 
@@ -499,6 +544,27 @@ void draw_channel(const int channel,
         std::string name = base_name + "_c" + "_" + std::string(channel_str) + extension;
         canvas_saveas_helper(dir, name, c);
     }
+
+
+    drawauxdata.stacks1D = stacks1D;
+    drawauxdata.h_2nubb = h_2nubb;
+    drawauxdata.h_tl208_int = h_tl208_int;
+    drawauxdata.h_bi214_int = h_bi214_int;
+    drawauxdata.h_bi207_int = h_bi207_int;
+    drawauxdata.h_internal = h_internal;
+    drawauxdata.h_external = h_external;
+    drawauxdata.h_radon = h_radon; 
+    drawauxdata.h_neighbours = h_neighbours;
+    drawauxdata.h_other = h_other;
+
+
+    drawauxdata.c = c;
+    drawauxdata.p0 = p0;
+    drawauxdata.p1 = p1;
+    drawauxdata.hRatio = hRatio;
+    drawauxdata.hAllMC1D = hAllMC1D;
+    drawauxdata.data1D = data1D;
+    drawauxdata.fakeData1D = fakeData1D;
 
 
 

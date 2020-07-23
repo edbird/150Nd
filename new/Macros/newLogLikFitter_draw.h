@@ -191,14 +191,11 @@ void draw_inputdata()
 
 
 
+
 void draw(
     const std::vector<double> &params,
     const std::vector<double> &param_errs,
     const double fval,
-    TH1D *&hHighEnergy_allMC_out,
-    TH1D *&hLowEnergy_allMC_out,
-    TH1D *&hHighEnergy_data_out,
-    TH1D *&hLowEnergy_data_out,
     const std::string& saveas_filename,
     const std::string& saveas_dir = ".",
     bool mode_fake_data = false,
@@ -211,26 +208,29 @@ void draw(
 
 
     THStack *stacks1D[number1DHists];
-    //THStack *stacks1D_2nubb[number1DHists];
-    //THStack *stacks1D_tl208_int[number1DHists];
-    //THStack *stacks1D_bi214_int[number1DHists];
-    //THStack *stacks1D_bi207_int[number1DHists];
-    //THStack *stacks1D_internal[number1DHists];
-    //THStack *stacks1D_external[number1DHists];
-    //THStack *stacks1D_radon[number1DHists];
-    //THStack *stacks1D_neighbours[number1DHists];
-    //THStack *stacks1D_other[number1DHists];
 
+    TH1D *h_2nubb[number1DHists];
+    TH1D *h_tl208_int[number1DHists];
+    TH1D *h_bi214_int[number1DHists];
+    TH1D *h_bi207_int[number1DHists];
+    TH1D *h_internal[number1DHists];
+    TH1D *h_external[number1DHists];
+    TH1D *h_radon[number1DHists];
+    TH1D *h_neighbours[number1DHists];
+    TH1D *h_other[number1DHists];
 
-    TH1D *h_2nubb[number1DHists] = { nullptr, nullptr, nullptr, nullptr };
-    TH1D *h_tl208_int[number1DHists] = { nullptr, nullptr, nullptr, nullptr };
-    TH1D *h_bi214_int[number1DHists] = { nullptr, nullptr, nullptr, nullptr };
-    TH1D *h_bi207_int[number1DHists] = { nullptr, nullptr, nullptr, nullptr };
-    TH1D *h_internal[number1DHists] = { nullptr, nullptr, nullptr, nullptr };
-    TH1D *h_external[number1DHists] = { nullptr, nullptr, nullptr, nullptr };
-    TH1D *h_radon[number1DHists] = { nullptr, nullptr, nullptr, nullptr };
-    TH1D *h_neighbours[number1DHists] = { nullptr, nullptr, nullptr, nullptr };
-    TH1D *h_other[number1DHists] = { nullptr, nullptr, nullptr, nullptr };
+    for(int i = 0; i < number1DHists; ++ i)
+    {
+        h_2nubb[i] = nullptr;
+        h_tl208_int[i] = nullptr;
+        h_bi214_int[i] = nullptr;
+        h_bi207_int[i] = nullptr;
+        h_internal[i] = nullptr;
+        h_external[i] = nullptr;
+        h_radon[i] = nullptr;
+        h_neighbours[i] = nullptr;
+        h_other[i] = nullptr;
+    }
 
 
     TCanvas *c[number1DHists];
@@ -241,11 +241,142 @@ void draw(
     TH1D *data1D[number1DHists];
     TH1D *fakeData1D[number1DHists];
 
-    // TODO: copy over legend code from fit_2e.C
+    //std::cout << "debug: number of data samples: " << allDataSamples1D->GetEntries() << std::endl;
+    //std::cout << "debug: number of MC samples: " << allMCSamples1D[0]->GetEntries() << std::endl;
 
-    std::cout << "debug: number of data samples: " << allDataSamples1D->GetEntries() << std::endl;
-    std::cout << "debug: number of MC samples: " << allMCSamples1D[0]->GetEntries() << std::endl;
 
+    // each channel 1D hists
+    // this is for(i = 0; i < 1; ++ i)
+    // TODO: this isn't right. should this be iterating over the "channel" ?
+    for(int channel = 0; channel < allDataSamples1D->GetEntries(); ++ channel)
+    {
+        if(draw_index == -1)
+        {
+            // do nothing
+            // draw all channels
+        }
+        else if((draw_index >= 0) && (draw_index < allDataSamples1D->GetEntries()))
+        {
+            if(channel != draw_index)
+            {
+                continue;
+            }
+        }
+
+        //if(i != 1) continue;
+        // TODO: remove
+
+        draw_aux_data drawauxdata;
+        draw_channel(channel,
+                     params,
+                     param_errs,
+                     fval,
+                     drawauxdata,
+                     saveas_filename,
+                     saveas_dir,
+                     mode_fake_data);
+
+        stacks1D[channel] = drawauxdata.stacks1D;
+        h_2nubb[channel] = drawauxdata.h_2nubb;
+        h_tl208_int[channel] = drawauxdata.h_tl208_int;
+        h_bi214_int[channel] = drawauxdata.h_bi214_int;
+        h_bi207_int[channel] = drawauxdata.h_bi207_int;
+        h_internal[channel] = drawauxdata.h_internal;
+        h_external[channel] = drawauxdata.h_external;
+        h_radon[channel] = drawauxdata.h_radon; 
+        h_neighbours[channel] = drawauxdata.h_neighbours;
+        h_other[channel] = drawauxdata.h_other;
+
+
+        c[channel] = drawauxdata.c;
+        p0[channel] = drawauxdata.p0;
+        p1[channel] = drawauxdata.p1;
+        hRatio[channel] = drawauxdata.hRatio;
+        hAllMC1D[channel] = drawauxdata.hAllMC1D;
+        data1D[channel] = drawauxdata.data1D;
+        fakeData1D[channel] = drawauxdata.fakeData1D;
+
+    }
+
+
+
+
+}
+
+
+// I stare down the concrete building,
+// My workplace, something that is masquerading as an institution of learning
+// but has long since lost its nerve
+// Stride boldly on my right foot,
+// Into the den of criminals who seek to destroy me
+// I collect a sphere of repulsion,
+// My sheild that I carry throughout the day to repell all those who set eyes on me
+// On the evening I return to my home, to my bed,
+// Where I lie troubled and in deep contemplation, yet still peaceful
+// All others rush into the night, they dash through their door and bolt it shut tight
+// Hand quivering and fumbling the key
+// They race to their beds and cling tightly to their duvet as if disturbed
+// by the hand of death himself
+// Bite and tear at the cloth, a duvet endowed with the scripture of their religion
+// Diversity is Our Strength.
+// It is of no concolace.
+// A simple religion with no depth. A single word to repeat over.
+// And over. And over.
+// Long into the night.
+// Until they open their eyes to the darkness.
+// And for long they scream
+
+
+
+
+
+#if 0
+void draw_get_total_data_MC(
+    const std::vector<double> &params,
+    const std::vector<double> &param_errs,
+    const double fval,
+    TH1D *&hHighEnergy_allMC_out,
+    TH1D *&hLowEnergy_allMC_out,
+    TH1D *&hHighEnergy_data_out,
+    TH1D *&hLowEnergy_data_out,
+    bool mode_fake_data = false,
+    int channel_index)
+{
+
+    ///////////////////////////////////////////////////////////////////////////
+    // get total data and MC
+    ///////////////////////////////////////////////////////////////////////////
+
+
+    THStack *stacks1D[number1DHists];
+
+    TH1D *h_2nubb[number1DHists];
+    TH1D *h_tl208_int[number1DHists];
+    TH1D *h_bi214_int[number1DHists];
+    TH1D *h_bi207_int[number1DHists];
+    TH1D *h_internal[number1DHists];
+    TH1D *h_external[number1DHists];
+    TH1D *h_radon[number1DHists];
+    TH1D *h_neighbours[number1DHists];
+    TH1D *h_other[number1DHists];
+
+    for(int i = 0; i < number1DHists; ++ i)
+    {
+        h_2nubb[i] = nullptr;
+        h_tl208_int[i] = nullptr;
+        h_bi214_int[i] = nullptr;
+        h_bi207_int[i] = nullptr;
+        h_internal[i] = nullptr;
+        h_external[i] = nullptr;
+        h_radon[i] = nullptr;
+        h_neighbours[i] = nullptr;
+        h_other[i] = nullptr;
+    }
+
+
+    TH1D *hAllMC1D[number1DHists];
+    TH1D *data1D[number1DHists];
+    TH1D *fakeData1D[number1DHists];
 
     // each channel 1D hists
     // this is for(i = 0; i < 1; ++ i)
@@ -295,18 +426,8 @@ void draw(
 
         
         stacks1D[i] = new THStack("stacks1D" + i_str, i_str);
-        //stacks1D_2nubb[i] = new THStack("stacks1D_2nubb" + i_str, i_str);
-        //stacks1D_tl208_int[i] = new THStack("stacks1D_tl208_int" + i_str, i_str);
-        //stacks1D_bi214_int[i] = new THStack("stacks1D_bi214_int" + i_str, i_str);
-        //stacks1D_bi207_int[i] = new THStack("stacks1D_bi207_int" + i_str, i_str);
-        //stacks1D_internal[i] = new THStack("stacks1D_internal" + i_str, i_str);
-        //stacks1D_external[i] = new THStack("stacks1D_external" + i_str, i_str);
-        //stacks1D_radon[i] = new THStack("stacks1D_radon" + i_str, i_str);
-        //stacks1D_neighbours[i] = new THStack("stacks1D_neighbours" + i_str, i_str);
-        //stacks1D_other[i] = new THStack("stacks1D_other" + i_str, i_str);
 
-
-        TH1D *tmpHist_draw1D;
+        TH1D *tmpHist;
 
         // j list MC samples for this channel i
         //std::cout << "debug: number of MC samples (i=" << i << "): " << allMCSamples1D[i]->GetEntries() << std::endl;
@@ -344,8 +465,8 @@ void draw(
             TString j_str;
             j_str.Form("%i", j);
 
-            tmpHist_draw1D = (TH1D*)allMCSamples1D[i]->At(j)->Clone();
-            TString tmpName = tmpHist_draw1D->GetName();
+            tmpHist = (TH1D*)allMCSamples1D[i]->At(j)->Clone();
+            TString tmpName = tmpHist->GetName();
 
             //std::cout << "(1) tmpName=" << tmpName << std::endl;
 
@@ -358,11 +479,6 @@ void draw(
             // hTotalE_bi214_mylar_fit
             // histogram_name + "_" + mc_sample_name + "_fit"
             
-            //std::cout << "NEW CODE" << std::endl;
-            //try
-            //{
-            // TODO: remove TString
-
             // used later
             double activity_scale_branching_ratio = 1.0;
 
@@ -400,21 +516,6 @@ void draw(
                     }
                 }
             }
-            /*
-            }
-            catch(std::exception &e)
-            {
-                std::cout << "e.what(): " << e.what() << std::endl;
-                std::cout << "tmpName=" << tmpName << std::endl;
-                std::cout << "contents of map" << std::endl;
-                for(auto it = MCNameToParamNumberMap.cbegin(); it != MCNameToParamNumberMap.cend(); ++ it)
-                {
-                    std::cout << it->first << " -> " << it->second << std::endl;
-                }
-            }
-            std::cin.get();
-            */
-
 
 
             if(found_param == true)
@@ -436,7 +537,7 @@ void draw(
 
                 // no error thrown, which_param is presumably the correct index
                 Double_t activity_scale = params.at(which_param); // * activity_scale_branching_ratio;
-                tmpHist_draw1D->Scale(activity_scale);
+                tmpHist->Scale(activity_scale);
 
                 if(which_param == 1)
                 {
@@ -447,13 +548,12 @@ void draw(
                 //TH1D *tmpHist_drawpointer = tmpHist_draw1D;
 
                 
-                if(tmpHist_draw1D->Integral() > 0)
-                //if(tmpHist_drawpointer->Integral() > 0)
+                if(tmpHist->Integral() > 0)
                 {
-                    stacks1D[i]->Add((TH1D*)tmpHist_draw1D->Clone());
+                    stacks1D[i]->Add((TH1D*)tmpHist->Clone());
                     //stacks1D[i]->Add(tmpHist_drawpointer);
 
-                    stacker_helper(tmpHist_draw1D,
+                    stacker_helper(tmpHist,
                                  h_2nubb[i],
                                  h_tl208_int[i],
                                  h_bi214_int[i],
@@ -467,13 +567,11 @@ void draw(
 
                     if(j == 0)
                     {
-                        hAllMC1D[i] = (TH1D*)tmpHist_draw1D->Clone("Total MC");
-                        //hAllMC1D[i] = (TH1D*)tmpHist_drawpointer->Clone("Total MC");
+                        hAllMC1D[i] = (TH1D*)tmpHist->Clone("Total MC");
                     }
                     else
                     {
-                        hAllMC1D[i]->Add((TH1D*)tmpHist_draw1D);
-                        //hAllMC1D[i]->Add((TH1D*)tmpHist_drawpointer);
+                        hAllMC1D[i]->Add((TH1D*)tmpHist);
                     }
 
                 
@@ -489,21 +587,6 @@ void draw(
             } 
 
         }
-
-
-        //stacks1D[i]->SetMaximum(350.);
-        //stacks1D[i]->Draw("hist");
-
-        //stacks1D_2nubb[i]->SetMaximum(350.0);
-        //stacks1D_2nubb[i]->Draw("hist");
-        //stacks1D_tl208_int[i]->Draw("histsame");
-        //stacks1D_bi214_int[i]->Draw("histsame");
-        //stacks1D_bi207_int[i]->Draw("histsame");
-        //stacks1D_internal[i]->Draw("histsame");
-        //stacks1D_external[i]->Draw("histsame");
-        //stacks1D_radon[i]->Draw("histsame");
-        //stacks1D_neighbours[i]->Draw("histsame");
-        //stacks1D_other[i]->Draw("histsame");
 
 
         THStack *stacks1D_major[number1DHists];
@@ -532,32 +615,26 @@ void draw(
         }
         else if(i == 1)
         {
-            //stacks1D_major[i]->SetMaximum(1000.0);
             PAD_U_Y_MAX = 1000.0;
         }
         else if(i == 2)
         {
-            //stacks1D_major[i]->SetMaximum(500.0);
             PAD_U_Y_MAX = 450.0;
         }
         else if(i == 3)
         {
-            //stacks1D_major[i]->SetMaximum(900.0);
             PAD_U_Y_MAX = 1000.0;
         }
         else if(i == 4)
         {
-            //stacks1D_major[i]->SetMaximum(900.0);
             PAD_U_Y_MAX = 400.0;
         }
         else if(i == 5)
         {
-            //stacks1D_major[i]->SetMaximum(900.0);
             PAD_U_Y_MAX = 600.0;
         }
         else
         {
-            //stacks1D_major[i]->SetMaximum(350.0);
             PAD_U_Y_MAX = 350.0;
         }
         //stacks1D_major[i]->Draw("hist");
@@ -590,12 +667,6 @@ void draw(
         }
         hRatio[i]->Sumw2();
         hRatio[i]->Divide(hAllMC1D[i]);
-        /*
-        for(int ii = 1; ii < hRatio[i]->GetNbinsX(); ++ ii)
-        {
-            std::cout << "bin " << ii << ": " << hRatio[i]->GetBinContent(ii) << std::endl;
-        }
-        */
         hRatio[i]->SetTitle("");
 
         std::cout << "draw-> MC Integral() = " << hAllMC1D[i]->Integral() << std::endl;
@@ -680,7 +751,7 @@ void draw(
         p1[i]->SetBottomMargin(0.4);
         //p1[i]->SetGridx(1);
         //p1[i]->SetGridy(1);
-        p1[i]->SetGrid(1, 1);
+        p1[i]->SetGrid(0, 0);
         p1[i]->SetTicks(2, 2);
         p1[i]->Draw();
 
@@ -770,26 +841,7 @@ void draw(
         //double chi2;
         int ndf = -1;
         ndf = 0;
-        for(Int_t bin_ix = 0; bin_ix <= data1D[i]->GetNbinsX(); ++ bin_ix)
-        {
-            if(hAllMC1D[i]->GetBinContent(bin_ix) > 0.0)
-            {
-                if(mode_fake_data == false)
-                {
-                    if(data1D[i]->GetBinContent(bin_ix) > 0.0)
-                    {
-                        ++ ndf;
-                    }
-                }
-                if(mode_fake_data == true)
-                {
-                    if(fakeData1D[i]->GetBinContent(bin_ix) > 0.0)
-                    {
-                        ++ ndf;
-                    }
-                }
-            }
-        }
+        get_ndf_1D();
         //int ndf;
         //int igood;
         //TString chi2_str;
@@ -900,11 +952,16 @@ void draw(
         delete c[i];
         c[i] = nullptr;
 
+
+
+
+    }
+
+
+
+
         // channel 2 = high energy
         // channel 3 = low energy
-
-
-/*
         if(i == 2)
         {
             hHighEnergy_allMC_out = (TH1D*)hAllMC1D[i]->Clone();
@@ -929,14 +986,16 @@ void draw(
                 hLowEnergy_data_out = (TH1D*)fakeData1D[i]->Clone();
             }
         }
-*/
-
     }
 
-
-
-
 }
+#endif
+
+
+
+
+
+
 
 
 void draw_covariance_matrix(const double * const CovMatrix, const int number_free_params, const std::string& saveas_filename)

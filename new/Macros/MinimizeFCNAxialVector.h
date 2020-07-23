@@ -72,7 +72,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
         ll_walk.push_back(std::make_pair(param.at(1), param.at(0)));
 
 
-        bool debugprint = true;//false;
+        bool debugprint = false;
         bool mode_fake_data = g_mode_fake_data; //false; //true;
 
 

@@ -9,6 +9,36 @@ void cin_wait()
 }
 
 
+
+///////////////////////////////////////////////////////////////////////////////
+// calculate number of degrees of freedom for chisquare calculation
+///////////////////////////////////////////////////////////////////////////////
+
+int get_ndf_1D(const TH1D *const hist_MC, const TH1D *const hist_data)
+{
+    if(hist_MC->GetNbinsX() != hist_data->GetNbinsX())
+    {
+        std::cout << __func__ << " Error, incompatiable histograms" << std::endl;
+        return -1;
+    }
+
+    int ndf = 0;
+    for(Int_t bin_ix = 0; bin_ix <= hist_MC->GetNbinsX(); ++ bin_ix)
+    {
+        if(hist_MC->GetBinContent(bin_ix) > 0.0)
+        {
+            if(hist_data->GetBinContent(bin_ix) > 0.0)
+            {
+                ++ ndf;
+            }
+        }
+    }
+    return ndf;
+}
+
+
+
+
 ///////////////////////////////////////////////////////////////////////////////
 // internal / external index manipulation
 ///////////////////////////////////////////////////////////////////////////////
@@ -37,6 +67,8 @@ int get_axial_vector_parameter_index()
     
     return axial_vector_parameter_0_param_number;
 }
+
+
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -82,6 +114,154 @@ void get_paramConstraintValueError(const Int_t thePhase, const int param_number,
         std::cout << "ERROR: Invalid value for thePhase: thePhase=" << thePhase << " in function " << __func__ << std::endl;
     }
 }
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+// convert name of histogram to minuit (internal) parameter number
+///////////////////////////////////////////////////////////////////////////////
+
+bool fit_histogram_name_to_param_number(const TString &name, int &which_param)
+{
+
+    // search through parameters to find right one
+    // the histogram names are formatted like:
+    // hTotalE_bi214_mylar_fit
+    // histogram_name + "_" + mc_sample_name + "_fit"
+
+
+    // used later
+    //double activity_scale_branching_ratio = 1.0;
+
+    which_param = -1;
+    bool found_param = false;
+
+    // get index for parameter
+
+    std::string tmp_hist_name(name);
+    auto i_start = tmp_hist_name.find('_') + 1;
+    auto i_end = tmp_hist_name.rfind('_');
+    if(i_end - i_start > 0)
+    {
+        std::string tmp_sample_name = tmp_hist_name.substr(i_start, i_end - i_start);
+
+        // set branching ratio fraction
+        /*
+        if(tmp_sample_name == std::string("tl208_int_rot") ||
+           tmp_sample_name == std::string("tl208_feShield") ||
+           tmp_sample_name == std::string("tl208_pmt"))
+        {
+            activity_scale_branching_ratio = 0.36;
+        }
+        */
+
+        if(MCNameToParamNumberMap.count(tmp_sample_name) > 0)
+        {
+            int paramNumber = MCNameToParamNumberMap.at(tmp_sample_name);
+            //std::cout << "paramNumber=" << paramNumber << " -> tmp_sample_name=" << tmp_sample_name << " ~> name=" << name << std::endl;
+            which_param = paramNumberToMinuitParamNumberMap.at(paramNumber);
+            found_param = true;
+        }
+        else
+        {
+           std::cout << "ERROR: could not find " << tmp_sample_name << " in MCNameToParamNumberMap" << std::endl;
+        }
+    }
+
+    return found_param;
+
+}
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+// convert MC name (background file name) to scale factor
+// helper function for book1DHistograms_helper and book2DHistograms_helper
+///////////////////////////////////////////////////////////////////////////////
+
+bool convert_MC_name_to_scale_factor(
+    const std::string &mc_name,
+    int &param_number,
+    Double_t &scale_factor)
+{
+
+    bool ret = false;
+
+    // example: "bi214_int_rot" -> "bi214_int_rot,pb214_int_rot"
+    std::string search_object = MCNameToParamNameMap.at(mc_name);
+
+    // example: "bi214_int_rot,pb214_int_rot" -> 4
+    // check if parameter number exists
+    // (was defined by parameter_names.lst)
+    if(paramNameToNumberMap.count(search_object) > 0)
+    {
+        // convert from mc sample name to param number
+        /*int*/ param_number = paramNameToNumberMap.at(search_object);
+
+        // check if this parameter number is enabled
+        if(std::find(enabled_params.begin(), enabled_params.end(), param_number) != enabled_params.end())
+        {
+
+            // scale by activity
+
+            // convert parameter number to minuit parameter number
+            //minuit_param_number = paramNumberToMinuitParamNumberMap.at(param_number);
+
+            // TODO: change such that samples are pre-scaled by activity input value
+            // get initial parameter values and error
+            Double_t param_init_value = 0.;
+            Double_t param_init_error = 0.;
+            get_paramInitValueError(thePhase, param_number, param_init_value, param_init_error);
+            /*Double_t*/ scale_factor = param_init_value;
+
+            // account for 208 Tl branching ratio of 36 %
+            // TODO: should I move this into fit_2e code
+            // and apply using ->Fill() function call with
+            // weight = 0.36
+            if(mc_name == std::string("tl208_int_rot") ||
+               mc_name == std::string("tl208_feShield") ||
+               mc_name == std::string("tl208_pmt"))
+               // TODO: do not apply to tl208_air ?
+            {
+                //std::cout << "mc_name=" << mc_name << " applying additional scaling factor of 0.36" << std::endl;
+                //std::cin.get();
+                scale_factor *= 0.36;
+            }
+
+            ret = true;
+        }
+        else
+        {
+            // paramter not enabled, do not load histogram/sample
+            std::cout << "parameter number " << param_number << " is not enabled (not found in vector)" << std::endl;
+
+            ret = false;
+        }
+    }
+    else
+    {
+        std::cout << "!!!!! ERROR: search_object=" << search_object << " not found in paramNameToNumberMap" << std::endl;
+        std::cout << "mc_name=" << mc_name << std::endl;
+
+        print_map(paramNameToNumberMap, "paramNameToNumberMap");
+        print_map(MCNameToParamNameMap, "MCNameToParamNameMap");
+
+        ret = false;
+    }
+
+    return ret;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+// convert MC name (background file name) to (external) parameter number
+///////////////////////////////////////////////////////////////////////////////
+
+//bool MC_name_to_param_number(const std::string& mc_name, int
+
+
+
 
 
 // split filename into base name and extension

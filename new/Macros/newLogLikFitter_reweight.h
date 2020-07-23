@@ -3,6 +3,272 @@
 
 
 
+void convert_data_to_histogram_format(const std::vector<std::vector<double>> &data_nEqNull,
+                                      const std::vector<std::vector<double>> &data_nEqTwo,
+                                      TH2D * &h_nEqNull_return,
+                                      TH2D * &h_nEqTwo_return,
+                                      const Int_t dimension_xy)
+{
+
+    ////////////////////////////////////////////////////////////////////////////
+    // CONVERT INPUT DATA TO HISTOGRAM FORMAT
+    // Note: Added 2018-04-23 (After INTERMEDIATE DATA below)
+    // Note: These histograms do NOT have the phase space variable included
+    ////////////////////////////////////////////////////////////////////////////
+
+    //const Int_t dimension_xy{3371};
+    //const Int_t dimension_xy{1001};
+    // don't plot raw data
+    //TH2D *h_nEqNull = new TH2D("h_nEqNull", "", dimension_xy, 0.0, bb_Q, dimension_xy, 0.0, bb_Q);
+    //TH2D *h_nEqTwo = new TH2D("h_nEqTwo", "", dimension_xy, 0.0, bb_Q, dimension_xy, 0.0, bb_Q);
+    const Double_t keV = 1.0e-03;
+    const Double_t E_min = 0.38e-03;
+    const Double_t limit_lower  = E_min - 0.5 * keV;
+    const Double_t limit_higher = E_min - 0.5 * keV + dimension_xy * keV;
+    TH2D *h_nEqNull =
+        new TH2D("h_nEqNull", "nEqNull",
+                 dimension_xy, limit_lower, limit_higher,
+                 dimension_xy, limit_lower, limit_higher);
+    TH2D *h_nEqTwo =
+        new TH2D("h_nEqTwo", "nEqTwo",
+                 dimension_xy, limit_lower, limit_higher,
+                 dimension_xy, limit_lower, limit_higher);
+    //TH2D *h_nEqNull = new TH2D("h_nEqNull", "", dimension_xy, 0.0, 1.0, dimension_xy, 0.0, 1.0);
+    //TH2D *h_nEqTwo = new TH2D("h_nEqTwo", "", dimension_xy, 0.0, 1.0, dimension_xy, 0.0, 1.0);
+    //TH2D *h_ratio = new TH2D("h_ratio", "", dimension_xy, 0.0, 1.0, dimension_xy, 0.0, 1.0);
+    h_nEqNull->SetStats(0);
+    h_nEqTwo->SetStats(0);
+    //h_ratio->SetStats(0);
+
+    // required because Nd-150 data is triangular
+    std::size_t rd_ix{0};
+    for(std::size_t i{0}; i < dimension_xy; ++ i)
+    {
+        for(std::size_t j{0}; j < dimension_xy; ++ j)
+        {
+            if(i < dimension_xy - j)
+            {
+                h_nEqNull->SetBinContent(i, j, data_nEqNull.at(rd_ix)[2]);
+                h_nEqTwo->SetBinContent(i, j, data_nEqTwo.at(rd_ix)[2]);
+            
+                ++ rd_ix;
+            }
+            else
+            {
+                h_nEqNull->SetBinContent(i, j, 0.0);
+                h_nEqTwo->SetBinContent(i, j, 0.0);
+            }
+            //h_nEqNull->SetBinContent(i, j, data_nEqNull.at(i * dimension_xy + j)[2]);
+            //h_nEqTwo->SetBinContent(i, j, data_nEqTwo.at(i * dimension_xy + j)[2]);
+            //if(i < dimension_xy - j)
+            //if(i + j < dimension_xy - 1)
+            //{
+                // TODO: move above lines to inside this if
+                //h_ratio->SetBinContent(i, j, ratio.at(i * dimension_xy + j)[2]);
+            //}
+        }
+    }
+    std::cout << "rd_ix_max=" << rd_ix << std::endl;
+    std::cout << "Finished constructing input data histograms" << std::endl;
+    
+    h_nEqNull_return = h_nEqNull;
+    h_nEqTwo_return = h_nEqTwo;
+
+}
+
+
+// TODO: this is probably equivalent to my previous "manual"
+// reading code, but should check
+void read_data(TTree *tree, std::vector<std::vector<double>>& data)
+{
+    
+    data.clear();
+
+    Float_t electronEnergy1;
+    Float_t electronEnergy2;
+    Float_t electronWeight;
+
+    tree->SetBranchAddress("electronEnergy1", &electronEnergy1);
+    tree->SetBranchAddress("electronEnergy2", &electronEnergy2);
+    tree->SetBranchAddress("electronWeight", &electronWeight);
+
+    for(Long64_t event = 0; event < tree->GetEntries(); ++ event)
+    {
+
+        tree->GetEntry(event);
+
+
+        std::cout << std::scientific;
+
+        std::cout << "electronEnergy1=" << electronEnergy1
+                  << " electronEnergy2=" << electronEnergy2
+                  << " electronWeight=" << electronWeight << std::endl;
+        std::cin.get();
+
+
+        data.emplace_back(std::vector<double>());
+        data.back().emplace_back(electronEnergy1);
+        data.back().emplace_back(electronEnergy2);
+        data.back().emplace_back(electronWeight);
+
+    }
+
+}
+
+
+std::size_t LD_REWEIGHT_DATA_2(
+    TH2D *&h_out,
+    const std::string &filename,
+    const std::string& h_name,
+    const std::string& name//,
+    //const double low,
+    //const double high
+    )
+{
+
+    
+
+    //TTree *t_G0 = new TTree();
+    //Long64_t count_G0 = t_G0->ReadFile("../../data/150Nd-data/dG150Nd/G0/dG0.dat", "electronEnergy1:electronEnergy2:electronWeight");
+    //std::cout << "count_G0=" << count_G0 << std::endl;
+
+    //Long64_t count_G0 = 0;
+    std::vector<std::vector<double>> data;
+    std::size_t read_count = 0;
+    std::ifstream if_Gn(filename);
+    double electronEnergy1, electronEnergy2, electronWeight;
+    while(if_Gn.good())
+    {
+        if_Gn >> electronEnergy1 >> electronEnergy2 >> electronWeight;
+        //++ count_G0;
+        ++ read_count;
+
+       
+        //if(read_count < 10)
+        //{
+        //    std::cout << "electronEnergy1=" << electronEnergy1
+        //          << " electronEnergy2=" << electronEnergy2
+        //          << " electronWeight=" << electronWeight << std::endl;
+        //}
+        //std::cin.get();
+
+
+        data.emplace_back(std::vector<double>());
+        data.back().emplace_back(electronEnergy1);
+        data.back().emplace_back(electronEnergy2);
+        data.back().emplace_back(electronWeight);
+    }
+    std::cout << "read_count=" << read_count << std::endl;
+
+    //TTree *t_G2 = new TTree();
+    //Long64_t count_G2 = t_G2->ReadFile("../../data/150Nd-data/dG150Nd/G2/dG2.dat", "electronEnergy1:electronEnergy2:electronWeight");
+    //std::cout << "count_G2=" << count_G2 << std::endl;
+
+    //output = out;
+    //outputG0 = t_G0;
+    //outputG2 = t_G2;
+    //countG0 = count_G0;
+    //countG2 = count_G2;
+
+    // solve quadratic
+    //const double A = 0.5;
+    //const double B = 0.5;
+    //double C = -(double)count;
+    //double dimension_xy = (-B + std::sqrt(B * B - 4.0 * A * C)) / (2.0 * A);
+    Long64_t count = read_count;
+    double dimension_xy = (int)(-0.5 + std::sqrt(0.25 - 2.0 * (-(double)count)));
+    if(dimension_xy != 3371)
+    {
+        std::cout << "error! dimension_xy != 3371, dimension_xy=" << dimension_xy << std::endl;
+    }
+    //const double dimension_xy{3371};
+
+    std::cout << "dimension_xy=" << dimension_xy << std::endl;
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    // CONVERT INPUT DATA TO HISTOGRAM FORMAT
+    // Note: Added 2018-04-23 (After INTERMEDIATE DATA below)
+    // Note: These histograms do NOT have the phase space variable included
+    ////////////////////////////////////////////////////////////////////////////
+                                      
+    //TH2D *h_nEqNull = new TH2D("h_nEqNull", "nEqNull", dimension_xy, 0.0, bb_Q, dimension_xy, 0.0, bb_Q);
+    //TH2D *h_nEqTwo = new TH2D("h_nEqTwo", "nEqTwo", dimension_xy, 0.0, bb_Q, dimension_xy, 0.0, bb_Q);
+
+
+    //const Int_t dimension_xy{3371};
+    //const Int_t dimension_xy{1001};
+    // don't plot raw data
+    //TH2D *h_nEqNull = new TH2D("h_nEqNull", "", dimension_xy, 0.0, bb_Q, dimension_xy, 0.0, bb_Q);
+    //TH2D *h_nEqTwo = new TH2D("h_nEqTwo", "", dimension_xy, 0.0, bb_Q, dimension_xy, 0.0, bb_Q);
+    //TH2D *h_nEqNull = new TH2D("h_nEqNull", "", dimension_xy, 0.0, 1.0, dimension_xy, 0.0, 1.0);
+    //TH2D *h_nEqTwo = new TH2D("h_nEqTwo", "", dimension_xy, 0.0, 1.0, dimension_xy, 0.0, 1.0);
+    //TH2D *h_ratio = new TH2D("h_ratio", "", dimension_xy, 0.0, 1.0, dimension_xy, 0.0, 1.0);
+    //h_nEqNull = new TH2D("h_nEqNull", "nEqNull", dimension_xy, 0.0, bb_Q, dimension_xy, 0.0, bb_Q);
+    //h_nEqTwo = new TH2D("h_nEqTwo", "nEqTwo", dimension_xy, 0.0, bb_Q, dimension_xy, 0.0, bb_Q);
+    //TH2D *h_ = new TH2D(hname.c_str(), name.c_str(), dimension_xy, low, high, dimension_xy, low, high);
+    const Double_t keV = 1.0e-03;
+    const Double_t E_min = 0.38e-03;
+    const Double_t limit_lower  = E_min - 0.5 * keV;
+    const Double_t limit_higher = E_min - 0.5 * keV + dimension_xy * keV;
+    TH2D *h_ = new TH2D(h_name.c_str(), h_name.c_str(),
+                        dimension_xy, limit_lower, limit_higher,
+                        dimension_xy, limit_lower, limit_higher);
+    //h_nEqTwo = new TH2D("h_nEqTwo", "nEqTwo", dimension_xy, 0.0, bb_Q, dimension_xy, 0.0, bb_Q);
+    h_->SetStats(0);
+    //h_nEqTwo->SetStats(0);
+    //h_ratio->SetStats(0);
+
+    // required because Nd-150 data is triangular
+    std::size_t rd_ix{0};
+    for(std::size_t i{0}; i < dimension_xy; ++ i)
+    {
+        for(std::size_t j{0}; j < dimension_xy; ++ j)
+        {
+            if(i < dimension_xy - j)
+            {
+                //h_nEqNull->SetBinContent(i, j, data_nEqNull.at(rd_ix)[2]);
+                //h_nEqTwo->SetBinContent(i, j, data_nEqTwo.at(rd_ix)[2]);
+                h_->SetBinContent(i, j, data.at(rd_ix)[2]);
+                //if(i < 5 && j < 10)
+                //{
+                //    std::cout << "fill: " << i << " " << j << " " << data.at(rd_ix)[2] << std::endl;
+                //}
+            
+                ++ rd_ix;
+            }
+            else
+            {
+                //h_nEqNull->SetBinContent(i, j, 0.0);
+                //h_nEqTwo->SetBinContent(i, j, 0.0);
+                h_->SetBinContent(i, j, 0.0);
+            }
+            //h_nEqNull->SetBinContent(i, j, data_nEqNull.at(i * dimension_xy + j)[2]);
+            //h_nEqTwo->SetBinContent(i, j, data_nEqTwo.at(i * dimension_xy + j)[2]);
+            //if(i < dimension_xy - j)
+            //if(i + j < dimension_xy - 1)
+            //{
+                // TODO: move above lines to inside this if
+                //h_ratio->SetBinContent(i, j, ratio.at(i * dimension_xy + j)[2]);
+            //}
+        }
+    }
+    std::cout << "rd_ix_max=" << rd_ix << std::endl;
+    std::cout << "Finished constructing input data histogram" << std::endl;
+    
+    //h_nEqNull_return = h_nEqNull;
+    //h_nEqTwo_return = h_nEqTwo;
+    h_out = h_;
+
+    //TCanvas *c_ = new TCanvas("c_", "c_");
+    //h_->Draw("colz");
+    //c_->SaveAs("hout.png");
+    //std::cout << "histogram done" << std::endl;
+    //std::cin.get();
+
+    return read_count;
+
+}
 
 
 void LD_REWEIGHT_DATA(TTree *&outputG0, TTree *&outputG2, Long64_t &countG0, Long64_t &countG2)
@@ -45,796 +311,6 @@ static int ctmp_counter = 0;
 
 
 
-// xi31 reweighting function for 150Nd spectra
-//void reweight_apply(TH2D *output, const TH1D *const input,
-void reweight_apply(
-    TH1D *&hTotalE_output,
-    TH1D *&hSingleEnergy_output,
-    TH1D *&hHighEnergy_output,
-    TH1D *&hLowEnergy_output,
-    TH1D *&hEnergySum_output,
-    TH1D *&hEnergyDiff_output,
-    TH2D *&hHighLowEnergy_output,
-    TH1D *&hWeight_output,
-    const std::string& tinput_filename,
-    const Double_t xi_31,
-    const Double_t xi_31_baseline,
-    const TH2D* const h_nEqNull,
-    const TH2D* const h_nEqTwo,
-    const Double_t psiN0,
-    const Double_t psiN2,
-    const Double_t bb_Q)
-{
-
-    //std::cout << "reweight_apply" << std::endl;
-
-    //const TString sampleName = "nd150_rot_2n2b_m4";
-    const TString sampleName = Nd150Files[0];
-    const TString name_append = "";
-
-    bool debugprint = false;
-
-    TH1D *hTotalE = (TH1D*)gROOT->FindObject("hTotalE_" + sampleName + name_append + "_reweight");
-    if(hTotalE == nullptr)
-    {
-        if(debugprint)
-        {
-            std::cout << "hTotalE nullptr!" << std::endl;
-        }
-        //std::cin.get();
-    }
-    else
-    {
-        delete hTotalE;
-    }
-
-    TH1D *hSingleEnergy = (TH1D*)gROOT->FindObject("hSingleEnergy_" + sampleName + name_append + "_reweight");
-    if(hSingleEnergy == nullptr)
-    {
-        if(debugprint)
-        {
-            std::cout << "hSingleEnergy nullptr!" << std::endl;
-        }
-    }
-    else
-    {
-        delete hSingleEnergy;
-    }
-    
-    TH1D *hHighEnergy =  (TH1D*)gROOT->FindObject("hHighEnergy_" + sampleName + name_append + "_reweight");
-    if(hHighEnergy == nullptr)
-    {
-        if(debugprint)
-        {
-            std::cout << "hHighEnergy nullptr!" << std::endl;
-        }
-    }
-    else
-    {
-        delete hHighEnergy;
-    }
-    
-    TH1D* hLowEnergy = (TH1D*)gROOT->FindObject("hLowEnergy_" + sampleName + name_append + "_reweight");
-    if(hLowEnergy == nullptr)
-    {
-        if(debugprint)
-        {
-            std::cout << "hLowEnergy nullptr!" << std::endl;
-        }
-    }
-    else
-    {
-        delete hLowEnergy;
-    }
-    
-    TH1D* hEnergySum = (TH1D*)gROOT->FindObject("hEnergySum_" + sampleName + name_append + "_reweight");
-    if(hEnergySum == nullptr)
-    {
-        if(debugprint)
-        {
-            std::cout << "hEnergySum nullptr!" << std::endl;
-        }
-    }
-    else
-    {
-        delete hEnergySum;
-    }
-    
-    TH1D* hEnergyDiff = (TH1D*)gROOT->FindObject("hEnergyDiff_" + sampleName + name_append + "_reweight");
-    if(hEnergyDiff == nullptr)
-    {
-        if(debugprint)
-        {
-            std::cout << "hEnergyDiff nullptr!" << std::endl;
-        }
-    }
-    else
-    {
-        delete hEnergyDiff;
-    }
-    
-    TH2D* hHighLowEnergy = (TH2D*)gROOT->FindObject("hHighLowEnergy_" + sampleName + name_append + "_reweight");
-    if(hHighLowEnergy == nullptr)
-    {
-        if(debugprint)
-        {
-            std::cout << "hHighLowEnergy nullptr!" << std::endl;
-        }
-    }
-    else
-    {
-        delete hHighLowEnergy;
-    }
-    
-    TH1D* hWeight = (TH1D*)gROOT->FindObject("hWeight_" + sampleName + name_append + "_reweight");
-    if(hWeight == nullptr)
-    {
-        if(debugprint)
-        {
-            std::cout << "hWeight nullptr!" << std::endl;
-        }
-    }
-    else
-    {
-        delete hWeight;
-    }
-
-    //std::cout << "gROOT" << std::endl;
-    //std::cout << gROOT->GetListOfClasses() << std::endl;
-    //gROOT->GetListOfClasses()->Print();
-    //gDirectory->ls();
-
-
-    // TODO: this does not work, need to re-Fill histogram using file
-    //output = input->Clone(input->GetName() + "_reweight");
-    //std::cout << "Total new" << std::endl;
-    hTotalE_output = new TH1D("hTotalE_" + sampleName + name_append + "_reweight",
-                       //"Phase " + Phase + " " + sampleName + name_append + " total energy; #SigmaE_{e} (MeV)",
-                       "Phase " + Phase + " " + sampleName + name_append + " total energy; Total Energy #SigmaE_{e} (MeV)",
-                       50, 0.0, 5.0);
-                       // TODO: changed from 4
-
-    //std::cout << "Single new" << std::endl;
-    hSingleEnergy_output    = new TH1D("hSingleEnergy_" + sampleName + name_append + "_reweight",
-                                "Phase " + Phase + " " + sampleName  + name_append + " Single Energy",
-                                50, 0.0, 5.0);
-    
-    //std::cout << "High new" << std::endl;
-    hHighEnergy_output     = new TH1D("hHighEnergy_" + sampleName + name_append + "_reweight",
-                                "Phase " + Phase + " " + sampleName + name_append + " High Energy; Energy (MeV)",
-                                50, 0.0, 5.0);
-
-    //std::cout << "Low new" << std::endl;
-    hLowEnergy_output     = new TH1D("hLowEnergy_" + sampleName + name_append + "_reweight",
-                                "Phase " + Phase + " " + sampleName + name_append + " Low Energy",
-                                50, 0.0, 5.0);
-
-    //std::cout << "Sum new" << std::endl;
-    hEnergySum_output     = new TH1D("hEnergySum_" + sampleName + name_append + "_reweight",
-                                "Phase " + Phase + " " + sampleName + name_append + " Low Energy",
-                                50, 0.0, 5.0);
-
-    //std::cout << "Diff new" << std::endl;
-    hEnergyDiff_output     = new TH1D("hEnergyDiff_" + sampleName + name_append + "_reweight",
-                                "Phase " + Phase + " " + sampleName + name_append + " Low Energy",
-                                50, 0.0, 5.0);
-    
-    //std::cout << "HighLow new" << std::endl;
-    hHighLowEnergy_output     = new TH2D("hHighLowEnergy_" + sampleName + name_append + "_reweight",
-                                "Phase " + Phase + " " + sampleName + name_append + ";Low Energy Electron Energy (MeV);High Energy Electron Energy (MeV)",
-                                50, 0.0, 5.0, 50, 0.0, 5.0);
-
-    //std::cout << "Weight new" << std::endl;
-    hWeight_output       = new TH1D("hWeight_" + sampleName + name_append + "_reweight",
-                                "Phase " + Phase + " " + sampleName + name_append + ";Weight",
-                                //50, -2.0, 4.0);
-                                50, 0.0, 0.0);
-
-    //std::cout << "end of new" << std::endl;
-
-    hTotalE_output->Sumw2();
-    hSingleEnergy_output->Sumw2();
-    hHighEnergy_output->Sumw2();
-    hLowEnergy_output->Sumw2();
-    hHighLowEnergy_output->Sumw2();
-    hEnergySum_output->Sumw2();
-    hEnergyDiff_output->Sumw2();
-
-    hWeight_output->Sumw2();
-
-    //std::cout << "houtput->GetName() -> " << houtput->GetName() << std::endl;
-
-    //for(Int_t i{1}; i <= output->GetNbinsX(); ++ i)
-    //{
-    //    Double_t content = output->GetBinContent(i);
-    //    Double_t reweight_factor = ReWeight3(T1, T2, xi_31, xi_31_baseline,
-    //                                         hNEqNull, hNEqTwo, psiN0, psiN2, "false");
-    //    content *= reweight_factor;
-    //    output->SetBinContent(i, content);
-    //}
-
-
-//    std::cout << "xi_31=" << xi_31 << ", xi_31_baseline=" << xi_31_baseline << std::endl;
-
-    //const double &epsilon_31_baseline{xi_31_baseline};
-    //const double &epsilon_31{xi_31};
-    //const Double_t &bb_Q{staticsgroup.Get_bb_Q()};
-    //std::cout << "bb_Q=" << bb_Q << std::endl;
-
-    //const TH2D* const h_nEqNull{staticsgroup.Get_h_nEqNull()};
-    //const TH2D* const h_nEqTwo{staticsgroup.Get_h_nEqTwo()};
-    //const double& psiN0{staticsgroup.Get_psiN0()};
-    //const double& psiN2{staticsgroup.Get_psiN2()};
-
-    //TTree *t{staticsgroup.Get_tree()};
-
-    //const Int_t &nElectrons{staticsgroup.Get_nElectrons()};
-    //const Double_t &trueT1{staticsgroup.Get_trueT1()};
-    //const Double_t &trueT2{staticsgroup.Get_trueT2()};
-    //const Double_t* const el_energy_{staticsgroup.Get_el_energy_()};
-    //const Double_t &gen_weight{staticsgroup.Get_gen_weight()};
-    
-    TFile *finput = new TFile(tinput_filename.c_str());
-    TTree *tinput = (TTree*)finput->Get("Nd150_2eNg/Nd150_2eNg");
-
-    Int_t nElectrons;
-    double electronEnergy[2];
-    double trueElectronEnergy[2];
-
-    tinput->SetBranchAddress("nElectrons"          , &nElectrons);  
-    tinput->SetBranchAddress("electronEnergy"      , electronEnergy);
-    tinput->SetBranchAddress("trueElectronEnergy"  , trueElectronEnergy);
-
-    bool doprint = false;
-
-    //const Double_t &trueT1{trueElectronEnergy[0]};
-    //const Double_t &trueT2{trueElectronEnergy[1]};
-
-    // TODO: there appears to be a very slight difference in the number of data/MC events
-    // compared to what is produced by fit_2e.C
-    // this is due to background MC scaling differences (in activities.txt / parameter_names.lst)
-    // or is it?
-    for(Long64_t ix{0}; ix < tinput->GetEntries(); ++ ix)
-    {
-
-//        if(ix == 10) break;
-
-        tinput->GetEntry(ix);
-
-        // analysis only valid for 2 electron events
-        //if(nElectrons != 2) continue;
-
-        //Double_t el_energy_0{electronEnergy[0]}; //{el_energy_[0]};
-        //Double_t el_energy_1{electronEnergy[1]}; //{el_energy_[1]}; // * systematic_energy_mult
-
-        int highE_index = -1;
-        int lowE_index = -1;
-        if(electronEnergy[0] > electronEnergy[1])
-        {
-            highE_index = 0;
-            lowE_index = 1;
-        }
-        else
-        {
-            highE_index = 1;
-            lowE_index = 0;
-        }
-
-        if(doprint)
-        {
-        std::cout << "electronEnergy[0]=" << electronEnergy[0]
-                  << " electronEnergy[1]=" << electronEnergy[1]
-                  << " highE_index=" << highE_index
-                  << " lowE_index=" << lowE_index
-                  << std::endl;
-        }
-
-        //if(el_energy_0 > el_energy_1)
-        //{
-        //    std::cout << "electron energy in wrong order" << std::endl;
-        //    std::cin.get();
-        //}
-        
-        // true energy
-        // TODO: presumably this does not exist for data so need to search for
-        // all instances of the trueT1, trueT2 variable and remove/replace
-        // note name change
-        //Double_t T0{trueT1 / bb_Q};
-        //Double_t T1{trueT2 / bb_Q};
-
-        const Double_t trueT0{trueElectronEnergy[highE_index]};
-        const Double_t trueT1{trueElectronEnergy[lowE_index]};
-        //const Double_t T0{trueElectronEnergy[highE_index] / bb_Q};
-        //const Double_t T1{trueElectronEnergy[lowE_index] / bb_Q};
-        const Double_t el_energy_0{electronEnergy[highE_index]};
-        const Double_t el_energy_1{electronEnergy[lowE_index]};
-
-        if(doprint)
-        {
-        std::cout << "trueT0=" << trueT0
-                  << " trueT1=" << trueT1
-                  << " el_energy_0=" << el_energy_0
-                  << " el_energy_1=" << el_energy_1
-                  << std::endl;
-        }
-
-        //if(trueT1 > trueT2)
-        //{
-        //    std::cout << "true electron energy in wrong order" << std::endl;
-        //    std::cin.get();
-        //}
-
-        /*
-        // if MC apply energy degradation (correction)
-        // only apply to MC
-        if(staticsgroup.mc_flag)
-        {
-            if(staticsgroup.optical_correction_enable)
-            {
-                // apply energy degradation (optical correction)
-                Double_t visible_true_ratio_0{1.0};
-                Double_t visible_true_ratio_1{1.0};
-
-                // if energy correction systematic is enabled, choose
-                // energy correction value depending on which subanalysis
-                // class this is
-                // 0 is default
-                // 1 is high systematic
-                // -1 is low systematic
-                if(staticsgroup.systematic_enable_optical_correction_statistical)
-                {
-                    if(staticsgroup.systematic_optical_correction_statistical_direction == 0)
-                    {
-                        visible_true_ratio_0 = staticsgroup.g_optical_correction->Eval(1000.0 * T0);
-                        visible_true_ratio_1 = staticsgroup.g_optical_correction->Eval(1000.0 * T1);
-                    }
-                    else if(staticsgroup.systematic_optical_correction_statistical_direction == 1)
-                    {
-                        visible_true_ratio_0 = staticsgroup.g_optical_correction_systematic_high->Eval(1000.0 * T0);
-                        visible_true_ratio_1 = staticsgroup.g_optical_correction_systematic_high->Eval(1000.0 * T1);
-                    }
-                    else if(staticsgroup.systematic_optical_correction_statistical_direction == -1)
-                    {
-                        visible_true_ratio_0 = staticsgroup.g_optical_correction_systematic_low->Eval(1000.0 * T0);
-                        visible_true_ratio_1 = staticsgroup.g_optical_correction_systematic_low->Eval(1000.0 * T1);
-                    }
-                    else
-                    {
-                        // NOOP
-                        //std::cout << "invalid value of systematic_optical_correction_statistical" << std::endl;
-                        //throw "invalid value of systematic_optical_correction_statistical";
-                    }
-                }
-                else
-                {
-                    //std::cout << "energy correction systematic is disabled" << std::endl;
-                    visible_true_ratio_0 = staticsgroup.g_optical_correction->Eval(1000.0 * T0);
-                    visible_true_ratio_1 = staticsgroup.g_optical_correction->Eval(1000.0 * T1);
-                }
-
-                //std::cout << "visible_true_ratio = " << visible_true_ratio_0 << ", " << visible_true_ratio_1 << std::endl;
-
-                // TODO this goes elsewhere
-                // apply energy correction with systematics if enabled
-                el_energy_0 = el_energy_0 * visible_true_ratio_0;
-                el_energy_1 = el_energy_1 * visible_true_ratio_1;
-            }
-            else
-            {
-                // optical correction is diabled
-                // NOOP
-            }
-
-            // TODO: other types of optical correction systematic
-        
-        }
-        */
-
-
-
-        /*** SYSTEMATICS **********************************************************/
-
-    /*
-        if(staticsgroup.systematic_enable_energy_multiply)
-        {
-            el_energy_0 *= staticsgroup.systematic_energy_multiply;
-            el_energy_1 *= staticsgroup.systematic_energy_multiply;
-        }
-
-        if(staticsgroup.systematic_enable_energy_add)
-        {
-            el_energy_0 += staticsgroup.systematic_energy_add;
-            el_energy_1 += staticsgroup.systematic_energy_add;
-        }
-
-        if(staticsgroup.systematic_enable_weight_multiply); // does nothing
-
-
-        // check electron energy threshold
-        if(staticsgroup.threshold_low_energy_enable)
-        {
-            if(el_energy_0 < staticsgroup.threshold_low_energy) continue;
-            if(el_energy_1 < staticsgroup.threshold_low_energy) continue;
-        }
-        if(staticsgroup.threshold_low_energy_sum_enable)
-        {
-            if(el_energy_0 + el_energy_1 < staticsgroup.threshold_low_energy_sum) continue;
-        }
-    */
-
-        // note: this was disabled in code I copied it from
-        /*
-        // this if statement sorts out the logical problem of having different
-        // high/low sysematic energy multipliers for the purpose of using them
-        // as labels to address the SubAnalysis entries in the map inside Analysis,
-        // and simultaniously allowing the systematic energy mult systematic to be
-        // turned off while another systematic is on
-        if(systematic_energy_mult_enable == true)
-        {
-            el_energy_0 = el_energy_0 * systematic_energy_mult;
-            el_energy_1 = el_energy_1 * systematic_energy_mult;
-        }
-            
-        // linear energy offset systematic
-        el_energy_0 = el_energy_0 + systematic_energy_offset;
-        el_energy_1 = el_energy_1 + systematic_energy_offset;
-        */
-
-   /*
-        // efficiency systematic
-        // TODO: can remove, as weight_efficiency = systematic_efficiency
-        Double_t weight_efficiency = 1.0;
-        //weight_efficiency = weight_efficiency * systematic_efficiency;
-        weight_efficiency = weight_efficiency * 1.0;
-
-        // generator weight (MC weight) multiplied by weight efficiency
-        Double_t aux_weight{gen_weight};
-        aux_weight = aux_weight * weight_efficiency;
-        
-        // TODO; what happens if the energy shift / systematics move the energy
-        // out of a valid range
-        // answer: nothing, reweight function depends only on T1 T2
-        // TODO: should T1 and T2 be shifted by systematic?
-    */
-
-        // note: already disabled
-        // TODO: energy degratation systematic
-        // cut both electrons > 300 keV
-        /*
-        if(_energy_cut_enable_)
-        {
-            if(el_energy_0 < 0.3) return;
-            if(el_energy_1 < 0.3) return;
-        }
-        */
-
-
-        // NOTE: more logical to set variables
-        // weight_1, weight_2
-        // for baseline and reweighted (now "baseline" and "test" / "universe")
-        // then fill each histogram with each different weight
-        // ?
-        // NOTE: why would we reweight at all, why not use the decay rates from the
-        // theorists directly?
-
-        // ReWeight = baseline 0.0, ReWeight2 = baseline = 0.382
-        //Double_t weight{ReWeight3(trueT1, trueT2, epsilon_31_baseline, epsilon_31, h_nEqNull, h_nEqTwo, psiN0, psiN2, "true")}; // TODO remove true?
-        
-        /*
-        if(xi_31_baseline != 0.0)
-        {
-            std::cout << "xi_31_baseline=" << xi_31_baseline << " != 0.0" << std::endl;
-            std::cin.get();
-        }
-        
-        if((xi_31 < -0.4) || (xi_31 > 1.0))
-        {
-            std::cout << "xi_31=" << xi_31 << " considered to be an unusual value" << std::endl;
-            std::cin.get();
-        }
-        */
-
-        Double_t weight{ReWeight3(trueT0, trueT1, xi_31_baseline, xi_31, h_nEqNull, h_nEqTwo, psiN0, psiN2, "true")}; // TODO remove true?
-
-        /*
-        if(weight < 1.0 - 1.0e-3)
-        {
-            std::cout << "weight=" << weight << std::endl;
-            std::cin.get();
-        }
-        else if(weight > 1.0 + 1.0e-3)
-        {
-            std::cout << "weight=" << weight << std::endl;
-            std::cin.get();
-        }
-        */
-
-        if(doprint)
-        {
-        std::cout << "weight=" << weight << std::endl;
-        }
-
-
-        //Double_t weight{ReWeight3(T0, T1, epsilon_31_baseline, epsilon_31, h_nEqNull, h_nEqTwo, psiN0, psiN2, "true")};
-        //Double_t weight{ReWeight2(T1, T2, epsilon_31, h_nEqNull, h_nEqTwo, psiN0, psiN2, "true")};
-        //Double_t weight{ReWeight(T1, T2, epsilon_31, h_nEqNull, h_nEqTwo, psiN0, psiN2, "true")};
-
-        // reweight
-        //h_el_energy_reweight->Fill(el_energy_0, weight * aux_weight);
-        //h_el_energy_reweight->Fill(el_energy_1, weight * aux_weight);
-
-        //h_el_energy_sum_reweight->Fill(el_energy_0 + el_energy_1, weight * aux_weight);
-        //houtput->Fill(el_energy_0 + el_energy_1, weight * aux_weight);
-        //hTotalE_output->Fill(el_energy_0 + el_energy_1, 1.0 * weight);
-        //hSingleEnergy_output->Fill(el_energy_0, 1.0 * weight);
-        //hSingleEnergy_output->Fill(el_energy_1, 1.0 * weight);
-        //hLowEnergy_output->Fill(el_energy_1, 1.0 * weight);
-        //hHighEnergy_output->Fill(el_energy_0, 1.0 * weight);
-        //hHighLowEnergy_output->Fill(el_energy_1, el_energy_0, 1.0 * weight);
-        
-        hTotalE_output->Fill(electronEnergy[0] + electronEnergy[1], 1.0 * weight);
-        hSingleEnergy_output->Fill(electronEnergy[lowE_index], 1.0 * weight);
-        hSingleEnergy_output->Fill(electronEnergy[highE_index], 1.0 * weight);
-        hHighEnergy_output->Fill(electronEnergy[highE_index], 1.0 * weight);
-        hLowEnergy_output->Fill(electronEnergy[lowE_index], 1.0 * weight);
-        hHighLowEnergy_output->Fill(electronEnergy[lowE_index], electronEnergy[highE_index], 1.0 * weight);
-        hEnergySum_output->Fill(electronEnergy[highE_index] + electronEnergy[lowE_index], 1.0 * weight);
-        hEnergyDiff_output->Fill(electronEnergy[highE_index] - electronEnergy[lowE_index], 1.0 * weight);
-
-        hWeight_output->Fill(1.0 * weight);
-
-        // note: already removed
-        /*
-        if(el_energy_0 <= el_energy_1)
-        {
-            h_el_energy_2d_reweight->Fill(el_energy_0, el_energy_1, weight * aux_weight);
-        }
-        else
-        {
-            h_el_energy_2d_reweight->Fill(el_energy_1, el_energy_0, weight * aux_weight);
-        }
-        */
-
-        // note: no systematic energy shift in this class
-        //Double_t el_energy_0{el_energy_[0] * systematic_energy_mult};
-        //Double_t el_energy_1{el_energy_[1] * systematic_energy_mult};
-        //Double_t el_energy_0{el_energy_[0]};
-        //Double_t el_energy_1{el_energy_[1]};
-        // NOTE: removed, defined above, need to check
-
-
-        
-        // note: all below already removed
-
-        // true energy
-        // TODO: presumably this does not exist for data so need to search for
-        // all instances of the trueT1, trueT2 variable and remove/replace
-        //Double_t T1{trueT1 / bb_Q};
-        //Double_t T2{trueT2 / bb_Q};
-        // NOTE: removed, defined above, need to check
-
-        // if MC apply energy degradation (correction)
-        /*
-        if(m_mode == MODE_FLAG::MODE_MC)
-        {
-            Double_t visible_true_ratio_1{g_energy_correction->Eval(T1)};
-            Double_t visible_true_ratio_2{g_energy_correction->Eval(T2)};
-
-            el_energy_0 = el_energy_0 * visible_true_ratio_1;
-            el_energy_1 = el_energy_0 * visible_true_ratio_2;
-        }
-        */
-
-        // TODO: not sure if this should be removed
-        // cut both electrons > 300 keV
-        /*
-        if(_energy_cut_enable_)
-        {
-            if(el_energy_0 < 0.3) continue;
-            if(el_energy_1 < 0.3) continue;
-        }
-        */
-
-        // end of note, all
-
-
-    }
-
-
-    //print_histo_text(std::cout, "h_el_energy_reweight", h_el_energy_reweight);
-
-    /*
-    TFile *fout = new TFile("fout.root", "recreate");
-    h_el_energy_reweight->Write();
-    h_el_energy_sum_reweight->Write();
-    fout->Close();
-    std::cout << "fout" << std::endl;
-    std::cin.get();
-
-    TCanvas *c = new TCanvas("c_srw", "c_srw", 800, 600);
-    h_el_energy_sum_reweight->Draw("e");
-    c->SaveAs("c_srw.png");
-    */
-
-    finput->Close();
-
-    // before scale or stack check histogram
-    /*
-    TString ctmp2_name;
-    ctmp2_name.Form("ctmp2_%i", ctmp_counter);
-    TCanvas *ctmp2 = new TCanvas(ctmp2_name);
-    houtput->DrawClone();
-    */
-
-
-
-    const double TotalTime = 167629292.; // P1+P2
-    const double AcceptedTime0 = 33859178.;
-    const double AcceptedTime1 = 133770114.;
-    const double AcceptedTime2 = TotalTime;
-
-    // scale
-
-    // stack
-
-    hTotalE_output->SetLineWidth(2);
-    hSingleEnergy_output->SetLineWidth(2);
-    hHighEnergy_output->SetLineWidth(2);
-    hLowEnergy_output->SetLineWidth(2);
-    hHighLowEnergy_output->SetLineWidth(2);
-    hEnergySum_output->SetLineWidth(2);
-    hEnergyDiff_output->SetLineWidth(2);
-    //houtput->SetMarkerStyle(20);
-    //TODO: other stuff here
-
-    //hTotalE_output->Sumw2();
-    hTotalE_output->SetFillColor(Nd150Colors[0]);
-    hTotalE_output->SetLineColor(Nd150Colors[0]);
-    hTotalE_output->SetTitle(Nd150Names[0]);
-
-    //hSingleEnergy_output->Sumw2();
-    hSingleEnergy_output->SetFillColor(Nd150Colors[0]);
-    hSingleEnergy_output->SetLineColor(Nd150Colors[0]);
-    hSingleEnergy_output->SetTitle(Nd150Names[0]);
-
-    //hHighEnergy_output->Sumw2();
-    hHighEnergy_output->SetFillColor(Nd150Colors[0]);
-    hHighEnergy_output->SetLineColor(Nd150Colors[0]);
-    hHighEnergy_output->SetTitle(Nd150Names[0]);
-
-    //hLowEnergy_output->Sumw2();
-    hLowEnergy_output->SetFillColor(Nd150Colors[0]);
-    hLowEnergy_output->SetLineColor(Nd150Colors[0]);
-    hLowEnergy_output->SetTitle(Nd150Names[0]);
-
-    //hHighLowEnergy_output->Sumw2();
-/*
-    hHighLowEnergy_output->SetFillColor(Nd150Colors[0]);
-    hHighLowEnergy_output->SetLineColor(Nd150Colors[0]);
-    hHighLowEnergy_output->SetTitle(Nd150Names[0]);
-*/
-
-    //hEnergySum_output->Sumw2();
-    hEnergySum_output->SetFillColor(Nd150Colors[0]);
-    hEnergySum_output->SetLineColor(Nd150Colors[0]);
-    hEnergySum_output->SetTitle(Nd150Names[0]);
-
-    //hEnergyDiff_output->Sumw2();
-    hEnergyDiff_output->SetFillColor(Nd150Colors[0]);
-    hEnergyDiff_output->SetLineColor(Nd150Colors[0]);
-    hEnergyDiff_output->SetTitle(Nd150Names[0]);
-
-
-    std::ifstream inFile;
-    //std::string filePath = ; //in header
-    //std::string filePath = "/media/ecb/Maxtor/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2e/";
-    //std::string filePath = "/media/ecb/backup/users/ecb/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2e/";
-    // change to using md0 raid over network
-    //std::string filePath = "/mnt/md0/users/ecb/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2e/";
-    std::string filePath = "/mnt/ecb/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2e/";
-    // TODO: this will break when changing to 2eNg
-    // TODO: MOVE INTO INCLUDABLE HEADER FOR BOTH fit_2e.h and newLog...h
-    TString sampleFiles_150Nd = Nd150Files[0];
-    //std::cout << "sampleFiles_150Nd=" << sampleFiles_150Nd << std::endl;
-    // THIS WILL GO WRONG IF NOT READING 2e !
-    std::string typedir = "nd150/";
-    std::string fullpath = filePath + typedir + std::string(sampleFiles_150Nd.Data()) + "/JobSummary.txt";
-    //std::cout << "filepath=" << filePath << std::endl;
-    //std::cout << "fullpath=" << fullpath << std::endl;
-    inFile.open(fullpath);
-    if(!inFile.is_open())
-    {
-        std::cout << "could not open: " << fullpath << std::endl;
-        throw "file not open for reading number of generated MC";
-    }
-    std::string dummy;
-    double sampleNGenMC_150Nd; // TODO: wrong type in header?
-    inFile >> dummy >> sampleNGenMC_150Nd;
-    inFile.close();
-    //std::cout << "sampleNGemMC_150Nd=" << sampleNGenMC_150Nd << std::endl;
-
-    hTotalE_output->Scale(TotalTime / sampleNGenMC_150Nd);
-    hSingleEnergy_output->Scale(TotalTime / sampleNGenMC_150Nd);
-    hHighEnergy_output->Scale(TotalTime / sampleNGenMC_150Nd);
-    hLowEnergy_output->Scale(TotalTime / sampleNGenMC_150Nd);
-    hHighLowEnergy_output->Scale(TotalTime / sampleNGenMC_150Nd);
-    hEnergySum_output->Scale(TotalTime / sampleNGenMC_150Nd);
-    hEnergyDiff_output->Scale(TotalTime / sampleNGenMC_150Nd);
-    //std::cout << "after Scale(), Integral is: " << houtput->Integral() << " scaled by " << TotalTime / sampleNGenMC_150Nd << std::endl;
-    //std::cin.get();
-    
-    std::string mc_name = std::string(Nd150Files[0]);
-    std::string search_object = MCNameToParamNameMap.at(mc_name);
-    if(paramNameToNumberMap.count(search_object) > 0)
-    {
-        // convert from mc sample name to param number
-
-        int param_number = paramNameToNumberMap.at(search_object);
-        //std::cout << "parameber number " << param_number << " is in the paramNameToNumberMap" << std::endl;
-        //std::cin.get();
-
-        // TODO: change such that samples are pre-scaled by activity input value
-        // get initial parameter values and error
-        Double_t param_init_value = 0.;
-        Double_t param_init_error = 0.; 
-        get_paramInitValueError(thePhase, param_number, param_init_value, param_init_error);
-
-        Double_t scale_factor = param_init_value;
-
-        // NOTE: TODO
-        // possible flaw with this method: error is no longer
-        // pre-set using values from input file
-        // TODO: note this in input file documentation
-        // however, this may be an improvement because it
-        // guarantees minuit is responsible for error estimation
-        //std::cout << "scaling by: " << scale_factor << std::endl;
-        //std::cin.get();
-        hTotalE_output->Scale(scale_factor);
-        hSingleEnergy_output->Scale(scale_factor);
-        hHighEnergy_output->Scale(scale_factor);
-        hLowEnergy_output->Scale(scale_factor);
-        hHighLowEnergy_output->Scale(scale_factor);
-        hEnergySum_output->Scale(scale_factor);
-        hEnergyDiff_output->Scale(scale_factor);
-
-        // NOTE: Scale factor
-        // samples are scaled by
-        // TotalTime / sampleNGenMC
-        // such that scale factor at this point matches that of
-        // the scale factor applied in fit_2e.C to other histograms
-        // and then
-        // activity (Bq)
-        // such that overall scale factor matches that of histograms
-        // in book1DHistograms function
-
-        /*
-        std::cout << "Integrals after scaling: " << hTotalE_output->Integral()
-                  << " " << hSingleEnergy_output->Integral()
-                  << " " << hLowEnergy_output->Integral()
-                  << " " << hHighEnergy_output->Integral()
-                  << " " << hHighLowEnergy_output->Integral()
-                  << std::endl;
-        */
-    }
-    else
-    {
-        throw "problem";
-    }
- 
-
-    /*
-    TString ctmp_name;
-    ctmp_name.Form("ctmp_%i", ctmp_counter);
-    TCanvas *ctmp = new TCanvas(ctmp_name);
-    houtput->DrawClone();
-    //ctmp->Draw();
-    ++ ctmp_counter;
-    std::cout << "draw new hTotalE" << std::endl;
-    //std:cin.get();
-    */
-
-
-}
 
 
 
@@ -854,11 +330,35 @@ Double_t ReWeight3(const Double_t T1, const Double_t T2,
                   const std::string& debug = "")
 {
 
+
+    /*
+    const double E_min = 0.38e-03; // keV
+    const double E_bin_width = 1.0e-03; // 1 keV bin width
+    double T1_bin = (T1 - E_min) / E_bin_width;
+    double T2_bin = (T2 - E_min) / E_bin_width;
+    int T1_bin_ix = (int)std::round(T1_bin);
+    int T2_bin_ix = (int)std::round(T2_bin);
+    */
+
     // TODO: NO INTERPOLATION DONE YET
+
+    if(T1 < 0.38e-03 - 0.5e-03)
+    {
+        std::cout << "problem: lower limit" << std::endl;
+        throw "problem";
+    }
+    if(T1 > 0.38e-03 - 0.5e-03 + 1.0e-03 * 3371.0)
+    {
+        std::cout << "problem: upper limit" << std::endl;
+        throw "problem";
+    }
 
     // find bin corresponding to energies T1, T2
     Int_t bin_x{h_nEqNull->GetXaxis()->FindBin(T1)};
     Int_t bin_y{h_nEqNull->GetYaxis()->FindBin(T2)};
+    // TODO: do this conversion manually
+    //Int_t bin_x{T1_bin_ix};
+    //Int_t bin_y{T2_bin_ix};
 
     //std::cout << "T1=" << T1 << " T2=" << T2 << std::endl;
     //std::cout << "the bin is " << bin_x << " " << bin_y << std::endl;

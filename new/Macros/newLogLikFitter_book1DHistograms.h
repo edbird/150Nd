@@ -8,12 +8,12 @@
 // book1DHistograms
 ///////////////////////////////////////////////////////////////////////////////
 
+#if 0
 void book1DHistograms_helper(TFile *myFile, Int_t channel_counter, TString theChannel, TString thePhase_arg, TString theHistogram,
     const int nBkgs, TString *BkgFiles)//, TH1D *tmpHist)
 {
         
     TH1D *tmpHist = nullptr;
-
 
     for(int i = 0; i < nBkgs; i++)
     {
@@ -109,41 +109,16 @@ void book1DHistograms_helper(TFile *myFile, Int_t channel_counter, TString theCh
                     // multiply the bin content by AdjustActs parameter
                     // (minuit parameter)
 
-        if(param_number == 0)
-        {
-            //std::cout << "book1DHistograms function" << std::endl;
-            //std::cout << "Integrals after scaling: " << tmpHist->Integral()
-            //      << std::endl;
-        }
-        if(param_number == 1)
-        {
-            std::cout << "ERROR" << std::endl;
-            throw "Error";
-        }
+                    if(param_number == 1)
+                    {
+                        std::cout << "ERROR" << std::endl;
+                        throw "Error";
+                    }
 
-// NOTE: do NOT apply xi reweighting here
-// this section just LOADS histograms from file and we want to LOAD
-// the default (not reweighted) nd150 spectra
-// TODO: this may no longer be true
-/*
-        // MARKER 10
-                // check if MC sample is 150Nd, if so need to apply xi
-                // reweighting
-                if(tmpHist_draw1D->GetName().CompareTo("nd150_rot_2n2b_m4") == 0)
-                {
-                    std::cout << "found the 150Nd MC" << std::endl;
-                    std::cin.get();
-
-                    TH1D *tmpHist_draw_1d_clone = nullptr;
-                    reweight_apply(tmpHist_draw1D_clone, tmpHist_draw1D, ... );
-                }
-                else
-                {
-                    std::cout << "it is not " << tmpHist_draw1D->GetName() << std::endl;
-                    std::cin.get();
-                }
-*/
-
+                    // NOTE: do NOT apply xi reweighting here
+                    // this section just LOADS histograms from file and we want to LOAD
+                    // the default (not reweighted) nd150 spectra
+                    // TODO: this may no longer be true
 
                     allMCSamples1D[channel_counter]->Add(tmpHist);
                     // TODO: does this work as expected for secular equlibrium samples?
@@ -180,6 +155,151 @@ void book1DHistograms_helper(TFile *myFile, Int_t channel_counter, TString theCh
                 std::cout << it->first << " -> " << it->second << std::endl;
             }
         }
+    }
+}
+#endif
+
+
+void book1DHistograms_helper(TFile *myFile, Int_t channel_counter, TString theChannel, TString thePhase_arg, TString theHistogram,
+    const int nBkgs, TString *BkgFiles)//, TH1D *tmpHist)
+{
+        
+    TH1D *tmpHist = nullptr;
+
+    for(int i = 0; i < nBkgs; i++)
+    {
+        // check if parameter is enabled
+        // convert parameter string name to index
+        //std::cout << "searching for string " << ExternalBkgOneParamFiles[i] << " in paramNameMap" << std::endl;
+        //TString search_object = ExternalBkgOneParamFiles[i];
+        std::string mc_name = std::string(BkgFiles[i]);
+
+        // convert mc_name to scale factor
+        Double_t scale_factor = 0.0;
+        int param_number = -1;
+        bool success = convert_MC_name_to_scale_factor(mc_name, param_number, scale_factor);
+
+        if(success == true)
+        {
+            //std::string directory("scaled/hTotalE_/");
+            std::string directory("scaled/" + theHistogram + "/");
+            std::string name(theHistogram + BkgFiles[i] + "_fit_scaled");
+            std::string fullname = directory + name;
+            std::string new_name(theHistogram + BkgFiles[i] + "_fit");
+            std::cout << "fullname=" << fullname << std::endl;
+
+            //gDirectory->GetListOfKeys();
+
+            //tmpHist = (TH1D*)gDirectory->Get(fullname.c_str())->Clone();
+            tmpHist = (TH1D*)myFile->Get(fullname.c_str())->Clone(new_name.c_str());
+            // TODO: should not clone but setname() here?
+
+            if(tmpHist != nullptr)
+            //if(gDirectory->GetListOfKeys()->Contains(fullname.c_str()))
+            //std::cout << "parameter number " << param_number << " is enabled" << std::endl;
+            //std::string name(theHistogram + BkgFiles[i] + "_fit");
+            //if(gDirectory->GetListOfKeys()->Contains(name.c_str()))
+            {
+                // load sample
+
+                // 2020-04-03: removed changing of histogram name
+                //check if the histograms exists 
+                //std::string hist_name(BkgFiles[i] + "_" + theChannel + thePhase_arg);
+                //std::cout << "Get() : " << name << " from file, Clone() : " << hist_name << std::endl;
+                //tmpHist = (TH1D*)gDirectory->Get(name.c_str())->Clone(hist_name.c_str());
+                //tmpHist = (TH1D*)gDirectory->Get(fullname.c_str())->Clone();
+
+                // scale by activity
+
+                // NOTE: TODO
+                // possible flaw with this method: error is no longer
+                // pre-set using values from input file
+                // TODO: note this in input file documentation
+                // however, this may be an improvement because it
+                // guarantees minuit is responsible for error estimation
+                tmpHist->Scale(scale_factor);
+                // samples are now scaled by activity
+                // changed input, and pre-scaling, now need to change output
+
+                // NOTE: Scale factor
+                // samples scaled by param_init_value (activity in Bq)
+                // after being read from file
+                // however objects in file are scaled by
+                // TotalTime / sampleNGenMC
+                // also scale by 0.36 for relevant samples to account for
+                // branching ratio here
+                
+                // in loglikelihood function the getNumberMC() functions
+                // multiply the bin content by AdjustActs parameter
+                // (minuit parameter)
+
+                if(param_number == 1)
+                {
+                    std::cout << "ERROR" << std::endl;
+                    throw "Error";
+                }
+
+                // NOTE: do NOT apply xi reweighting here
+                // this section just LOADS histograms from file and we want to LOAD
+                // the default (not reweighted) nd150 spectra
+                // TODO: this may no longer be true
+
+                allMCSamples1D[channel_counter]->Add(tmpHist);
+                // TODO: does this work as expected for secular equlibrium samples?
+
+                //std::cout << tmpHist->GetName() << std::endl;
+
+            }
+            else
+            {
+                std::cout << "could not find histogram in file: " << fullname << " - disabling parameter number " << param_number << std::endl;
+                // cannot find histogram input data, so disable parameter
+                std::remove(enabled_params.begin(), enabled_params.end(), param_number);
+            }
+
+        }
+        else
+        {
+            std::cerr << "errormsg" << std::endl;
+        }
+
+
+        #if 0
+        std::string search_object = MCNameToParamNameMap.at(mc_name);
+        if(paramNameToNumberMap.count(search_object) > 0)
+        {
+            // convert from mc sample name to param number
+
+            int param_number = paramNameToNumberMap.at(search_object);
+            //std::cout << "parameber number " << param_number << " is in the paramNameToNumberMap" << std::endl;
+            if(std::find(enabled_params.begin(), enabled_params.end(), param_number) != enabled_params.end())
+            {
+                // check if param number is enabled
+
+            }
+            else
+            {
+                // paramter not enabled, do not load histogram/sample
+                std::cout << "parameter number " << param_number << " is not enabled (not found in vector)" << std::endl;
+            }
+        }
+        else
+        {
+            std::cout << "!!!!! ERROR: search_object=" << search_object << " not found in paramNameToNumberMap" << std::endl;
+            std::cout << "mc_name=" << mc_name << std::endl;
+
+            std::cout << "contents of map paramNameToNumberMap:" << std::endl;
+            for(auto it = paramNameToNumberMap.cbegin(); it != paramNameToNumberMap.cend(); ++ it)
+            {
+                std::cout << it->first << " -> " << it->second << std::endl;
+            }
+            std::cout << "contents of map MCNameToParamNameMap:" << std::endl;
+            for(auto it = MCNameToParamNameMap.cbegin(); it != MCNameToParamNameMap.cend(); ++ it)
+            {
+                std::cout << it->first << " -> " << it->second << std::endl;
+            }
+        }
+        #endif
     }
 }
 

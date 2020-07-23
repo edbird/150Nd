@@ -27,6 +27,78 @@ void book2DHistograms_helper(
         // convert TString to std::string
         std::string mc_name = std::string(BkgFiles[i]);
 
+        // convert mc_name to scale factor
+        Double_t scale_factor = 0.0;
+        int param_number = -1;
+        bool success = convert_MC_name_to_scale_factor(mc_name, param_number, scale_factor);
+
+        if(success == true)
+        {
+            // TODO:
+            //std::string directory("scaled/hHighLowEnergy_/");
+            std::string directory("scaled/" + theHistogram + "/");
+            std::string name(theHistogram + BkgFiles[i] + "_fit_scaled");
+            std::string fullname = directory + name;
+            std::string new_name(theHistogram + BkgFiles[i] + "_fit");
+            std::cout << "fullname=" << fullname << std::endl;
+
+            // TODO: try catch block
+            // load sample
+            tmpHist = (TH2D*)myFile->Get(fullname.c_str())->Clone(new_name.c_str());
+            
+            if(tmpHist != nullptr)
+            {
+                // scale by activity
+
+                // NOTE: TODO
+                // possible flaw with this method: error is no longer
+                // pre-set using values from input file
+                // TODO: note this in input file documentation
+                // however, this may be an improvement because it
+                // guarantees minuit is responsible for error estimation
+                tmpHist->Scale(scale_factor);
+                // samples are now scaled by activity
+                // changed input, and pre-scaling, now need to change output
+
+
+                // NOTE: do NOT apply xi reweighting here
+                // this section just LOADS histograms from file and we want to LOAD
+                // the default (not reweighted) nd150 spectra
+
+                allMCSamples2D[channel_counter]->Add(tmpHist);
+                // TODO: does this work as expected for secular equlibrium samples?
+
+                //std::cout << tmpHist->GetName() << std::endl;
+
+            }
+            else
+            {
+                std::cout << "could not find histogram in file: " << fullname << " - disabling parameter number " << param_number << std::endl;
+                // cannot find histogram input data, so disable parameter
+                std::remove(enabled_params.begin(), enabled_params.end(), param_number);
+            }
+        }
+        else
+        {
+            std::cerr << "errormsg" << std::endl;
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+        #if 0
+
+
         // example: "bi214_int_rot" -> "bi214_int_rot,pb214_int_rot"
         std::string search_object = MCNameToParamNameMap.at(mc_name);
 
@@ -66,22 +138,6 @@ void book2DHistograms_helper(
                     Double_t param_init_value = 0.;
                     Double_t param_init_error = 0.;
                     get_paramInitValueError(thePhase, param_number, param_init_value, param_init_error);
-                    /*
-                    if(thePhase == 0)
-                    {
-                        param_init_value = paramInitValueP1Map[param_number];
-                        param_init_error = paramInitErrorP1Map[param_number];
-                    }
-                    else if(thePhase == 1)
-                    {
-                        param_init_value = paramInitValueP2Map[param_number];
-                        param_init_error = paramInitErrorP2Map[param_number];
-                    }
-                    else
-                    {
-                        std::cout << "ERROR: Invalid value for thePhase: thePhase=" << thePhase << std::endl;
-                    }
-                    */
                     Double_t scale_factor = param_init_value;
 
                     // account for 208 Tl branching ratio of 36 %
@@ -113,7 +169,6 @@ void book2DHistograms_helper(
                     // this section just LOADS histograms from file and we want to LOAD
                     // the default (not reweighted) nd150 spectra
 
-
                     allMCSamples2D[channel_counter]->Add(tmpHist);
                     // TODO: does this work as expected for secular equlibrium samples?
 
@@ -133,6 +188,8 @@ void book2DHistograms_helper(
                 std::cout << "parameter number " << param_number << " is not enabled (not found in vector)" << std::endl;
             }
         }
+        #endif
+        #if 0
         else
         {
             std::cout << "!!!!! ERROR: search_object=" << search_object << " not found in paramNameToNumberMap" << std::endl;
@@ -141,7 +198,8 @@ void book2DHistograms_helper(
             print_map(paramNameToNumberMap, "paramNameToNumberMap");
             print_map(MCNameToParamNameMap, "MCNameToParamNameMap");
         }
-    }
+        #endif
+    //}
 }
 
 

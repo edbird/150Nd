@@ -11,14 +11,19 @@
 void fitBackgrounds_init(
     ROOT::Minuit2::MnUserParameterState& theParameterState,
     ROOT::Minuit2::VariableMetricMinimizer& theMinimizer,
-    double *AdjustActs,
-    double *AdjustActs_Err
+//    double *AdjustActs,
+//    double *AdjustActs_Err
+    const double xi_31_value, const double xi_31_error
     )
 {
 //    std::cout << " 1 " << AdjustActs[1] << std::endl;
 //    std::cin.get();
 
-    std::cout << ">>>>> fitBackgrounds_init()" << std::endl;
+    bool debugprint = false;
+    if(debugprint)
+    {
+        std::cout << ">>>>> fitBackgrounds_init()" << std::endl;
+    }
 
     //TVirtualFitter::SetDefaultFitter("Minuit2");
     
@@ -46,9 +51,15 @@ void fitBackgrounds_init(
     // calls
   
     // TODO: printing sample_names array, what does this do, is it still used?
-    print_paramNameMap();
+    if(debugprint)
+    {
+        print_paramNameMap();
+    }
 
-    std::cout << "set errors" << std::endl;
+    if(debugprint)
+    {
+        std::cout << "set errors" << std::endl;
+    }
 
     // Set the parameters for the fit, and give them an arbitrary 10% error to start.
     //for(int i = 0; i < numberParams; i++)
@@ -90,7 +101,7 @@ void fitBackgrounds_init(
         i_str.Form("%i", i);
         TString minuit_param_number_str;
         minuit_param_number_str.Form("%i", minuit_param_number);
-        std::cout << "DefineParameter: i=" << i << " -> minuit_param_number=" << minuit_param_number << std::endl;
+        //std::cout << "DefineParameter: i=" << i << " -> minuit_param_number=" << minuit_param_number << std::endl;
         //minuit->DefineParameter(i, "_" + i_str + "_", 1.0, 0.1, 0.0, 1000.0);
 
 
@@ -98,7 +109,7 @@ void fitBackgrounds_init(
         {
             // define parameter using constrained value if hard constrained
 
-            std::cout << "minuit: fixed parameter i=" << i << std::endl;
+            //std::cout << "minuit: fixed parameter i=" << i << std::endl;
             TString minuit_param_name = "_" + i_str + "_" + minuit_param_number_str + "_FIXED";
             
             //minuit->DefineParameter(i, "_" + i_str + "_", 1.0, 0.1, 0.0, 2.0);
@@ -115,7 +126,8 @@ void fitBackgrounds_init(
 //                std::cin.get();
                 //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_FIXED", AdjustActs[i], 0.5, 0.0, 50.0);
                 //TString minuit_param_name = "_" + i_str + "_" + minuit_param_number_str + "_FIXED";
-                theParameterState.Add(std::string(minuit_param_name), AdjustActs[i], AdjustActs_Err[i]); // instead of _Err was 0.5
+                //theParameterState.Add(std::string(minuit_param_name), AdjustActs[i], AdjustActs_Err[i]); // instead of _Err was 0.5
+                theParameterState.Add(std::string(minuit_param_name), xi_31_value, xi_31_error); // instead of _Err was 0.5
                 //theParameterState.SetLowerLimit(i, 0.0); // no limit for xi
             }
             else
@@ -144,7 +156,7 @@ void fitBackgrounds_init(
         {
             // define parameter using initial value if free/soft constrained
             
-            std::cout << "minuit: parameter i=" << i << " is enabled and not fixed, leaving free" << std::endl;
+            //std::cout << "minuit: parameter i=" << i << " is enabled and not fixed, leaving free" << std::endl;
             TString minuit_param_name = "_" + i_str + "_" + minuit_param_number_str + "_";
 
             //minuit->DefineParameter(i, "_" + i_str + "_", param_init_value, param_init_error, 0.0, 1.0e+06);
@@ -165,7 +177,8 @@ void fitBackgrounds_init(
                 //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", xi_31_init, 0.5, 0.0, 1000.0);
                 //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", AdjustActs[i], 0.5, 0.0, 1000.0);
                 //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", AdjustActs[i], 0.5, -1.0, 5.0);
-                theParameterState.Add(std::string(minuit_param_name), AdjustActs[i], AdjustActs_Err[i]); // instead of _Err was 0.5
+                //theParameterState.Add(std::string(minuit_param_name), AdjustActs[i], AdjustActs_Err[i]); // instead of _Err was 0.5
+                theParameterState.Add(std::string(minuit_param_name), xi_31_value, xi_31_error); // instead of _Err was 0.5
                 theParameterState.SetLowerLimit(i, -0.4);
                 //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", AdjustActs[i], 0.5, -0.4, 5.0);
                 //minuit->DefineParameter(minuit_param_number, "_" + i_str + "_" + minuit_param_number_str + "_", AdjustActs[i], 0.5, -1.0, 5.0);
@@ -289,7 +302,10 @@ void fitBackgrounds_init(
         //}
     }
 
-    std::cout << "all parameters fixed" << std::endl;
+    if(debugprint)
+    {
+        std::cout << "all parameters fixed" << std::endl;
+    }
 
     // TODO: check what parameters Summer had fixed and check the MC cuts
     // Fix the tracker radon activities
@@ -346,7 +362,10 @@ void fitBackgrounds_init(
 
     // Set print level
     //  minuit->ExecuteCommand("SET PRINT",arglist,2);
-    std::cout << "Ready to exec fix" << std::endl;
+    if(debugprint)
+    {
+        std::cout << "Ready to exec fix" << std::endl;
+    }
 
     // Do minimisation
     // arglist[0] = 50000;  // number of function calls
@@ -405,6 +424,10 @@ void fitBackgrounds_init(
     */
 
 
+    // TODO: something should go here?
+    // to set some values in the header file?
+    // they might be set elsewhere, if so remove them
+    #if 0
     {
         /*
         int num_params = minuit->GetNumFreePars();
@@ -439,8 +462,12 @@ void fitBackgrounds_init(
 
         }
     }
+    #endif
 
-    std::cout << "return" << std::endl;
+    if(debugprint)
+    {
+        std::cout << "return" << std::endl;
+    }
 
     //return minuit;
 }
@@ -451,8 +478,8 @@ void fitBackgrounds_init(
 void fitBackgrounds_phasespace_init(
     ROOT::Minuit2::MnUserParameterState& theParameterState,
     ROOT::Minuit2::VariableMetricMinimizer& theMinimizer,
-    double *AdjustActs,
-    double *AdjustActs_Err,
+    //double *AdjustActs,
+    //double *AdjustActs_Err,
     const double Nd150_A,
     const double xi_31
     )
@@ -491,54 +518,79 @@ void fitBackgrounds_phasespace_init(
         //std::cout << "DefineParameter: i=" << i << " -> minuit_param_number=" << minuit_param_number << std::endl;
 
 
-        if(std::find(fixed_params.begin(), fixed_params.end(), i) != fixed_params.end())
+        // TODO: this function will fail, as parameters 0 and 1 should be fixed
+        // but they will not be marked as fixed!
+        if((i == 0) || (i == 1))
         {
-            // define parameter using constrained value if hard constrained
-
-            //std::cout << "minuit: fixed parameter i=" << i << std::endl;
+            // parameters 0 and 1 are fixed when fitting for fixed point
+            // in phase space
             TString minuit_param_name = "_" + i_str + "_" + minuit_param_number_str + "_FIXED";
             
-            //if(i == 1)
-            //{
-            //    theParameterState.Add(std::string(minuit_param_name), AdjustActs[i], AdjustActs_Err[i]); // instead of _Err was 0.5
-            //}
-            //else
-            //{
-            theParameterState.Add(std::string(minuit_param_name), 1.0, 0.5);
-            //}
-
-            theParameterState.Fix(std::string(minuit_param_name));
-        }
-        else
-        {
-            // define parameter using initial value if free/soft constrained
-            
-            //std::cout << "minuit: parameter i=" << i << " is enabled and not fixed, leaving free" << std::endl;
-            TString minuit_param_name = "_" + i_str + "_" + minuit_param_number_str + "_";
-
             if(i == 0)
             {
                 theParameterState.Add(std::string(minuit_param_name), Nd150_A, 0.1 * Nd150_A);
-
-                // parameters 0 and 1 are fixed when fitting for fixed point
-                // in phase space
                 theParameterState.Fix(std::string(minuit_param_name));
             }
             else if(i == 1)
             {
                 theParameterState.Add(std::string(minuit_param_name), xi_31, 0.1);
+                theParameterState.Fix(std::string(minuit_param_name));
+            }
+        }
+        else
+        {
+            if(std::find(fixed_params.begin(), fixed_params.end(), i) != fixed_params.end())
+            {
+                // define parameter using constrained value if hard constrained
 
-                // parameters 0 and 1 are fixed when fitting for fixed point
-                // in phase space
+                //std::cout << "minuit: fixed parameter i=" << i << std::endl;
+                TString minuit_param_name = "_" + i_str + "_" + minuit_param_number_str + "_FIXED";
+                
+                //if(i == 1)
+                //{
+                //    theParameterState.Add(std::string(minuit_param_name), AdjustActs[i], AdjustActs_Err[i]); // instead of _Err was 0.5
+                //}
+                //else
+                //{
+                theParameterState.Add(std::string(minuit_param_name), 1.0, 0.5);
+                //}
+
                 theParameterState.Fix(std::string(minuit_param_name));
             }
             else
             {
+                // define parameter using initial value if free/soft constrained
+                
+                //std::cout << "minuit: parameter i=" << i << " is enabled and not fixed, leaving free" << std::endl;
+                TString minuit_param_name = "_" + i_str + "_" + minuit_param_number_str + "_";
 
-                theParameterState.Add(std::string(minuit_param_name), 1.0, 0.1);
-                theParameterState.SetLowerLimit(i, 0.0);
+                /*
+                if(i == 0)
+                {
+                    theParameterState.Add(std::string(minuit_param_name), Nd150_A, 0.1 * Nd150_A);
+
+                    // parameters 0 and 1 are fixed when fitting for fixed point
+                    // in phase space
+                    theParameterState.Fix(std::string(minuit_param_name));
+                }
+                else if(i == 1)
+                {
+                    theParameterState.Add(std::string(minuit_param_name), xi_31, 0.1);
+
+                    // parameters 0 and 1 are fixed when fitting for fixed point
+                    // in phase space
+                    theParameterState.Fix(std::string(minuit_param_name));
+                }
+                else
+                {
+                    */
+                    theParameterState.Add(std::string(minuit_param_name), 1.0, 0.1);
+                    theParameterState.SetLowerLimit(i, 0.0);
+                    /*
+                }
+                */
+                
             }
-            
         }
     }
 
@@ -663,17 +715,19 @@ ROOT::Minuit2::FunctionMinimum fitBackgrounds(
     ROOT::Minuit2::MnUserParameterState& theParameterState,
     ROOT::Minuit2::VariableMetricMinimizer& theMinimizer,
     MinimizeFCNAxialVector &theFCN,
-    double *AdjustActs,
-    double *AdjustActs_Err,
-    double *&CovMatrix,
-    int &number_free_params
+    //double *AdjustActs,
+    //double *AdjustActs_Err,
+    //double *&CovMatrix,
+    //int &number_free_params
+    const double xi_31_value, const double xi_31_error
     )
 {
 
     std::cout << ">>>>> fitBackgrounds()" << std::endl;
     
     //TMinuit* minuit = fitBackgrounds_init(AdjustActs, AdjustActs_Err);
-    fitBackgrounds_init(theParameterState, theMinimizer, AdjustActs, AdjustActs_Err);
+    //fitBackgrounds_init(theParameterState, theMinimizer, AdjustActs, AdjustActs_Err);
+    fitBackgrounds_init(theParameterState, theMinimizer, xi_31_value, xi_31_error);
     /*ROOT::Minuit2::FunctionMinimum FCN_min*/
     if(1)
     {
@@ -697,9 +751,9 @@ ROOT::Minuit2::FunctionMinimum fitBackgrounds_phasespace(
     ROOT::Minuit2::MnUserParameterState& theParameterState,
     ROOT::Minuit2::VariableMetricMinimizer& theMinimizer,
     MinimizeFCNAxialVector &theFCN,
-    double *AdjustActs,
-    double *AdjustActs_Err,
-    double *&CovMatrix,
+    //double *AdjustActs,
+    //double *AdjustActs_Err,
+    //double *&CovMatrix,
     const double Nd150_A,
     const double xi_31
     )
@@ -708,7 +762,8 @@ ROOT::Minuit2::FunctionMinimum fitBackgrounds_phasespace(
     std::cout << ">>>>> fitBackgrounds_phasespace()" << std::endl;
     
     //TMinuit* minuit = fitBackgrounds_init(AdjustActs, AdjustActs_Err);
-    fitBackgrounds_phasespace_init(theParameterState, theMinimizer, AdjustActs, AdjustActs_Err, Nd150_A, xi_31);
+    //fitBackgrounds_phasespace_init(theParameterState, theMinimizer, AdjustActs, AdjustActs_Err, Nd150_A, xi_31);
+    fitBackgrounds_phasespace_init(theParameterState, theMinimizer, Nd150_A, xi_31);
     /*ROOT::Minuit2::FunctionMinimum FCN_min*/
     //fitBackgrounds_exec(minuit, AdjustActs, AdjustActs_Err);
     ROOT::Minuit2::FunctionMinimum FCN_min = fitBackgrounds_phasespace_exec(theParameterState, theMinimizer, theFCN); // TODO: same function?

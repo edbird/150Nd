@@ -68,9 +68,14 @@ static const int numberParams = 40;
 double paramLastValueMap[numberParams];
 double paramInitValueMap[numberParams];
 
-double *minuitParamCurrent;
-double *minuitParamInit;
-double *minuitParamLast;
+// Note: commented out code in fitBackgrounds.h
+// where these were inialized using new and num_params
+// which is the number of free params
+// however here we just use numberParams
+// this will work because num_free_params <= numberParams
+double minuitParamCurrent[numberParams];
+double minuitParamInit[numberParams];
+double minuitParamLast[numberParams];
 
 
 // TODO: set numberParams dynamically
@@ -239,6 +244,10 @@ TObjArray *allDataSamples1D;
 TObjArray *allDataSamples2D;
 TObjArray *allFakeDataSamples1D;
 TObjArray *allFakeDataSamples2D;
+
+// select between data / fake data in transparent way
+TObjArray *allDataOrFakeDataSamples1D;
+TObjArray *allDataOrFakeDataSamples2D;
 
 
 std::vector<std::pair<double,double>> ll_walk;

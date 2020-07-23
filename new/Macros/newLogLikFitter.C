@@ -41,21 +41,22 @@
 
 // note: these must appear in correct order and after general includes above
 #include "newLogLikFitter.h"
-#include "newLogLikFitter_aux.h"
 #include "newLogLikFitter_print.h"
+#include "newLogLikFitter_aux.h"
 #include "newLogLikFitter_printfitresult.h"
 #include "newLogLikFitter_read_parameternames_lst.h"
 #include "newLogLikFitter_book1DHistograms.h"
 #include "newLogLikFitter_book2DHistograms.h"
 #include "newLogLikFitter_reweight.h"
+#include "newLogLikFitter_reweight_apply.h"
 #include "newLogLikFitter_stacker_helper.h"
 #include "newLogLikFitter_drawchannel.h"
-#include "newLogLikFitter_logpoisson.h"
-#include "newLogLikFitter_buildfakedata.h"
 #include "newLogLikFitter_draw.h"
 #include "newLogLikFitter_draw_2D.h"
 #include "newLogLikFitter_draw_outputdiff.h"
 #include "newLogLikFitter_draw_all.h"
+#include "newLogLikFitter_logpoisson.h"
+#include "newLogLikFitter_buildfakedata.h"
 #include "MinimizeFCNAxialVector.h"
 #include "newLogLikFitter_fitBackgrounds.h"
 #include "newLogLikFitter_chisquaretest.h"
@@ -237,9 +238,21 @@ void loadFiles()
     std::cout << "attempting to load spectral data from file" << std::endl;
 
     bb_Q = 3.368;
+    bb_Q = 3.37138;
     // ramdisk, should be faster?
-    std::size_t count_G0 = LD_REWEIGHT_DATA_2(h_nEqNull, "/home/ecb/150Nd/150Nd-data/dG150Nd/G0/dG0.dat", "h_nEqNull", "nEqNull", 0.0, bb_Q);
-    std::size_t count_G2 = LD_REWEIGHT_DATA_2(h_nEqTwo,  "/home/ecb/150Nd/150Nd-data/dG150Nd/G2/dG2.dat", "h_nEqTwo", "nEqTwo",  0.0, bb_Q);
+    std::size_t count_G0 =
+        LD_REWEIGHT_DATA_2(h_nEqNull,
+                           "/home/ecb/150Nd/150Nd-data/dG150Nd/G0/dG0.dat",
+                           "h_nEqNull",
+                           "nEqNull"//,
+                           //0.0, bb_Q
+                           );
+    std::size_t count_G2 =
+        LD_REWEIGHT_DATA_2(h_nEqTwo,
+                           "/home/ecb/150Nd/150Nd-data/dG150Nd/G2/dG2.dat",
+                           "h_nEqTwo",
+                           "nEqTwo"//,  0.0, bb_Q
+                           );
 
     // phase space integrals
     const Double_t G0_ps_integral_MeV = 0.420438E-45;
@@ -351,6 +364,7 @@ void loadFiles()
     //Double_t AdjustActs[numberParams];
     //Double_t AdjustActs_Err[numberParams];
     //for(Int_t ix{0}; ix < numberParams; ++ ix)
+    /*
     Double_t AdjustActs[numberEnabledParams];
     Double_t AdjustActs_Err[numberEnabledParams];
     for(Int_t ix{0}; ix < numberEnabledParams; ++ ix)
@@ -358,12 +372,14 @@ void loadFiles()
         AdjustActs[ix] = 1.0;
         AdjustActs_Err[ix] = 0.5; // TODO: set using parameter_names.list
     }
+    */
     // TODO: fix this
     xi_31_init_value = 0.0;
     xi_31_init_error = 0.0;
     get_paramInitValueError(thePhase, 1, xi_31_init_value, xi_31_init_error);
-    AdjustActs[1] = xi_31_init_value;
+    //AdjustActs[1] = xi_31_init_value;
 
+    /*
     std::cout << "initial value is set to " << xi_31_init_value << std::endl;
 
     std::vector<double> init_par;
@@ -373,6 +389,7 @@ void loadFiles()
         init_par.push_back(AdjustActs[ix]);
         init_err.push_back(AdjustActs_Err[ix]);
     }
+    */
 
     /*
     Int_t number_free_params = minuit->GetNumFreePars();
@@ -384,6 +401,7 @@ void loadFiles()
     */
     
 
+    #if 0
     if(0)
     {
 
@@ -403,6 +421,7 @@ void loadFiles()
         //do_test_xi_31_test1(AdjustActs_copy, AdjustActs_Err_copy);
         return 0;
     }
+    #endif
 
 
 
@@ -424,50 +443,138 @@ void loadFiles()
 //    TMinuit *minuit = fitBackgrounds(AdjustActs, AdjustActs_Err, CovMatrix, number_free_params, thePhase);
 //    fitBackgrounds_exec(minuit, AdjustActs, AdjustActs_Err);
 
-    // create minimizer
-    ROOT::Minuit2::MnUserParameterState theParameterState;
-    ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
-    MinimizeFCNAxialVector theFCN;
 
-    fitBackgrounds_init(theParameterState, theMinimizer, AdjustActs, AdjustActs_Err);
 
-    std::vector<double> params_before = theParameterState.Params();
-    std::vector<double> param_errs_before = theParameterState.Errors();
-    double fval_before = theFCN.operator()(params_before);
+    ///////////////////////////////////////////////////////////////////////////
+    // HSD fixed xi_31 = HSD fit
+    ///////////////////////////////////////////////////////////////////////////
 
+    if(1)
     {
-        params_before[1] = 0.0;
+        // create minimizer
+        ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
+        ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
+        MinimizeFCNAxialVector theFCN;
+
+        // initialize fit
+        //fitBackgrounds_init(theParameterState, theMinimizer, AdjustActs, AdjustActs_Err);
+        const double xi_31_value = xi_31_init_value;
+        const double xi_31_error = xi_31_init_error;
+        fitBackgrounds_init(theParameterStateBefore, theMinimizer, xi_31_value, xi_31_error);
+
+        // get parameters and chi2 value before fit
+        std::vector<double> params_before = theParameterStateBefore.Params();
+        std::vector<double> param_errs_before = theParameterStateBefore.Errors();
         double fval_before = theFCN.operator()(params_before);
-        TH1D *jj1, *jj2, *jj3, *jj4;
-        draw(params_before, param_errs_before, fval_before,
-             jj1, jj2, jj3, jj4,
-             "HSD_before.png", ".", g_mode_fake_data);
+
+        // fix xi_31 parameter
+        TString i_str;
+        i_str.Form("%i", 1);
+        TString minuit_param_number_str;
+        minuit_param_number_str.Form("%i", 1);
+        TString minuit_param_name = "_" + i_str + "_" + minuit_param_number_str + "_";
+        theParameterStateBefore.Fix(std::string(minuit_param_name));
+        theParameterStateBefore.SetValue(std::string(minuit_param_name), 0.0); // HSD
+
+        // exec fit
+        // this will fit backgrounds and the 150Nd amplitude parameter
+        // but xi_31 is fixed
+        ROOT::Minuit2::FunctionMinimum FCN_min =
+            fitBackgrounds_exec(
+                theParameterStateBefore,
+                theMinimizer,
+                theFCN);
+
+        // get result
+        ROOT::Minuit2::MnUserParameterState theParameterStateAfter = FCN_min.UserParameters();
+        std::vector<double> params_after = theParameterStateAfter.Params();
+        std::vector<double> param_errs_after = theParameterStateAfter.Errors();
+
+        // draw result
+        double fval_after = theFCN.operator()(params_after);
+        draw(params_after, param_errs_after, fval_after,
+             "HSD_after.png", ".", g_mode_fake_data);
+
+        theParameterStateBefore.Release(std::string(minuit_param_name));
     }
 
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // SSD fixed xi_31 = SSD fit
+    ///////////////////////////////////////////////////////////////////////////
+
+    // do fit for SSD
+    // TODO: this block doesn't really make sense, unless we fit
+    // for xi_31 = SSD with xi_31 fixed
+    if(1)
     {
-        params_before[1] = 0.296;
-        params_before[0] = ;
+        // create minimizer
+        ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
+        ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
+        MinimizeFCNAxialVector theFCN;
+
+        // initialize fit
+        //fitBackgrounds_init(theParameterState, theMinimizer, AdjustActs, AdjustActs_Err);
+        const double xi_31_value = xi_31_init_value;
+        const double xi_31_error = xi_31_init_error;
+        fitBackgrounds_init(theParameterStateBefore, theMinimizer, xi_31_value, xi_31_error);
+
+        // get parameters and chi2 value before fit
+        std::vector<double> params_before = theParameterStateBefore.Params();
+        std::vector<double> param_errs_before = theParameterStateBefore.Errors();
         double fval_before = theFCN.operator()(params_before);
-        TH1D *jj1, *jj2, *jj3, *jj4;
-        draw(params_before, param_errs_before, fval_before,
-             jj1, jj2, jj3, jj4,
-             "SSD_before.png", ".", g_mode_fake_data);
+
+        // fix xi_31 parameter
+        TString i_str;
+        i_str.Form("%i", 1);
+        TString minuit_param_number_str;
+        minuit_param_number_str.Form("%i", 1);
+        TString minuit_param_name = "_" + i_str + "_" + minuit_param_number_str + "_";
+        theParameterStateBefore.Fix(std::string(minuit_param_name));
+        theParameterStateBefore.SetValue(std::string(minuit_param_name), 0.296); // SSD
+        
+        // exec fit
+        // this will fit backgrounds and the 150Nd amplitude parameter
+        // but xi_31 is fixed
+        ROOT::Minuit2::FunctionMinimum FCN_min =
+            fitBackgrounds_exec(
+                theParameterStateBefore,
+                theMinimizer,
+                theFCN);
+
+        // get result
+        ROOT::Minuit2::MnUserParameterState theParameterStateAfter = FCN_min.UserParameters();
+        std::vector<double> params_after = theParameterStateAfter.Params();
+        std::vector<double> param_errs_after = theParameterStateAfter.Errors();
+
+        // draw result
+        double fval_after = theFCN.operator()(params_after);
+        draw(params_after, param_errs_after, fval_after,
+             "SSD_after.png", ".", g_mode_fake_data);
+
+        theParameterStateBefore.Release(std::string(minuit_param_name));
     }
 
+    #if 0
     std::cout << "AdjustActs: ";
     for(int i = 0; i < numberEnabledParams; ++ i)
     {
         std::cout << AdjustActs[i] << " ";
     }
     std::cout << std::endl;
+    #endif 
 
+    /*
     std::cout << "params_before: ";
     for(int i = 0; i < params_before.size(); ++ i)
     {
         std::cout << params_before.at(i) << " ";
     }
+    std::cout << "fval_before=" << fval_before << std::endl;
     std::cout << std::endl;
     cin_wait();
+    */
 
 /*
     ROOT::Minuit2::FunctionMinimum FCN_min =
@@ -475,58 +582,70 @@ void loadFiles()
             theParameterState,
             theMinimizer,
             theFCN,
-            AdjustActs,
-            AdjustActs_Err,
-            CovMatrix,
-            number_free_params);
+            //AdjustActs,
+            //AdjustActs_Err,
+            //CovMatrix,
+            //number_free_params);
 */
-
-    /*
-    ROOT::Minuit2::FunctionMinimum FCN_min =
-        fitBackgrounds_exec(
-            theParameterState,
-            theMinimizer,
-            theFCN);
-    */
-
-//    theParameterState.add();
-
-    // minimize
-    //ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, init_par, init_err);
-    //ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, init_par, init_err);
-    /*
-    std::cout << "Minimization finished" << std::endl;
-    std::cout << "minimum: " << FCN_min << std::endl;
-    std::cout << "chi2: " << FCN_min.Fval() << std::endl;
-    std::cout << "edm: " << FCN_min.Edm() << std::endl;
-    */
-
-    // draw my data for a parameter xi = 0.0
-    double fval = 0.;
-    int n_params = theParameterState.Params().size();
-    std::vector<double> params = theParameterState.Params();
-    std::vector<double> param_errs = theParameterState.Errors();
     
-    std::cout << params[0] << " " << params[1] << std::endl;
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    ///////////////////////////////////////////////////////////////////////////
 
-    std::cout << "params (after): ";
-    for(int i = 0; i < params.size(); ++ i)
+    if(1)
     {
-        std::cout << params.at(i) << " ";
+        // create minimizer
+        ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
+        ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
+        MinimizeFCNAxialVector theFCN;
+
+        // initialize fit
+        //fitBackgrounds_init(theParameterState, theMinimizer, AdjustActs, AdjustActs_Err);
+        const double xi_31_value = xi_31_init_value;
+        const double xi_31_error = xi_31_init_error;
+        fitBackgrounds_init(theParameterStateBefore, theMinimizer, xi_31_value, xi_31_error);
+
+        // get parameters and chi2 value before fit
+        std::vector<double> params_before = theParameterStateBefore.Params();
+        std::vector<double> param_errs_before = theParameterStateBefore.Errors();
+        double fval_before = theFCN.operator()(params_before);
+
+        // exec fit
+        // do fit with all parameters free
+        ROOT::Minuit2::FunctionMinimum FCN_min =
+            fitBackgrounds_exec(
+                theParameterStateBefore,
+                theMinimizer,
+                theFCN);
+
+        // get result
+        ROOT::Minuit2::MnUserParameterState theParameterStateAfter = FCN_min.UserParameters();
+        std::vector<double> params_after = theParameterStateAfter.Params();
+        std::vector<double> param_errs_after = theParameterStateAfter.Errors();
+
+        // draw result
+        double fval_after = theFCN.operator()(params_after);
+        draw(params_after, param_errs_after, fval_after,
+             "allparameterfit_after.png", ".", g_mode_fake_data);
+        
+        // minimize
+        //ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, init_par, init_err);
+        //ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, init_par, init_err);
+        /*
+        std::cout << "Minimization finished" << std::endl;
+        std::cout << "minimum: " << FCN_min << std::endl;
+        std::cout << "chi2: " << FCN_min.Fval() << std::endl;
+        std::cout << "edm: " << FCN_min.Edm() << std::endl;
+        */
+
+
+        std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
+        std::cout << "fval_before=" << fval_before << std::endl;
     }
-    std::cout << std::endl;
-
-    //logLikelihood(n_params, nullptr, fval, params, 0);
-    fval = theFCN.operator()(params);
-
-    std::cout << "fval=" << fval << " for params[0]=" << params[0] << " params[1]=" << params[1] << std::endl;
-    std::cout << "fval_before=" << fval_before << std::endl;
-    cin_wait();
-
 
 
 //    draw_channel(1, params, fval, "test_channel_1.png");
-    TH1D *j1, *j2, *j3, *j4;
+//    TH1D *j1, *j2, *j3, *j4;
 // TODO: re-enable
 //    draw(params, param_errs, fval, j1, j2, j3, j4, "minuit_output_fake_data.*", ".", false);
     //draw(params, nullptr, "NOSAVE", fval, j1, j2, j3, j4, true);
@@ -618,8 +737,21 @@ void loadFiles()
 
     if(1)
     {
+        // create minimizer
+        //ROOT::Minuit2::MnUserParameterState theParameterState;
+        //ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
+        //MinimizeFCNAxialVector theFCN;
+
+        // initialize fit
+        //fitBackgrounds_init(theParameterState, theMinimizer, AdjustActs, AdjustActs_Err);
+        //const double xi_31_value = xi_31_init_value;
+        //const double xi_31_error = xi_31_init_error;
+        // TODO: this function does not work as expected with the testmps function below
+        //fitBackgrounds_phasespace_init(theParameterState, theMinimizer, 1.0, xi_31_value);
+
         std::cout << "ready to test MPS" << std::endl;
-        newloglikfitter_testmyphasespace(theParameterState, theFCN); //, FCN_min);
+        //newloglikfitter_testmyphasespace(theParameterState, theFCN); //, FCN_min);
+        newloglikfitter_testmyphasespace();
         std::cout << "MPS done" << std::endl;
     }
    

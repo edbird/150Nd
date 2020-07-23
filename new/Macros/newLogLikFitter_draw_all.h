@@ -2,7 +2,7 @@
 #define NEWLOGLIKFITTER_DRAW_ALL_H
 
 
-
+#if 0
 void draw_all(
     const std::vector<double> &params,
     const std::vector<double> &param_errs,
@@ -100,5 +100,6 @@ void draw_all(
 // TODO: this is replacing existing histograms with same name?
 
 }
+#endif
 
 #endif //NEWLOGLIKFITTER_DRAW_ALL_H
