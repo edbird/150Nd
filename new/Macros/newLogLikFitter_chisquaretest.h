@@ -508,6 +508,28 @@ void newloglikfitter_testmyphasespace(
                                  + std::string("JID") + std::to_string(number_job_id)
                                  + std::string(".log");
             std::ofstream os(os_fname, std::ios::out | std::ios::app);
+
+
+            std::string ofs_resultsmatrix_before_fname =
+                std::string("mps_resultsmatrix_before")
+                + "JID" + std::to_string(number_job_id)
+                + ".txt";
+            std::string ofs_resultsmatrix_after_fname =
+                std::string("mps_resultsmatrix_after")
+                + "JID" + std::to_string(number_job_id)
+                + ".txt";
+
+            std::ofstream ofs_resultsmatrix_before(ofs_resultsmatrix_before_fname);
+            std::ofstream ofs_resultsmatrix_after(ofs_resultsmatrix_after_fname);
+
+            std::cout << "*****************************************************" << std::endl;
+            std::cout << "*****************************************************" << std::endl;
+            std::cout << "saving data to " << ofs_resultsmatrix_before_fname << std::endl;
+            std::cout << "saving data to " << ofs_resultsmatrix_after_fname << std::endl;
+            std::cout << "*****************************************************" << std::endl;
+            std::cout << "*****************************************************" << std::endl;
+
+
             if(1)
             {
                 std::cout << "n_param_1=" << n_param_1 << " n_param_2=" << n_param_2 << std::endl;
@@ -681,6 +703,31 @@ void newloglikfitter_testmyphasespace(
                         // TODO: fval_min does not appear to always be the minimum
 
 
+                        ofs_resultsmatrix_before << n_1 << " "
+                                                 << n_2 << " "
+                                                 << t_param_1 << " "
+                                                 << t_param_2 << " "
+                                                 << fval_before;
+                        for(int pix = 0; pix < params_before_.size(); ++ pix)
+                        {
+                            ofs_resultsmatrix_before << params_before.at(pix) << " "
+                                                     << param_errs_before.at(pix) << " ";
+                        }
+                        ofs_resultsmatrix_before << std::endl;
+
+                        ofs_resultsmatrix_after << n_1 << " "
+                                                << n_2 << " "
+                                                << t_param_1 << " "
+                                                << t_param_2 << " "
+                                                << fval_after;
+                        for(int pix = 0; pix < params_after_.size(); ++ pix)
+                        {
+                            ofs_resultsmatrix_after << params_after.at(pix) << " "
+                                                    << param_errs_after.at(pix) << " ";
+                        }
+                        ofs_resultsmatrix_after << std::endl;
+
+
                         std::string mps_output_name_before = "mps_output_singleenergy_before_"
                                                     + std::to_string(bin_ix)
                                                     + "_"
@@ -750,125 +797,125 @@ void newloglikfitter_testmyphasespace(
             ///////////////////////////////////////////////////////////////////
             if(1)
             {
-            TCanvas *c_mps = new TCanvas(c_mps_name, c_mps_name);
-            c_mps->SetTicks(2, 2);
-            c_mps->SetRightMargin(0.15);
-            c_mps->SetBottomMargin(0.15);
-            c_mps->SetLogz();
-            TVirtualPad *padret = c_mps->cd();
-            if(padret == nullptr)
-            {
-                std::cout << "PAD FAIL" << std::endl;
-                std::cin.get();
-            }
-            //c_mps->GetPad()->cd();
-            //c_mps_v.push_back(c_mps);
-            //c_mps = nullptr;
-            //c_mps->cd();
-            h_mps->SetTitle("");
-            h_mps->GetZaxis()->SetLabelOffset(0.005);
-            h_mps->GetXaxis()->SetLabelSize(17.0);
-            h_mps->GetXaxis()->SetLabelFont(63);
-            h_mps->GetYaxis()->SetLabelSize(17.0);
-            h_mps->GetYaxis()->SetLabelFont(63);
-            h_mps->GetZaxis()->SetLabelSize(17.0);
-            h_mps->GetZaxis()->SetLabelFont(63);
-            h_mps->GetXaxis()->SetTitleSize(18.0);
-            h_mps->GetXaxis()->SetTitleFont(43);
-            h_mps->GetYaxis()->SetTitleSize(18.0);
-            h_mps->GetYaxis()->SetTitleFont(43);
-            h_mps->GetYaxis()->SetTitle("^{150}Nd Amplitude Scale Factor");
-            h_mps->GetXaxis()->SetTitle("#xi^{2#nu#beta#beta}_{31}");
-            h_mps->GetXaxis()->SetTitleOffset(1.5);
-            h_mps->GetXaxis()->SetLabelOffset(0.01);
-            h_mps->GetYaxis()->SetLabelOffset(0.01);
-            TH2D *h_mps_contour = (TH2D*)h_mps->Clone("h_mps_1_0_clone");
-            h_mps->Draw("colz");
+                TCanvas *c_mps = new TCanvas(c_mps_name, c_mps_name);
+                c_mps->SetTicks(2, 2);
+                c_mps->SetRightMargin(0.15);
+                c_mps->SetBottomMargin(0.15);
+                c_mps->SetLogz();
+                TVirtualPad *padret = c_mps->cd();
+                if(padret == nullptr)
+                {
+                    std::cout << "PAD FAIL" << std::endl;
+                    std::cin.get();
+                }
+                //c_mps->GetPad()->cd();
+                //c_mps_v.push_back(c_mps);
+                //c_mps = nullptr;
+                //c_mps->cd();
+                h_mps->SetTitle("");
+                h_mps->GetZaxis()->SetLabelOffset(0.005);
+                h_mps->GetXaxis()->SetLabelSize(17.0);
+                h_mps->GetXaxis()->SetLabelFont(63);
+                h_mps->GetYaxis()->SetLabelSize(17.0);
+                h_mps->GetYaxis()->SetLabelFont(63);
+                h_mps->GetZaxis()->SetLabelSize(17.0);
+                h_mps->GetZaxis()->SetLabelFont(63);
+                h_mps->GetXaxis()->SetTitleSize(18.0);
+                h_mps->GetXaxis()->SetTitleFont(43);
+                h_mps->GetYaxis()->SetTitleSize(18.0);
+                h_mps->GetYaxis()->SetTitleFont(43);
+                h_mps->GetYaxis()->SetTitle("^{150}Nd Amplitude Scale Factor");
+                h_mps->GetXaxis()->SetTitle("#xi^{2#nu#beta#beta}_{31}");
+                h_mps->GetXaxis()->SetTitleOffset(1.5);
+                h_mps->GetXaxis()->SetLabelOffset(0.01);
+                h_mps->GetYaxis()->SetLabelOffset(0.01);
+                TH2D *h_mps_contour = (TH2D*)h_mps->Clone("h_mps_1_0_clone");
+                h_mps->Draw("colz");
 
 
-            std::cout << "min=" << min << " min_x=" << min_x << " min_y=" << min_y << std::endl;
-            //double clevels[3] = {min + 1.0, min + 2.0, min + 3.0};
-            double clevels[3] = {min + 2.30, min + 4.61, min + 9.21};
-            //double clevels[3] = {2.30, 4.61, 9.21}; // true minimum is 0.0 for HSD
-            h_mps_contour->SetLineColor(kBlack);
-            h_mps_contour->SetContour(3, clevels);
+                std::cout << "min=" << min << " min_x=" << min_x << " min_y=" << min_y << std::endl;
+                //double clevels[3] = {min + 1.0, min + 2.0, min + 3.0};
+                double clevels[3] = {min + 2.30, min + 4.61, min + 9.21};
+                //double clevels[3] = {2.30, 4.61, 9.21}; // true minimum is 0.0 for HSD
+                h_mps_contour->SetLineColor(kBlack);
+                h_mps_contour->SetContour(3, clevels);
 
-            c_mps->Update();
-            TPaletteAxis *palette = (TPaletteAxis*)h_mps->GetListOfFunctions()->FindObject("palette");
-            //((TPave*)palette)->SetX1NDC(0.7);
-            //((TPave*)palette)->SetX2NDC(0.8);
-            palette->SetX1NDC(0.88 + 0.02);
-            palette->SetX2NDC(0.92 + 0.02);
-            palette->SetY1NDC(0.15);
-            palette->SetY2NDC(0.9);
-            palette->Draw();
-            gPad->Modified();
-            gPad->Update();
-            c_mps->Modified();
-            
+                c_mps->Update();
+                TPaletteAxis *palette = (TPaletteAxis*)h_mps->GetListOfFunctions()->FindObject("palette");
+                //((TPave*)palette)->SetX1NDC(0.7);
+                //((TPave*)palette)->SetX2NDC(0.8);
+                palette->SetX1NDC(0.88 + 0.02);
+                palette->SetX2NDC(0.92 + 0.02);
+                palette->SetY1NDC(0.15);
+                palette->SetY2NDC(0.9);
+                palette->Draw();
+                gPad->Modified();
+                gPad->Update();
+                c_mps->Modified();
+                
 
-            TLine *lineHSD = new TLine(0.0, param_2_min, 0.0, param_2_max);
-            TLine *lineSSD = new TLine(0.296, param_2_min, 0.296, param_2_max);
-            TLine *lineY = new TLine(param_1_min, 1.0, param_1_max, 1.0);
-            TLine *lineXc = new TLine(param_1_min, min_y, param_1_max, min_y);
-            TLine *lineYc = new TLine(min_x, param_2_min, min_x, param_2_max);
-            //lineHSD->SetLineColor(kWhite);
-            //lineSSD->SetLineColor(kWhite);
-            //lineY->SetLineColor(kWhite);
-            lineHSD->SetLineColorAlpha(kWhite, 0.5);
-            lineSSD->SetLineColorAlpha(kWhite, 0.5);
-            lineY->SetLineColorAlpha(kWhite, 0.5);
-            lineXc->SetLineColorAlpha(kBlack, 0.5);
-            lineYc->SetLineColorAlpha(kBlack, 0.5);
-            lineHSD->Draw();
-            lineSSD->Draw();
-            lineY->Draw();
-            Int_t min_ix = h_mps->GetXaxis()->FindBin(min_x);
-            Int_t min_iy = h_mps->GetXaxis()->FindBin(min_y);
-            Int_t ix_0 = h_mps->GetXaxis()->FindBin(0.0);
-            Int_t iy_1 = h_mps->GetXaxis()->FindBin(1.0);
-            if(min_ix != ix_0 && min_iy != iy_1)
-            {
-                lineXc->Draw();
-                lineYc->Draw();
-            }
-            //TMarker *bestfitpoint = new TMarker(min_x, min_y, 106);
-            //bestfitpoint->SetMarkerColorAlpha(kBlack, 0.5);
-            //bestfitpoint->SetMarkerSize(2.0);
-            //bestfitpoint->Draw();
+                TLine *lineHSD = new TLine(0.0, param_2_min, 0.0, param_2_max);
+                TLine *lineSSD = new TLine(0.296, param_2_min, 0.296, param_2_max);
+                TLine *lineY = new TLine(param_1_min, 1.0, param_1_max, 1.0);
+                TLine *lineXc = new TLine(param_1_min, min_y, param_1_max, min_y);
+                TLine *lineYc = new TLine(min_x, param_2_min, min_x, param_2_max);
+                //lineHSD->SetLineColor(kWhite);
+                //lineSSD->SetLineColor(kWhite);
+                //lineY->SetLineColor(kWhite);
+                lineHSD->SetLineColorAlpha(kWhite, 0.5);
+                lineSSD->SetLineColorAlpha(kWhite, 0.5);
+                lineY->SetLineColorAlpha(kWhite, 0.5);
+                lineXc->SetLineColorAlpha(kBlack, 0.5);
+                lineYc->SetLineColorAlpha(kBlack, 0.5);
+                lineHSD->Draw();
+                lineSSD->Draw();
+                lineY->Draw();
+                Int_t min_ix = h_mps->GetXaxis()->FindBin(min_x);
+                Int_t min_iy = h_mps->GetXaxis()->FindBin(min_y);
+                Int_t ix_0 = h_mps->GetXaxis()->FindBin(0.0);
+                Int_t iy_1 = h_mps->GetXaxis()->FindBin(1.0);
+                if(min_ix != ix_0 && min_iy != iy_1)
+                {
+                    lineXc->Draw();
+                    lineYc->Draw();
+                }
+                //TMarker *bestfitpoint = new TMarker(min_x, min_y, 106);
+                //bestfitpoint->SetMarkerColorAlpha(kBlack, 0.5);
+                //bestfitpoint->SetMarkerSize(2.0);
+                //bestfitpoint->Draw();
 
-            std::vector<TLine*> linesteps;
-            for(std::size_t ix_walk = 0; ix_walk < ll_walk_save.size() - 1; ++ ix_walk)
-            {
-                std::pair<double, double> p1 = ll_walk_save.at(ix_walk);
-                std::pair<double, double> p2 = ll_walk_save.at(ix_walk + 1);
-                Double_t x1 = p1.first;
-                Double_t x2 = p2.first;
-                Double_t y1 = p1.second;
-                Double_t y2 = p2.second;
-                std::cout << "ix_walk=" << ix_walk << " " << x1 << " " << y1 << std::endl;
-                TLine *linestep = new TLine(x1, y1, x2, y2);
-                linestep->SetLineColorAlpha(kRed, 0.1);
-                linestep->SetLineWidth(2);
-                linestep->Draw();
-                linesteps.push_back(linestep);
-            }
+                std::vector<TLine*> linesteps;
+                for(std::size_t ix_walk = 0; ix_walk < ll_walk_save.size() - 1; ++ ix_walk)
+                {
+                    std::pair<double, double> p1 = ll_walk_save.at(ix_walk);
+                    std::pair<double, double> p2 = ll_walk_save.at(ix_walk + 1);
+                    Double_t x1 = p1.first;
+                    Double_t x2 = p2.first;
+                    Double_t y1 = p1.second;
+                    Double_t y2 = p2.second;
+                    std::cout << "ix_walk=" << ix_walk << " " << x1 << " " << y1 << std::endl;
+                    TLine *linestep = new TLine(x1, y1, x2, y2);
+                    linestep->SetLineColorAlpha(kRed, 0.1);
+                    linestep->SetLineWidth(2);
+                    linestep->Draw();
+                    linesteps.push_back(linestep);
+                }
 
-            h_mps_contour->Draw("cont2same");
-            //TString c_fname_png = c_mps_name + datetimestamp_TString + ".png";
-            //TString c_fname_pdf = c_mps_name + datetimestamp_TString + ".pdf";
-            TString c_fname = c_mps_name + "_"
-                           + "JID" + std::to_string(number_job_id) + "_"
-                           + datetimestamp_TString;
-            TString c_fname_png = c_fname + ".png";
-            TString c_fname_pdf = c_fname + ".pdf";
-            std::cout << "*****************************************************" << std::endl;
-            std::cout << "c_fname=" << c_fname << std::endl;
-            std::cout << "is the filename legal?" << std::endl;
-            std::cout << "*****************************************************" << std::endl;
-            c_mps->SaveAs(c_fname_png);
-            c_mps->SaveAs(c_fname_pdf);
-            //h_mps = nullptr;
+                h_mps_contour->Draw("cont2same");
+                //TString c_fname_png = c_mps_name + datetimestamp_TString + ".png";
+                //TString c_fname_pdf = c_mps_name + datetimestamp_TString + ".pdf";
+                TString c_fname = c_mps_name + "_"
+                               + "JID" + std::to_string(number_job_id) + "_"
+                               + datetimestamp_TString;
+                TString c_fname_png = c_fname + ".png";
+                TString c_fname_pdf = c_fname + ".pdf";
+                std::cout << "*****************************************************" << std::endl;
+                std::cout << "c_fname=" << c_fname << std::endl;
+                std::cout << "is the filename legal?" << std::endl;
+                std::cout << "*****************************************************" << std::endl;
+                c_mps->SaveAs(c_fname_png);
+                c_mps->SaveAs(c_fname_pdf);
+                //h_mps = nullptr;
             }
 
 
@@ -877,124 +924,124 @@ void newloglikfitter_testmyphasespace(
             ///////////////////////////////////////////////////////////////////
             if(0)
             {
-            TString c_mps_name_base_before = "c_mps_before";
-            TString c_mps_name_before = c_mps_name_base_before + "_" + param_1_ix_str_external + "_" + param_2_ix_str_external;
+                TString c_mps_name_base_before = "c_mps_before";
+                TString c_mps_name_before = c_mps_name_base_before + "_" + param_1_ix_str_external + "_" + param_2_ix_str_external;
 
-            TCanvas *c_mps_before = new TCanvas(c_mps_name_before, c_mps_name_before);
-            c_mps_before->SetTicks(2, 2);
-            c_mps_before->SetRightMargin(0.15);
-            c_mps_before->SetBottomMargin(0.15);
-            c_mps_before->SetLogz();
-            //c_mps_before->GetPad()->cd();
-            //c_mps_before_v.push_back(c_mps_before);
-            //c_mps_before = nullptr;
-            //c_mps_before->cd();
-            h_mps_before->SetTitle("");
-            h_mps_before->GetZaxis()->SetLabelOffset(0.005);
-            h_mps_before->GetXaxis()->SetLabelSize(17.0);
-            h_mps_before->GetXaxis()->SetLabelFont(63);
-            h_mps_before->GetYaxis()->SetLabelSize(17.0);
-            h_mps_before->GetYaxis()->SetLabelFont(63);
-            h_mps_before->GetZaxis()->SetLabelSize(17.0);
-            h_mps_before->GetZaxis()->SetLabelFont(63);
-            h_mps_before->GetXaxis()->SetTitleSize(18.0);
-            h_mps_before->GetXaxis()->SetTitleFont(43);
-            h_mps_before->GetYaxis()->SetTitleSize(18.0);
-            h_mps_before->GetYaxis()->SetTitleFont(43);
-            h_mps_before->GetYaxis()->SetTitle("^{150}Nd Amplitude Scale Factor");
-            h_mps_before->GetXaxis()->SetTitle("#xi^{2#nu#beta#beta}_{31}");
-            h_mps_before->GetXaxis()->SetTitleOffset(1.5);
-            h_mps_before->GetXaxis()->SetLabelOffset(0.01);
-            h_mps_before->GetYaxis()->SetLabelOffset(0.01);
-            TH2D *h_mps_contour_before = (TH2D*)h_mps_before->Clone("h_mps_before_1_0_clone");
-            h_mps_before->Draw("colz");
+                TCanvas *c_mps_before = new TCanvas(c_mps_name_before, c_mps_name_before);
+                c_mps_before->SetTicks(2, 2);
+                c_mps_before->SetRightMargin(0.15);
+                c_mps_before->SetBottomMargin(0.15);
+                c_mps_before->SetLogz();
+                //c_mps_before->GetPad()->cd();
+                //c_mps_before_v.push_back(c_mps_before);
+                //c_mps_before = nullptr;
+                //c_mps_before->cd();
+                h_mps_before->SetTitle("");
+                h_mps_before->GetZaxis()->SetLabelOffset(0.005);
+                h_mps_before->GetXaxis()->SetLabelSize(17.0);
+                h_mps_before->GetXaxis()->SetLabelFont(63);
+                h_mps_before->GetYaxis()->SetLabelSize(17.0);
+                h_mps_before->GetYaxis()->SetLabelFont(63);
+                h_mps_before->GetZaxis()->SetLabelSize(17.0);
+                h_mps_before->GetZaxis()->SetLabelFont(63);
+                h_mps_before->GetXaxis()->SetTitleSize(18.0);
+                h_mps_before->GetXaxis()->SetTitleFont(43);
+                h_mps_before->GetYaxis()->SetTitleSize(18.0);
+                h_mps_before->GetYaxis()->SetTitleFont(43);
+                h_mps_before->GetYaxis()->SetTitle("^{150}Nd Amplitude Scale Factor");
+                h_mps_before->GetXaxis()->SetTitle("#xi^{2#nu#beta#beta}_{31}");
+                h_mps_before->GetXaxis()->SetTitleOffset(1.5);
+                h_mps_before->GetXaxis()->SetLabelOffset(0.01);
+                h_mps_before->GetYaxis()->SetLabelOffset(0.01);
+                TH2D *h_mps_contour_before = (TH2D*)h_mps_before->Clone("h_mps_before_1_0_clone");
+                h_mps_before->Draw("colz");
 
 
-            std::cout << "min_before=" << min_before << " min_x_before=" << min_x_before << " min_y_before=" << min_y_before << std::endl;
-            //double clevels[3] = {min + 1.0, min + 2.0, min + 3.0};
-            double clevels_before[3] = {min_before + 2.30, min_before + 4.61, min_before + 9.21};
-            //double clevels[3] = {2.30, 4.61, 9.21}; // true minimum is 0.0 for HSD
-            h_mps_contour_before->SetLineColor(kBlack);
-            h_mps_contour_before->SetContour(3, clevels_before);
+                std::cout << "min_before=" << min_before << " min_x_before=" << min_x_before << " min_y_before=" << min_y_before << std::endl;
+                //double clevels[3] = {min + 1.0, min + 2.0, min + 3.0};
+                double clevels_before[3] = {min_before + 2.30, min_before + 4.61, min_before + 9.21};
+                //double clevels[3] = {2.30, 4.61, 9.21}; // true minimum is 0.0 for HSD
+                h_mps_contour_before->SetLineColor(kBlack);
+                h_mps_contour_before->SetContour(3, clevels_before);
 
-            c_mps_before->Update();
-            TPaletteAxis *palette_before = (TPaletteAxis*)h_mps_before->GetListOfFunctions()->FindObject("palette");
-            //((TPave*)palette)->SetX1NDC(0.7);
-            //((TPave*)palette)->SetX2NDC(0.8);
-            palette_before->SetX1NDC(0.88 + 0.02);
-            palette_before->SetX2NDC(0.92 + 0.02);
-            palette_before->SetY1NDC(0.15);
-            palette_before->SetY2NDC(0.9);
-            palette_before->Draw();
-            gPad->Modified();
-            gPad->Update();
-            c_mps_before->Modified();
-            
+                c_mps_before->Update();
+                TPaletteAxis *palette_before = (TPaletteAxis*)h_mps_before->GetListOfFunctions()->FindObject("palette");
+                //((TPave*)palette)->SetX1NDC(0.7);
+                //((TPave*)palette)->SetX2NDC(0.8);
+                palette_before->SetX1NDC(0.88 + 0.02);
+                palette_before->SetX2NDC(0.92 + 0.02);
+                palette_before->SetY1NDC(0.15);
+                palette_before->SetY2NDC(0.9);
+                palette_before->Draw();
+                gPad->Modified();
+                gPad->Update();
+                c_mps_before->Modified();
+                
 
-            TLine *lineHSD_before = new TLine(0.0, param_2_min, 0.0, param_2_max);
-            TLine *lineSSD_before = new TLine(0.296, param_2_min, 0.296, param_2_max);
-            TLine *lineY_before = new TLine(param_1_min, 1.0, param_1_max, 1.0);
-            TLine *lineXc_before = new TLine(param_1_min, min_y_before, param_1_max, min_y_before);
-            TLine *lineYc_before = new TLine(min_x_before, param_2_min, min_x_before, param_2_max);
-            //lineHSD->SetLineColor(kWhite);
-            //lineSSD->SetLineColor(kWhite);
-            //lineY->SetLineColor(kWhite);
-            lineHSD_before->SetLineColorAlpha(kWhite, 0.5);
-            lineSSD_before->SetLineColorAlpha(kWhite, 0.5);
-            lineY_before->SetLineColorAlpha(kWhite, 0.5);
-            lineXc_before->SetLineColorAlpha(kBlack, 0.5);
-            lineYc_before->SetLineColorAlpha(kBlack, 0.5);
-            lineHSD_before->Draw();
-            lineSSD_before->Draw();
-            lineY_before->Draw();
-            Int_t min_ix_before = h_mps_before->GetXaxis()->FindBin(min_x_before);
-            Int_t min_iy_before = h_mps_before->GetXaxis()->FindBin(min_y_before);
-            Int_t ix_0_before = h_mps_before->GetXaxis()->FindBin(0.0);
-            Int_t iy_1_before = h_mps_before->GetXaxis()->FindBin(1.0);
-            if(min_ix_before != ix_0_before && min_iy_before != iy_1_before)
-            {
-                lineXc_before->Draw();
-                lineYc_before->Draw();
-            }
-            //TMarker *bestfitpoint = new TMarker(min_x, min_y, 106);
-            //bestfitpoint->SetMarkerColorAlpha(kBlack, 0.5);
-            //bestfitpoint->SetMarkerSize(2.0);
-            //bestfitpoint->Draw();
+                TLine *lineHSD_before = new TLine(0.0, param_2_min, 0.0, param_2_max);
+                TLine *lineSSD_before = new TLine(0.296, param_2_min, 0.296, param_2_max);
+                TLine *lineY_before = new TLine(param_1_min, 1.0, param_1_max, 1.0);
+                TLine *lineXc_before = new TLine(param_1_min, min_y_before, param_1_max, min_y_before);
+                TLine *lineYc_before = new TLine(min_x_before, param_2_min, min_x_before, param_2_max);
+                //lineHSD->SetLineColor(kWhite);
+                //lineSSD->SetLineColor(kWhite);
+                //lineY->SetLineColor(kWhite);
+                lineHSD_before->SetLineColorAlpha(kWhite, 0.5);
+                lineSSD_before->SetLineColorAlpha(kWhite, 0.5);
+                lineY_before->SetLineColorAlpha(kWhite, 0.5);
+                lineXc_before->SetLineColorAlpha(kBlack, 0.5);
+                lineYc_before->SetLineColorAlpha(kBlack, 0.5);
+                lineHSD_before->Draw();
+                lineSSD_before->Draw();
+                lineY_before->Draw();
+                Int_t min_ix_before = h_mps_before->GetXaxis()->FindBin(min_x_before);
+                Int_t min_iy_before = h_mps_before->GetXaxis()->FindBin(min_y_before);
+                Int_t ix_0_before = h_mps_before->GetXaxis()->FindBin(0.0);
+                Int_t iy_1_before = h_mps_before->GetXaxis()->FindBin(1.0);
+                if(min_ix_before != ix_0_before && min_iy_before != iy_1_before)
+                {
+                    lineXc_before->Draw();
+                    lineYc_before->Draw();
+                }
+                //TMarker *bestfitpoint = new TMarker(min_x, min_y, 106);
+                //bestfitpoint->SetMarkerColorAlpha(kBlack, 0.5);
+                //bestfitpoint->SetMarkerSize(2.0);
+                //bestfitpoint->Draw();
 
-            /*
-            std::vector<TLine*> linesteps;
-            for(std::size_t ix_walk = 0; ix_walk < ll_walk_save.size() - 1; ++ ix_walk)
-            {
-                std::pair<double, double> p1 = ll_walk_save.at(ix_walk);
-                std::pair<double, double> p2 = ll_walk_save.at(ix_walk + 1);
-                Double_t x1 = p1.first;
-                Double_t x2 = p2.first;
-                Double_t y1 = p1.second;
-                Double_t y2 = p2.second;
-                std::cout << "ix_walk=" << ix_walk << " " << x1 << " " << y1 << std::endl;
-                TLine *linestep = new TLine(x1, y1, x2, y2);
-                linestep->SetLineColorAlpha(kRed, 0.1);
-                linestep->SetLineWidth(2);
-                linestep->Draw();
-                linesteps.push_back(linestep);
-            }
-            */
+                /*
+                std::vector<TLine*> linesteps;
+                for(std::size_t ix_walk = 0; ix_walk < ll_walk_save.size() - 1; ++ ix_walk)
+                {
+                    std::pair<double, double> p1 = ll_walk_save.at(ix_walk);
+                    std::pair<double, double> p2 = ll_walk_save.at(ix_walk + 1);
+                    Double_t x1 = p1.first;
+                    Double_t x2 = p2.first;
+                    Double_t y1 = p1.second;
+                    Double_t y2 = p2.second;
+                    std::cout << "ix_walk=" << ix_walk << " " << x1 << " " << y1 << std::endl;
+                    TLine *linestep = new TLine(x1, y1, x2, y2);
+                    linestep->SetLineColorAlpha(kRed, 0.1);
+                    linestep->SetLineWidth(2);
+                    linestep->Draw();
+                    linesteps.push_back(linestep);
+                }
+                */
 
-            h_mps_contour_before->Draw("cont2same");
-            //TString c_fname_before_png = c_mps_name_before + datetimestamp_TString + ".png";
-            //TString c_fname_before_pdf = c_mps_name_before + datetimestamp_TString + ".pdf";
-            TString c_fname_before = c_mps_name_before + "_"
-                                   + "JID" + std::to_string(number_job_id) + "_"
-                                   + datetimestamp_TString;
-            TString c_fname_before_png = c_fname_before + ".png";
-            TString c_fname_before_pdf = c_fname_before + ".pdf";
-            std::cout << "*****************************************************" << std::endl;
-            std::cout << "c_fname_beofre=" << c_fname_before << std::endl;
-            std::cout << "is the filename legal?" << std::endl;
-            std::cout << "*****************************************************" << std::endl;
-            c_mps_before->SaveAs(c_fname_before_png);
-            c_mps_before->SaveAs(c_fname_before_pdf);
-            //h_mps_before = nullptr;
+                h_mps_contour_before->Draw("cont2same");
+                //TString c_fname_before_png = c_mps_name_before + datetimestamp_TString + ".png";
+                //TString c_fname_before_pdf = c_mps_name_before + datetimestamp_TString + ".pdf";
+                TString c_fname_before = c_mps_name_before + "_"
+                                       + "JID" + std::to_string(number_job_id) + "_"
+                                       + datetimestamp_TString;
+                TString c_fname_before_png = c_fname_before + ".png";
+                TString c_fname_before_pdf = c_fname_before + ".pdf";
+                std::cout << "*****************************************************" << std::endl;
+                std::cout << "c_fname_beofre=" << c_fname_before << std::endl;
+                std::cout << "is the filename legal?" << std::endl;
+                std::cout << "*****************************************************" << std::endl;
+                c_mps_before->SaveAs(c_fname_before_png);
+                c_mps_before->SaveAs(c_fname_before_pdf);
+                //h_mps_before = nullptr;
             }
 
     
