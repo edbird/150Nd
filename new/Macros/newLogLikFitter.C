@@ -221,7 +221,122 @@ TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double*& Co
 
 
 
-
+bool load_from_script(
+    int &number_job_id,
+    std::string &output_name,
+    int &start_index,
+    int &stop_index
+    )
+{
+    int script_index = 0;
+    for(;;)
+    {
+        std::string script_fname = "script" + std::to_string(script_index) + ".txt";
+        std::cout << "loading... " << script_fname << std::endl;
+        std::ifstream ifs(script_fname);
+        if(ifs.is_open())
+        {
+            for(int lineindex = 1; ifs.good(); ++ lineindex)
+            {
+                std::string ifs_line;
+                std::getline(ifs, ifs_line);
+                if(lineindex == 1)
+                {
+                    std::string delim = "=";
+                    std::string token1 = ifs_line.substr(0, ifs_line.find(delim));
+                    std::string token2 = ifs_line.substr(ifs_line.find(delim) + 1);
+                    if(token1 == "NUMBER")
+                    {
+                        number_job_id = std::stoi(token2);
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else if(lineindex == 2)
+                {
+                    std::string delim = "=";
+                    std::string token1 = ifs_line.substr(0, ifs_line.find(delim));
+                    std::string token2 = ifs_line.substr(ifs_line.find(delim) + 1);
+                    if(token1 == "OUTPUT_NAME")
+                    {
+                        output_name = token2;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else if(lineindex == 3)
+                {
+                    std::string delim = "=";
+                    std::string token1 = ifs_line.substr(0, ifs_line.find(delim));
+                    std::string token2 = ifs_line.substr(ifs_line.find(delim) + 1);
+                    if(token1 == "START_INDEX")
+                    {
+                        start_index = std::stoi(token2);
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else if(lineindex == 4)
+                {
+                    std::string delim = "=";
+                    std::string token1 = ifs_line.substr(0, ifs_line.find(delim));
+                    std::string token2 = ifs_line.substr(ifs_line.find(delim) + 1);
+                    if(token1 == "STOP_INDEX")
+                    {
+                        stop_index = std::stoi(token2);
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else if(lineindex == 5)
+                {
+                    std::string delim = "=";
+                    std::string token1 = ifs_line.substr(0, ifs_line.find(delim));
+                    std::string token2 = ifs_line.substr(ifs_line.find(delim) + 1);
+                    if(token1 == "RUNNING")
+                    {
+                        if(token2 == "false")
+                        {
+                            ifs.close();
+                            std::ofstream ofs(script_fname, std::ios::out);
+                            ofs << "NUMBER=" << number_job_id << std::endl;
+                            ofs << "OUTPUT_NAME=" << output_name << std::endl;
+                            ofs << "START_INDEX=" << start_index << std::endl;
+                            ofs << "STOP_INDEX=" << stop_index << std::endl;
+                            ofs << "RUNNING=true" << std::endl;
+                            return true;
+                        }
+                        else if(token2 == "true")
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+        else
+        {
+            return false;
+        }
+        ++ script_index;
+    }
+}
 
 
 
@@ -230,6 +345,25 @@ TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double*& Co
 void loadFiles()
 {
 
+
+    int number_job_id;
+    std::string output_name;
+    int start_index;
+    int stop_index;
+    bool success = load_from_script(number_job_id, output_name, start_index, stop_index);
+    if(success == true)
+    {
+        std::cout << "Job Init: ID=" << number_job_id << std::endl;
+        std::cout << "output_name=" << output_name << std::endl;
+        std::cout << "START_INDEX=" << start_index << std::endl;
+        std::cout << "STOP_INDEX=" << stop_index << std::endl;
+        // do nothing = continue
+    }
+    else
+    {
+        std::cout << "fail" << std::endl;
+        return;
+    }
 
 
     std::cout << std::scientific;
@@ -493,7 +627,9 @@ void loadFiles()
         // draw result
         double fval_after = theFCN.operator()(params_after);
         draw(params_after, param_errs_after, fval_after,
-             "HSD_after.png", ".", g_mode_fake_data);
+             number_job_id,
+             "HSD_after.png", ".",
+             g_mode_fake_data);
 
         theParameterStateBefore.Release(std::string(minuit_param_name));
     }
@@ -551,7 +687,9 @@ void loadFiles()
         // draw result
         double fval_after = theFCN.operator()(params_after);
         draw(params_after, param_errs_after, fval_after,
-             "SSD_after.png", ".", g_mode_fake_data);
+             number_job_id,
+             "SSD_after.png", ".",
+             g_mode_fake_data);
 
         theParameterStateBefore.Release(std::string(minuit_param_name));
     }
@@ -626,7 +764,9 @@ void loadFiles()
         // draw result
         double fval_after = theFCN.operator()(params_after);
         draw(params_after, param_errs_after, fval_after,
-             "allparameterfit_after.png", ".", g_mode_fake_data);
+             number_job_id,
+             "allparameterfit_after.png", ".",
+             g_mode_fake_data);
         
         // minimize
         //ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, init_par, init_err);
@@ -751,7 +891,7 @@ void loadFiles()
 
         std::cout << "ready to test MPS" << std::endl;
         //newloglikfitter_testmyphasespace(theParameterState, theFCN); //, FCN_min);
-        newloglikfitter_testmyphasespace();
+        newloglikfitter_testmyphasespace(number_job_id, output_name, start_index, stop_index);
         std::cout << "MPS done" << std::endl;
     }
    

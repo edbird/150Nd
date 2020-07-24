@@ -196,6 +196,7 @@ void draw(
     const std::vector<double> &params,
     const std::vector<double> &param_errs,
     const double fval,
+    const int number_job_id,
     const std::string& saveas_filename,
     const std::string& saveas_dir = ".",
     bool mode_fake_data = false,
@@ -271,6 +272,7 @@ void draw(
                      params,
                      param_errs,
                      fval,
+                     number_job_id,
                      drawauxdata,
                      saveas_filename,
                      saveas_dir,
@@ -998,6 +1000,7 @@ void draw_get_total_data_MC(
 
 
 
+// TODO: number job id
 void draw_covariance_matrix(const double * const CovMatrix, const int number_free_params, const std::string& saveas_filename)
 {
 

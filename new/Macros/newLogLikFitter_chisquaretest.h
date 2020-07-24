@@ -241,6 +241,10 @@ void newloglikfitter_testmyphasespace(
     //ROOT::Minuit2::MnUserParameterState &theParameterState,
     //MinimizeFCNAxialVector &theFCN//,
 //    ROOT::Minuit2::FunctionMinimum &FCN_min
+    const int number_job_id,
+    const std::string &output_name,
+    const int start_index,
+    const int stop_index
     )
 {
 
@@ -274,6 +278,9 @@ void newloglikfitter_testmyphasespace(
     {
         for(int free_params_index_2 = 0; free_params_index_2 < free_params_index_1; ++ free_params_index_2)
         {
+            // TODO: this is essential
+            // for code to behave nice with JOBID
+            // (in parallel)
             if(free_params_index_1 != 1)
                 continue;
             if(free_params_index_2 != 0)
@@ -497,7 +504,10 @@ void newloglikfitter_testmyphasespace(
             //fval_min = theFCN.operator()(params);
             fval_min = std::numeric_limits<double>::infinity();
 
-            std::ofstream os("mps.log", std::ios::out | std::ios::app);
+            std::string os_fname = std::string("mps_")
+                                 + std::string("JID") + std::to_string(number_job_id)
+                                 + std::string(".log");
+            std::ofstream os(os_fname, std::ios::out | std::ios::app);
             if(1)
             {
                 std::cout << "n_param_1=" << n_param_1 << " n_param_2=" << n_param_2 << std::endl;
@@ -506,6 +516,22 @@ void newloglikfitter_testmyphasespace(
                 //for(int n_1 = 0; n_1 <= n_param_1; ++ n_1)
                 for(int n_1 = 0; n_1 < n_param_1; ++ n_1)
                 {
+                    if((start_index <= n_1) && (n_1 < stop_index))
+                    {
+                        // do nothing
+                    }
+                    else
+                    {
+                        // managed by another job, skip
+                        continue;
+                    }
+
+                    // TODO: preserve the minuit parameters as we go down in
+                    // Y axis
+                    // to speed up the fit, start params using previous params
+                    // obtained
+                    // does this introduce a bias?
+
                     int bin_ix = h_mps->GetNbinsX() - n_1;
 
                     double t_param_1 = 0.0;
@@ -546,8 +572,8 @@ void newloglikfitter_testmyphasespace(
                         //params[param_2_ix] = t_param_2;
 
                         //TH1D *junk1, *junk2, *junk3, *junk4;
-                        TString savename;
-                        savename.Form("%s_%d_%d.png", h_mps_name.Data(), n_1, n_2);
+                        //TString savename;
+                        //savename.Form("%s_%d_%d.png", h_mps_name.Data(), n_1, n_2);
                         //draw(params, nullptr, fval, junk1, junk2, junk3, junk4, std::string(savename), ".", true);
                         //draw(params, nullptr, fval, junk1, junk2, junk3, junk4, std::string(savename), ".", mode_fake_data);
                         //draw_channel(1, params, -1.0, "NOSAVE");
@@ -661,6 +687,7 @@ void newloglikfitter_testmyphasespace(
                                                     + std::to_string(bin_iy)
                                                     + ".png";
                         draw(params_before, param_errs_before, fval_before,
+                             number_job_id,
                              mps_output_name_before,
                              "mps_output_before",
                              false, 1);
@@ -671,6 +698,7 @@ void newloglikfitter_testmyphasespace(
                                                     + std::to_string(bin_iy)
                                                     + ".png";
                         draw(params_after, param_errs_after, fval_after,
+                             number_job_id,
                              mps_output_name_after,
                              "mps_output_after",
                              false, 1);
@@ -702,7 +730,14 @@ void newloglikfitter_testmyphasespace(
             os.close();
 
             TString datetimestamp_TString = TString(g_datetimestamp_string);
-            TString f_name = "h_mps_1_0_" + datetimestamp_TString + "_singleenergy.root";
+            TString f_name = TString("h_mps_1_0_")
+                           + "JID" + std::to_string(number_job_id) + "_"
+                           + datetimestamp_TString
+                           + "_singleenergy.root";
+            std::cout << "*****************************************************" << std::endl;
+            std::cout << "f_name=" << f_name << std::endl;
+            std::cout << "is the filename legal?" << std::endl;
+            std::cout << "*****************************************************" << std::endl;
             TFile *f = new TFile(f_name, "recreate");
             h_mps->Write();
             h_mps_before->Write();
@@ -820,8 +855,17 @@ void newloglikfitter_testmyphasespace(
             }
 
             h_mps_contour->Draw("cont2same");
-            TString c_fname_png = c_mps_name + datetimestamp_TString + ".png";
-            TString c_fname_pdf = c_mps_name + datetimestamp_TString + ".pdf";
+            //TString c_fname_png = c_mps_name + datetimestamp_TString + ".png";
+            //TString c_fname_pdf = c_mps_name + datetimestamp_TString + ".pdf";
+            TString c_fname = c_mps_name + "_"
+                           + "JID" + std::to_string(number_job_id) + "_"
+                           + datetimestamp_TString;
+            TString c_fname_png = c_fname + ".png";
+            TString c_fname_pdf = c_fname + ".pdf";
+            std::cout << "*****************************************************" << std::endl;
+            std::cout << "c_fname=" << c_fname << std::endl;
+            std::cout << "is the filename legal?" << std::endl;
+            std::cout << "*****************************************************" << std::endl;
             c_mps->SaveAs(c_fname_png);
             c_mps->SaveAs(c_fname_pdf);
             //h_mps = nullptr;
@@ -937,8 +981,17 @@ void newloglikfitter_testmyphasespace(
             */
 
             h_mps_contour_before->Draw("cont2same");
-            TString c_fname_before_png = c_mps_name_before + datetimestamp_TString + ".png";
-            TString c_fname_before_pdf = c_mps_name_before + datetimestamp_TString + ".pdf";
+            //TString c_fname_before_png = c_mps_name_before + datetimestamp_TString + ".png";
+            //TString c_fname_before_pdf = c_mps_name_before + datetimestamp_TString + ".pdf";
+            TString c_fname_before = c_mps_name_before + "_"
+                                   + "JID" + std::to_string(number_job_id) + "_"
+                                   + datetimestamp_TString;
+            TString c_fname_before_png = c_fname_before + ".png";
+            TString c_fname_before_pdf = c_fname_before + ".pdf";
+            std::cout << "*****************************************************" << std::endl;
+            std::cout << "c_fname_beofre=" << c_fname_before << std::endl;
+            std::cout << "is the filename legal?" << std::endl;
+            std::cout << "*****************************************************" << std::endl;
             c_mps_before->SaveAs(c_fname_before_png);
             c_mps_before->SaveAs(c_fname_before_pdf);
             //h_mps_before = nullptr;

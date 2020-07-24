@@ -47,6 +47,7 @@ void draw_channel(const int channel,
                   const std::vector<double> &params,
                   const std::vector<double> &param_errs,
                   const double fval,
+                  const int number_job_id,
                   draw_aux_data &drawauxdata,
                   const std::string& saveas_filename,
                   const std::string& saveas_dir = ".",
@@ -541,7 +542,7 @@ void draw_channel(const int channel,
 
         //std::string dir = base_name + "_c" + "_" + std::string(channel_str);
         std::string dir = saveas_dir;
-        std::string name = base_name + "_c" + "_" + std::string(channel_str) + extension;
+        std::string name = base_name + "_JID" + std::to_string(number_job_id) + "_c" + "_" + std::string(channel_str) + extension;
         canvas_saveas_helper(dir, name, c);
     }
 
