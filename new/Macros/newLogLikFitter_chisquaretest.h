@@ -708,7 +708,7 @@ void newloglikfitter_testmyphasespace(
                                                  << t_param_1 << " "
                                                  << t_param_2 << " "
                                                  << fval_before;
-                        for(int pix = 0; pix < params_before_.size(); ++ pix)
+                        for(int pix = 0; pix < params_before.size(); ++ pix)
                         {
                             ofs_resultsmatrix_before << params_before.at(pix) << " "
                                                      << param_errs_before.at(pix) << " ";
@@ -720,7 +720,7 @@ void newloglikfitter_testmyphasespace(
                                                 << t_param_1 << " "
                                                 << t_param_2 << " "
                                                 << fval_after;
-                        for(int pix = 0; pix < params_after_.size(); ++ pix)
+                        for(int pix = 0; pix < params_after.size(); ++ pix)
                         {
                             ofs_resultsmatrix_after << params_after.at(pix) << " "
                                                     << param_errs_after.at(pix) << " ";
