@@ -732,6 +732,11 @@ void read_parameter_list_file()
 
     std::ifstream paramFile;
     paramFile.open("parameter_names.lst");
+    if(paramFile.is_open() == false)
+    {
+        std::cerr << __func__ << " Error: Cannot open file" << "parameter_names.lst" << std::endl;
+        throw "error";
+    }
     // TODO: note that params file contains "same" in many backgrounds
     // which clearly should not be the same in P1 and P2
     // is tl208 sfoil and sscin missing?
