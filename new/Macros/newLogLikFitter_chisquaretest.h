@@ -896,7 +896,7 @@ void newloglikfitter_testmyphasespace(
                     Double_t x2 = p2.first;
                     Double_t y1 = p1.second;
                     Double_t y2 = p2.second;
-                    std::cout << "ix_walk=" << ix_walk << " " << x1 << " " << y1 << std::endl;
+                    //std::cout << "ix_walk=" << ix_walk << " " << x1 << " " << y1 << std::endl;
                     TLine *linestep = new TLine(x1, y1, x2, y2);
                     linestep->SetLineColorAlpha(kRed, 0.1);
                     linestep->SetLineWidth(2);
