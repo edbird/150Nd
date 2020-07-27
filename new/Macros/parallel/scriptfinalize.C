@@ -89,6 +89,11 @@ void scriptfinalize()
             continue;
         }
 
+
+        
+        double min_stripe = std::numeric_limits<double>::infinity();
+        double min_stripe_y = 0.0;
+
         while(!ifs.eof() && ifs.good())
         {
 
