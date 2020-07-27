@@ -171,7 +171,7 @@ void scriptfinalize()
             // each stripe
             if(fval < min_stripe)
             {
-                min_stripe = fval_after;
+                min_stripe = fval;
                 min_stripe_y = t_param_2;
             }
 
@@ -187,6 +187,9 @@ void scriptfinalize()
     ///////////////////////////////////////////////////////////////////
     // c_mps
     ///////////////////////////////////////////////////////////////////
+
+    int param_1_ix_external = 1;
+    int param_2_ix_external = 0;
 
     TString param_1_ix_str_external;
     param_1_ix_str_external.Form("%i", param_1_ix_external);
