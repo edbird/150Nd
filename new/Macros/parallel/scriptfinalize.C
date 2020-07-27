@@ -86,6 +86,7 @@ void scriptfinalize()
         std::ifstream ifs(output_name);
         if(!ifs.is_open())
         {
+            std::cout << "Error failed to open file " << output_name << std::endl;
             continue;
         }
 
@@ -125,22 +126,27 @@ void scriptfinalize()
                 if(token_index == 0)
                 {
                     n_1 = std::stoi(token);
+                    std::cout << "n_1=" << n_1;
                 }
                 else if(token_index == 1)
                 {
                     n_2 = std::stoi(token);
+                    std::cout << " n_2=" << n_2;
                 }
                 else if(token_index == 2)
                 {
                     t_param_1 = std::stod(token);
+                    std::cout << " t_param_1=" << t_param_1;
                 }
                 else if(token_index == 3)
                 {
                     t_param_2 = std::stod(token);
+                    std::cout << " t_param_2=" << t_param_2;
                 }
                 else if(token_index == 4)
                 {
                     fval = std::stod(token);
+                    std::cout << " fval=" << fval;
                 }
                 else
                 {
@@ -157,8 +163,12 @@ void scriptfinalize()
 
                 ++ token_index;
             }
+            std::cout << " params.size()=" << params.size()
+                      << " param_errs.size()=" << param_errs.size() << std::endl;
 
-            h_mps->SetBinContent(n_1, n_2, fval);
+            std::cout << "fval=" << fval << std::endl;
+            h_mps->SetBinContent(n_1, n_2, 1.0);
+            //h_mps->SetBinContent(n_1, n_2, fval);
 
             if(fval < min)
             {
