@@ -511,11 +511,13 @@ void newloglikfitter_testmyphasespace(
 
 
             std::string ofs_resultsmatrix_before_fname =
-                std::string("mps_resultsmatrix_before")
+                output_name + "_before" + "_"
                 + "JID" + std::to_string(number_job_id)
                 + ".txt";
+
+            //"mps_resultsmatrix_after"
             std::string ofs_resultsmatrix_after_fname =
-                std::string("mps_resultsmatrix_after")
+                output_name + "_after" + "_"
                 + "JID" + std::to_string(number_job_id)
                 + ".txt";
 
@@ -532,6 +534,7 @@ void newloglikfitter_testmyphasespace(
 
             if(1)
             {
+                std::cout << "START_INDEX=" << start_index << " STOP_INDEX=" << stop_index << std::endl;
                 std::cout << "n_param_1=" << n_param_1 << " n_param_2=" << n_param_2 << std::endl;
 
                 // modify parameters
@@ -707,7 +710,7 @@ void newloglikfitter_testmyphasespace(
                                                  << n_2 << " "
                                                  << t_param_1 << " "
                                                  << t_param_2 << " "
-                                                 << fval_before;
+                                                 << fval_before << " ";
                         for(int pix = 0; pix < params_before.size(); ++ pix)
                         {
                             ofs_resultsmatrix_before << params_before.at(pix) << " "
@@ -719,7 +722,7 @@ void newloglikfitter_testmyphasespace(
                                                 << n_2 << " "
                                                 << t_param_1 << " "
                                                 << t_param_2 << " "
-                                                << fval_after;
+                                                << fval_after << " ";
                         for(int pix = 0; pix < params_after.size(); ++ pix)
                         {
                             ofs_resultsmatrix_after << params_after.at(pix) << " "

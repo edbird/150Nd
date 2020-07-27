@@ -121,6 +121,9 @@ void scriptfinalize()
     // c_mps
     ///////////////////////////////////////////////////////////////////
 
+    TString c_mps_name_base = "c_mps";
+    TString c_mps_name = c_mps_name_base + "_" + param_1_ix_str_external + "_" + param_2_ix_str_external;
+
     TCanvas *c_mps = new TCanvas(c_mps_name, c_mps_name);
     c_mps->SetTicks(2, 2);
     c_mps->SetRightMargin(0.15);
