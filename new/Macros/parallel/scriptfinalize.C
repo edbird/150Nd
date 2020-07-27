@@ -75,7 +75,7 @@ void scriptfinalize()
         //std::ofstream ofs(name);
         std::cout << "NUMBER=" << std::to_string(i) << std::endl;
         std::string output_name = std::string("mps_resultsmatrix") + "_"
-                                + "after" 
+                                + "after" + "_"
                                 + "JID"
                                 + to_string(i) + ".txt";
         //ofs << "START_INDEX=" << std::to_string(i) << std::endl;
