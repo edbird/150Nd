@@ -207,7 +207,7 @@
 //-----------------------------------------
 //    Functions
 //----------------------------------------
-void loadFiles();
+void loadFiles(int);
 
 
 //void fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double*& CovMatrix, int& number_free_params, Int_t thePhase);
@@ -222,6 +222,7 @@ TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double*& Co
 
 
 bool load_from_script(
+    int i,
     int &number_job_id,
     std::string &output_name,
     int &start_index,
@@ -229,8 +230,10 @@ bool load_from_script(
     )
 {
     int script_index = 0;
-    for(;;)
+    for(;; ++ script_index)
     {
+        if(script_index != i) continue;
+
         std::string script_fname = "script" + std::to_string(script_index) + ".txt";
         std::cout << "loading... " << script_fname << std::endl;
         std::ifstream ifs(script_fname);
@@ -334,7 +337,6 @@ bool load_from_script(
         {
             return false;
         }
-        ++ script_index;
     }
 }
 
@@ -342,7 +344,13 @@ bool load_from_script(
 
 
 
-void loadFiles()
+void newLogLikFitter(int i)
+{
+    loadFiles(i);
+}
+
+
+void loadFiles(int i)
 {
 
 
@@ -350,7 +358,7 @@ void loadFiles()
     std::string output_name;
     int start_index;
     int stop_index;
-    bool success = load_from_script(number_job_id, output_name, start_index, stop_index);
+    bool success = load_from_script(i, number_job_id, output_name, start_index, stop_index);
     if(success == true)
     {
         std::cout << "Job Init: ID=" << number_job_id << std::endl;
