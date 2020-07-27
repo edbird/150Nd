@@ -187,7 +187,6 @@ void scriptfinalize()
 
         }
         std::cout << "EOF" << std::endl;
-        this will not compile
         // while
 
         ifs.close();
