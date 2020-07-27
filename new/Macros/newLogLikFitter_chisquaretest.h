@@ -736,22 +736,26 @@ void newloglikfitter_testmyphasespace(
                                                     + "_"
                                                     + std::to_string(bin_iy)
                                                     + ".png";
+                        /*
                         draw(params_before, param_errs_before, fval_before,
                              number_job_id,
                              mps_output_name_before,
                              "mps_output_before",
                              false, 1);
+                        */
 
                         std::string mps_output_name_after = "mps_output_singleenergy_after_"
                                                     + std::to_string(bin_ix)
                                                     + "_"
                                                     + std::to_string(bin_iy)
                                                     + ".png";
+                        /*
                         draw(params_after, param_errs_after, fval_after,
                              number_job_id,
                              mps_output_name_after,
                              "mps_output_after",
                              false, 1);
+                        */
 
                         /*
                         if(fval - fval_min <= 0.0)
@@ -779,7 +783,9 @@ void newloglikfitter_testmyphasespace(
             } 
             os.close();
 
+            // TODO: this is not working, but I probably do not want a datetimestamp
             TString datetimestamp_TString = TString(g_datetimestamp_string);
+            /*
             TString f_name = TString("h_mps_1_0_")
                            + "JID" + std::to_string(number_job_id) + "_"
                            + datetimestamp_TString
@@ -792,13 +798,13 @@ void newloglikfitter_testmyphasespace(
             h_mps->Write();
             h_mps_before->Write();
             f->Close();
-
+            */
 
 
             ///////////////////////////////////////////////////////////////////
             // c_mps
             ///////////////////////////////////////////////////////////////////
-            if(1)
+            if(0)
             {
                 TCanvas *c_mps = new TCanvas(c_mps_name, c_mps_name);
                 c_mps->SetTicks(2, 2);
@@ -896,7 +902,7 @@ void newloglikfitter_testmyphasespace(
                     Double_t x2 = p2.first;
                     Double_t y1 = p1.second;
                     Double_t y2 = p2.second;
-                    std::cout << "ix_walk=" << ix_walk << " " << x1 << " " << y1 << std::endl;
+                    //std::cout << "ix_walk=" << ix_walk << " " << x1 << " " << y1 << std::endl;
                     TLine *linestep = new TLine(x1, y1, x2, y2);
                     linestep->SetLineColorAlpha(kRed, 0.1);
                     linestep->SetLineWidth(2);

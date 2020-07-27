@@ -75,7 +75,7 @@ void scriptfinalize()
         //std::ofstream ofs(name);
         std::cout << "NUMBER=" << std::to_string(i) << std::endl;
         std::string output_name = std::string("mps_resultsmatrix") + "_"
-                                + "after" 
+                                + "after" + "_"
                                 + "JID"
                                 + to_string(i) + ".txt";
         //ofs << "START_INDEX=" << std::to_string(i) << std::endl;
@@ -167,8 +167,7 @@ void scriptfinalize()
                       << " param_errs.size()=" << param_errs.size() << std::endl;
 
             std::cout << "fval=" << fval << std::endl;
-            h_mps->SetBinContent(n_1, n_2, 1.0);
-            //h_mps->SetBinContent(n_1, n_2, fval);
+            h_mps->SetBinContent(n_1, n_2, fval);
 
             if(fval < min)
             {
@@ -225,6 +224,7 @@ void scriptfinalize()
     //c_mps_v.push_back(c_mps);
     //c_mps = nullptr;
     //c_mps->cd();
+    h_mps->SetStats(0);
     h_mps->SetTitle("");
     h_mps->GetZaxis()->SetLabelOffset(0.005);
     h_mps->GetXaxis()->SetLabelSize(17.0);

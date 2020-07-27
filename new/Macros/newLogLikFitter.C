@@ -591,7 +591,8 @@ void loadFiles(int i)
     // HSD fixed xi_31 = HSD fit
     ///////////////////////////////////////////////////////////////////////////
 
-    if(1)
+    // do not do this in parallel mode
+    if(0)
     {
         // create minimizer
         ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
@@ -651,7 +652,8 @@ void loadFiles(int i)
     // do fit for SSD
     // TODO: this block doesn't really make sense, unless we fit
     // for xi_31 = SSD with xi_31 fixed
-    if(1)
+    // do not do this in parallel mode
+    if(0)
     {
         // create minimizer
         ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
@@ -738,7 +740,8 @@ void loadFiles(int i)
     // All Parameter Fit
     ///////////////////////////////////////////////////////////////////////////
 
-    if(1)
+    // do not do this in parallel mode
+    if(0)
     {
         // create minimizer
         ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
