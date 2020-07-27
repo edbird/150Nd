@@ -186,6 +186,7 @@ void scriptfinalize()
             }
 
         }
+        std::cout << "EOF" << std::endl;
         // while
 
         ifs.close();
