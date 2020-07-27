@@ -6,13 +6,48 @@
 
 void scriptfinalize()
 {
+    
+    const int n_param_xy = 301;
+    int n_param_1 = n_param_xy;
+    int n_param_2 = n_param_xy;
+    int n_param_max = n_param_1 * n_param_2;
+    //int c_param = 0;
+
+    double param_1_min;
+    double param_1_max;
+
+    // param 1 is gA
+    // custom range
+    param_1_min = 0.1;
+    param_1_max = 1.7;
+    // fake data values
+    //if(mode_fake_data)
+    //{
+    //    param_1_min = -0.4;
+    //    param_1_max = 0.6;
+    //}
+
+    double param_2_min;
+    double param_2_max;
+    
+    // param 2 is 150Nd amplitude
+    // custom range
+    param_2_min = 0.8; //1.1; //0.0; //0.0;
+    param_2_max = 2.6; //2.6; //1.8; //2.0; //2.0; //4.0;
+    // fake data values
+    //if(mode_fake_data)
+    //{
+    //    param_2_min = 0.2;
+    //    param_2_max = 1.8;
+    //}
+
 
     TString h_mps_name_base;
     h_mps_name_base = "h_mps";
     TString h_mps_name = h_mps_name_base + "_" + to_string(1) + "_" + to_string(0);
     TH2D *h_mps = new TH2D(h_mps_name, h_mps_name,
-                           301, 0.1, 1.7,
-                           301, 0.8, 2.6);
+                           n_param_1, param_1_min, param_1_max,
+                           n_param_2, param_2_min, param_2_max);
 
     h_mps->SetContour(1000);
 
@@ -21,6 +56,17 @@ void scriptfinalize()
 
     h_mps->GetXaxis()->SetTitle(param_1_name_str);
     h_mps->GetYaxis()->SetTitle(param_2_name_str);
+
+    double min = std::numeric_limits<double>::infinity();
+    double min_x = -1.0; //-0.085;
+    double min_y = -1.0; //0.87;
+    
+    double min_before = std::numeric_limits<double>::infinity();
+    double min_x_before = -1.0; //-0.085;
+    double min_y_before = -1.0; //0.87;
+
+    double fval_min = 0.0;
+    fval_min = std::numeric_limits<double>::infinity();
 
 
     for(int i = 0; i < 301; ++ i)
@@ -108,6 +154,22 @@ void scriptfinalize()
             }
 
             h_mps->SetBinContent(n_1, n_2, fval);
+
+            if(fval < min)
+            {
+                min = fval;
+                min_x = t_param_1;
+                min_y = t_param_2;
+            }
+
+            // TODO: don't think this currently works need to reset on
+            // each stripe
+            if(fval < min_stripe)
+            {
+                min_stripe = fval_after;
+                min_stripe_y = t_param_2;
+            }
+
         }
         // while
 
@@ -120,6 +182,11 @@ void scriptfinalize()
     ///////////////////////////////////////////////////////////////////
     // c_mps
     ///////////////////////////////////////////////////////////////////
+
+    TString param_1_ix_str_external;
+    param_1_ix_str_external.Form("%i", param_1_ix_external);
+    TString param_2_ix_str_external;
+    param_2_ix_str_external.Form("%i", param_2_ix_external);
 
     TString c_mps_name_base = "c_mps";
     TString c_mps_name = c_mps_name_base + "_" + param_1_ix_str_external + "_" + param_2_ix_str_external;
