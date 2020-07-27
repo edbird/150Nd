@@ -286,6 +286,7 @@ void scriptfinalize()
     //bestfitpoint->SetMarkerSize(2.0);
     //bestfitpoint->Draw();
 
+    /*
     std::vector<TLine*> linesteps;
     for(std::size_t ix_walk = 0; ix_walk < ll_walk_save.size() - 1; ++ ix_walk)
     {
@@ -302,6 +303,7 @@ void scriptfinalize()
         linestep->Draw();
         linesteps.push_back(linestep);
     }
+    */
 
     h_mps_contour->Draw("cont2same");
     //TString c_fname_png = c_mps_name + datetimestamp_TString + ".png";
