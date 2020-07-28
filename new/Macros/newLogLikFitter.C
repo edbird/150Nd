@@ -353,24 +353,33 @@ void newLogLikFitter(int i)
 void loadFiles(int i)
 {
 
-
-    int number_job_id;
-    std::string output_name;
     int start_index;
     int stop_index;
-    bool success = load_from_script(i, number_job_id, output_name, start_index, stop_index);
-    if(success == true)
+    if(MODE_PARALLEL == 1)
     {
-        std::cout << "Job Init: ID=" << number_job_id << std::endl;
-        std::cout << "output_name=" << output_name << std::endl;
-        std::cout << "START_INDEX=" << start_index << std::endl;
-        std::cout << "STOP_INDEX=" << stop_index << std::endl;
-        // do nothing = continue
+        int number_job_id;
+        std::string output_name;
+        bool success = load_from_script(i, number_job_id, output_name, start_index, stop_index);
+        if(success == true)
+        {
+            std::cout << "Job Init: ID=" << number_job_id << std::endl;
+            std::cout << "output_name=" << output_name << std::endl;
+            std::cout << "START_INDEX=" << start_index << std::endl;
+            std::cout << "STOP_INDEX=" << stop_index << std::endl;
+            // do nothing = continue
+        }
+        else
+        {
+            std::cout << "fail" << std::endl;
+            return;
+        }
     }
     else
     {
-        std::cout << "fail" << std::endl;
-        return;
+        number_job_id = 0;
+        output_name = "noparallel";
+        start_index = 0;
+        stop_index = 301;
     }
 
 
@@ -384,14 +393,16 @@ void loadFiles(int i)
     // ramdisk, should be faster?
     std::size_t count_G0 =
         LD_REWEIGHT_DATA_2(h_nEqNull,
-                           "/home/ecb/150Nd/150Nd-data/dG150Nd/G0/dG0.dat",
+                           //"/home/ecb/150Nd/150Nd-data/dG150Nd/G0/dG0.dat",
+                           "/home/ecb/100Mo-150/gA_theoretical_files/pfs-nuclei/150Nd/0-N0/nEqNull.dat",
                            "h_nEqNull",
                            "nEqNull"//,
                            //0.0, bb_Q
                            );
     std::size_t count_G2 =
         LD_REWEIGHT_DATA_2(h_nEqTwo,
-                           "/home/ecb/150Nd/150Nd-data/dG150Nd/G2/dG2.dat",
+                           //"/home/ecb/150Nd/150Nd-data/dG150Nd/G2/dG2.dat",
+                           "/home/ecb/100Mo-150/gA_theoretical_files/pfs-nuclei/150Nd/1-N2/nEqTwo.dat",
                            "h_nEqTwo",
                            "nEqTwo"//,  0.0, bb_Q
                            );
@@ -400,10 +411,10 @@ void loadFiles(int i)
     // phase space integrals
     // TODO: these were the wrong way around!
     // I need to re-run this code, plotting the MPS without fit
-    const Double_t G0_ps_integral_MeV = 0.744684E-45;
-    const Double_t G0_ps_integral_yrinv = 0.357034E-16;
-    const Double_t G2_ps_integral_MeV = 0.420438E-45;
-    const Double_t G2_ps_integral_yrinv = 0.201577E-16;
+    const Double_t G0_ps_integral_MeV = 0.759721E-45; //0.744684E-45;
+    const Double_t G0_ps_integral_yrinv = 0.364244E-16; //0.357034E-16;
+    const Double_t G2_ps_integral_MeV = 0.429791E-45; //0.420438E-45;
+    const Double_t G2_ps_integral_yrinv = 0.206061E-16; //0.201577E-16;
 
     // TODO: what is the value for the basline for Nd150? is this for 100Mo
     //const Double_t xi_31_baseline{0.296}; // TODO: this is WRONG change it
