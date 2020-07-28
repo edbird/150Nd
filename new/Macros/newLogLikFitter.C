@@ -353,12 +353,12 @@ void newLogLikFitter(int i)
 void loadFiles(int i)
 {
 
+    int number_job_id;
+    std::string output_name;
     int start_index;
     int stop_index;
     if(MODE_PARALLEL == 1)
     {
-        int number_job_id;
-        std::string output_name;
         bool success = load_from_script(i, number_job_id, output_name, start_index, stop_index);
         if(success == true)
         {
