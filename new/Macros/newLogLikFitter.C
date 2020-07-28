@@ -379,7 +379,7 @@ void loadFiles(int i)
     // load data
     std::cout << "attempting to load spectral data from file" << std::endl;
 
-    bb_Q = 3.368;
+    //bb_Q = 3.368;
     bb_Q = 3.37138;
     // ramdisk, should be faster?
     std::size_t count_G0 =
@@ -395,12 +395,15 @@ void loadFiles(int i)
                            "h_nEqTwo",
                            "nEqTwo"//,  0.0, bb_Q
                            );
+                           // TODO: change data file location!
 
     // phase space integrals
-    const Double_t G0_ps_integral_MeV = 0.420438E-45;
-    const Double_t G0_ps_integral_yrinv = 0.201577E-16;
-    const Double_t G2_ps_integral_MeV = 0.744684E-45;
-    const Double_t G2_ps_integral_yrinv = 0.357034E-16;
+    // TODO: these were the wrong way around!
+    // I need to re-run this code, plotting the MPS without fit
+    const Double_t G0_ps_integral_MeV = 0.744684E-45;
+    const Double_t G0_ps_integral_yrinv = 0.357034E-16;
+    const Double_t G2_ps_integral_MeV = 0.420438E-45;
+    const Double_t G2_ps_integral_yrinv = 0.201577E-16;
 
     // TODO: what is the value for the basline for Nd150? is this for 100Mo
     //const Double_t xi_31_baseline{0.296}; // TODO: this is WRONG change it

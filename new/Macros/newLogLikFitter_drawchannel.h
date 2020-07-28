@@ -292,6 +292,10 @@ void draw_channel(const int channel,
     hRatio->GetXaxis()->SetLabelFont(43);
     hRatio->GetXaxis()->SetLabelSize(15);
 
+    // TODO: fix the error bar with for ratio so that it is the same
+    // as the line width for the main histogram
+    // and remove the horizontal lines from both
+
     // in code copying from, canvas alloc. here
     c->cd();
     c->SetBottomMargin(0.0);
