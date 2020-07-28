@@ -376,6 +376,7 @@ void loadFiles(int i)
     }
     else
     {
+        if(i != 0) return;
         number_job_id = 0;
         output_name = "noparallel";
         start_index = 0;
