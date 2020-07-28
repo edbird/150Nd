@@ -607,7 +607,7 @@ void loadFiles(int i)
     ///////////////////////////////////////////////////////////////////////////
 
     // do not do this in parallel mode
-    if(0)
+    if(0 || (MODE_PARALLEL == 0))
     {
         // create minimizer
         ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
@@ -668,7 +668,7 @@ void loadFiles(int i)
     // TODO: this block doesn't really make sense, unless we fit
     // for xi_31 = SSD with xi_31 fixed
     // do not do this in parallel mode
-    if(0)
+    if(0 || (MODE_PARALLEL == 0))
     {
         // create minimizer
         ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
@@ -756,7 +756,7 @@ void loadFiles(int i)
     ///////////////////////////////////////////////////////////////////////////
 
     // do not do this in parallel mode
-    if(0)
+    if(0 || (MODE_PARALLEL == 0))
     {
         // create minimizer
         ROOT::Minuit2::MnUserParameterState theParameterStateBefore;

@@ -804,7 +804,7 @@ void newloglikfitter_testmyphasespace(
             ///////////////////////////////////////////////////////////////////
             // c_mps
             ///////////////////////////////////////////////////////////////////
-            if(0)
+            if(0 || (MODE_PARALLEL == 0))
             {
                 TCanvas *c_mps = new TCanvas(c_mps_name, c_mps_name);
                 c_mps->SetTicks(2, 2);
@@ -931,7 +931,7 @@ void newloglikfitter_testmyphasespace(
             ///////////////////////////////////////////////////////////////////
             // c_mps_before
             ///////////////////////////////////////////////////////////////////
-            if(0)
+            if(0 || (MODE_PARALLEL == 0))
             {
                 TString c_mps_name_base_before = "c_mps_before";
                 TString c_mps_name_before = c_mps_name_base_before + "_" + param_1_ix_str_external + "_" + param_2_ix_str_external;
