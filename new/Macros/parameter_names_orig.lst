@@ -104,65 +104,65 @@ BREAK
 BREAK
 # TODO: bug: line with whitespace crashes
 BREAK
-2	enabled     1.70e-3   	0.02e-3     same        same        1.70e-3   	0.02e-3     same        same        soft    soft    ac228_int_rot   bi212_int_rot   tl208_int_rot   END # 2490, 1359
-#2   enabled     0.62e-3     0.01e-3     same        same        0.62e-3     0.01e-3     same        same        soft    soft    tl208_int_rot                   END # 7134
+2	enabled     1.70e-3   	0.02e-3     same        same        1.70e-3   	0.02e-3     same        same        hard    hard    ac228_int_rot   bi212_int_rot   tl208_int_rot   END # 2490, 1359
+#2   enabled     0.62e-3     0.01e-3     same        same        0.62e-3     0.01e-3     same        same        hard    hard    tl208_int_rot                   END # 7134
 # TODO: do TL 208 samples need to be in equlibrium with Ac 228 and Bi 212 samples
-3   enabled     5.66e-3     0.15e-3     same        same        5.66e-3     0.15e-3     same        same        soft    soft    bi207_int_rot  	                END # 9906
-4   enabled     0.29e-3     0.01e-3     same        same        0.29e-3     0.01e-3     same        same        soft    soft    bi214_int_rot   pb214_int_rot   END # 6839, 173
-5   enabled  	2.98e-3     0.21e-3     same        same        2.98e-3     0.21e-3     same        same        soft    soft    eu152_int_rot                   END # 138
-6   enabled     1.08e-3     0.25e-3     same        same        1.08e-3     0.25e-3     same        same        soft    soft    eu154_int_rot  	                END # 385
-7   enabled     10.14e-3    0.08e-3     same        same        10.14e-3    0.08e-3     same        same        soft    soft    k40_int_rot	                    END # 737
-8   enabled     1.54e-3     0.04e-3     same        same        1.54e-3     0.04e-3     same        same        soft    soft    pa234m_int_rot                  END # 3877
-9   enabled     1.6e-3      0.7e-3      same        same        1.6e-3      0.7e-3      same        same        soft    soft    bi214_mylar     pb214_mylar     END # 207, 24
+3   enabled     5.66e-3     0.15e-3     same        same        5.66e-3     0.15e-3     same        same        hard    hard    bi207_int_rot  	                END # 9906
+4   enabled     0.29e-3     0.01e-3     same        same        0.29e-3     0.01e-3     same        same        hard    hard    bi214_int_rot   pb214_int_rot   END # 6839, 173
+5   enabled  	2.98e-3     0.21e-3     same        same        2.98e-3     0.21e-3     same        same        hard    hard    eu152_int_rot                   END # 138
+6   enabled     1.08e-3     0.25e-3     same        same        1.08e-3     0.25e-3     same        same        hard    hard    eu154_int_rot  	                END # 385
+7   enabled     10.14e-3    0.08e-3     same        same        10.14e-3    0.08e-3     same        same        hard    hard    k40_int_rot	                    END # 737
+8   enabled     1.54e-3     0.04e-3     same        same        1.54e-3     0.04e-3     same        same        hard    hard    pa234m_int_rot                  END # 3877
+9   enabled     1.6e-3      0.7e-3      same        same        1.6e-3      0.7e-3      same        same        hard    hard    bi214_mylar     pb214_mylar     END # 207, 24
 BREAK
-10  enabled     4.86e-03    0.04e-03    same        same        4.86e-03    0.04e-03    same        same        soft    soft    mo100_99_rot_2n2b_m14           END # 308
-11  enabled     0.135e-03   0.002e-03   same        same        0.135e-03   0.002e-03   same        same        soft    soft    mo100_99_rot_bi214	            END
-12  enabled     0.73e-03    0.03e-03    same        same        0.73e-03    0.03e-03    same        same        soft    soft    mo100_99_rot_pa234m	            END
-13  enabled     5.27e-03    0.07e-03    same        same        5.27e-03    0.07e-03    same        same        soft    soft    mo100_99_rot_k40	            END
+10  enabled     4.86e-03    0.04e-03    same        same        4.86e-03    0.04e-03    same        same        hard    hard    mo100_99_rot_2n2b_m14           END # 308
+11  enabled     0.135e-03   0.002e-03   same        same        0.135e-03   0.002e-03   same        same        hard    hard    mo100_99_rot_bi214	            END
+12  enabled     0.73e-03    0.03e-03    same        same        0.73e-03    0.03e-03    same        same        hard    hard    mo100_99_rot_pa234m	            END
+13  enabled     5.27e-03    0.07e-03    same        same        5.27e-03    0.07e-03    same        same        hard    hard    mo100_99_rot_k40	            END
 BREAK
-14  enabled     0.051e-03	0.003e-03   same        same        0.051e-03	0.003e-03   same        same        soft    soft    zr96_rot_2n2b_m4	            END # 1894
-15  enabled     0.19e-03    0.02e-03    same        same        0.19e-03    0.02e-03    same        same        soft    soft    zr96_rot_bi214	                END
-16  enabled     0.49e-03    0.01e-03    same        same        0.49e-03    0.01e-03    same        same        soft    soft    zr96_rot_pa234m	                END
-17  enabled     19.7e-03	0.1e-03     same        same        19.7e-03	0.1e-03     same        same        soft    soft    zr96_rot_k40	                END 
+14  enabled     0.051e-03	0.003e-03   same        same        0.051e-03	0.003e-03   same        same        hard    hard    zr96_rot_2n2b_m4	            END # 1894
+15  enabled     0.19e-03    0.02e-03    same        same        0.19e-03    0.02e-03    same        same        hard    hard    zr96_rot_bi214	                END
+16  enabled     0.49e-03    0.01e-03    same        same        0.49e-03    0.01e-03    same        same        hard    hard    zr96_rot_pa234m	                END
+17  enabled     19.7e-03	0.1e-03     same        same        19.7e-03	0.1e-03     same        same        hard    hard    zr96_rot_k40	                END 
 BREAK
-18  enabled     0.031e-03	0.003e-03   same        same        0.031e-03	0.003e-03   same        same        soft    soft    ca48_63_rot_2n2b_m4	            END # 43
-19  enabled     0.08e-03    0.01e-03    same        same        0.08e-03    0.01e-03    same        same        soft    soft    ca48_63_rot_bi214	            END
-20  enabled     0.3e-03     0.1e-03     same        same        0.3e-03     0.1e-03     same        same        soft    soft    ca48_63_rot_pa234m	            END
-21  enabled     29.6e-03    0.1e-03     same        same        29.6e-03    0.1e-03     same        same        soft    soft    ca48_63_rot_y90	                END
-#10  enabled     5.27e-03    0.07e-03    same        same        5.27e-03    0.07e-03    same        same        soft    soft    mo100_99_rot_k40	            END # 0 # TODO: something wrong in cov matrix output for this sample
+18  enabled     0.031e-03	0.003e-03   same        same        0.031e-03	0.003e-03   same        same        hard    hard    ca48_63_rot_2n2b_m4	            END # 43
+19  enabled     0.08e-03    0.01e-03    same        same        0.08e-03    0.01e-03    same        same        hard    hard    ca48_63_rot_bi214	            END
+20  enabled     0.3e-03     0.1e-03     same        same        0.3e-03     0.1e-03     same        same        hard    hard    ca48_63_rot_pa234m	            END
+21  enabled     29.6e-03    0.1e-03     same        same        29.6e-03    0.1e-03     same        same        hard    hard    ca48_63_rot_y90	                END
+#10  enabled     5.27e-03    0.07e-03    same        same        5.27e-03    0.07e-03    same        same        hard    hard    mo100_99_rot_k40	            END # 0 # TODO: something wrong in cov matrix output for this sample
 BREAK
 # NO EVENTS
-22  enabled     1.3e-3      0.2e-3      same        same        useinit     useinit     same        same        soft    soft    bi210_sfoil 	                END     # 0 events
-#25  enabled     11.7e-3     1.2e-3      same        same        useinit     useinit     same        same        soft    soft    bi210_swire 	                END     # 5 events
+22  enabled     1.3e-3      0.2e-3      same        same        useinit     useinit     same        same        hard    hard    bi210_sfoil 	                END     # 0 events
+#25  enabled     11.7e-3     1.2e-3      same        same        useinit     useinit     same        same        hard    hard    bi210_swire 	                END     # 5 events
 23  enabled     9.0         0.0         same        same        useinit     useinit     same        same        hard    hard    bi210_swire 	                END     # 5 events
-24  enabled     34.0        4.0         same        same        useinit     useinit     same        same        soft    soft    bi210_sscin 	                END     # 0 events
+24  enabled     34.0        4.0         same        same        useinit     useinit     same        same        hard    hard    bi210_sscin 	                END     # 0 events
 BREAK
-25  enabled     186.0	    62.0        same        same        186.0       62.0        same        same        soft    soft    bi214_pmt	                    END     # 22 events
-26  enabled     36.0	    5.0         same        same        36.0	    5.0         same        same        soft    soft    ac228_pmt   tl208_pmt           END     # 0 events, 18 events
-27  enabled     9295.0	    2691        same        same        9295.0	    2691        same        same        soft    soft    bi214_feShield	                END     # 17 events
-28  enabled     1090.0      529.0       same        same        1090.0      529.0       same        same        soft    soft    ac228_feShield  tl208_feShield  END     # 1 events, 2 events
+25  enabled     186.0	    62.0        same        same        186.0       62.0        same        same        hard    hard    bi214_pmt	                    END     # 22 events
+26  enabled     36.0	    5.0         same        same        36.0	    5.0         same        same        hard    hard    ac228_pmt   tl208_pmt           END     # 0 events, 18 events
+27  enabled     9295.0	    2691        same        same        9295.0	    2691        same        same        hard    hard    bi214_feShield	                END     # 17 events
+28  enabled     1090.0      529.0       same        same        1090.0      529.0       same        same        hard    hard    ac228_feShield  tl208_feShield  END     # 1 events, 2 events
 BREAK
 BREAK
-29  enabled     3.1         0.5         same        same        3.1         0.5         same        same        soft    soft    pa234m_sscin                    END     # 0 events
-30  enabled     60.0    	22.0        same        same        60.0    	22.0        same        same        soft    soft    co60_cuTower	                END     # 1 events
-31  enabled     1124.0	    93.0        same        same        1124.0      93.0        same        same        soft    soft    k40_pmt	                        END     # 5 events
-32  enabled     16.0        4.0         same        same        16.0        4.0         same        same        soft    soft    k40_scintIN k40_scintOUT k40_scintPET   END     # 0 events
+29  enabled     3.1         0.5         same        same        3.1         0.5         same        same        hard    hard    pa234m_sscin                    END     # 0 events
+30  enabled     60.0    	22.0        same        same        60.0    	22.0        same        same        hard    hard    co60_cuTower	                END     # 1 events
+31  enabled     1124.0	    93.0        same        same        1124.0      93.0        same        same        hard    hard    k40_pmt	                        END     # 5 events
+32  enabled     16.0        4.0         same        same        16.0        4.0         same        same        hard    hard    k40_scintIN k40_scintOUT k40_scintPET   END     # 0 events
 BREAK
-#22  enabled     1.0e-3      0.6e-3      same        same        useinit     useinit     same        same        soft    soft    bi214_sfoil     pb214_sfoil	    END # 271, 23
-#33  enabled     8.5e-3      8.5e-4      1.4e-3      1.4e-4      useinit     useinit     same        same        soft    soft    bi214_sfoil_IN      pb214_sfoil_IN      END
-#34  enabled     5.3e-3      5.3e-4      1.8e-3      1.8e-4      useinit     useinit     same        same        soft    soft    bi214_sfoil_OUT     pb214_sfoil_OUT     END
+#22  enabled     1.0e-3      0.6e-3      same        same        useinit     useinit     same        same        hard    hard    bi214_sfoil     pb214_sfoil	    END # 271, 23
+#33  enabled     8.5e-3      8.5e-4      1.4e-3      1.4e-4      useinit     useinit     same        same        hard    hard    bi214_sfoil_IN      pb214_sfoil_IN      END
+#34  enabled     5.3e-3      5.3e-4      1.8e-3      1.8e-4      useinit     useinit     same        same        hard    hard    bi214_sfoil_OUT     pb214_sfoil_OUT     END
 # TODO: these do not work useinit/same problem
-33  enabled     8.5e-3      8.5e-4      1.4e-3      1.4e-4      8.5e-3      8.5e-4      1.4e-3      1.4e-4      soft    soft    bi214_sfoil_IN      pb214_sfoil_IN      END
-34  enabled     5.3e-3      5.3e-4      1.8e-3      1.8e-4      5.3e-3      5.3e-4      1.8e-3      1.8e-4      soft    soft    bi214_sfoil_OUT     pb214_sfoil_OUT     END
+33  enabled     8.5e-3      8.5e-4      1.4e-3      1.4e-4      8.5e-3      8.5e-4      1.4e-3      1.4e-4      hard    hard    bi214_sfoil_IN      pb214_sfoil_IN      END
+34  enabled     5.3e-3      5.3e-4      1.8e-3      1.8e-4      5.3e-3      5.3e-4      1.8e-3      1.8e-4      hard    hard    bi214_sfoil_OUT     pb214_sfoil_OUT     END
 BREAK
 # TODO: changed error to smaller value, MINUIT complaining about larger error
-#23  enabled     1.3e-3      1.6e-3      same        same        useinit     useinit     same        same        soft    soft    bi214_swire     pb214_swire 	END
-#23  enabled     1.3e-3      1.0e-3      same        same        useinit     useinit     same        same        soft    soft    bi214_swire     pb214_swire 	END # 328, 21
-35  enabled     15.3e-3     15.3e-4     1.2e-3      1.2e-4      15.3e-3     15.3e-4     1.2e-3      1.2e-4      soft    soft    bi214_swire_INL0    pb214_swire_INL0    END
-36  enabled     29.9e-3     29.9e-4     0.4e-3      0.4e-4      29.9e-3     29.9e-4     0.4e-3      0.4e-4      soft    soft    bi214_swire_OUTL0   pb214_swire_OUTL0   END
-#37  enabled     857.5e-3    857.5e-4    101.3e-3    101.3e-4   useinit     useinit     same        same    soft    soft    bi214_swire_Lg0     pb214_swire_Lg0     END
+#23  enabled     1.3e-3      1.6e-3      same        same        useinit     useinit     same        same        hard    hard    bi214_swire     pb214_swire 	END
+#23  enabled     1.3e-3      1.0e-3      same        same        useinit     useinit     same        same        hard    hard    bi214_swire     pb214_swire 	END # 328, 21
+35  enabled     15.3e-3     15.3e-4     1.2e-3      1.2e-4      15.3e-3     15.3e-4     1.2e-3      1.2e-4      hard    hard    bi214_swire_INL0    pb214_swire_INL0    END
+36  enabled     29.9e-3     29.9e-4     0.4e-3      0.4e-4      29.9e-3     29.9e-4     0.4e-3      0.4e-4      hard    hard    bi214_swire_OUTL0   pb214_swire_OUTL0   END
+#37  enabled     857.5e-3    857.5e-4    101.3e-3    101.3e-4   useinit     useinit     same        same    hard    hard    bi214_swire_Lg0     pb214_swire_Lg0     END
 # TODO
-37  enabled     857.5e-3    857.5e-4    101.3e-3    101.3e-4    857.5e-3    857.5e-4    101.3e-3    101.3e-4    soft    soft    bi214_swire_Lg0     pb214_swire_Lg0     END
+37  enabled     857.5e-3    857.5e-4    101.3e-3    101.3e-4    857.5e-3    857.5e-4    101.3e-3    101.3e-4    hard    hard    bi214_swire_Lg0     pb214_swire_Lg0     END
 BREAK
 38  enabled     557.0	    38.0        0.0         0.0         useinit     useinit     0.0         0.0         hard    hard    bi214_air   pb214_air           END     # 4 events
 39  enabled     9.0  	    4.0         0.0         0.0         useinit     useinit     0.0         0.0         hard    hard    tl208_air   	                END     # 0 events

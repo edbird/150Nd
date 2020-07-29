@@ -884,7 +884,7 @@ void draw_get_total_data_MC(
         {
             leg->AddEntry(fakeData1D[i], "Fake Data (" + Nfakedata_str + ")", "PE");
         }
-        leg->AddEntry(hAllMC1D[i], "Total MC (" + Nmc_str + ")", "L");
+        leg->AddEntry(hAllMC1D[i], "Total MC (" + Nmc_str + ")", "EP");
         leg->AddEntry(h_2nubb[i], "2#nu#beta#beta", "F");
         leg->AddEntry(h_tl208_int[i], "^{208}Tl Int", "F");
         leg->AddEntry(h_bi214_int[i], "^{214}Bi Int", "F");
@@ -917,6 +917,7 @@ void draw_get_total_data_MC(
         p1[i]->cd();
         hRatio[i]->SetMarkerStyle(20);
         hRatio[i]->SetMarkerSize(1.0);
+        hRatio[i]->SetLineWidth(2);
         hRatio[i]->Draw("EP");
 
 

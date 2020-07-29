@@ -23,6 +23,7 @@ void reweight_apply(
     const Double_t psiN2,
     const Double_t bb_Q)
 {
+    std::cout << "reweight_apply: xi_31=" << xi_31 << " xi_31_baseline=" << xi_31_baseline << std::endl;
 
     //std::cout << "reweight_apply" << std::endl;
 

@@ -395,7 +395,7 @@ void loadFiles(int i)
     std::size_t count_G0 =
         LD_REWEIGHT_DATA_2(h_nEqNull,
                            //"/home/ecb/150Nd/150Nd-data/dG150Nd/G0/dG0.dat",
-                           "/home/ecb/100Mo-150/gA_theoretical_files/pfs-nuclei/150Nd/0-N0/nEqNull.dat",
+                           "/home/ecb/100Mo-150Nd/gA_theoretical_files/psf-nuclei/150Nd/0-N0/nEqNull.dat",
                            "h_nEqNull",
                            "nEqNull"//,
                            //0.0, bb_Q
@@ -403,7 +403,7 @@ void loadFiles(int i)
     std::size_t count_G2 =
         LD_REWEIGHT_DATA_2(h_nEqTwo,
                            //"/home/ecb/150Nd/150Nd-data/dG150Nd/G2/dG2.dat",
-                           "/home/ecb/100Mo-150/gA_theoretical_files/pfs-nuclei/150Nd/1-N2/nEqTwo.dat",
+                           "/home/ecb/100Mo-150Nd/gA_theoretical_files/psf-nuclei/150Nd/1-N2/nEqTwo.dat",
                            "h_nEqTwo",
                            "nEqTwo"//,  0.0, bb_Q
                            );
@@ -440,6 +440,7 @@ void loadFiles(int i)
     else
     {
         std::cout << "error: count_G0=" << count_G0 << ", count_G2=" << count_G2 << std::endl;
+        return;
     }
 
     psiN0 = G0_ps_integral_MeV;

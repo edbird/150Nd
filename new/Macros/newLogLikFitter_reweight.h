@@ -136,6 +136,11 @@ std::size_t LD_REWEIGHT_DATA_2(
     std::vector<std::vector<double>> data;
     std::size_t read_count = 0;
     std::ifstream if_Gn(filename);
+    if(!if_Gn.is_open())
+    {
+        std::cerr << "Error: Could not open file " << filename << std::endl;
+        return 0;
+    }
     double electronEnergy1, electronEnergy2, electronWeight;
     while(if_Gn.good())
     {
@@ -323,7 +328,8 @@ static int ctmp_counter = 0;
 //                  const std::vector<std::vector<double>>& data_nEqNull,
 //                  const std::vector<std::vector<double>>& data_nEqTwo)
 Double_t ReWeight3(const Double_t T1, const Double_t T2,
-                  const Double_t epsilon_baseline, const Double_t epsilon,
+                  const Double_t epsilon_baseline,
+                  const Double_t epsilon,
                   const TH2D* const h_nEqNull,
                   const TH2D* const h_nEqTwo,
                   const Double_t psiN0, const Double_t psiN2,
@@ -385,6 +391,7 @@ Double_t ReWeight3(const Double_t T1, const Double_t T2,
         if(std::isnan(weight_2 / weight_1))
         {
             std::cout << std::scientific;
+            std::cout << "epsilon=" << epsilon << " epsilon_baseline=" << epsilon_baseline << std::endl;
             std::cout << "T1=" << T1 << " T2=" << T2 << std::endl;
             std::cout << "bin_x=" << bin_x << " bin_y=" << bin_y << std::endl;
             std::cout << "h_nEqNull->GetBinContent(bin_x, bin_y)=" << h_nEqNull->GetBinContent(bin_x, bin_y) << std::endl;
@@ -392,7 +399,6 @@ Double_t ReWeight3(const Double_t T1, const Double_t T2,
             std::cout << "weight_1=" << weight_1 << " weight_2=" << weight_2 << std::endl;
             std::cout << "phase_1=" << phase_1 << " phase_2=" << phase_2 << std::endl;
             std::cout << "psiN0=" << psiN0 << " psiN2=" << psiN2 << std::endl;
-            std::cout << "epsilon=" << epsilon << " epsilon_baseline=" << epsilon_baseline << std::endl;
             std::cin.get();
         }
     }

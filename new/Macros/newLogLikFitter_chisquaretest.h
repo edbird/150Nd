@@ -335,6 +335,9 @@ void newloglikfitter_testmyphasespace(
             // custom range
             param_1_min = 0.1; //-0.4; //-0.5; //1.0; //-0.5;
             param_1_max = 1.7; //0.6; //1.6; //0.5; //2.5; //5.0; //2.5;
+            // after changing the psiN0, psiN2 values...
+            param_1_min = -0.1;
+            param_1_max = 1.5;
             //param_1_min = -0.4;
             //param_1_max = 1.6; TODO
             // fake data values
@@ -356,6 +359,9 @@ void newloglikfitter_testmyphasespace(
             // custom range
             param_2_min = 0.8; //1.1; //0.0; //0.0;
             param_2_max = 2.6; //2.6; //1.8; //2.0; //2.0; //4.0;
+            // after changing the psiN0, psiN2 values...
+            param_2_min = 0.95;
+            param_2_max = 1.3;
             //param_2_min = 0.0;
             //param_2_max = 3.0;  //TODO
             // fake data values
@@ -650,11 +656,14 @@ void newloglikfitter_testmyphasespace(
                         double fval_after = theFCN.operator()(params_after); // TODO: this produces a different result to above?
                         os << "fval_after=" << fval_after << std::endl;
 
-                        std::cout << "t_param_1=" << t_param_1
-                                  << " t_param_2=" << t_param_2
-                                  << " fval_before=" << fval_before
-                                  << " fval_after=" << fval_after
-                                  << std::endl;
+                        if((n_2 == 0) || (n_2 == n_param_2 - 1))
+                        {
+                            std::cout << "t_param_1=" << t_param_1
+                                      << " t_param_2=" << t_param_2
+                                      << " fval_before=" << fval_before
+                                      << " fval_after=" << fval_after
+                                      << std::endl;
+                        }
 
                         /*
                         for(int pix = 0; pix < params_after.size(); ++ pix)
@@ -810,7 +819,7 @@ void newloglikfitter_testmyphasespace(
                 c_mps->SetTicks(2, 2);
                 c_mps->SetRightMargin(0.15);
                 c_mps->SetBottomMargin(0.15);
-                c_mps->SetLogz();
+                //c_mps->SetLogz();
                 TVirtualPad *padret = c_mps->cd();
                 if(padret == nullptr)
                 {
@@ -824,11 +833,11 @@ void newloglikfitter_testmyphasespace(
                 h_mps->SetTitle("");
                 h_mps->GetZaxis()->SetLabelOffset(0.005);
                 h_mps->GetXaxis()->SetLabelSize(17.0);
-                h_mps->GetXaxis()->SetLabelFont(63);
+                h_mps->GetXaxis()->SetLabelFont(43);
                 h_mps->GetYaxis()->SetLabelSize(17.0);
-                h_mps->GetYaxis()->SetLabelFont(63);
+                h_mps->GetYaxis()->SetLabelFont(43);
                 h_mps->GetZaxis()->SetLabelSize(17.0);
-                h_mps->GetZaxis()->SetLabelFont(63);
+                h_mps->GetZaxis()->SetLabelFont(43);
                 h_mps->GetXaxis()->SetTitleSize(18.0);
                 h_mps->GetXaxis()->SetTitleFont(43);
                 h_mps->GetYaxis()->SetTitleSize(18.0);
@@ -836,6 +845,7 @@ void newloglikfitter_testmyphasespace(
                 h_mps->GetYaxis()->SetTitle("^{150}Nd Amplitude Scale Factor");
                 h_mps->GetXaxis()->SetTitle("#xi^{2#nu#beta#beta}_{31}");
                 h_mps->GetXaxis()->SetTitleOffset(1.5);
+                h_mps->GetYaxis()->SetTitleOffset(1.4);
                 h_mps->GetXaxis()->SetLabelOffset(0.01);
                 h_mps->GetYaxis()->SetLabelOffset(0.01);
                 TH2D *h_mps_contour = (TH2D*)h_mps->Clone("h_mps_1_0_clone");
@@ -853,8 +863,8 @@ void newloglikfitter_testmyphasespace(
                 TPaletteAxis *palette = (TPaletteAxis*)h_mps->GetListOfFunctions()->FindObject("palette");
                 //((TPave*)palette)->SetX1NDC(0.7);
                 //((TPave*)palette)->SetX2NDC(0.8);
-                palette->SetX1NDC(0.88 + 0.02);
-                palette->SetX2NDC(0.92 + 0.02);
+                palette->SetX1NDC(0.88 + 0.03);
+                palette->SetX2NDC(0.92 + 0.03);
                 palette->SetY1NDC(0.15);
                 palette->SetY2NDC(0.9);
                 palette->Draw();
@@ -940,7 +950,7 @@ void newloglikfitter_testmyphasespace(
                 c_mps_before->SetTicks(2, 2);
                 c_mps_before->SetRightMargin(0.15);
                 c_mps_before->SetBottomMargin(0.15);
-                c_mps_before->SetLogz();
+                //c_mps_before->SetLogz();
                 //c_mps_before->GetPad()->cd();
                 //c_mps_before_v.push_back(c_mps_before);
                 //c_mps_before = nullptr;
@@ -948,11 +958,11 @@ void newloglikfitter_testmyphasespace(
                 h_mps_before->SetTitle("");
                 h_mps_before->GetZaxis()->SetLabelOffset(0.005);
                 h_mps_before->GetXaxis()->SetLabelSize(17.0);
-                h_mps_before->GetXaxis()->SetLabelFont(63);
+                h_mps_before->GetXaxis()->SetLabelFont(43);
                 h_mps_before->GetYaxis()->SetLabelSize(17.0);
-                h_mps_before->GetYaxis()->SetLabelFont(63);
+                h_mps_before->GetYaxis()->SetLabelFont(43);
                 h_mps_before->GetZaxis()->SetLabelSize(17.0);
-                h_mps_before->GetZaxis()->SetLabelFont(63);
+                h_mps_before->GetZaxis()->SetLabelFont(43);
                 h_mps_before->GetXaxis()->SetTitleSize(18.0);
                 h_mps_before->GetXaxis()->SetTitleFont(43);
                 h_mps_before->GetYaxis()->SetTitleSize(18.0);
@@ -960,6 +970,7 @@ void newloglikfitter_testmyphasespace(
                 h_mps_before->GetYaxis()->SetTitle("^{150}Nd Amplitude Scale Factor");
                 h_mps_before->GetXaxis()->SetTitle("#xi^{2#nu#beta#beta}_{31}");
                 h_mps_before->GetXaxis()->SetTitleOffset(1.5);
+                h_mps_before->GetYaxis()->SetTitleOffset(1.4);
                 h_mps_before->GetXaxis()->SetLabelOffset(0.01);
                 h_mps_before->GetYaxis()->SetLabelOffset(0.01);
                 TH2D *h_mps_contour_before = (TH2D*)h_mps_before->Clone("h_mps_before_1_0_clone");
@@ -977,8 +988,8 @@ void newloglikfitter_testmyphasespace(
                 TPaletteAxis *palette_before = (TPaletteAxis*)h_mps_before->GetListOfFunctions()->FindObject("palette");
                 //((TPave*)palette)->SetX1NDC(0.7);
                 //((TPave*)palette)->SetX2NDC(0.8);
-                palette_before->SetX1NDC(0.88 + 0.02);
-                palette_before->SetX2NDC(0.92 + 0.02);
+                palette_before->SetX1NDC(0.88 + 0.03);
+                palette_before->SetX2NDC(0.92 + 0.03);
                 palette_before->SetY1NDC(0.15);
                 palette_before->SetY2NDC(0.9);
                 palette_before->Draw();

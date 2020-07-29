@@ -2105,7 +2105,7 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
                 cut = true;
             }
             // accept P1 and P2 for testing purposes
-            cut = false;
+            //cut = false;
             if(cut == true) continue;
         }
         ++ cut_counter[cc]; // cut 1 - phase

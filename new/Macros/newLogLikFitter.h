@@ -46,7 +46,7 @@ const Int_t MODE_PARALLEL = 0;
 
 // the phase, as string either "1" for Phase 1 or "2" for Phase 2
 Int_t thePhase = 1;
-TString Phase = "2";
+TString Phase = "2"; // remove these now, fit both phases simultaniously
 
 bool g_mode_fake_data = false;
 std::string g_datetimestamp_string;

@@ -313,7 +313,7 @@ void draw_channel(const int channel,
     p1->SetBottomMargin(0.4);
     //p1->SetGridx(1);
     //p1->SetGridy(1);
-    p1->SetGrid(1, 1);
+    p1->SetGrid(0, 0);
     p1->SetTicks(2, 2);
     p1->Draw();
 
@@ -476,11 +476,11 @@ void draw_channel(const int channel,
     TLegend *leg = new TLegend(0.6, 0.1, 0.85, 0.85);
     if(mode_fake_data == false)
     {
-        leg->AddEntry(data1D, "Data (" + Ndata_str + ")", "PEL"); // TODO PEL ??? works?
+        leg->AddEntry(data1D, "Data (" + Ndata_str + ")", "PE"); // TODO PEL ??? works?
     }
     if(mode_fake_data == true)
     {
-        leg->AddEntry(fakeData1D, "Fake Data (" + Nfakedata_str + ")", "PEL");
+        leg->AddEntry(fakeData1D, "Fake Data (" + Nfakedata_str + ")", "PE");
     }
     leg->AddEntry(hAllMC1D, "Total MC (" + Nmc_str + ")", "L");
     leg->AddEntry(h_2nubb, "2#nu#beta#beta", "F");
@@ -517,9 +517,15 @@ void draw_channel(const int channel,
     p1->cd();
     hRatio->SetMarkerStyle(20);
     hRatio->SetMarkerSize(1.0);
-    hRatio->Draw("EP");
-    TLine *zeroline = new TLine(0.0, 0.0, 5.0, 0.0);
-    zeroline->Draw();
+    hRatio->SetLineWidth(2);
+    hRatio->Draw("AXIS");
+    TLine *linezero = new TLine(0.0, 1.0, 5.0, 1.0);
+    linezero->SetLineWidth(2);
+    linezero->SetLineColor(kGray + 2);
+    linezero->Draw();
+    hRatio->Draw("EPsame");
+    //TLine *zeroline = new TLine(0.0, 0.0, 5.0, 0.0);
+    //zeroline->Draw();
 
 
 
