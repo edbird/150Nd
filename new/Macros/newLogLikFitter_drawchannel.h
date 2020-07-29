@@ -44,9 +44,11 @@ class draw_aux_data
 
 
 void draw_channel(const int channel,
+                  const int thePhase,
                   const std::vector<double> &params,
                   const std::vector<double> &param_errs,
                   const double fval,
+                  const double xi_31,
                   const int number_job_id,
                   draw_aux_data &drawauxdata,
                   const std::string& saveas_filename,
@@ -190,31 +192,94 @@ void draw_channel(const int channel,
     {
         PAD_U_Y_MAX = 350.0;
         PAD_U_Y_MAX = 300.0;
+
+        if(thePhase == 0)
+        {
+            PAD_U_Y_MAX = 70;
+        }
+        else if(thePhase == 1)
+        {
+            PAD_U_Y_MAX = 200;
+        }
     }
     else if(channel == 1)
     {
         PAD_U_Y_MAX = 1000.0;
         //PAD_U_Y_MAX = 1200.0;
+
+        if(thePhase == 0)
+        {
+            PAD_U_Y_MAX = 200;
+        }
+        else if(thePhase == 1)
+        {
+            PAD_U_Y_MAX = 750;
+        }
     }
     else if(channel == 2)
     {
         PAD_U_Y_MAX = 450.0;
+
+        if(thePhase == 0)
+        {
+            PAD_U_Y_MAX = 80;
+        }
+        else if(thePhase == 1)
+        {
+            PAD_U_Y_MAX = 350;
+        }
     }
     else if(channel == 3)
     {
         PAD_U_Y_MAX = 1000.0;
+
+        if(thePhase == 0)
+        {
+            PAD_U_Y_MAX = 200;
+        }
+        else if(thePhase == 1)
+        {
+            PAD_U_Y_MAX = 750;
+        }
     }
     else if(channel == 4)
     {
-        PAD_U_Y_MAX = 400.0;
+        PAD_U_Y_MAX = 80.0;
+
+        if(thePhase == 0)
+        {
+            PAD_U_Y_MAX = 150;
+        }
+        else if(thePhase == 1)
+        {
+            PAD_U_Y_MAX = 300;
+        }
     }
     else if(channel == 5)
     {
-        PAD_U_Y_MAX = 600.0;
+        PAD_U_Y_MAX = 140.0;
+
+        if(thePhase == 0)
+        {
+            PAD_U_Y_MAX = 200;
+        }
+        else if(thePhase == 1)
+        {
+            PAD_U_Y_MAX = 500;
+        }
     }
     else
     {
         PAD_U_Y_MAX = 350.0;
+
+        if(thePhase == 0)
+        {
+            PAD_U_Y_MAX = 100;
+        }
+        else if(thePhase == 1)
+        {
+            PAD_U_Y_MAX = 250;
+        }
     }
     //stacks1D_major[i]->Draw("hist");
     //stacks1D_major[i]->SetMaximum(PAD_U_Y_MAX);
@@ -277,7 +342,7 @@ void draw_channel(const int channel,
     //hRatio->GetXaxis()->SetTitle("Electron Energy [MeV]");
     hRatio->GetXaxis()->SetTitleFont(43);
     hRatio->GetXaxis()->SetTitleSize(20);
-    hRatio->GetXaxis()->SetTitleOffset(3.0);
+    hRatio->GetXaxis()->SetTitleOffset(3.25);
 
     hRatio->GetYaxis()->SetTitle("data / MC");
     hRatio->GetYaxis()->SetTitleFont(43);
@@ -325,7 +390,13 @@ void draw_channel(const int channel,
     // copy code from other file
     hAllMC1D->SetTitle("");
 
+    // TODO
+
     stacks1D_major->Draw("hist"); // this didn't used to be here
+
+    stacks1D_major->GetXaxis()->SetTickLength(0.05);
+    stacks1D_major->GetXaxis()->SetTickSize(0.05);
+    
     stacks1D_major->SetMaximum(PAD_U_Y_MAX);
     stacks1D_major->SetMinimum(PAD_U_Y_MIN);
     //stacks1D_major->Draw("hist"); // this used to be uncommented
@@ -466,11 +537,15 @@ void draw_channel(const int channel,
     TGaxis *axis = new TGaxis(0.0, PAD_U_Y_MIN + 0.01, 0.0, PAD_U_Y_MAX, PAD_U_Y_MIN + 0.01, PAD_U_Y_MAX, 510, "");
     axis->SetLabelFont(43);
     axis->SetLabelSize(15);
+    //axis->SetTickLength(0.05 / (0.7 * 0.9)); // TODO: think the margin is 0.1
+    //axis->SetTickSize(0.05 / (0.7 * 0.9));
     axis->Draw();
 
     TGaxis *axis2 = new TGaxis(5.0, PAD_U_Y_MIN + 0.01, 5.0, PAD_U_Y_MAX, PAD_U_Y_MIN + 0.01, PAD_U_Y_MAX, 510, "+");
     axis2->SetLabelFont(43);
     axis2->SetLabelSize(0);
+    //axis2->SetTickLength(0.05 / (0.3 * 0.6)); // TODO: the margin is 0.4
+    //axis2->SetTickSize(0.05 / (0.3 * 0.6));
     axis2->Draw();
 
     TLegend *leg = new TLegend(0.6, 0.1, 0.85, 0.85);
@@ -511,6 +586,15 @@ void draw_channel(const int channel,
     //latexlabel.SetTextFont(62);
     //latexlabel.SetTextSize(0.035);
     //latexlabel.DrawLatex(0.63, 0.23, "#frac{#chi^{2}}{ndf} = #frac{" + chi2_str + "}{" + ndf_str + "}");
+    
+
+    TString xilatexstr;
+    xilatexstr.Form("#xi_{31}^{2#nu#beta#beta}=%3.3f", xi_31);
+    TLatex xilatex;
+    xilatex.SetNDC();
+    xilatex.SetTextFont(63);
+    xilatex.SetTextSize(20);
+    xilatex.DrawLatex(0.2, 0.8, xilatexstr);
 
 
     // second pad
@@ -539,6 +623,7 @@ void draw_channel(const int channel,
     axis4->SetLabelSize(0);
     axis4->Draw();
 
+    
 
 
 

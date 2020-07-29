@@ -320,7 +320,7 @@ void newloglikfitter_testmyphasespace(
             
             std::cout << "rendering: " << c_mps_name << std::endl;
 
-            const int n_param_xy = 301; // 1001
+            const int n_param_xy = 151;//301; // 1001
             int n_param_1 = n_param_xy; //300;
             int n_param_2 = n_param_xy; //300;
             int n_param_max = n_param_1 * n_param_2;
@@ -336,7 +336,7 @@ void newloglikfitter_testmyphasespace(
             param_1_min = 0.1; //-0.4; //-0.5; //1.0; //-0.5;
             param_1_max = 1.7; //0.6; //1.6; //0.5; //2.5; //5.0; //2.5;
             // after changing the psiN0, psiN2 values...
-            param_1_min = -0.1;
+            param_1_min = -0.3;
             param_1_max = 1.5;
             //param_1_min = -0.4;
             //param_1_max = 1.6; TODO
@@ -567,7 +567,7 @@ void newloglikfitter_testmyphasespace(
 
                     double t_param_1 = 0.0;
                     t_param_1 = h_mps->GetXaxis()->GetBinCenter(bin_ix);
-                    std::cout << "test: t_param_1=" << t_param_1 << std::endl;
+                    //std::cout << "test: t_param_1=" << t_param_1 << std::endl;
 
                     double min_stripe = std::numeric_limits<double>::infinity();
                     double min_stripe_y = 0.0;
@@ -845,7 +845,7 @@ void newloglikfitter_testmyphasespace(
                 h_mps->GetYaxis()->SetTitle("^{150}Nd Amplitude Scale Factor");
                 h_mps->GetXaxis()->SetTitle("#xi^{2#nu#beta#beta}_{31}");
                 h_mps->GetXaxis()->SetTitleOffset(1.5);
-                h_mps->GetYaxis()->SetTitleOffset(1.4);
+                h_mps->GetYaxis()->SetTitleOffset(1.2);
                 h_mps->GetXaxis()->SetLabelOffset(0.01);
                 h_mps->GetYaxis()->SetLabelOffset(0.01);
                 TH2D *h_mps_contour = (TH2D*)h_mps->Clone("h_mps_1_0_clone");
@@ -970,7 +970,7 @@ void newloglikfitter_testmyphasespace(
                 h_mps_before->GetYaxis()->SetTitle("^{150}Nd Amplitude Scale Factor");
                 h_mps_before->GetXaxis()->SetTitle("#xi^{2#nu#beta#beta}_{31}");
                 h_mps_before->GetXaxis()->SetTitleOffset(1.5);
-                h_mps_before->GetYaxis()->SetTitleOffset(1.4);
+                h_mps_before->GetYaxis()->SetTitleOffset(1.2);
                 h_mps_before->GetXaxis()->SetLabelOffset(0.01);
                 h_mps_before->GetYaxis()->SetLabelOffset(0.01);
                 TH2D *h_mps_contour_before = (TH2D*)h_mps_before->Clone("h_mps_before_1_0_clone");

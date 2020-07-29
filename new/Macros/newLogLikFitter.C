@@ -651,7 +651,9 @@ void loadFiles(int i)
 
         // draw result
         double fval_after = theFCN.operator()(params_after);
-        draw(params_after, param_errs_after, fval_after,
+        draw(thePhase,
+             params_after, param_errs_after,
+             fval_after, params_after.at(1),
              number_job_id,
              "HSD_after.png", ".",
              g_mode_fake_data);
@@ -712,7 +714,9 @@ void loadFiles(int i)
 
         // draw result
         double fval_after = theFCN.operator()(params_after);
-        draw(params_after, param_errs_after, fval_after,
+        draw(thePhase,
+             params_after, param_errs_after,
+             fval_after, params_after.at(1),
              number_job_id,
              "SSD_after.png", ".",
              g_mode_fake_data);
@@ -790,7 +794,9 @@ void loadFiles(int i)
 
         // draw result
         double fval_after = theFCN.operator()(params_after);
-        draw(params_after, param_errs_after, fval_after,
+        draw(thePhase,
+             params_after, param_errs_after,
+             fval_after, params_after.at(1), // TODO: don't need to pass this
              number_job_id,
              "allparameterfit_after.png", ".",
              g_mode_fake_data);

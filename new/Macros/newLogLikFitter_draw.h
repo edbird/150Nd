@@ -193,9 +193,11 @@ void draw_inputdata()
 
 
 void draw(
+    const int thePhase,
     const std::vector<double> &params,
     const std::vector<double> &param_errs,
     const double fval,
+    const double xi_31,
     const int number_job_id,
     const std::string& saveas_filename,
     const std::string& saveas_dir = ".",
@@ -269,9 +271,11 @@ void draw(
 
         draw_aux_data drawauxdata;
         draw_channel(channel,
+                     thePhase,
                      params,
                      param_errs,
                      fval,
+                     xi_31,
                      number_job_id,
                      drawauxdata,
                      saveas_filename,

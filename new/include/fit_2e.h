@@ -120,12 +120,12 @@ double AcceptedTime[3];
     // TODO: really don't remember if it should be 2e or 2eNg_29Sep2015
 #endif
 
-// 2019-01-16 I changed the to phase 1
-// 2019-01-22: Phase can be either 0 for "Phase 1" or 1 for "Phase 2"
+// 2020-01-16 I changed the to phase 1
+// 2020-01-22: Phase can be either 0 for "Phase 1" or 1 for "Phase 2"
 // 2020-03-11: Think that Phase is "1" or "2", corresponding to value of
 // thePhase of 0 or 1 respectively
-Int_t thePhase = 1;
-TString Phase = "2";
+Int_t thePhase = 0;
+TString Phase = "1";
 //Phase.Form("%i", thePhase);
 
 
