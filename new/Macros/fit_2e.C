@@ -1116,6 +1116,7 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
 
 
 
+            outputTree_small->Branch("Run"                        , &run                          , "run/I");
             outputTree_small->Branch("nElectrons"                 , &nElectrons                   , "nElectrons/I");
             outputTree_small->Branch("electronEnergy"             , electronEnergy                , "electronEnergy[2]/D");
             outputTree_small->Branch("trueElectronEnergy"         , trueElectronEnergy            , "trueElectronEnergy[2]/D");
@@ -1131,6 +1132,9 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
     std::cout << "Processing: " << sampleName << std::endl;
 
 
+    Int_t electron_cut_A = 0;
+    //Int_t electron_cut_B = 0;
+
     int nCuts = 17; // 26;
     Int_t cut_counter[nCuts];
     //Int_t cut_counter_index = 0;
@@ -1143,6 +1147,11 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
     for(Long_t event_i = 0; event_i < events; event_i++)
     {
 
+        if((electronEnergy[0] < 0.3) || (electronEnergy[1] < 0.3))
+        {
+            ++ electron_cut_A;
+        }
+        
         ++ total_event_count;
 
         bool cut = false;
@@ -2100,6 +2109,10 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
             {
                 if((3396 <= run) && (run <= 9186)) cut = false;
             }
+            else if(nocutonphase == 1)
+            {
+                cut = false;
+            }
             else
             {
                 cut = true;
@@ -2315,6 +2328,8 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
      
 
     ofile_cutcount << sampleName << "\t" << total_event_count << "\t" << event_pass_count << std::endl;
+    std::cout << sampleName << "\t" << total_event_count << "\t" << event_pass_count << std::endl;
+    std::cout << "electron_cut_A=" << electron_cut_A << std::endl;
     std::cout << std::endl;
 
     #if TRUTH_ENABLE
@@ -2371,7 +2386,16 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
     cut_description[cc] = "none";
 
     std::cout << "Here are the cut counts" << std::endl;
-    std::ofstream of_cutcount("of_cutcount.txt", std::ios::out);
+    std::string of_cutcount_filename;
+    if(mode_flag == 0)
+    {
+        of_cutcount_filename = "of_cutcount_processeddata_" + std::string(sampleName) + ".txt";
+    }
+    else if(mode_flag == 1)
+    {
+        of_cutcount_filename = "of_cutcount_rawdata_" + std::string(sampleName) + ".txt";
+    }
+    std::ofstream of_cutcount(of_cutcount_filename, std::ios::out);
     of_cutcount << sampleName << std::endl;
     for(int i = 0; i < nCuts; i++)
     {

@@ -299,7 +299,7 @@ void draw_outputdiff(const double *const AdjustActs,
                      const std::string &saveas_filename,
                      int flag)
 {
-
+#if 0
     // 2020-06-17
     const double xi_31_init_P1 = paramInitValueP1Map[1];
     const double xi_31_init_P2 = paramInitValueP2Map[1];
@@ -1525,7 +1525,7 @@ void draw_outputdiff(const double *const AdjustActs,
     cHighLowEnergy_diff->SaveAs("./cHighLowEnergy_diff/cHighLowEnergy_diff_" + xi_31_str_plus + ".eps");
     cHighLowEnergy_diff->SaveAs("./cHighLowEnergy_diff/cHighLowEnergy_diff_" + xi_31_str_plus + ".pdf");
     cHighLowEnergy_diff->SaveAs("./cHighLowEnergy_diff/cHighLowEnergy_diff_" + xi_31_str_plus + ".C");
-
+#endif
 }
 
 

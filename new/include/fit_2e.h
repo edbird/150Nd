@@ -124,8 +124,9 @@ double AcceptedTime[3];
 // 2020-01-22: Phase can be either 0 for "Phase 1" or 1 for "Phase 2"
 // 2020-03-11: Think that Phase is "1" or "2", corresponding to value of
 // thePhase of 0 or 1 respectively
-Int_t thePhase = 0;
-TString Phase = "1";
+Int_t nocutonphase = 1;
+Int_t thePhase = 1;
+TString Phase = "BOTH";
 //Phase.Form("%i", thePhase);
 
 
@@ -388,7 +389,7 @@ Int_t histogramDrawFlag[numHistograms] =
 };
 
 // draw raw data histograms as well?
-Int_t histogramDrawFlag_rawdata = 0;
+Int_t histogramDrawFlag_rawdata = 1;
 #define RAWENABLE 1
 
 // map for data structure for raw data

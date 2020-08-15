@@ -45,8 +45,16 @@
 const Int_t MODE_PARALLEL = 0;
 
 // the phase, as string either "1" for Phase 1 or "2" for Phase 2
-Int_t thePhase = 0;
-TString Phase = "1"; // remove these now, fit both phases simultaniously
+//Int_t thePhase = -1;
+//TString Phase = "BOTH"; // remove these now, fit both phases simultaniously
+//const Int_t gMODE_thePhase = -1; // -1=both, 0=P1, 1=P2
+//const TString gMODE_Phase = "BOTH"; // BOTH/P1/P2
+bool gEnablePhase1;
+bool gEnablePhase2;
+std::map<int, int> map_1d_channel_to_phase;
+std::map<int, int> map_2d_channel_to_phase;
+
+parameter_group g_pg;
 
 bool g_mode_fake_data = false;
 std::string g_datetimestamp_string;
@@ -60,31 +68,58 @@ double psiN0;
 double psiN2;
 double bb_Q;
 
-double xi_31_init_value;
-double xi_31_init_error;
+// This does not change between P1 and P2, so I did
+// not add a variable for each phase
+//double xi_31_init_value;
+//double xi_31_init_error;
+//int xi_31_int_param_index;
+//int xi_31_ext_param_index;
 
 // store last xi_31 value used in logliklihood function
-double last_xi_31_parameter_value;
+//double last_xi_31_parameter_value;
 // store last parameter values used in logliklihood function
-static const int numberParams = 40;
-double paramLastValueMap[numberParams];
-double paramInitValueMap[numberParams];
+//int numberParams; // 45;
+
+// Phase 1
+//double paramLastValueP1Map[numberParams];
+//double paramInitValueP1Map[numberParams];
+
+// Phase 2
+//double paramLastValueP2Map[numberParams];
+//double paramInitValueP2Map[numberParams];
+//std::vector<double> paramLastValueMap;
+//std::vector<double> paramInitValueMap; // TODO: can I remove these?
+
+//std::vector<bool> paramP1EnabledMap;
+//std::vector<bool> paramP2EnabledMap;
+
+//std::vector<file_parameter> file_params;
 
 // Note: commented out code in fitBackgrounds.h
 // where these were inialized using new and num_params
 // which is the number of free params
 // however here we just use numberParams
 // this will work because num_free_params <= numberParams
-double minuitParamCurrent[numberParams];
-double minuitParamInit[numberParams];
-double minuitParamLast[numberParams];
+
+// Phase 1
+//double minuitParamCurrentP1[numberParams];
+//double minuitParamInitP1[numberParams];
+//double minuitParamLastP1[numberParams];
+
+// Phase 2
+//double minuitParamCurrentP2[numberParams];
+//double minuitParamInitP2[numberParams];
+//double minuitParamLastP2[numberParams];
+//double minuitParamCurrent[numberParams];
+//double minuitParamInit[numberParams];
+//double minuitParamLast[numberParams]; // TODO: try and get rid of these as well
 
 
 // TODO: set numberParams dynamically
 // using input file
 //static const int numberParams = 40; // NOTE: moved above
-static int numberEnabledParams = 0;
-int minuitParamNumberCounter;
+//int numberEnabledParams = 0;
+//int minuitParamNumberCounter;
 // 2 options here - either add 1 to the number of params
 // and ensure final parameter is a copy of parameter 0
 // adjusted for spectral shape?
@@ -94,9 +129,21 @@ int minuitParamNumberCounter;
 // map parameter number to Minuit parameter number (which has less parameters
 // in the case of disabled parameters)
 //
-std::map<int, int> paramNumberToMinuitParamNumberMap;
+//std::map<int, int> paramNumberToMinuitParamNumberMap;
+// skip over parameters which are not enabled
+
+// TODO: this is now wrong because we have 2 phases
+// but there is a method (a hack) to fix it
+// if you want the P2 parameter instead of the P1 parameter
+// then add numberEnabledParams to obtain the minuit internal index
+// remember that the external index is the same for both P1 and P2
+// whereas the internal index is not
+
 // and reverse mapping
-std::map<int, int> minuitParamNumberToParamNumberMap;
+//std::map<int, int> minuitParamNumberToParamNumberMap;
+// TODO: similarly this map is now wrong in the case of P2 paramter,
+// but in this case you subtract numberEnabledParams from the minuit
+// internal index before converting to external index
 
 // TODO: remove vectorness of all these objects, no longer required
 
@@ -105,7 +152,8 @@ std::map<int, int> minuitParamNumberToParamNumberMap;
 // doesn't appear to have any actual use in code
 // Map: parameter number/index (integer) to parameter number string (string)
 // eg: 0 -> "0"
-TString sample_names[numberParams];
+//TString sample_names[numberParams];
+// TODO: remove
 
 // maps parameter index (integer) to list of names
 // fairly sure this should be changed to std::string
@@ -114,7 +162,7 @@ TString sample_names[numberParams];
 // eg: 1 -> "ac228_int_rot,bi212_int_rot"
 // parameter name string is a unique string corresponding to each parameter
 // it is constructed from joining the names of each MC sample with comma ","
-std::string paramNameMap[numberParams];
+//std::string paramNameMap[numberParams];
 
 
 // list of each individual MC sample
@@ -125,9 +173,9 @@ std::string paramNameMap[numberParams];
 // Map: single MC sample name / file name (string) to parameter name string
 // (string)
 // eg: "ac228_int_rot" -> "ac228_int_rot_bi212_int_rot"
-std::map<std::string, std::string> MCNameToParamNameMap;
+//std::map<std::string, std::string> MCNameToParamNameMap; // TODO: try to remove
 // same as above but map to parameter index/number
-std::map<std::string, int> MCNameToParamNumberMap;
+//std::map<std::string, int> MCNameToParamNumberMap; // TODO: try to remove
 
 // TODO: may want to remove MCNameToParamNameMap
 // TODO: definitly want to clean up code in .C file which searches for
@@ -148,33 +196,39 @@ std::map<std::string, int> MCNameToParamNumberMap;
 // new names below, use instead
 
 // initial values, read from file, and initial errors, Phase 1
-double paramInitValueP1Map[numberParams];
-double paramInitErrorP1Map[numberParams];
+//double paramInitValueP1Map[numberParams];
+//double paramInitErrorP1Map[numberParams];
 
 // initial values, read from file, and initial errors, Phase 2
-double paramInitValueP2Map[numberParams];
-double paramInitErrorP2Map[numberParams];
+//double paramInitValueP2Map[numberParams];
+//double paramInitErrorP2Map[numberParams];
 
 // constraint values, and errors, phase 1
-double paramConstraintValueP1Map[numberParams];
-double paramConstraintErrorP1Map[numberParams];
+//double paramConstraintValueP1Map[numberParams];
+//double paramConstraintErrorP1Map[numberParams];
 
 // constraint values, and errors, phase 2
-double paramConstraintValueP2Map[numberParams];
-double paramConstraintErrorP2Map[numberParams];
+//double paramConstraintValueP2Map[numberParams];
+//double paramConstraintErrorP2Map[numberParams];
 
 // used to convert param name to index
 // TODO: from now on, param names are given by
 // single parameter: "nd150_rot_2n2b_m4"
 // multiple parameter: as list "bi214_mylar,pb214_mylar"
-std::map<std::string, int> paramNameToNumberMap;
+//std::map<std::string, int> paramNameToNumberMap;
 
 // list of parameter index for fixed parameters
-std::vector<int> fixed_params;
+//std::vector<int> fixed_params;
+// now, parameter "fixed" is dependent on the phase
+//std::vector<int> fixed_params_P1;
+//std::vector<int> fixed_params_P2;
 // and names
 ////std::vector<TString> fixed_param_names; // TODO unused
 // list of parameter index for free parameters
-std::vector<int> free_params;
+//std::vector<int> free_params;
+// now, parameter "free" is dependent on the phase
+//std::vector<int> free_params_P1;
+//std::vector<int> free_params_P2;
 // and names
 //std::vector<TString> free_param_names; // TODO: is this used - answer yes
 // MARKER
@@ -186,59 +240,104 @@ std::vector<int> free_params;
 ////std::vector<TString> index_free_params; // TODO: is this used?
 // NOTE: removed and replaced with 2x Maps below
 
-std::vector<std::string> paramMCList[numberParams];
+//std::vector<std::string> paramMCList[numberParams];
 //std::map<std::string, std::string> paramMCNameToHumanMCNameMap;
 // I think I need two additional maps
 // one to convert between MC Sample Name and human readable MC Sample Name
 // another to convert between Parameter Name and human readable Parameter Name
-std::map<TString, TString> MCSampleNameToHumanReadableMCSampleNameMap;
-std::map<TString, TString> paramNameToHumanReadableParamNameMap;
+//std::map<TString, TString> MCSampleNameToHumanReadableMCSampleNameMap;
+//std::map<TString, TString> paramNameToHumanReadableParamNameMap;
 
 // new map to avoid conflicts, consider removing above 2 maps
-std::map<int, TString> paramNumberToHumanReadableParamNameMap;
+//std::map<int, TString> paramNumberToHumanReadableParamNameMap;
 
-const int MODE_PARAM_UNDEFINED = -1;
-const int MODE_PARAM_FREE = 0; // completely free parameter
-const int MODE_PARAM_SOFT = 1; // soft float (constrained) using penalty term
-const int MODE_PARAM_HARD = 2; // hard (fixed) constrained parameter using fixed value
 
-int paramConstrainModeP1Map[numberParams];
-int paramConstrainModeP2Map[numberParams];
+//int paramConstrainModeP1Map[numberParams];
+//int paramConstrainModeP2Map[numberParams];
+
+/*
+const int MODE_PARAM_LOCK_UNDEFINED = -1;
+const int MODE_PARAM_LOCKED = 1; // use only P1 values for everything
+const int MODE_PARAM_UNLOCKED = 0; // user P1 and P2 values separatly
+
+int paramLockedModeMap[numberParams];
+*/
 
 // list of parameter index for enabled parameters
 // enabled parameters are drawn in the final output
-std::vector<int> enabled_params;
+//std::vector<int> enabled_params;
 // and names
 ////std::vector<TString> enabled_param_names; // TODO: is this used?
 // list of parameter index for disabled parameters
-std::vector<int> disabled_params;
+//std::vector<int> disabled_params;
 // and names
 ////std::vector<TString> disabled_param_names; // TODO unused
 // list of strings where each enabled parameter index is converted to string
 ////std::vector<TString> index_enabled_params; // TODO: is this used?
 
-static const int number1DHists = 6;
-static const int number2DHists = 1;
+//const int numberPhases = 2;
+//const int number1DHists_perphase = 6;
+//const int number2DHists_perphase = 1;
+const int number1DHists = 6; //number1DHists_perphase * numberPhases;
+const int number2DHists = 1; //number2DHists_perphase * numberPhases;
 
 const double channel_enable_1D[number1DHists] =
 {
-0, // ch 0 = hTotalE
-1, // ch 1 = hSingleEnergy
-0, // ch 2 = hHighEnergy
-0, // ch 3 = hLowEnergy
-0, // ch 4 = hEnergySum
-0  // ch 5 = hEnergyDiff
+0, // ch  0 = hTotalE        (P1&2)
+1, // ch  1 = hSingleEnergy  (P1&2)
+0, // ch  2 = hHighEnergy    (P1&2)
+0, // ch  3 = hLowEnergy     (P1&2)
+0, // ch  4 = hEnergySum     (P1&2)
+0//, // ch  5 = hEnergyDiff    (P1&2)
+
+//0, // ch  6 = hTotalE        (P2)
+//1, // ch  7 = hSingleEnergy  (P2)
+//0, // ch  8 = hHighEnergy    (P2)
+//0, // ch  9 = hLowEnergy     (P2)
+//0, // ch 10 = hEnergySum     (P2)
+//0  // ch 11 = hEnergyDiff    (P2)
 };
 
 const double channel_enable_2D[number2DHists] =
 {
-0  // hHighLowEnergy
+0//, // ch  0 = hHighLowEnergy    (P1)
+//0  // ch  1 = hHighLowEnergy    (P2)
+};
+
+const std::string channel_histname_1D[number1DHists] =
+{
+    "hTotalE_",
+    "hSingleEnergy_",
+    "hHighEnergy_",
+    "hLowEnergy_",
+    "hEnergySum_",
+    "hEnergyDiff_"
+};
+
+const std::string channel_histname_2D[number2DHists] =
+{
+    "hHighLowEnergy_",
+};
+
+const bool channel_enable_draw_1D[number1DHists] =
+{
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+};
+
+const bool channel_enable_draw_2D[number2DHists] =
+{
+    true
 };
 
 // global variable to hold chisquare result
 // there is probably a better way to do this using Eval
 // but I am too lazy to implement it properly
-Double_t global_chisquare;
+//Double_t global_chisquare; // TODO: removed, no longer used? 
 
 TObjArray *allMCSamples1D[number1DHists];
 TObjArray *allMCSamples2D[number2DHists];

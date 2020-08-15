@@ -2,6 +2,7 @@
 #define NEWLOGLIKFITTER_PRINTFITRESULT_H
 
 
+#if 0
 void print_adjustacts(
     std::ostream &os,
     const std::vector<double> &params,
@@ -93,6 +94,7 @@ void print_adjustacts(
     }
 
 }
+#endif
 
 
 #endif // NEWLOGLIKFITTER_PRINTFITRESULT_H

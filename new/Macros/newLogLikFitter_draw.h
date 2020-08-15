@@ -192,24 +192,19 @@ void draw_inputdata()
 
 
 
-void draw(
-    const int thePhase,
-    const std::vector<double> &params,
-    const std::vector<double> &param_errs,
-    const double fval,
-    const double xi_31,
-    const int number_job_id,
-    const std::string& saveas_filename,
-    const std::string& saveas_dir = ".",
-    bool mode_fake_data = false,
-    int draw_index = -1)
+void draw(const draw_input_data &drawinputdata,
+          const std::vector<double> &params,
+          const std::vector<double> &param_errs)
 {
+
+    bool mode_fake_data = g_mode_fake_data;
 
     ///////////////////////////////////////////////////////////////////////////
     // draw result
     ///////////////////////////////////////////////////////////////////////////
 
 
+    /*
     THStack *stacks1D[number1DHists];
 
     TH1D *h_2nubb[number1DHists];
@@ -243,6 +238,7 @@ void draw(
     TH1D *hAllMC1D[number1DHists];
     TH1D *data1D[number1DHists];
     TH1D *fakeData1D[number1DHists];
+    */
 
     //std::cout << "debug: number of data samples: " << allDataSamples1D->GetEntries() << std::endl;
     //std::cout << "debug: number of MC samples: " << allMCSamples1D[0]->GetEntries() << std::endl;
@@ -251,37 +247,27 @@ void draw(
     // each channel 1D hists
     // this is for(i = 0; i < 1; ++ i)
     // TODO: this isn't right. should this be iterating over the "channel" ?
-    for(int channel = 0; channel < allDataSamples1D->GetEntries(); ++ channel)
+    //for(int channel = 0; channel < allDataSamples1D->GetEntries(); ++ channel)
+    for(int channel = 0; channel < number1DHists; ++ channel)
     {
-        if(draw_index == -1)
+
+        if(channel_enable_draw_1D[channel] == false)
         {
-            // do nothing
-            // draw all channels
-        }
-        else if((draw_index >= 0) && (draw_index < allDataSamples1D->GetEntries()))
-        {
-            if(channel != draw_index)
-            {
-                continue;
-            }
+            continue;
         }
 
         //if(i != 1) continue;
         // TODO: remove
 
-        draw_aux_data drawauxdata;
-        draw_channel(channel,
-                     thePhase,
-                     params,
-                     param_errs,
-                     fval,
-                     xi_31,
-                     number_job_id,
-                     drawauxdata,
-                     saveas_filename,
-                     saveas_dir,
-                     mode_fake_data);
 
+
+        //draw_aux_data drawauxdata;
+        draw_channel(channel,
+                     drawinputdata,
+                     params,
+                     param_errs);
+
+        /*
         stacks1D[channel] = drawauxdata.stacks1D;
         h_2nubb[channel] = drawauxdata.h_2nubb;
         h_tl208_int[channel] = drawauxdata.h_tl208_int;
@@ -301,7 +287,7 @@ void draw(
         hAllMC1D[channel] = drawauxdata.hAllMC1D;
         data1D[channel] = drawauxdata.data1D;
         fakeData1D[channel] = drawauxdata.fakeData1D;
-
+        */
     }
 
 
@@ -518,7 +504,7 @@ void draw_get_total_data_MC(
                     }
                     else
                     {
-                       std::cout << "ERROR: could not find " << tmp_sample_name << " in MCNameToParamNumberMap" << std::endl;
+                       std::cout << __func__ << " ERROR: could not find " << tmp_sample_name << " in MCNameToParamNumberMap" << std::endl;
                     }
                 }
             }
@@ -589,7 +575,7 @@ void draw_get_total_data_MC(
             }
             else
             {
-                std::cout << "error could not find histogram: tmpName=" << tmpName << std::endl;
+                std::cout << __func__ << " error could not find histogram: tmpName=" << tmpName << std::endl;
             } 
 
         }
@@ -1025,6 +1011,7 @@ void draw_covariance_matrix(const double * const CovMatrix, const int number_fre
     */
 
     // do not store names elsewhere, create them here
+#if 0
     TH2D* hCorrMatrix = new TH2D("hCorrMatrix", "Correlation Matrix",
                                  number_free_params, 0, (double)number_free_params,
                                  number_free_params, 0, (double)number_free_params);
@@ -1110,7 +1097,6 @@ void draw_covariance_matrix(const double * const CovMatrix, const int number_fre
 
         }
     }
-  
     // TODO: re-enable this check chi2 value is the same
     // remove global variable for chi2?
     // these were commented out for some reason, I did not remove them
@@ -1185,6 +1171,7 @@ void draw_covariance_matrix(const double * const CovMatrix, const int number_fre
     
     gStyle->SetGridStyle(gridstyle);
 
+#endif  
 }
 
 

@@ -23,6 +23,7 @@ void rebuild_150Nd_MC(const double, const double);
 // this function does not work if reweight is called before this function is
 // called
 // for obvious reasons
+#if 0
 void build_fake_data()
 {
 
@@ -124,7 +125,7 @@ void build_fake_data()
                     }
                     else
                     {
-                       std::cout << "ERROR: could not find " << tmp_sample_name << " in MCNameToParamNumberMap" << std::endl;
+                       std::cout << __func__ << " ERROR: could not find " << tmp_sample_name << " in MCNameToParamNumberMap" << std::endl;
                     }
                 }
             }
@@ -207,7 +208,7 @@ void build_fake_data()
             }
             else
             {
-                std::cout << "error could not find histogram: tmpName=" << tmpName << std::endl;
+                std::cout << __func__ << " error could not find histogram: tmpName=" << tmpName << std::endl;
             } 
 
         }
@@ -293,7 +294,7 @@ void build_fake_data()
                     }
                     else
                     {
-                       std::cout << "ERROR: could not find " << tmp_sample_name << " in MCNameToParamNumberMap" << std::endl;
+                       std::cout << __func__ << " ERROR: could not find " << tmp_sample_name << " in MCNameToParamNumberMap" << std::endl;
                     }
                 }
             }
@@ -354,7 +355,7 @@ void build_fake_data()
             }
             else
             {
-                std::cout << "error could not find histogram: tmpName=" << tmpName << std::endl;
+                std::cout << __func__ << " error could not find histogram: tmpName=" << tmpName << std::endl;
             } 
 
         }
@@ -371,6 +372,7 @@ void build_fake_data()
 
 
 }
+#endif
 
 
 
@@ -437,7 +439,7 @@ void build_fake_data()
 void rebuild_150Nd_MC(const double xi_31, const double xi_31_baseline)
 {
 
-    bool debugprint = false;
+    bool debugprint = true;
 
 
     ///////////////////////////////////////////////////////////////////////
@@ -449,13 +451,21 @@ void rebuild_150Nd_MC(const double xi_31, const double xi_31_baseline)
     // new code to reweight 150Nd by xi_{31} parameter
 
     // pointers of histograms to pass to reweight function
-    TH1D *hTotalE = nullptr;
-    TH1D *hSingleEnergy = nullptr;
-    TH1D *hHighEnergy = nullptr;
-    TH1D *hLowEnergy = nullptr;
-    TH1D *hEnergySum = nullptr;
-    TH1D *hEnergyDiff = nullptr;
-    TH2D *hHighLowEnergy = nullptr;
+    TH1D *hTotalE_P1 = nullptr;
+    TH1D *hSingleEnergy_P1 = nullptr;
+    TH1D *hHighEnergy_P1 = nullptr;
+    TH1D *hLowEnergy_P1 = nullptr;
+    TH1D *hEnergySum_P1 = nullptr;
+    TH1D *hEnergyDiff_P1 = nullptr;
+    TH2D *hHighLowEnergy_P1 = nullptr;
+
+    TH1D *hTotalE_P2 = nullptr;
+    TH1D *hSingleEnergy_P2 = nullptr;
+    TH1D *hHighEnergy_P2 = nullptr;
+    TH1D *hLowEnergy_P2 = nullptr;
+    TH1D *hEnergySum_P2 = nullptr;
+    TH1D *hEnergyDiff_P2 = nullptr;
+    TH2D *hHighLowEnergy_P2 = nullptr;
 
     /*
     TH1D *hSingleEnergyClone = nullptr;
@@ -465,49 +475,31 @@ void rebuild_150Nd_MC(const double xi_31, const double xi_31_baseline)
     //for(int channel = 0; channel < allDataSamples1D->GetEntries(); ++ channel)
     for(int channel = 0; channel < number1DHists; ++ channel)
     {
+        std::cout << "channel=" << channel << std::endl;
+ 
+        std::string histname = std::string(channel_histname_1D[channel]);
+        std::string search_object_P1 = histname + std::string(Nd150Files[0]) + "_P1";
+        std::string search_object_P2 = histname + std::string(Nd150Files[0]) + "_P2";
 
-        // search through each sample for this channel
-        for(int i = 0; i < allMCSamples1D[channel]->GetEntries(); ++ i)
-        {
-            TH1D *tmpHist = (TH1D*)allMCSamples1D[channel]->At(i);
-            TString tmpHist_name = tmpHist->GetName();
-            // TODO: had to add "_fit" here - might not work after 1 iteration
-            //if(tmpHist_name.CompareTo("hTotalE_nd150_rot_2n2b_m4_fit") == 0 ||
-            //   tmpHist_name.CompareTo("hTotalE_nd150_rot_2b2n_m4_fit") == 0)
-
-            // if name contains this string, it needs to be reweighted
-            if(tmpHist_name.Contains("nd150_rot_2n2b_m4") ||
-               tmpHist_name.Contains("nd150_rot_2b2n_m4"))
-            {
-                /*
-                if(channel == 1)
-                {
-                    hSingleEnergyClone = (TH1D*)allMCSamples1D[channel]->At(i)->Clone();
-                }
-                */
-
-                // remove histogram
-                allMCSamples1D[channel]->RemoveAt(i);
-                break;
-                // TODO: will only work for a maximum of 1 histograms
-                // removed because index i will shift due to removing
-                // histogram at i
-            }
-
-        } // i
+        TObject *tmpobj_P1 = allDataSamples1D->FindObject(search_object_P1.c_str());
+        TObject *tmpobj_P2 = allDataSamples1D->FindObject(search_object_P2.c_str());
+        allDataSamples1D->Remove(tmpobj_P1);
+        allDataSamples1D->Remove(tmpobj_P2);
     } // channel
 
-
+#if 0
     // search through each channel for 150nd samples
     //for(int channel = 0; channel < allDataSamples2D->GetEntries(); ++ channel)
     for(int channel = 0; channel < number2DHists; ++ channel)
     {
+        std::cout << "channel=" << channel << std::endl;
 
         // search through each sample for this channel
         for(int i = 0; i < allMCSamples2D[channel]->GetEntries(); ++ i)
         {
             TH1D *tmpHist = (TH1D*)allMCSamples2D[channel]->At(i);
             TString tmpHist_name = tmpHist->GetName();
+            std::cout << "tmpHist_name=" << tmpHist_name << std::endl;
 
             // if name contains this string, it needs to be reweighted
             if(tmpHist_name.Contains("nd150_rot_2n2b_m4") ||
@@ -523,7 +515,7 @@ void rebuild_150Nd_MC(const double xi_31, const double xi_31_baseline)
 
         } // i
     } // channel
-
+#endif
 
     if(debugprint)
     {
@@ -532,21 +524,29 @@ void rebuild_150Nd_MC(const double xi_31, const double xi_31_baseline)
     //const double xi_31_baseline{0.296};
     // NOTE: 2020-06-17 this was a bug, removed
 
-    TH1D *hWeight = nullptr;
+    TH1D *hWeight_P1 = nullptr;
+    TH1D *hWeight_P2 = nullptr; // TODO: move?
     if(debugprint || false)
     {
         std::cout << "before reweight_apply()" << std::endl;
     }
     reweight_apply(
-        hTotalE,
-        hSingleEnergy,
-        hHighEnergy,
-        hLowEnergy,
-        hEnergySum,
-        hEnergyDiff,
-        hHighLowEnergy,
-        hWeight,
-        "Nd150_2eNg_output_truth_postprocessed_small.root",
+        hTotalE_P1,
+        hSingleEnergy_P1,
+        hHighEnergy_P1,
+        hLowEnergy_P1,
+        hEnergySum_P1,
+        hEnergyDiff_P1,
+        hHighLowEnergy_P1,
+        hWeight_P1,
+        hTotalE_P2,
+        hSingleEnergy_P2,
+        hHighEnergy_P2,
+        hLowEnergy_P2,
+        hEnergySum_P2,
+        hEnergyDiff_P2,
+        hHighLowEnergy_P2,
+        hWeight_P2,
         xi_31,
         xi_31_baseline,
         h_nEqNull,
@@ -570,16 +570,27 @@ void rebuild_150Nd_MC(const double xi_31, const double xi_31_baseline)
     */
 
 
-
     // TODO: just another example of manual code edits
     // make a file describing the channels to fit as well as the parameters
-    allMCSamples1D[0]->Add(hTotalE);
-    allMCSamples1D[1]->Add(hSingleEnergy);
-    allMCSamples1D[2]->Add(hHighEnergy);
-    allMCSamples1D[3]->Add(hLowEnergy);
-    allMCSamples1D[4]->Add(hEnergySum);
-    allMCSamples1D[5]->Add(hEnergyDiff);
-    allMCSamples2D[0]->Add(hHighLowEnergy);
+    std::cout << "adding P1 histograms" << std::endl;
+    allMCSamples1D[0]->Add(hTotalE_P1);
+    allMCSamples1D[1]->Add(hSingleEnergy_P1);
+    allMCSamples1D[2]->Add(hHighEnergy_P1);
+    allMCSamples1D[3]->Add(hLowEnergy_P1);
+    allMCSamples1D[4]->Add(hEnergySum_P1);
+    allMCSamples1D[5]->Add(hEnergyDiff_P1);
+
+    std::cout << "adding P2 histograms" << std::endl;
+    allMCSamples1D[0]->Add(hTotalE_P2);
+    allMCSamples1D[1]->Add(hSingleEnergy_P2);
+    allMCSamples1D[2]->Add(hHighEnergy_P2);
+    allMCSamples1D[3]->Add(hLowEnergy_P2);
+    allMCSamples1D[4]->Add(hEnergySum_P2);
+    allMCSamples1D[5]->Add(hEnergyDiff_P2);
+
+
+    allMCSamples2D[0]->Add(hHighLowEnergy_P1);
+    allMCSamples2D[0]->Add(hHighLowEnergy_P2);
 }
 
 

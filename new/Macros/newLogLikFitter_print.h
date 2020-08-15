@@ -49,6 +49,8 @@ void print_map(std::map<T, U> &map, const std::string& name)
 
 // TODO: change name
 
+
+#if 0
 void print_paramNameMap()
 {
 
@@ -98,6 +100,7 @@ void print_paramNameMap()
     }
 
 }
+#endif
 
 
 #endif //NEWLOGLIKFITTER_PRINT_H

@@ -160,11 +160,18 @@ void book1DHistograms_helper(TFile *myFile, Int_t channel_counter, TString theCh
 #endif
 
 
-void book1DHistograms_helper(TFile *myFile, Int_t channel_counter, TString theChannel, TString thePhase_arg, TString theHistogram,
-    const int nBkgs, TString *BkgFiles)//, TH1D *tmpHist)
+void book1DHistograms_helper(
+    TFile *aFile_P1,
+    TFile *aFile_P2,
+    Int_t channel_counter,
+    TString theChannel,
+    TString theHistogram,
+    const int nBkgs,
+    TString *BkgFiles)//, TH1D *tmpHist)
 {
         
-    TH1D *tmpHist = nullptr;
+    TH1D *tmpHist_P1 = nullptr;
+    TH1D *tmpHist_P2 = nullptr;
 
     for(int i = 0; i < nBkgs; i++)
     {
@@ -177,24 +184,38 @@ void book1DHistograms_helper(TFile *myFile, Int_t channel_counter, TString theCh
         // convert mc_name to scale factor
         Double_t scale_factor = 0.0;
         int param_number = -1;
-        bool success = convert_MC_name_to_scale_factor(mc_name, param_number, scale_factor);
+        //bool success = convert_MC_name_to_scale_factor(mc_name, param_number, scale_factor);
+        bool success = g_pg.convert_MC_name_to_param_number(mc_name, param_number);//, scale_factor);
+
 
         if(success == true)
         {
+            scale_factor = g_pg.file_params.at(param_number).paramInitValue;
+            std::cout << "mc_name=" << mc_name << " param_number=" << param_number << " scale_factor=" << scale_factor << std::endl;
+
             //std::string directory("scaled/hTotalE_/");
             std::string directory("scaled/" + theHistogram + "/");
             std::string name(theHistogram + BkgFiles[i] + "_fit_scaled");
             std::string fullname = directory + name;
-            std::string new_name(theHistogram + BkgFiles[i] + "_fit");
+            //std::string new_name(theHistogram + BkgFiles[i] + "_fit"); // TODO: probably need a different new_name for P1 and P2
+            std::string new_name_P1(theHistogram + BkgFiles[i] + "_P1_fit"); // TODO: probably need a different new_name for P1 and P2
+            std::string new_name_P2(theHistogram + BkgFiles[i] + "_P2_fit"); // TODO: probably need a different new_name for P1 and P2
             std::cout << "fullname=" << fullname << std::endl;
 
             //gDirectory->GetListOfKeys();
 
             //tmpHist = (TH1D*)gDirectory->Get(fullname.c_str())->Clone();
-            tmpHist = (TH1D*)myFile->Get(fullname.c_str())->Clone(new_name.c_str());
+            tmpHist_P1 = (TH1D*)aFile_P1->Get(fullname.c_str())->Clone(new_name_P1.c_str());
+            tmpHist_P2 = (TH1D*)aFile_P2->Get(fullname.c_str())->Clone(new_name_P2.c_str());
             // TODO: should not clone but setname() here?
 
-            if(tmpHist != nullptr)
+            std::cout << "check the name of histograms: (P1): " << tmpHist_P1->GetName() << " (P2): " << tmpHist_P2->GetName() << std::endl;
+            // TODO: suspect I need to add P1 or P2 to the histograms
+            // TODO: need to be careful with some histograms because they have
+            // a P1 IN, P2 IN, etc... they are different depending on P1, P2
+            // as in the name is different... in fit_2e.C
+
+            if(tmpHist_P1 != nullptr)
             //if(gDirectory->GetListOfKeys()->Contains(fullname.c_str()))
             //std::cout << "parameter number " << param_number << " is enabled" << std::endl;
             //std::string name(theHistogram + BkgFiles[i] + "_fit");
@@ -217,7 +238,8 @@ void book1DHistograms_helper(TFile *myFile, Int_t channel_counter, TString theCh
                 // TODO: note this in input file documentation
                 // however, this may be an improvement because it
                 // guarantees minuit is responsible for error estimation
-                tmpHist->Scale(scale_factor);
+                tmpHist_P1->Scale(scale_factor);
+                //tmpHist_P2->Scale(scale_factor); // TODO; really not at all convinced this is going to work for the histograms where P1 and P2 are seperate params in the file
                 // samples are now scaled by activity
                 // changed input, and pre-scaling, now need to change output
 
@@ -244,7 +266,7 @@ void book1DHistograms_helper(TFile *myFile, Int_t channel_counter, TString theCh
                 // the default (not reweighted) nd150 spectra
                 // TODO: this may no longer be true
 
-                allMCSamples1D[channel_counter]->Add(tmpHist);
+                allMCSamples1D[channel_counter]->Add(tmpHist_P1);
                 // TODO: does this work as expected for secular equlibrium samples?
 
                 //std::cout << tmpHist->GetName() << std::endl;
@@ -252,15 +274,38 @@ void book1DHistograms_helper(TFile *myFile, Int_t channel_counter, TString theCh
             }
             else
             {
-                std::cout << "could not find histogram in file: " << fullname << " - disabling parameter number " << param_number << std::endl;
+                std::cout << __func__ << " could not find histogram in file: " << fullname << " - disabling parameter number " << param_number << std::endl;
                 // cannot find histogram input data, so disable parameter
-                std::remove(enabled_params.begin(), enabled_params.end(), param_number);
+                //std::remove(enabled_params.begin(), enabled_params.end(), param_number);
+                // TODO: may not re-implement this
+                // if I do then I simply change the flags in the g_pg
+            }
+
+            if(tmpHist_P2 != nullptr)
+            {
+                tmpHist_P2->Scale(scale_factor); // TODO; really not at all convinced this is going to work for the histograms where P1 and P2 are seperate params in the file
+
+                if(param_number == 1)
+                {
+                    std::cout << "ERROR" << std::endl;
+                    throw "Error";
+                }
+
+                allMCSamples1D[channel_counter]->Add(tmpHist_P2);
+            }
+            else
+            {
+                std::cout << __func__ << " could not find histogram in file: " << fullname << " - disabling parameter number " << param_number << std::endl;
+                // cannot find histogram input data, so disable parameter
+                //std::remove(enabled_params.begin(), enabled_params.end(), param_number);
+                // TODO: may not re-implement this
+                // if I do then I simply change the flags in the g_pg
             }
 
         }
         else
         {
-            std::cerr << "errormsg" << std::endl;
+            std::cerr << "success=false" << std::endl;
         }
 
 
@@ -307,14 +352,20 @@ void book1DHistograms_helper(TFile *myFile, Int_t channel_counter, TString theCh
 // theChannel = "2e_"
 // thePhase = "P1"
 // theHistogram = "hTotalE_"
-void book1DHistograms(Int_t channel_counter, TString theChannel, TString thePhase_arg, TString theHistogram)
+//void book1DHistograms(Int_t channel_counter, TString theChannel, TString thePhase_arg, TString theHistogram)
+void book1DHistograms(Int_t channel_counter, TString theChannel, TString theHistogram)
 {
 
-    std::cout << "booking 1D hists for " << theChannel << " " << thePhase_arg << std::endl;
+    //std::cout << "booking 1D hists for " << theChannel << " " << thePhase_arg << std::endl;
+    std::cout << "booking 1D hists for " << theChannel << " " << "P1 and P2" << std::endl;
     allMCSamples1D[channel_counter] = new TObjArray();
 
     //TFile *aFile = TFile::Open("/home/ebirdsall/NEMO3/Nd150_analysis/MeasureStuff/new/Macros/Nd150_" + theChannel + thePhase_arg + ".root");
-    TFile *aFile = TFile::Open("Nd150_" + theChannel + thePhase_arg + ".root");
+    //TFile *aFile = TFile::Open("Nd150_" + theChannel + thePhase_arg + ".root");
+    TString thePhase_arg_P1 = "P1";
+    TString thePhase_arg_P2 = "P2";
+    TFile *aFileP1 = TFile::Open("Nd150_" + theChannel + thePhase_arg_P1 + ".root");
+    TFile *aFileP2 = TFile::Open("Nd150_" + theChannel + thePhase_arg_P2 + ".root");
     //gDirectory->cd("singleHistos");
     //gDirectory->ls();
 
@@ -322,8 +373,9 @@ void book1DHistograms(Int_t channel_counter, TString theChannel, TString thePhas
     //TH1D *tmpHist = nullptr; //new TH1D("tmpHist_" + theChannel + thePhase_arg, "" , 1, 0, 1);
     
     std::cout << "External" << std::endl;
-    book1DHistograms_helper(aFile, channel_counter, theChannel,
-                            thePhase_arg, theHistogram,
+    book1DHistograms_helper(aFileP1, aFileP2,
+                            channel_counter, theChannel,
+                            theHistogram,
                             nExternalBkgs,
                             ExternalBkgFiles);//,
                             //tmpHist);
@@ -331,40 +383,47 @@ void book1DHistograms(Int_t channel_counter, TString theChannel, TString thePhas
     // TODO: does this work as expected for secular equlibrium samples?
 
     std::cout << "Internal" << std::endl;
-    book1DHistograms_helper(aFile, channel_counter, theChannel,
-                            thePhase_arg, theHistogram,
+    book1DHistograms_helper(aFileP1, aFileP2,
+                            channel_counter, theChannel,
+                            theHistogram,
                             nInternalBkgs,
                             InternalBkgFiles);//,
                             //tmpHist);
 
     std::cout << "Rn 222" << std::endl;
-    book1DHistograms_helper(aFile, channel_counter, theChannel,
-                            thePhase_arg, theHistogram,
+    book1DHistograms_helper(aFileP1, aFileP2,
+                            channel_counter, theChannel,
+                            theHistogram,
                             nRn222Bkgs,
                             //Rn222BkgFiles);//,
                             Rn222BkgFilesNew);//,
                             //tmpHist);
 
     std::cout << "Rn 220" << std::endl;
-    book1DHistograms_helper(aFile, channel_counter, theChannel,
-                            thePhase_arg, theHistogram,
+    book1DHistograms_helper(aFileP1, aFileP2,
+                            channel_counter, theChannel,
+                            theHistogram,
                             nRn220Bkgs,
                             Rn220BkgFiles);//,
                             //tmpHist);
 
     std::cout << "Neighbour" << std::endl;
-    book1DHistograms_helper(aFile, channel_counter, theChannel,
-                            thePhase_arg, theHistogram,
+    book1DHistograms_helper(aFileP1, aFileP2,
+                            channel_counter, theChannel,
+                            theHistogram,
                             nNeighbours,
                             NeighbourFiles);//,
                             //tmpHist);
 
     std::cout << "Nd150" << std::endl;
-    book1DHistograms_helper(aFile, channel_counter, theChannel,
-                            thePhase_arg, theHistogram,
+    book1DHistograms_helper(aFileP1, aFileP2,
+                            channel_counter, theChannel,
+                            theHistogram,
                             nNd150Samples,
                             Nd150Files);//,
                             //tmpHist);
+
+    // TODO: need P1 and P2 data here
 
     std::cout << "Data" << std::endl;
     // TODO here
@@ -372,14 +431,23 @@ void book1DHistograms(Int_t channel_counter, TString theChannel, TString thePhas
     //std::string name(theHistogram + "data_2e");
     //std::string directory("processeddata/hTotalE_/");
     std::string directory("processeddata/" + theHistogram + "/");
-    std::string name(theHistogram + "data_2e");
+    std::string name(theHistogram + DataFile);
     //std::string fake_data_name(theHistogram + "data_2e_fake");
     std::string fullname = directory + name;
     std::cout << "fullname=" << fullname << std::endl;
     //if(gDirectory->GetListOfKeys()->Contains(fullname.c_str()))
     //TH1D *tmpHist = (TH1D*)gDirectory->Get(fullname.c_str())->Clone();
-    TH1D *tmpHist = (TH1D*)aFile->Get(fullname.c_str())->Clone();
-    if(tmpHist != nullptr)
+    std::string new_name_P1(theHistogram + DataFile + "_P1"); // TODO: probably need a different new_name for P1 and P2
+    std::string new_name_P2(theHistogram + DataFile + "_P2"); // TODO: probably need a different new_name for P1 and P2 check works
+    TH1D *tmpHist_P1 = (TH1D*)aFileP1->Get(fullname.c_str())->Clone(new_name_P1.c_str());
+    TH1D *tmpHist_P2 = (TH1D*)aFileP2->Get(fullname.c_str())->Clone(new_name_P2.c_str());
+            // TODO: suspect I need to add P1 or P2 to the histograms
+            // TODO: need to be careful with some histograms because they have
+            // a P1 IN, P2 IN, etc... they are different depending on P1, P2
+            // as in the name is different... in fit_2e.C
+    // TODO: should not clone but setname() here?
+    std::cout << "check the name of histograms: (P1): " << tmpHist_P1->GetName() << " (P2): " << tmpHist_P2->GetName() << std::endl;
+    if(tmpHist_P1 != nullptr)
     {
         //TH1D *tmpHist = nullptr;
         // 2020-04-03: removed changing of histogram name
@@ -387,11 +455,22 @@ void book1DHistograms(Int_t channel_counter, TString theChannel, TString thePhas
         //std::cout << "Get() : " << name << " from file, Clone() : " << hist_name << std::endl;
         //tmpHist = (TH1D*)gDirectory->Get(name.c_str())->Clone(hist_name.c_str());
         //tmpHist = (TH1D*)gDirectory->Get(fullname.c_str())->Clone();
-        allDataSamples1D->Add((TH1D*)tmpHist);
+        allDataSamples1D->Add((TH1D*)tmpHist_P1);
     }
     else
     {
         std::cout << "gDirectory->GetListOfKeys() does not contain " << fullname << std::endl;
+        std::cout << __func__ << " could not find histogram in file: " << fullname << " - disabling parameter number TODO fix this error" << std::endl;
+    }
+
+    if(tmpHist_P2 != nullptr)
+    {
+        allDataSamples1D->Add((TH1D*)tmpHist_P2);
+    }
+    else
+    {
+        std::cout << "gDirectory->GetListOfKeys() does not contain " << fullname << std::endl;
+        std::cout << __func__ << " could not find histogram in file: " << fullname << " - disabling parameter number TODO fix this error" << std::endl;
     }
     /*
     if(gDirectory->GetListOfKeys()->Contains(theHistogram + "Data"))
@@ -406,6 +485,9 @@ void book1DHistograms(Int_t channel_counter, TString theChannel, TString thePhas
         std::cout << "gDirectory->GetListOfKeys() does not contain " << theHistogram + "Data" << std::endl;
     }
     */
+
+
+
 
     // std::cout << tmpHist->GetName() << std::endl;
     // tmpHist->Delete();

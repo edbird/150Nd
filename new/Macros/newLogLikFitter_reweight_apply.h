@@ -6,15 +6,23 @@
 // xi31 reweighting function for 150Nd spectra
 //void reweight_apply(TH2D *output, const TH1D *const input,
 void reweight_apply(
-    TH1D *&hTotalE_output,
-    TH1D *&hSingleEnergy_output,
-    TH1D *&hHighEnergy_output,
-    TH1D *&hLowEnergy_output,
-    TH1D *&hEnergySum_output,
-    TH1D *&hEnergyDiff_output,
-    TH2D *&hHighLowEnergy_output,
-    TH1D *&hWeight_output,
-    const std::string& tinput_filename,
+    TH1D *&hTotalE_output_P1,
+    TH1D *&hSingleEnergy_output_P1,
+    TH1D *&hHighEnergy_output_P1,
+    TH1D *&hLowEnergy_output_P1,
+    TH1D *&hEnergySum_output_P1,
+    TH1D *&hEnergyDiff_output_P1,
+    TH2D *&hHighLowEnergy_output_P1,
+    TH1D *&hWeight_output_P1,
+    TH1D *&hTotalE_output_P2,
+    TH1D *&hSingleEnergy_output_P2,
+    TH1D *&hHighEnergy_output_P2,
+    TH1D *&hLowEnergy_output_P2,
+    TH1D *&hEnergySum_output_P2,
+    TH1D *&hEnergyDiff_output_P2,
+    TH2D *&hHighLowEnergy_output_P2,
+    TH1D *&hWeight_output_P2,
+//    const std::string& tinput_filename,
     const Double_t xi_31,
     const Double_t xi_31_baseline,
     const TH2D* const h_nEqNull,
@@ -23,6 +31,8 @@ void reweight_apply(
     const Double_t psiN2,
     const Double_t bb_Q)
 {
+    TString tinput_filename = "Nd150_2eNg_output_truth_postprocessed_small.root";
+
     std::cout << "reweight_apply: xi_31=" << xi_31 << " xi_31_baseline=" << xi_31_baseline << std::endl;
 
     //std::cout << "reweight_apply" << std::endl;
@@ -33,109 +43,225 @@ void reweight_apply(
 
     bool debugprint = false;
 
-    TH1D *hTotalE = (TH1D*)gROOT->FindObject("hTotalE_" + sampleName + name_append + "_reweight");
-    if(hTotalE == nullptr)
+    // TODO: should these have "reweight" at the end? is this not a (minor)
+    // problem in that these histograms do not exist on the first call
+    // to this function?
+    // is the P1/P2 in the right place?
+
+    std::cout << "search and remove P1 histograms" << std::endl;
+
+    TH1D *hTotalE_P1 = (TH1D*)gROOT->FindObject("hTotalE_" + sampleName + name_append + "_P1_reweight");
+    if(hTotalE_P1 == nullptr)
     {
         if(debugprint)
         {
-            std::cout << "hTotalE nullptr!" << std::endl;
+            std::cout << "hTotalE_P1 nullptr!" << std::endl;
         }
         //std::cin.get();
     }
     else
     {
-        delete hTotalE;
+        delete hTotalE_P1;
     }
 
-    TH1D *hSingleEnergy = (TH1D*)gROOT->FindObject("hSingleEnergy_" + sampleName + name_append + "_reweight");
-    if(hSingleEnergy == nullptr)
+    TH1D *hSingleEnergy_P1 = (TH1D*)gROOT->FindObject("hSingleEnergy_" + sampleName + name_append + "_P1_reweight");
+    if(hSingleEnergy_P1 == nullptr)
     {
         if(debugprint)
         {
-            std::cout << "hSingleEnergy nullptr!" << std::endl;
+            std::cout << "hSingleEnergy_P1 nullptr!" << std::endl;
         }
     }
     else
     {
-        delete hSingleEnergy;
+        delete hSingleEnergy_P1;
     }
     
-    TH1D *hHighEnergy =  (TH1D*)gROOT->FindObject("hHighEnergy_" + sampleName + name_append + "_reweight");
-    if(hHighEnergy == nullptr)
+    TH1D *hHighEnergy_P1 =  (TH1D*)gROOT->FindObject("hHighEnergy_" + sampleName + name_append + "_P1_reweight");
+    if(hHighEnergy_P1 == nullptr)
     {
         if(debugprint)
         {
-            std::cout << "hHighEnergy nullptr!" << std::endl;
+            std::cout << "hHighEnergy_P1 nullptr!" << std::endl;
         }
     }
     else
     {
-        delete hHighEnergy;
+        delete hHighEnergy_P1;
     }
     
-    TH1D* hLowEnergy = (TH1D*)gROOT->FindObject("hLowEnergy_" + sampleName + name_append + "_reweight");
-    if(hLowEnergy == nullptr)
+    TH1D* hLowEnergy_P1 = (TH1D*)gROOT->FindObject("hLowEnergy_" + sampleName + name_append + "_P1_reweight");
+    if(hLowEnergy_P1 == nullptr)
     {
         if(debugprint)
         {
-            std::cout << "hLowEnergy nullptr!" << std::endl;
+            std::cout << "hLowEnergy_P1 nullptr!" << std::endl;
         }
     }
     else
     {
-        delete hLowEnergy;
+        delete hLowEnergy_P1;
     }
     
-    TH1D* hEnergySum = (TH1D*)gROOT->FindObject("hEnergySum_" + sampleName + name_append + "_reweight");
-    if(hEnergySum == nullptr)
+    TH1D* hEnergySum_P1 = (TH1D*)gROOT->FindObject("hEnergySum_" + sampleName + name_append + "_P1_reweight");
+    if(hEnergySum_P1 == nullptr)
     {
         if(debugprint)
         {
-            std::cout << "hEnergySum nullptr!" << std::endl;
+            std::cout << "hEnergySum_P1 nullptr!" << std::endl;
         }
     }
     else
     {
-        delete hEnergySum;
+        delete hEnergySum_P1;
     }
     
-    TH1D* hEnergyDiff = (TH1D*)gROOT->FindObject("hEnergyDiff_" + sampleName + name_append + "_reweight");
-    if(hEnergyDiff == nullptr)
+    TH1D* hEnergyDiff_P1 = (TH1D*)gROOT->FindObject("hEnergyDiff_" + sampleName + name_append + "_P1_reweight");
+    if(hEnergyDiff_P1 == nullptr)
     {
         if(debugprint)
         {
-            std::cout << "hEnergyDiff nullptr!" << std::endl;
+            std::cout << "hEnergyDiff_P1 nullptr!" << std::endl;
         }
     }
     else
     {
-        delete hEnergyDiff;
+        delete hEnergyDiff_P1;
     }
     
-    TH2D* hHighLowEnergy = (TH2D*)gROOT->FindObject("hHighLowEnergy_" + sampleName + name_append + "_reweight");
-    if(hHighLowEnergy == nullptr)
+    TH2D* hHighLowEnergy_P1 = (TH2D*)gROOT->FindObject("hHighLowEnergy_" + sampleName + name_append + "_P1_reweight");
+    if(hHighLowEnergy_P1 == nullptr)
     {
         if(debugprint)
         {
-            std::cout << "hHighLowEnergy nullptr!" << std::endl;
+            std::cout << "hHighLowEnergy_P1 nullptr!" << std::endl;
         }
     }
     else
     {
-        delete hHighLowEnergy;
+        delete hHighLowEnergy_P1;
     }
     
-    TH1D* hWeight = (TH1D*)gROOT->FindObject("hWeight_" + sampleName + name_append + "_reweight");
-    if(hWeight == nullptr)
+    TH1D* hWeight_P1 = (TH1D*)gROOT->FindObject("hWeight_" + sampleName + name_append + "_P1_reweight");
+    if(hWeight_P1 == nullptr)
     {
         if(debugprint)
         {
-            std::cout << "hWeight nullptr!" << std::endl;
+            std::cout << "hWeight_P1 nullptr!" << std::endl;
         }
     }
     else
     {
-        delete hWeight;
+        delete hWeight_P1;
+    }
+
+
+
+    std::cout << "search and remove P2 histograms" << std::endl;
+
+    TH1D *hTotalE_P2 = (TH1D*)gROOT->FindObject("hTotalE_" + sampleName + name_append + "_P2_reweight");
+    if(hTotalE_P2 == nullptr)
+    {
+        if(debugprint)
+        {
+            std::cout << "hTotalE_P2 nullptr!" << std::endl;
+        }
+        //std::cin.get();
+    }
+    else
+    {
+        delete hTotalE_P2;
+    }
+
+    TH1D *hSingleEnergy_P2 = (TH1D*)gROOT->FindObject("hSingleEnergy_" + sampleName + name_append + "_P2_reweight");
+    if(hSingleEnergy_P2 == nullptr)
+    {
+        if(debugprint)
+        {
+            std::cout << "hSingleEnergy_P2 nullptr!" << std::endl;
+        }
+    }
+    else
+    {
+        delete hSingleEnergy_P2;
+    }
+    
+    TH1D *hHighEnergy_P2 = (TH1D*)gROOT->FindObject("hHighEnergy_" + sampleName + name_append + "_P2_reweight");
+    if(hHighEnergy_P2 == nullptr)
+    {
+        if(debugprint)
+        {
+            std::cout << "hHighEnergy_P2 nullptr!" << std::endl;
+        }
+    }
+    else
+    {
+        delete hHighEnergy_P2;
+    }
+    
+    TH1D* hLowEnergy_P2 = (TH1D*)gROOT->FindObject("hLowEnergy_" + sampleName + name_append + "_P2_reweight");
+    if(hLowEnergy_P2 == nullptr)
+    {
+        if(debugprint)
+        {
+            std::cout << "hLowEnergy_P2 nullptr!" << std::endl;
+        }
+    }
+    else
+    {
+        delete hLowEnergy_P2;
+    }
+    
+    TH1D* hEnergySum_P2 = (TH1D*)gROOT->FindObject("hEnergySum_" + sampleName + name_append + "_P2_reweight");
+    if(hEnergySum_P2 == nullptr)
+    {
+        if(debugprint)
+        {
+            std::cout << "hEnergySum_P2 nullptr!" << std::endl;
+        }
+    }
+    else
+    {
+        delete hEnergySum_P2;
+    }
+    
+    TH1D* hEnergyDiff_P2 = (TH1D*)gROOT->FindObject("hEnergyDiff_" + sampleName + name_append + "_P2_reweight");
+    if(hEnergyDiff_P2 == nullptr)
+    {
+        if(debugprint)
+        {
+            std::cout << "hEnergyDiff_P2 nullptr!" << std::endl;
+        }
+    }
+    else
+    {
+        delete hEnergyDiff_P2;
+    }
+    
+    TH2D* hHighLowEnergy_P2 = (TH2D*)gROOT->FindObject("hHighLowEnergy_" + sampleName + name_append + "_P2_reweight");
+    if(hHighLowEnergy_P2 == nullptr)
+    {
+        if(debugprint)
+        {
+            std::cout << "hHighLowEnergy_P2 nullptr!" << std::endl;
+        }
+    }
+    else
+    {
+        delete hHighLowEnergy_P2;
+    }
+    
+    TH1D* hWeight_P2 = (TH1D*)gROOT->FindObject("hWeight_" + sampleName + name_append + "_P2_reweight");
+    if(hWeight_P2 == nullptr)
+    {
+        if(debugprint)
+        {
+            std::cout << "hWeight_P2 nullptr!" << std::endl;
+        }
+    }
+    else
+    {
+        delete hWeight_P2;
     }
 
     //std::cout << "gROOT" << std::endl;
@@ -143,63 +269,118 @@ void reweight_apply(
     //gROOT->GetListOfClasses()->Print();
     //gDirectory->ls();
 
+    std::cout << "create P1 histograms" << std::endl;
 
     // TODO: this does not work, need to re-Fill histogram using file
     //output = input->Clone(input->GetName() + "_reweight");
     //std::cout << "Total new" << std::endl;
-    hTotalE_output = new TH1D("hTotalE_" + sampleName + name_append + "_reweight",
+    hTotalE_output_P1 = new TH1D("hTotalE_" + sampleName + name_append + "_P1_reweight",
                        //"Phase " + Phase + " " + sampleName + name_append + " total energy; #SigmaE_{e} (MeV)",
-                       "Phase " + Phase + " " + sampleName + name_append + " total energy; Total Energy #SigmaE_{e} (MeV)",
+                       TString("Phase ") + "P1" + " " + sampleName + name_append + " total energy; Total Energy #SigmaE_{e} (MeV)",
                        50, 0.0, 5.0);
                        // TODO: changed from 4
 
     //std::cout << "Single new" << std::endl;
-    hSingleEnergy_output    = new TH1D("hSingleEnergy_" + sampleName + name_append + "_reweight",
-                                "Phase " + Phase + " " + sampleName  + name_append + " Single Energy",
+    hSingleEnergy_output_P1    = new TH1D("hSingleEnergy_" + sampleName + name_append + "_P1_reweight",
+                                TString("Phase ") + "P1" + " " + sampleName  + name_append + " Single Energy",
                                 50, 0.0, 5.0);
     
     //std::cout << "High new" << std::endl;
-    hHighEnergy_output     = new TH1D("hHighEnergy_" + sampleName + name_append + "_reweight",
-                                "Phase " + Phase + " " + sampleName + name_append + " High Energy; Energy (MeV)",
+    hHighEnergy_output_P1     = new TH1D("hHighEnergy_" + sampleName + name_append + "_P1_reweight",
+                                TString("Phase ") + "P1" + " " + sampleName + name_append + " High Energy; Energy (MeV)",
                                 50, 0.0, 5.0);
 
     //std::cout << "Low new" << std::endl;
-    hLowEnergy_output     = new TH1D("hLowEnergy_" + sampleName + name_append + "_reweight",
-                                "Phase " + Phase + " " + sampleName + name_append + " Low Energy",
+    hLowEnergy_output_P1     = new TH1D("hLowEnergy_" + sampleName + name_append + "_P1_reweight",
+                                TString("Phase ") + "P1" + " " + sampleName + name_append + " Low Energy",
                                 50, 0.0, 5.0);
 
     //std::cout << "Sum new" << std::endl;
-    hEnergySum_output     = new TH1D("hEnergySum_" + sampleName + name_append + "_reweight",
-                                "Phase " + Phase + " " + sampleName + name_append + " Low Energy",
+    hEnergySum_output_P1     = new TH1D("hEnergySum_" + sampleName + name_append + "_P1_reweight",
+                                TString("Phase ") + "P1" + " " + sampleName + name_append + " Low Energy",
                                 50, 0.0, 5.0);
 
     //std::cout << "Diff new" << std::endl;
-    hEnergyDiff_output     = new TH1D("hEnergyDiff_" + sampleName + name_append + "_reweight",
-                                "Phase " + Phase + " " + sampleName + name_append + " Low Energy",
+    hEnergyDiff_output_P1     = new TH1D("hEnergyDiff_" + sampleName + name_append + "_P1_reweight",
+                                TString("Phase ") + "P1" + " " + sampleName + name_append + " Low Energy",
                                 50, 0.0, 5.0);
-    
+
     //std::cout << "HighLow new" << std::endl;
-    hHighLowEnergy_output     = new TH2D("hHighLowEnergy_" + sampleName + name_append + "_reweight",
-                                "Phase " + Phase + " " + sampleName + name_append + ";Low Energy Electron Energy (MeV);High Energy Electron Energy (MeV)",
+    hHighLowEnergy_output_P1     = new TH2D("hHighLowEnergy_" + sampleName + name_append + "_P1_reweight",
+                                TString("Phase ") + "P1" + " " + sampleName + name_append + ";Low Energy Electron Energy (MeV);High Energy Electron Energy (MeV)",
                                 50, 0.0, 5.0, 50, 0.0, 5.0);
 
     //std::cout << "Weight new" << std::endl;
-    hWeight_output       = new TH1D("hWeight_" + sampleName + name_append + "_reweight",
-                                "Phase " + Phase + " " + sampleName + name_append + ";Weight",
+    hWeight_output_P1       = new TH1D("hWeight_" + sampleName + name_append + "_P1_reweight",
+                                TString("Phase ") + "P1" + " " + sampleName + name_append + ";Weight",
+                                //50, -2.0, 4.0);
+                                50, 0.0, 0.0);
+
+    std::cout << "create P2 histograms" << std::endl;
+
+    hTotalE_output_P2 = new TH1D("hTotalE_" + sampleName + name_append + "_P2_reweight",
+                       //"Phase " + Phase + " " + sampleName + name_append + " total energy; #SigmaE_{e} (MeV)",
+                       TString("Phase ") + "P2" + " " + sampleName + name_append + " total energy; Total Energy #SigmaE_{e} (MeV)",
+                       50, 0.0, 5.0);
+                       // TODO: changed from 4
+
+    //std::cout << "Single new" << std::endl;
+    hSingleEnergy_output_P2    = new TH1D("hSingleEnergy_" + sampleName + name_append + "_P2_reweight",
+                                TString("Phase ") + "P2" + " " + sampleName  + name_append + " Single Energy",
+                                50, 0.0, 5.0);
+    
+    //std::cout << "High new" << std::endl;
+    hHighEnergy_output_P2     = new TH1D("hHighEnergy_" + sampleName + name_append + "_P2_reweight",
+                                TString("Phase ") + "P2" + " " + sampleName + name_append + " High Energy; Energy (MeV)",
+                                50, 0.0, 5.0);
+
+    //std::cout << "Low new" << std::endl;
+    hLowEnergy_output_P2     = new TH1D("hLowEnergy_" + sampleName + name_append + "_P2_reweight",
+                                TString("Phase ") + "P2" + " " + sampleName + name_append + " Low Energy",
+                                50, 0.0, 5.0);
+
+    //std::cout << "Sum new" << std::endl;
+    hEnergySum_output_P2     = new TH1D("hEnergySum_" + sampleName + name_append + "_P2_reweight",
+                                TString("Phase ") + "P2" + " " + sampleName + name_append + " Low Energy",
+                                50, 0.0, 5.0);
+
+    //std::cout << "Diff new" << std::endl;
+    hEnergyDiff_output_P2     = new TH1D("hEnergyDiff_" + sampleName + name_append + "_P2_reweight",
+                                TString("Phase ") + "P2" + " " + sampleName + name_append + " Low Energy",
+                                50, 0.0, 5.0);
+
+    //std::cout << "HighLow new" << std::endl;
+    hHighLowEnergy_output_P2     = new TH2D("hHighLowEnergy_" + sampleName + name_append + "_P2_reweight",
+                                TString("Phase ") + "P2" + " " + sampleName + name_append + ";Low Energy Electron Energy (MeV);High Energy Electron Energy (MeV)",
+                                50, 0.0, 5.0, 50, 0.0, 5.0);
+
+    //std::cout << "Weight new" << std::endl;
+    hWeight_output_P2       = new TH1D("hWeight_" + sampleName + name_append + "_P2_reweight",
+                                TString("Phase ") + "P2" + " " + sampleName + name_append + ";Weight",
                                 //50, -2.0, 4.0);
                                 50, 0.0, 0.0);
 
     //std::cout << "end of new" << std::endl;
 
-    hTotalE_output->Sumw2();
-    hSingleEnergy_output->Sumw2();
-    hHighEnergy_output->Sumw2();
-    hLowEnergy_output->Sumw2();
-    hHighLowEnergy_output->Sumw2();
-    hEnergySum_output->Sumw2();
-    hEnergyDiff_output->Sumw2();
+    hTotalE_output_P1->Sumw2();
+    hSingleEnergy_output_P1->Sumw2();
+    hHighEnergy_output_P1->Sumw2();
+    hLowEnergy_output_P1->Sumw2();
+    hHighLowEnergy_output_P1->Sumw2();
+    hEnergySum_output_P1->Sumw2();
+    hEnergyDiff_output_P1->Sumw2();
 
-    hWeight_output->Sumw2();
+    hWeight_output_P1->Sumw2();
+
+    hTotalE_output_P2->Sumw2();
+    hSingleEnergy_output_P2->Sumw2();
+    hHighEnergy_output_P2->Sumw2();
+    hLowEnergy_output_P2->Sumw2();
+    hHighLowEnergy_output_P2->Sumw2();
+    hEnergySum_output_P2->Sumw2();
+    hEnergyDiff_output_P2->Sumw2();
+
+    hWeight_output_P2->Sumw2();
 
     //std::cout << "houtput->GetName() -> " << houtput->GetName() << std::endl;
 
@@ -233,16 +414,20 @@ void reweight_apply(
     //const Double_t* const el_energy_{staticsgroup.Get_el_energy_()};
     //const Double_t &gen_weight{staticsgroup.Get_gen_weight()};
     
-    TFile *finput = new TFile(tinput_filename.c_str());
+    std::cout << "filling..." << std::endl;
+
+    TFile *finput = new TFile(tinput_filename);
     TTree *tinput = (TTree*)finput->Get("Nd150_2eNg/Nd150_2eNg");
 
+    Int_t run;
     Int_t nElectrons;
     double electronEnergy[2];
     double trueElectronEnergy[2];
 
-    tinput->SetBranchAddress("nElectrons"          , &nElectrons);  
-    tinput->SetBranchAddress("electronEnergy"      , electronEnergy);
-    tinput->SetBranchAddress("trueElectronEnergy"  , trueElectronEnergy);
+    tinput->SetBranchAddress("Run"                  , &run);  
+    tinput->SetBranchAddress("nElectrons"           , &nElectrons);  
+    tinput->SetBranchAddress("electronEnergy"       , electronEnergy);
+    tinput->SetBranchAddress("trueElectronEnergy"   , trueElectronEnergy);
 
     bool doprint = false;
 
@@ -262,6 +447,44 @@ void reweight_apply(
 
         // analysis only valid for 2 electron events
         //if(nElectrons != 2) continue;
+
+
+        // Phase cut moved to be final cut
+        // 1869 - 3395 is P1
+        // 3396 - 9186 is P2
+        //if(mode_flag == 0)
+        //{
+        bool cut = true;
+        Int_t thePhase = -1;
+        //if(thePhase == 0)
+        //{
+        if((1869 <= run) && (run <= 3395))
+        {
+            cut = false;
+            thePhase = 0;
+        }
+        //}
+        //else if(thePhase == 1)
+        //{
+        if((3396 <= run) && (run <= 9186))
+        {
+            cut = false;
+            thePhase = 1;
+        }
+        //}
+        //else if(nocutonphase == 1)
+        //{
+        //    cut = false;
+        //}
+        //else
+        //{
+        //    cut = true;
+        //}
+        // accept P1 and P2 for testing purposes
+        //cut = false;
+        if(cut == true) continue;
+        //}
+
 
         //Double_t el_energy_0{electronEnergy[0]}; //{el_energy_[0]};
         //Double_t el_energy_1{electronEnergy[1]}; //{el_energy_[1]}; // * systematic_energy_mult
@@ -531,16 +754,36 @@ void reweight_apply(
         //hHighEnergy_output->Fill(el_energy_0, 1.0 * weight);
         //hHighLowEnergy_output->Fill(el_energy_1, el_energy_0, 1.0 * weight);
         
-        hTotalE_output->Fill(electronEnergy[0] + electronEnergy[1], 1.0 * weight);
-        hSingleEnergy_output->Fill(electronEnergy[lowE_index], 1.0 * weight);
-        hSingleEnergy_output->Fill(electronEnergy[highE_index], 1.0 * weight);
-        hHighEnergy_output->Fill(electronEnergy[highE_index], 1.0 * weight);
-        hLowEnergy_output->Fill(electronEnergy[lowE_index], 1.0 * weight);
-        hHighLowEnergy_output->Fill(electronEnergy[lowE_index], electronEnergy[highE_index], 1.0 * weight);
-        hEnergySum_output->Fill(electronEnergy[highE_index] + electronEnergy[lowE_index], 1.0 * weight);
-        hEnergyDiff_output->Fill(electronEnergy[highE_index] - electronEnergy[lowE_index], 1.0 * weight);
+        if(thePhase == 0)
+        {
+            hTotalE_output_P1->Fill(electronEnergy[0] + electronEnergy[1], 1.0 * weight);
+            hSingleEnergy_output_P1->Fill(electronEnergy[lowE_index], 1.0 * weight);
+            hSingleEnergy_output_P1->Fill(electronEnergy[highE_index], 1.0 * weight);
+            hHighEnergy_output_P1->Fill(electronEnergy[highE_index], 1.0 * weight);
+            hLowEnergy_output_P1->Fill(electronEnergy[lowE_index], 1.0 * weight);
+            hHighLowEnergy_output_P1->Fill(electronEnergy[lowE_index], electronEnergy[highE_index], 1.0 * weight);
+            hEnergySum_output_P1->Fill(electronEnergy[highE_index] + electronEnergy[lowE_index], 1.0 * weight);
+            hEnergyDiff_output_P1->Fill(electronEnergy[highE_index] - electronEnergy[lowE_index], 1.0 * weight);
 
-        hWeight_output->Fill(1.0 * weight);
+            hWeight_output_P1->Fill(1.0 * weight);
+        }
+        else if(thePhase == 1)
+        {
+            hTotalE_output_P2->Fill(electronEnergy[0] + electronEnergy[1], 1.0 * weight);
+            hSingleEnergy_output_P2->Fill(electronEnergy[lowE_index], 1.0 * weight);
+            hSingleEnergy_output_P2->Fill(electronEnergy[highE_index], 1.0 * weight);
+            hHighEnergy_output_P2->Fill(electronEnergy[highE_index], 1.0 * weight);
+            hLowEnergy_output_P2->Fill(electronEnergy[lowE_index], 1.0 * weight);
+            hHighLowEnergy_output_P2->Fill(electronEnergy[lowE_index], electronEnergy[highE_index], 1.0 * weight);
+            hEnergySum_output_P2->Fill(electronEnergy[highE_index] + electronEnergy[lowE_index], 1.0 * weight);
+            hEnergyDiff_output_P2->Fill(electronEnergy[highE_index] - electronEnergy[lowE_index], 1.0 * weight);
+
+            hWeight_output_P2->Fill(1.0 * weight);
+        }
+        else
+        {
+            std::cout << "Error: thePhase=" << thePhase << " invalid value" << std::endl;
+        }
 
         // note: already removed
         /*
@@ -636,35 +879,54 @@ void reweight_apply(
 
     // stack
 
-    hTotalE_output->SetLineWidth(2);
-    hSingleEnergy_output->SetLineWidth(2);
-    hHighEnergy_output->SetLineWidth(2);
-    hLowEnergy_output->SetLineWidth(2);
-    hHighLowEnergy_output->SetLineWidth(2);
-    hEnergySum_output->SetLineWidth(2);
-    hEnergyDiff_output->SetLineWidth(2);
+    hTotalE_output_P1->SetLineWidth(2);
+    hSingleEnergy_output_P1->SetLineWidth(2);
+    hHighEnergy_output_P1->SetLineWidth(2);
+    hLowEnergy_output_P1->SetLineWidth(2);
+    hHighLowEnergy_output_P1->SetLineWidth(2);
+    hEnergySum_output_P1->SetLineWidth(2);
+    hEnergyDiff_output_P1->SetLineWidth(2);
     //houtput->SetMarkerStyle(20);
     //TODO: other stuff here
+    hTotalE_output_P2->SetLineWidth(2);
+    hSingleEnergy_output_P2->SetLineWidth(2);
+    hHighEnergy_output_P2->SetLineWidth(2);
+    hLowEnergy_output_P2->SetLineWidth(2);
+    hHighLowEnergy_output_P2->SetLineWidth(2);
+    hEnergySum_output_P2->SetLineWidth(2);
+    hEnergyDiff_output_P2->SetLineWidth(2);
 
     //hTotalE_output->Sumw2();
-    hTotalE_output->SetFillColor(Nd150Colors[0]);
-    hTotalE_output->SetLineColor(Nd150Colors[0]);
-    hTotalE_output->SetTitle(Nd150Names[0]);
+    hTotalE_output_P1->SetFillColor(Nd150Colors[0]);
+    hTotalE_output_P1->SetLineColor(Nd150Colors[0]);
+    hTotalE_output_P1->SetTitle(Nd150Names[0]);
+    hTotalE_output_P2->SetFillColor(Nd150Colors[0]);
+    hTotalE_output_P2->SetLineColor(Nd150Colors[0]);
+    hTotalE_output_P2->SetTitle(Nd150Names[0]);
 
     //hSingleEnergy_output->Sumw2();
-    hSingleEnergy_output->SetFillColor(Nd150Colors[0]);
-    hSingleEnergy_output->SetLineColor(Nd150Colors[0]);
-    hSingleEnergy_output->SetTitle(Nd150Names[0]);
+    hSingleEnergy_output_P1->SetFillColor(Nd150Colors[0]);
+    hSingleEnergy_output_P1->SetLineColor(Nd150Colors[0]);
+    hSingleEnergy_output_P1->SetTitle(Nd150Names[0]);
+    hSingleEnergy_output_P2->SetFillColor(Nd150Colors[0]);
+    hSingleEnergy_output_P2->SetLineColor(Nd150Colors[0]);
+    hSingleEnergy_output_P2->SetTitle(Nd150Names[0]);
 
     //hHighEnergy_output->Sumw2();
-    hHighEnergy_output->SetFillColor(Nd150Colors[0]);
-    hHighEnergy_output->SetLineColor(Nd150Colors[0]);
-    hHighEnergy_output->SetTitle(Nd150Names[0]);
+    hHighEnergy_output_P1->SetFillColor(Nd150Colors[0]);
+    hHighEnergy_output_P1->SetLineColor(Nd150Colors[0]);
+    hHighEnergy_output_P1->SetTitle(Nd150Names[0]);
+    hHighEnergy_output_P2->SetFillColor(Nd150Colors[0]);
+    hHighEnergy_output_P2->SetLineColor(Nd150Colors[0]);
+    hHighEnergy_output_P2->SetTitle(Nd150Names[0]);
 
     //hLowEnergy_output->Sumw2();
-    hLowEnergy_output->SetFillColor(Nd150Colors[0]);
-    hLowEnergy_output->SetLineColor(Nd150Colors[0]);
-    hLowEnergy_output->SetTitle(Nd150Names[0]);
+    hLowEnergy_output_P1->SetFillColor(Nd150Colors[0]);
+    hLowEnergy_output_P1->SetLineColor(Nd150Colors[0]);
+    hLowEnergy_output_P1->SetTitle(Nd150Names[0]);
+    hLowEnergy_output_P2->SetFillColor(Nd150Colors[0]);
+    hLowEnergy_output_P2->SetLineColor(Nd150Colors[0]);
+    hLowEnergy_output_P2->SetTitle(Nd150Names[0]);
 
     //hHighLowEnergy_output->Sumw2();
 /*
@@ -674,14 +936,20 @@ void reweight_apply(
 */
 
     //hEnergySum_output->Sumw2();
-    hEnergySum_output->SetFillColor(Nd150Colors[0]);
-    hEnergySum_output->SetLineColor(Nd150Colors[0]);
-    hEnergySum_output->SetTitle(Nd150Names[0]);
+    hEnergySum_output_P1->SetFillColor(Nd150Colors[0]);
+    hEnergySum_output_P1->SetLineColor(Nd150Colors[0]);
+    hEnergySum_output_P1->SetTitle(Nd150Names[0]);
+    hEnergySum_output_P2->SetFillColor(Nd150Colors[0]);
+    hEnergySum_output_P2->SetLineColor(Nd150Colors[0]);
+    hEnergySum_output_P2->SetTitle(Nd150Names[0]);
 
     //hEnergyDiff_output->Sumw2();
-    hEnergyDiff_output->SetFillColor(Nd150Colors[0]);
-    hEnergyDiff_output->SetLineColor(Nd150Colors[0]);
-    hEnergyDiff_output->SetTitle(Nd150Names[0]);
+    hEnergyDiff_output_P1->SetFillColor(Nd150Colors[0]);
+    hEnergyDiff_output_P1->SetLineColor(Nd150Colors[0]);
+    hEnergyDiff_output_P1->SetTitle(Nd150Names[0]);
+    hEnergyDiff_output_P2->SetFillColor(Nd150Colors[0]);
+    hEnergyDiff_output_P2->SetLineColor(Nd150Colors[0]);
+    hEnergyDiff_output_P2->SetTitle(Nd150Names[0]);
 
 
     std::ifstream inFile;
@@ -712,33 +980,47 @@ void reweight_apply(
     inFile.close();
     //std::cout << "sampleNGemMC_150Nd=" << sampleNGenMC_150Nd << std::endl;
 
-    hTotalE_output->Scale(TotalTime / sampleNGenMC_150Nd);
-    hSingleEnergy_output->Scale(TotalTime / sampleNGenMC_150Nd);
-    hHighEnergy_output->Scale(TotalTime / sampleNGenMC_150Nd);
-    hLowEnergy_output->Scale(TotalTime / sampleNGenMC_150Nd);
-    hHighLowEnergy_output->Scale(TotalTime / sampleNGenMC_150Nd);
-    hEnergySum_output->Scale(TotalTime / sampleNGenMC_150Nd);
-    hEnergyDiff_output->Scale(TotalTime / sampleNGenMC_150Nd);
+    hTotalE_output_P1->Scale(TotalTime / sampleNGenMC_150Nd);
+    hSingleEnergy_output_P1->Scale(TotalTime / sampleNGenMC_150Nd);
+    hHighEnergy_output_P1->Scale(TotalTime / sampleNGenMC_150Nd);
+    hLowEnergy_output_P1->Scale(TotalTime / sampleNGenMC_150Nd);
+    hHighLowEnergy_output_P1->Scale(TotalTime / sampleNGenMC_150Nd);
+    hEnergySum_output_P1->Scale(TotalTime / sampleNGenMC_150Nd);
+    hEnergyDiff_output_P1->Scale(TotalTime / sampleNGenMC_150Nd);
     //std::cout << "after Scale(), Integral is: " << houtput->Integral() << " scaled by " << TotalTime / sampleNGenMC_150Nd << std::endl;
     //std::cin.get();
+    hTotalE_output_P2->Scale(TotalTime / sampleNGenMC_150Nd);
+    hSingleEnergy_output_P2->Scale(TotalTime / sampleNGenMC_150Nd);
+    hHighEnergy_output_P2->Scale(TotalTime / sampleNGenMC_150Nd);
+    hLowEnergy_output_P2->Scale(TotalTime / sampleNGenMC_150Nd);
+    hHighLowEnergy_output_P2->Scale(TotalTime / sampleNGenMC_150Nd);
+    hEnergySum_output_P2->Scale(TotalTime / sampleNGenMC_150Nd);
+    hEnergyDiff_output_P2->Scale(TotalTime / sampleNGenMC_150Nd);
     
     std::string mc_name = std::string(Nd150Files[0]);
-    std::string search_object = MCNameToParamNameMap.at(mc_name);
-    if(paramNameToNumberMap.count(search_object) > 0)
+    Double_t scale_factor = 0.0;
+    int param_number = -1;
+    bool success = g_pg.convert_MC_name_to_param_number(mc_name, param_number);
+    //std::cout << "mc_name=" << mc_name << " param_number=" << param_number << std::endl;
+    //std::cin.get();
+    if(success == true)
+    //std::string search_object = MCNameToParamNameMap.at(mc_name);
+    //if(paramNameToNumberMap.count(search_object) > 0)
     {
         // convert from mc sample name to param number
 
-        int param_number = paramNameToNumberMap.at(search_object);
+        //int param_number = paramNameToNumberMap.at(search_object);
         //std::cout << "parameber number " << param_number << " is in the paramNameToNumberMap" << std::endl;
         //std::cin.get();
 
         // TODO: change such that samples are pre-scaled by activity input value
         // get initial parameter values and error
-        Double_t param_init_value = 0.;
-        Double_t param_init_error = 0.; 
-        get_paramInitValueError(thePhase, param_number, param_init_value, param_init_error);
+        //Double_t param_init_value = 0.;
+        //Double_t param_init_error = 0.; 
+        //get_paramInitValueError(thePhase, param_number, param_init_value, param_init_error);
 
-        Double_t scale_factor = param_init_value;
+        //Double_t scale_factor = param_init_value;
+        scale_factor = g_pg.file_params.at(param_number).paramInitValue;
 
         // NOTE: TODO
         // possible flaw with this method: error is no longer
@@ -748,13 +1030,21 @@ void reweight_apply(
         // guarantees minuit is responsible for error estimation
         //std::cout << "scaling by: " << scale_factor << std::endl;
         //std::cin.get();
-        hTotalE_output->Scale(scale_factor);
-        hSingleEnergy_output->Scale(scale_factor);
-        hHighEnergy_output->Scale(scale_factor);
-        hLowEnergy_output->Scale(scale_factor);
-        hHighLowEnergy_output->Scale(scale_factor);
-        hEnergySum_output->Scale(scale_factor);
-        hEnergyDiff_output->Scale(scale_factor);
+        hTotalE_output_P1->Scale(scale_factor);
+        hSingleEnergy_output_P1->Scale(scale_factor);
+        hHighEnergy_output_P1->Scale(scale_factor);
+        hLowEnergy_output_P1->Scale(scale_factor);
+        hHighLowEnergy_output_P1->Scale(scale_factor);
+        hEnergySum_output_P1->Scale(scale_factor);
+        hEnergyDiff_output_P1->Scale(scale_factor);
+
+        hTotalE_output_P2->Scale(scale_factor);
+        hSingleEnergy_output_P2->Scale(scale_factor);
+        hHighEnergy_output_P2->Scale(scale_factor);
+        hLowEnergy_output_P2->Scale(scale_factor);
+        hHighLowEnergy_output_P2->Scale(scale_factor);
+        hEnergySum_output_P2->Scale(scale_factor);
+        hEnergyDiff_output_P2->Scale(scale_factor);
 
         // NOTE: Scale factor
         // samples are scaled by

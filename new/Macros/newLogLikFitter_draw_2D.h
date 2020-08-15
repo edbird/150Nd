@@ -12,7 +12,7 @@ void draw_2D(
     TH1D* const hLowEnergy_data)
 {
     
-
+#if 0
     TH2D *h_data[number2DHists] = { nullptr };
     TH2D *h_MC[number2DHists] = { nullptr };
     TH2D *h_diff[number2DHists] = { nullptr };
@@ -437,7 +437,7 @@ void draw_2D(
 
     }
 
-
+#endif
 }
 
 

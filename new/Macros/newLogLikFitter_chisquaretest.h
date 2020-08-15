@@ -3,7 +3,6 @@
 
 
 
-
 #if 0
 void do_test_xi_31_test1(double *const AdjustActs, double* const AdjustActs_Err)
 {
@@ -247,6 +246,7 @@ void newloglikfitter_testmyphasespace(
     const int stop_index
     )
 {
+#if 0
 
     /*
     double* AdjustActs = new double[theParameterState.Params().size()];
@@ -1267,6 +1267,7 @@ void newloglikfitter_testmyphasespace(
 
 
 
+#endif
 }
 
 #endif // NEWLOGLIKFITTER_CHISQUARETEST_H

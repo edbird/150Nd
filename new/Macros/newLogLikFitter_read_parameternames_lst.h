@@ -69,11 +69,13 @@
 // an attempt to set output using std::stod
 // is made, if this fails, an exception is
 // caught and an error is printed
-void function_A(const std::string& string_compare,
+int function_A(const std::string& string_compare,
                 const double input,
                 const std::string& string_input,
                 double& output)
 {
+    int ret = 0;
+
     if(string_input == string_compare)
     {
         output = input;
@@ -92,8 +94,11 @@ void function_A(const std::string& string_compare,
         {
             std::cout << e.what() << std::endl;
             std::cout << "string_input=" << string_input << std::endl;
+            ret = -1;
         }
     }
+
+    return ret;
 }
 
 // function for setting either the Value or Error
@@ -123,38 +128,64 @@ void function_A(const std::string& string_compare,
 //                                    paramConstrainErrorP2);
 
 
-void function_paramConstrainMode(const std::string& paramConstrainModePX_str, int &paramConstrainModePX)
+int function_paramConstraintMode(const std::string& paramConstraintMode_str, int &paramConstraintMode)
 {
+    int ret = 0;
 
     // Phase 1 / Phase 2 Constran Mode
-    if(paramConstrainModePX_str == "free")
+    if(paramConstraintMode_str == "free")
     {
-        paramConstrainModePX = MODE_PARAM_FREE;
+        paramConstraintMode = MODE_CONSTRAINT_FREE;
     }
-    else if(paramConstrainModePX_str == "soft")
+    else if(paramConstraintMode_str == "soft")
     {
-        paramConstrainModePX = MODE_PARAM_SOFT;
+        paramConstraintMode = MODE_CONSTRAINT_SOFT;
     }
-    else if(paramConstrainModePX_str == "hard")
+    else if(paramConstraintMode_str == "hard")
     {
-        paramConstrainModePX = MODE_PARAM_HARD;
+        paramConstraintMode = MODE_CONSTRAINT_HARD;
     }
     else
     {
-        std::cout << "ERROR: Unrecognized value: paramConstrainModePX_str=" << paramConstrainModePX_str << std::endl;
-        paramConstrainModePX = MODE_PARAM_UNDEFINED;
+        std::cout << "ERROR: Unrecognized value: paramConstraintMode_str=" << paramConstraintMode_str << std::endl;
+        paramConstraintMode = MODE_CONSTRAINT_UNDEFINED;
+        ret = -1;
     }
+
+    return ret;
 }
 
+/*
+void function_paramLockMode(const std::string &paramLockMode_str, int &paramLockMode)
+{
+    if(paramLockMode_str == "locked")
+    {
+        paramLockMode = MODE_PARAM_LOCKED;
+    }
+    else if(paramLockMode_str == "unlocked")
+    {
+        paramLockMode = MODE_PARAM_UNLOCKED;
+    }
+    else
+    {
+        std::cout << "ERROR: Unrecognized value: paramLockMode_str=" << paramLockMode_str << std::endl;
+        paramLockMode = MODE_PARAM_LOCK_UNDEFINED;
+    }
+}
+*/
 
 
 
 
 
 
-
+/*
 void clear_maps()
 {
+
+    //numberParams = 0;
+    numberEnabledParams = 0;
+    minuitParamNumberCounter = 0;
 
     MCNameToParamNameMap.clear();
     MCNameToParamNumberMap.clear();
@@ -163,9 +194,9 @@ void clear_maps()
 
     paramNumberToMinuitParamNumberMap.clear();
     minuitParamNumberToParamNumberMap.clear();
-    minuitParamNumberCounter = 0;
+//    minuitParamNumberCounter = 0;
 
-    numberEnabledParams = 0;
+//    numberEnabledParams = 0;
 
     fixed_params.clear();
     free_params.clear();
@@ -179,8 +210,10 @@ void clear_maps()
     disabled_params.clear();
 
 }
+*/
 
 
+/*
 void randomize_parameters()
 {
 
@@ -232,35 +265,37 @@ void randomize_parameters()
     std::cout << "randomization done" << std::endl;
 
 }
+*/
 
 
-void process_line_NAME(std::string& s, std::stringstream &ss)
+int process_line_NAME(std::string& s, std::stringstream &ss)
 {
+    int ret = 0;
 
     ss << s;
 
-    std::string NAME_str;
-    std::string param_number_str;
-    std::string param_name_str;
-    int param_number;
-    std::string param_name;
+    std::string NAME_str; // contains "NAME"
+    std::string paramNumber_str;
+    std::string paramHumanReadableName_str;
+    int paramNumber;
+    std::string paramHumanReadableName;
 
-    ss >> NAME_str >> param_number_str;
-    param_number = std::stoi(param_number_str);
+    ss >> NAME_str >> paramNumber_str;
+    paramNumber = std::stoi(paramNumber_str);
     
-    std::string::size_type found_ix = s.find(param_number_str);
+    std::string::size_type found_ix = s.find(paramNumber_str);
     if(found_ix != std::string::npos)
     {
-        param_name_str = s.substr(found_ix + param_number_str.size());
+        paramHumanReadableName_str = s.substr(found_ix + paramNumber_str.size());
         std::string::size_type whitespace_ix = 0;
         for(;;)
         {
-            if(whitespace_ix >= param_name_str.size())
+            if(whitespace_ix >= paramHumanReadableName_str.size())
             {
                 break;
             }
 
-            char whitespace_char = param_name_str.at(whitespace_ix);
+            char whitespace_char = paramHumanReadableName_str.at(whitespace_ix);
             if(std::isspace(whitespace_char))
             {
                 ++ whitespace_ix;
@@ -270,19 +305,33 @@ void process_line_NAME(std::string& s, std::stringstream &ss)
                 break;
             }
         }
-        param_name = param_name_str.substr(whitespace_ix);
+        paramHumanReadableName = paramHumanReadableName_str.substr(whitespace_ix);
     }
     else
     {
-        std::cout << "Error: found_ix == std::string::npos, string " << param_number_str << " not found in input" << std::endl;
+        std::cout << "Error: found_ix == std::string::npos, string " << paramNumber_str << " not found in input" << std::endl;
+        ret = -1;
     }
 
     //std::cout << "NAME: param_number=" << param_number << " param_name=" << param_name << std::endl;
 
     // set
     // use a new map to avoid conflicts
-    paramNumberToHumanReadableParamNameMap.insert(std::make_pair(param_number, TString(param_name)));
+    //paramNumberToHumanReadableParamNameMap.insert(std::make_pair(param_number, TString(param_name)));
 
+//working here
+    std::map<int, file_parameter>::iterator it = g_pg.file_params.find(paramNumber);
+    if(it != g_pg.file_params.end())
+    {
+        it->second.paramHumanReadableName = paramHumanReadableName;
+    }
+    else
+    {
+        std::cout << __func__ << " " << " Error: could not find parameter in g_pg with paramNumber=" << paramNumber << std::endl;
+        ret = -1;
+    }
+
+    return ret;
 }
 
 
@@ -294,12 +343,13 @@ void process_line_NAME(std::string& s, std::stringstream &ss)
 // MCNameToParamNameMap
 // MCNameToParamNumberMap
 // are set by this function
-void process_unique_mc_names(
+int process_unique_mc_names(
     std::string& paramName,
     std::vector<std::string> &unique_mc_names_ret,
     std::stringstream &ss,
-    const int paramNumber)
+    const int paramNumber) // paramNumber is external format
 {
+    int ret = 0;
 
     // read in non fixed width entries
     // marked by END
@@ -319,6 +369,10 @@ void process_unique_mc_names(
         if(nextstring == "END")
         {
             break;
+        }
+        else if(nextstring == "NOMC")
+        {
+            // do nothing
         }
         else
         {
@@ -348,51 +402,95 @@ void process_unique_mc_names(
     // setup the MCNameToParamNameMap
     for(int i = 0; i < unique_mc_names.size(); ++ i)
     {
-        MCNameToParamNameMap[unique_mc_names.at(i)] = paramName;
-        MCNameToParamNumberMap[unique_mc_names.at(i)] = paramNumber;
+        //MCNameToParamNameMap[unique_mc_names.at(i)] = paramName;
+        //MCNameToParamNumberMap[unique_mc_names.at(i)] = paramNumber;
+        g_pg.MCNameToExtParamNumberMap[unique_mc_names.at(i)] = paramNumber;
     }
 
 
     unique_mc_names_ret = unique_mc_names;
+
+    return ret;
 }
 
 
-
-void process_line_else(std::string& s, std::stringstream &ss)
+int stringToBool(std::string &valuestring, bool &output, const std::string& value_if_true, const std::string& value_if_false)
 {
+    int ret = 0;
+    if(valuestring == value_if_true)
+    {
+        output = true;
+    }
+    else if(valuestring == value_if_false)
+    {
+        output = false;
+    }
+    else
+    {
+        std::cout << "Error: " << valuestring << " not \"" << value_if_true << "\" or \"" << value_if_false << "\"" << std::endl;
+        ret = -1;
+    }
+    return ret;
+}
+
+
+void stringToBool(std::string &valuestring, bool &output)
+{
+    int ret = 0;
+    if(valuestring == "true")
+    {
+        output = true;
+    }
+    else if(valuestring == "false")
+    {
+        output = false;
+    }
+    else
+    {
+        std::cout << "Error: " << valuestring << " not \"true\" or \"false\"" << std::endl;
+        ret = -1;
+    }
+    return ret;
+}
+
+
+int process_line_else(std::string& s, std::stringstream &ss)
+{
+    int ret = 0;
+
+    std::string paramNumber_str = "";
+    std::string paramEnabled_str = "";
+    std::string paramEnabledP1_str = "";
+    std::string paramEnabledP2_str = "";
+
+    std::string paramInitValue_str;
+    std::string paramInitError_str;
+
+    std::string paramConstraintValue_str;
+    std::string paramConstraintError_str;
+
+    std::string paramConstraintMode_str;
+
+    std::string paramStackType_str;
+    
+    std::string paramName_str;
 
     std::string paramName = "";
-    std::string paramNumber_str = "";
+
     int paramNumber = -1;
-    std::string paramEnabled_str = "";
+    bool paramEnabled = false;
+    bool paramEnabledP1 = false;
+    bool paramEnabledP2 = false;
 
-    // reset
-    double paramInitValueP1 = 0.;
-    double paramInitErrorP1 = 0.;
-    double paramInitValueP2 = 0.;
-    double paramInitErrorP2 = 0.;
+    double paramInitValue = 0.;
+    double paramInitError = 0.;
 
-    std::string paramInitValueP1_str;
-    std::string paramInitErrorP1_str;
-    std::string paramInitValueP2_str;
-    std::string paramInitErrorP2_str;
+    double paramConstraintValue = 0.;
+    double paramConstraintError = 0.;
 
-    double paramConstraintValueP1 = 0.;
-    double paramConstraintErrorP1 = 0.;
-    double paramConstraintValueP2 = 0.;
-    double paramConstraintErrorP2 = 0.;
+    int paramConstraintMode = MODE_CONSTRAINT_UNDEFINED;
 
-    std::string paramConstraintValueP1_str;
-    std::string paramConstraintErrorP1_str;
-    std::string paramConstraintValueP2_str;
-    std::string paramConstraintErrorP2_str;
-
-    int paramConstrainModeP1 = MODE_PARAM_UNDEFINED;
-    int paramConstrainModeP2 = MODE_PARAM_UNDEFINED;
-
-    std::string paramConstrainModeP1_str;
-    std::string paramConstrainModeP2_str;
-
+    int paramStackType = STACK_TYPE_DEFAULT;
 
     ss << s;
 
@@ -409,124 +507,227 @@ void process_line_else(std::string& s, std::stringstream &ss)
        >> fixed_str >> enabled_str;
     */
     // read in fixed width entries
-    ss >> paramNumber_str
-       >> paramEnabled_str
-       >> paramInitValueP1_str >> paramInitErrorP1_str
-       >> paramInitValueP2_str >> paramInitErrorP2_str
-       >> paramConstraintValueP1_str >> paramConstraintErrorP1_str
-       >> paramConstraintValueP2_str >> paramConstraintErrorP2_str
-       >> paramConstrainModeP1_str >> paramConstrainModeP2_str;
+    try
+    {
+        ss >> paramNumber_str
+           >> paramEnabled_str
+           >> paramEnabledP1_str
+           >> paramEnabledP2_str
+           >> paramInitValue_str >> paramInitError_str
+           >> paramConstraintValue_str >> paramConstraintError_str
+           >> paramConstraintMode_str
+           >> paramStackType_str
+           >> paramName_str; 
+    }
+    catch(...)
+    {
+        std::cout << "ERROR: reading strings" << std::endl;
+        ret = -1;
+    }
 
     //std::cout << "read paramNumber_str=" << paramNumber_str << std::endl;
 
     // moved from below, required in below block
-    paramNumber = std::stoi(paramNumber_str);
+    try
+    {
+        paramNumber = std::stoi(paramNumber_str);
+    }
+    catch(...)
+    {
+        std::cout << "ERROR: paramNumber_str=" << paramNumber_str << std::endl;
+        ret = -1;
+    }
+
+    if(g_pg.ParamNameToExtParamNumberMap.count(paramName_str) == 0)
+    {
+        g_pg.ParamNameToExtParamNumberMap[paramName_str] = paramNumber;
+    }
+    else
+    {
+        std::cout << "ERROR: g_pg.ParamNameToExtParamNumberMap already contains paramName_str=" << paramName_str << std::endl;
+        ret = -1;
+    }
 
     std::vector<std::string> unique_mc_names;
-    process_unique_mc_names(paramName, unique_mc_names, ss, paramNumber);
-    //process_unique_mc_names(paramName, /*unique_mc_names,*/ ss, paramNumber);
+    if(process_unique_mc_names(paramName, unique_mc_names, ss, paramNumber) != 0)
+    {
+        ret = -1;
+    }
 
+    if(stringToBool(paramEnabled_str, paramEnabled, "enabled", "disabled") != 0)
+    {
+        ret = -1;
+    }
 
+    if(stringToBool(paramEnabledP1_str, paramEnabledP1, "P1_enabled", "P1_disabled") != 0)
+    {
+        ret = -1;
+    }
 
+    if(stringToBool(paramEnabledP2_str, paramEnabledP2, "P2_enabled", "P2_disabled") != 0)
+    {
+        ret = -1;
+    }
 
-
-
-    // phase 1 initial values
+    // phase initial values
     // read value from file, no other option
-    //std::cout << "paramInitValueP1_str=" << paramInitValueP1_str << "END" << std::endl;
-    //std::cout << paramInitValueP1_str << std::endl;
-    //std::cout << paramInitValueP2_str << std::endl;
-    paramInitValueP1 = std::stod(paramInitValueP1_str);
-    paramInitErrorP1 = std::stod(paramInitErrorP1_str);
+    try
+    {
+        paramInitValue = std::stod(paramInitValue_str);
+    }
+    catch(...)
+    {
+        std::cout << "ERROR: paramInitValue_str=" << paramInitValue_str << std::endl;
+        ret = -1;
+    }
 
-    // phase 2 intial values
-    // check if string is "same", if so use values from phase 1
+    try
+    {
+        paramInitError = std::stod(paramInitError_str);
+    }
+    catch(...)
+    {
+        std::cout << "ERROR: paramInitError_str=" << paramInitError_str << std::endl;
+        ret = -1;
+    }
+
+    // contraints
+    // check if string is "useinit", if so use values from initial value/error
     // else read value from file
-    function_A("same", paramInitValueP1, paramInitValueP2_str, paramInitValueP2);
-    function_A("same", paramInitErrorP1, paramInitErrorP2_str, paramInitErrorP2);
+    try
+    {
+        function_A("useinit", paramInitValue, paramConstraintValue_str, paramConstraintValue);
+    }
+    catch(...)
+    {
+        ret = -1;
+    }
+
+    try
+    {
+        function_A("useinit", paramInitError, paramConstraintError_str, paramConstraintError);
+    }
+    catch(...)
+    {
+        ret = -1;
+    }
 
     // now check if initial value strs are "useconstraint"
     // and copy values from constraints
     // also need to check for "same" again, for P2 init value and error
     // (this was an old comment - update TODO)
 
-    // phase 1 constraints
-    // check if string is "useinit", if so use values from phase 1
-    // as constraints for phase 1
-    // else read value from file
-    function_A("useinit", paramInitValueP1, paramConstraintValueP1_str, paramConstraintValueP1);
-    function_A("useinit", paramInitErrorP1, paramConstraintErrorP1_str, paramConstraintErrorP1);
-
-    // phase 2 initial constraints
-    // check if string is "same", if so use constraints from phase 1
-    // else read value from file
-    //if(activity_P2_str == "same")
-    //useinit should be same
-    function_A("same", paramConstraintValueP1, paramConstraintValueP2_str, paramConstraintValueP2);
-    function_A("same", paramConstraintErrorP1, paramConstraintErrorP2_str, paramConstraintErrorP2);
-
-    //paramNumber = std::stoi(paramNumber_str);
-
     // constrain mode
-    // Phase 1
-    function_paramConstrainMode(paramConstrainModeP1_str, paramConstrainModeP1);
-    // Phase 2
-    function_paramConstrainMode(paramConstrainModeP2_str, paramConstrainModeP2);
-
-
-
-    bool is_enabled = false;
-    if(paramEnabled_str == "enabled")
+    if(function_paramConstraintMode(paramConstraintMode_str, paramConstraintMode) != 0)
     {
-        //auto count = std::count(enabled_params.begin(), enabled_params.end(), paramNumber);
-        //if(count > 0)
-        if(std::find(enabled_params.begin(), enabled_params.end(), paramNumber) != enabled_params.end())
-        //if(enabled_params.find(paramNumber) != enabled_params.end())
-        // TODO: change all std::find to enabled_params.find()
-        {
-            std::cout << "ERROR: enabled_params already contains paramNumber=" << paramNumber << std::endl;
-            std::cout << "HALT" << std::endl;
-            std::cin.get();
-        }
-        else
-        {
-            is_enabled = true; // TODO: can remove this and replace
-                               // code which uses it below with the
-                               // usual std::find call
-            enabled_params.push_back(paramNumber);
-            ++ numberEnabledParams; // TODO: can just set this at
-                                    // end by calling enabled_params.size()
-            // moved into block (below) where other map data is set
-            //paramNumberToMinuitParamNumberMap[paramNumber] = minuitParamNumberCounter;
-            //++ minuitParamNumberCounter;
-            // could also have implemented this using .size() - 1
-            // or using variable numberEnabledParams
-            // but I prefered this method
-            // NOTE: enabled_params contains essentially the same
-            // data as paramNumberToMinuitParamNumberMap
-            // TODO: remove one
-        }
+        ret = -1;
     }
-    else if(paramEnabled_str == "disabled")
+
+    if(paramStackType_str == "ND150")
     {
-        // do nothing
-        disabled_params.push_back(paramNumber);
+        paramStackType = STACK_TYPE_ND150;
+    }
+    else if(paramStackType_str == "INTERNAL")
+    {
+        paramStackType = STACK_TYPE_INTERNAL;
+    }
+    else if(paramStackType_str == "EXTERNAL")
+    {
+        paramStackType = STACK_TYPE_EXTERNAL;
+    }
+    else if(paramStackType_str == "NEIGHBOUR")
+    {
+        paramStackType = STACK_TYPE_NEIGHBOUR;
+    }
+    else if(paramStackType_str == "RN222")
+    {
+        paramStackType = STACK_TYPE_RN222;
+    }
+    else if(paramStackType_str == "RN220")
+    {
+        paramStackType = STACK_TYPE_RN220;
+    }
+    else if(paramStackType_str == "NA")
+    {
+        paramStackType = STACK_TYPE_DEFAULT;
+        // no error condition
+        // this is the option for the xi_31 parameter
     }
     else
     {
-        std::cout << "ERROR: Unrecognized value: paramEnabled_str=" << paramEnabled_str << std::endl;
-        //std::cout << "unknown enabled/disabled parameter specification" << std::endl;
-        //std::cout << "enabled_str=" << enabled_str << std::endl;
-        //continue;
-        return;
+        paramStackType = STACK_TYPE_DEFAULT;
+        std::cout << "ERROR: STACK TYPE not recognized" << std::endl;
+        ret = -1;
     }
 
+
+/*
+    if(paramEnabled == true)
+    {
+*/
+        std::map<int, file_parameter>::iterator it = g_pg.file_params.find(paramNumber);
+        if(it != g_pg.file_params.end())
+        {
+            std::cout << "ERROR: g_pg.file_params already contains paramNumber=" << paramNumber << std::endl;
+            std::cout << "HALT" << std::endl;
+            std::cin.get();
+            ret = -1;
+        }
+        else
+        {
+            std::vector<std::string> MCNameList = unique_mc_names;
+            std::string paramHumanReadableName = "UNNAMED PARAM";
+
+            file_parameter fp;
+            fp.paramNumber = paramNumber;
+            fp.paramEnabled = paramEnabled;
+            fp.paramEnabledP1 = paramEnabledP1;
+            fp.paramEnabledP2 = paramEnabledP2;
+            fp.paramInitValue = paramInitValue;
+            fp.paramInitError = paramInitError;
+            fp.paramConstraintValue = paramConstraintValue;
+            fp.paramConstraintError = paramConstraintError;
+            fp.paramConstraintMode = paramConstraintMode;
+            fp.paramStackType = paramStackType;
+            //fp.paramName = paramName;
+            fp.paramName = paramName_str;
+            fp.paramHumanReadableName = paramHumanReadableName;
+            fp.MCNameList = MCNameList;
+
+            if(g_pg.file_params.count(paramNumber) == 0)
+            {
+                g_pg.file_params[paramNumber] = fp;
+            }
+            else
+            {
+                std::cout << "ERROR: paramNumber=" << paramNumber << " already exists in g_pg.file_params" << std::endl;
+                ret = -1;
+            }
+
+            if(paramEnabled == true)
+            {
+                ++ g_pg.numberEnabledParams;
+            }
+        }
+
+        // this adds the parameter to the parameter group regardless of whether
+        // it is enabled or not
+        // so need to ignore disabled parameters later in the code
+
+/*
+    }
+    else if(paramEnabled == false)
+    {
+        // do nothing
+    }
+*/
     //if(paramEnabled_str == "enabled")
     //{
 
+#if 0
     // TODO: consider removing later, this was added after
     // numberParams was changed to 1
-    if(paramNumber < numberParams)
+    if(paramNumber < g_pg.numberParams())
     {
         if(is_enabled == true)
         {
@@ -553,15 +754,18 @@ void process_line_else(std::string& s, std::stringstream &ss)
         paramConstraintValueP2Map[paramNumber] = paramConstraintValueP2;
         paramConstraintErrorP2Map[paramNumber] = paramConstraintErrorP2;
 
-        paramConstrainModeP1Map[paramNumber] = paramConstrainModeP1;
-        paramConstrainModeP2Map[paramNumber] = paramConstrainModeP2;
+        paramConstraintModeP1Map[paramNumber] = paramConstraintModeP1;
+        paramConstraintModeP2Map[paramNumber] = paramConstraintModeP2;
+
+        paramLockModeMap[paramNumber] = paramLockMode;
 
         // fixed_params set here
         if(is_enabled)
         {
+            /*
             if(thePhase == 0)
             {
-                if(paramConstrainModeP1 == MODE_PARAM_HARD)
+                if(paramConstraintModeP1 == MODE_PARAM_HARD)
                 {
                     fixed_params.push_back(paramNumber);
                 }
@@ -573,7 +777,7 @@ void process_line_else(std::string& s, std::stringstream &ss)
             }
             else if(thePhase == 1)
             {
-                if(paramConstrainModeP2 == MODE_PARAM_HARD)
+                if(paramConstraintModeP2 == MODE_PARAM_HARD)
                 {
                     fixed_params.push_back(paramNumber);
                 }
@@ -586,6 +790,73 @@ void process_line_else(std::string& s, std::stringstream &ss)
             else
             {
                 std::cout << "ERROR: thePhase=" << thePhase << " invalid value" << std::endl;
+            }
+            */
+
+            // fixed params set here
+            // behaviour is different depending on lock mode
+            if(paramLockMode == MODE_PARAM_LOCKED)
+            {
+                // in locked mode, behaviour is dependent on
+                // which parameter has the most severe constraint mode
+                if((paramConstraintModeP1 == MODE_PARAM_HARD) ||
+                   (paramConstraintModeP2 == MODE_PARAM_HARD))
+                {
+                    // either parameter or both are set to HARD
+                    fixed_params_P1.push_back(paramNumber);
+                    fixed_params_P2.push_back(paramNumber); // TODO: can I get rid of fixed_params ?
+                }
+                else
+                {
+                    // parameters are one of 4 options:
+                    // soft soft
+                    // soft free
+                    // free soft
+                    // free free
+                    // in any of these cases they are considered to be free
+                    free_params_P1.push_back(paramNumber);
+                    free_params_P2.push_back(paramNumber);
+                }
+            }
+            else if(paramLockMode == MODE_PARAM_UNLOCKED)
+            {
+                // in unlocked mode, proceed as before
+
+                // code copied from above
+                //if(thePhase == 0)
+                //{
+                    if(paramConstraintModeP1 == MODE_PARAM_HARD)
+                    {
+                        fixed_params_P1.push_back(paramNumber);
+                    }
+                    else
+                    {
+                        // mode is either SOFT or FREE
+                        free_params_P1.push_back(paramNumber);
+                    }
+                //}
+                //else if(thePhase == 1)
+                //{
+                    if(paramConstraintModeP2 == MODE_PARAM_HARD)
+                    {
+                        fixed_params_P2.push_back(paramNumber);
+                    }
+                    else
+                    {
+                        // mode is either SOFT or FREE
+                        free_params_P2.push_back(paramNumber);
+                    }
+                //}
+                //else
+                //{
+                //    std::cout << "ERROR: thePhase=" << thePhase << " invalid value" << std::endl;
+                //}
+                // end of code copied
+            }
+            else
+            {
+                std::cout << "ERROR: Unrecognized value: paramLockMode=" << paramLockMode << std::endl;
+                throw "problem";
             }
         }
 
@@ -609,7 +880,7 @@ void process_line_else(std::string& s, std::stringstream &ss)
     std::cout << paramInitValueP2 << " +- " << paramInitErrorP2 << std::endl;
     std::cout << paramConstraintValueP1 << " +- " << paramConstraintErrorP1 << std::endl;
     std::cout << paramConstraintValueP2 << " +- " << paramConstraintErrorP2 << std::endl;
-    std::cout << "mode: " << paramConstrainModeP1 << ", " << paramConstrainModeP2 << std::endl;
+    std::cout << "mode: " << paramConstraintModeP1 << ", " << paramConstraintModeP2 << std::endl;
     std::cout << "check these numbers, waiting..." << std::endl;
     std::cin.get();
     */
@@ -632,13 +903,16 @@ void process_line_else(std::string& s, std::stringstream &ss)
     //          << paramInitValueP2 << ", " << paramInitErrorP2 << ", "
     //          << paramConstraintValueP1 << ", " << paramConstraintErrorP1 << ", "
     //          << paramConstraintValueP2 << ", " << paramConstraintErrorP2 << ", "
-    //          << paramConstrainModeP1 << ", " << paramConstrainModeP2 << ", ";
+    //          << paramConstraintModeP1 << ", " << paramConstraintModeP2 << ", ";
     // print out the MCNameToParamNameMap
     //for(auto it = MCNameToParamNameMap.cbegin(); it != MCNameToParamNameMap.cend(); ++ it)
     //{
     //    std::cout << it->first << " -> " << it->second << std::endl;
     //}
+#endif
 
+
+#if 0
 
     // write back out
     std::cout << std::endl;
@@ -660,16 +934,16 @@ void process_line_else(std::string& s, std::stringstream &ss)
     std::cout << std::endl;
     std::cout << "Phase 1: Initial Value: " << paramInitValueP1Map[paramNumber] << " +- " << paramInitErrorP1Map[paramNumber] << std::endl;
     std::cout << "         Constraint: " << paramConstraintValueP1Map[paramNumber] << " +- " << paramConstraintErrorP1Map[paramNumber] << std::endl;
-    std::cout << "         Mode: " << paramConstrainModeP1Map[paramNumber];
-    if(paramConstrainModeP1Map[paramNumber] == MODE_PARAM_FREE)
+    std::cout << "         Mode: " << paramConstraintModeP1Map[paramNumber];
+    if(paramConstraintModeP1Map[paramNumber] == MODE_PARAM_FREE)
     {
         std::cout << " (free)";
     }
-    else if(paramConstrainModeP1Map[paramNumber] == MODE_PARAM_SOFT)
+    else if(paramConstraintModeP1Map[paramNumber] == MODE_PARAM_SOFT)
     {
         std::cout << " (soft)";
     }
-    else if(paramConstrainModeP1Map[paramNumber] == MODE_PARAM_HARD)
+    else if(paramConstraintModeP1Map[paramNumber] == MODE_PARAM_HARD)
     {
         std::cout << " (hard)";
     }
@@ -680,16 +954,16 @@ void process_line_else(std::string& s, std::stringstream &ss)
     std::cout << std::endl;
     std::cout << "Phase 2: Initial Value: " << paramInitValueP2Map[paramNumber] << " +- " << paramInitErrorP2Map[paramNumber] << std::endl;
     std::cout << "         Constraint: " << paramConstraintValueP2Map[paramNumber] << " +- " << paramConstraintErrorP2Map[paramNumber] << std::endl;
-    std::cout << "         Mode: " << paramConstrainModeP2Map[paramNumber];
-    if(paramConstrainModeP2Map[paramNumber] == MODE_PARAM_FREE)
+    std::cout << "         Mode: " << paramConstraintModeP2Map[paramNumber];
+    if(paramConstraintModeP2Map[paramNumber] == MODE_PARAM_FREE)
     {
         std::cout << " (free)";
     }
-    else if(paramConstrainModeP2Map[paramNumber] == MODE_PARAM_SOFT)
+    else if(paramConstraintModeP2Map[paramNumber] == MODE_PARAM_SOFT)
     {
         std::cout << " (soft)";
     }
-    else if(paramConstrainModeP2Map[paramNumber] == MODE_PARAM_HARD)
+    else if(paramConstraintModeP2Map[paramNumber] == MODE_PARAM_HARD)
     {
         std::cout << " (hard)";
     }
@@ -698,10 +972,15 @@ void process_line_else(std::string& s, std::stringstream &ss)
         std::cout << " (unknown/ERROR)";
     }
     std::cout << std::endl;
+    std::cout << "Parameter Lock Mode: " << paramLockModeMap[paramNumber] << std::endl;
+    std::cout << std::endl;
+#endif
 
-
+    return ret;
 }
 
+
+/*
 void process_MCSampleNameToHumanReadableMCSampleNameMap(
     const int nSampleBkgs,
     const TString *const SampleBkgFiles,
@@ -714,13 +993,15 @@ void process_MCSampleNameToHumanReadableMCSampleNameMap(
         MCSampleNameToHumanReadableMCSampleNameMap.insert(std::make_pair(SampleBkgFiles[i], SampleBkgNames[i]));
     }
 }
+*/
 
 
 void read_parameter_list_file()
 {
 
 
-    clear_maps();
+    //g_pg.clear_maps();
+    g_pg.reset();
 
 
 
@@ -731,7 +1012,8 @@ void read_parameter_list_file()
     ///////////////////////////////////////////////////////////////////////////
 
     std::ifstream paramFile;
-    paramFile.open("parameter_names.lst");
+    std::string paramFile_filename = "parameter_names.lst";
+    paramFile.open(paramFile_filename);
     if(paramFile.is_open() == false)
     {
         std::cerr << __func__ << " Error: Cannot open file" << "parameter_names.lst" << std::endl;
@@ -748,7 +1030,7 @@ void read_parameter_list_file()
     std::size_t line_count = 1;
     while(!paramFile.eof())
     {
-        std::cout << line_count << std::endl;
+        //std::cout << line_count << std::endl;
         
 
         std::stringstream ss;
@@ -783,12 +1065,18 @@ void read_parameter_list_file()
         }
         else if((s.size() >= 4) && (s.substr(0, 4) == std::string("NAME")))
         {
-            process_line_NAME(s, ss);
+            if(process_line_NAME(s, ss) != 0)
+            {
+                std::cout << "ERROR: Syntax error in file " << paramFile_filename << " line " << line_count << std::endl;
+            }
         }
         //if(s.size() > 0)
         else
         {
-            process_line_else(s, ss);
+            if(process_line_else(s, ss) != 0)
+            {
+                std::cout << "ERROR: Syntax error in file " << paramFile_filename << " line " << line_count << std::endl;
+            }
             // there is a fail event in this function that calls return
             // same as block of code here calling continue
             // because there is no code which follows this function call
@@ -862,6 +1150,10 @@ void read_parameter_list_file()
     }
     */
 
+
+    // TODO: I forget what these do but I seem to remember it is important
+
+/*
     // regular parameters
     process_MCSampleNameToHumanReadableMCSampleNameMap(nExternalBkgs, ExternalBkgFiles, ExternalBkgNames);
     process_MCSampleNameToHumanReadableMCSampleNameMap(nInternalBkgs, InternalBkgFiles, InternalBkgNames);
@@ -871,9 +1163,11 @@ void read_parameter_list_file()
     process_MCSampleNameToHumanReadableMCSampleNameMap(nNd150Samples, Nd150Files, Nd150Names);
     // add additional parameters
     MCSampleNameToHumanReadableMCSampleNameMap.insert(make_pair("axial_vector_parameter_0", "^{150}Nd 2#nu#beta#beta g_A #xi_{31}"));
+*/
 
     // done
 
+/*
     // second: convert parameter numbers to parameter names and create map
     // to convert between parameter names and human readable parameter names
 
@@ -963,6 +1257,7 @@ void read_parameter_list_file()
 
         paramNameToHumanReadableParamNameMap.insert(std::make_pair(parameter_name, human_readable_parameter_name));
     }
+*/
 
     // human readable name map
     ///////////////////////////////////////////////////////////////////////////
@@ -997,10 +1292,12 @@ void read_parameter_list_file()
     // randomize parameters
 
     // TODO: re-enable
+    #if 0
     if(false)
     {
         randomize_parameters();
     }
+    #endif
     // randomize parameters
 
 
@@ -1094,14 +1391,24 @@ void read_parameter_list_file()
 
     // TODO: numbers appear multiple times
     // print out a list of fixed and free parameters
-    std::cout << "List of parameters: free/fixed" << std::endl;
-    for(int i = 0; i < free_params.size(); ++ i)
+#if 0
+    std::cout << "List of parameters: free/fixed (P1)" << std::endl;
+    for(int i = 0; i < free_params_P1.size(); ++ i)
     {
-        std::cout << "free parameter: " << free_params[i] << std::endl;
+        std::cout << "free parameter (P1): " << free_params_P1[i] << std::endl;
     }
-    for(int i = 0; i < fixed_params.size(); ++ i)
+    for(int i = 0; i < fixed_params_P1.size(); ++ i)
     {
-        std::cout << "fixed parameter: " << fixed_params[i] << std::endl;
+        std::cout << "fixed parameter (P1): " << fixed_params_P1[i] << std::endl;
+    }
+    std::cout << "List of parameters: free/fixed (P2)" << std::endl;
+    for(int i = 0; i < free_params_P2.size(); ++ i)
+    {
+        std::cout << "free parameter (P2): " << free_params_P2[i] << std::endl;
+    }
+    for(int i = 0; i < fixed_params_P2.size(); ++ i)
+    {
+        std::cout << "fixed parameter (P2): " << fixed_params_P2[i] << std::endl;
     }
     std::cout << "List of parameters: enabled/disabled" << std::endl;
     for(int i = 0; i < enabled_params.size(); ++ i)
@@ -1112,14 +1419,23 @@ void read_parameter_list_file()
     {
         std::cout << "diabled parameter: " << disabled_params[i] << std::endl;
     }
+#endif
+    // TODO: re-enable this in parameter list class
     // TODO: this should probably be moved to just after the section which
     // reads parameter list
 
+    // print a list of locked parameters and their modes
+    //std::cout << "List of parameter lock modes: locked/unlocked" << std::endl;
+    //for(int i = 0; i < 
 
+    g_pg.init_maps();
+    g_pg.set_last_parameter_values();
+#if 0
     // 2020-06-17
     // set last values map
     for(int i = 0; i < numberParams; ++ i)
     {
+        /*
         if(thePhase == 0)
         {
             paramLastValueMap[i] = paramInitValueP1Map[i];
@@ -1136,13 +1452,23 @@ void read_parameter_list_file()
             std::cerr << "Error: Invalid value for thePhase: thePhase=" << thePhase << std::endl;
             throw "problem";
         }
+        */
+
+        paramLastValueP1Map[i] = paramInitValueP1Map[i]; 
+        paramInitValueP1Map[i] = paramInitValueP1Map[i]; 
+
+        paramLastValueP2Map[i] = paramInitValueP2Map[i]; 
+        paramInitValueP2Map[i] = paramInitValueP2Map[i]; 
 
         int axial_vector_parameter_0_param_number = get_axial_vector_parameter_index(); 
         if(i == axial_vector_parameter_0_param_number)
         {
-            paramLastValueMap[i] = 0.0; // HSD, forces reweighting
+            //paramLastValueMap[i] = 0.0; // HSD, forces reweighting
+            paramLastValueP1Map[i] = 0.0; // HSD, forces reweighting
+            paramLastValueP2Map[i] = 0.0; // HSD, forces reweighting
         }
     }
+#endif
     // set initial values map
     /*
     for(int i = 0; i < numberParams; ++ i)

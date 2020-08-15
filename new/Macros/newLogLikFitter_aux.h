@@ -43,6 +43,7 @@ int get_ndf_1D(const TH1D *const hist_MC, const TH1D *const hist_data)
 // internal / external index manipulation
 ///////////////////////////////////////////////////////////////////////////////
 
+/*
 int get_axial_vector_parameter_index()
 {
 
@@ -67,7 +68,7 @@ int get_axial_vector_parameter_index()
     
     return axial_vector_parameter_0_param_number;
 }
-
+*/
 
 
 
@@ -75,6 +76,7 @@ int get_axial_vector_parameter_index()
 // Get initial value and error of parameter depending on phase
 ///////////////////////////////////////////////////////////////////////////////
 
+/*
 void get_paramInitValueError(const Int_t thePhase, const int param_number, double &param_init_value, double& param_init_error)
 {
     const int j = param_number;
@@ -114,7 +116,7 @@ void get_paramConstraintValueError(const Int_t thePhase, const int param_number,
         std::cout << "ERROR: Invalid value for thePhase: thePhase=" << thePhase << " in function " << __func__ << std::endl;
     }
 }
-
+*/
 
 
 
@@ -122,6 +124,7 @@ void get_paramConstraintValueError(const Int_t thePhase, const int param_number,
 // convert name of histogram to minuit (internal) parameter number
 ///////////////////////////////////////////////////////////////////////////////
 
+#if 0
 bool fit_histogram_name_to_param_number(const TString &name, int &which_param)
 {
 
@@ -172,7 +175,7 @@ bool fit_histogram_name_to_param_number(const TString &name, int &which_param)
     return found_param;
 
 }
-
+#endif
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -180,6 +183,7 @@ bool fit_histogram_name_to_param_number(const TString &name, int &which_param)
 // helper function for book1DHistograms_helper and book2DHistograms_helper
 ///////////////////////////////////////////////////////////////////////////////
 
+#if 0
 bool convert_MC_name_to_scale_factor(
     const std::string &mc_name,
     int &param_number,
@@ -252,6 +256,7 @@ bool convert_MC_name_to_scale_factor(
 
     return ret;
 }
+#endif
 
 
 ///////////////////////////////////////////////////////////////////////////////

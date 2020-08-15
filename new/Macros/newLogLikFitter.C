@@ -40,8 +40,9 @@
 
 
 // note: these must appear in correct order and after general includes above
-#include "newLogLikFitter.h"
 #include "newLogLikFitter_print.h"
+#include "parametergroup.h"
+#include "newLogLikFitter.h"
 #include "newLogLikFitter_aux.h"
 #include "newLogLikFitter_printfitresult.h"
 #include "newLogLikFitter_read_parameternames_lst.h"
@@ -353,6 +354,10 @@ void newLogLikFitter(int i)
 void loadFiles(int i)
 {
 
+    ///////////////////////////////////////////////////////////////////////////
+    // parallel mode code
+    ///////////////////////////////////////////////////////////////////////////
+
     int number_job_id;
     std::string output_name;
     int start_index;
@@ -383,6 +388,20 @@ void loadFiles(int i)
         stop_index = 301;
     }
 
+
+    ///////////////////////////////////////////////////////////////////////////
+    // read parameter file list
+    ///////////////////////////////////////////////////////////////////////////
+
+    // read parameter_name.lst file
+    // read parameter list file
+    read_parameter_list_file();
+    g_pg.print();
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // load spectral data
+    ///////////////////////////////////////////////////////////////////////////
 
     std::cout << std::scientific;
 
@@ -428,7 +447,7 @@ void loadFiles(int i)
     // TODO: remove xi_31_init variable and replace with paramInitValuePXMap[1]
     // and then change index 1 for a sensible way of looking up the index
 //    Double_t xi_31_init = 2.63e-01; //1.13; //0.296; // change to baseline value for testing purposes
-    last_xi_31_parameter_value = 0.0;
+//    last_xi_31_parameter_value = 0.0;
 
 
     ///*const Double_t*/ bb_Q = 3.368;
@@ -456,11 +475,17 @@ void loadFiles(int i)
 
     std::cout << std::fixed << std::endl;
 
+
+    ///////////////////////////////////////////////////////////////////////////
+    // general ROOT init
+    ///////////////////////////////////////////////////////////////////////////
+
+
     gROOT->SetStyle("Plain");
     gStyle->SetOptStat(0);
     gStyle->SetPalette(1);
-    gStyle->SetPalette(kBird);
-    gStyle->SetPalette(kBrownCyan);
+    //gStyle->SetPalette(kBird);
+    //gStyle->SetPalette(kBrownCyan);
     gStyle->SetPalette(kLightTemperature);
     //gStyle->SetNumberContours(1000);
 
@@ -473,15 +498,13 @@ void loadFiles(int i)
     allFakeDataSamples2D = nullptr;
 
 
+    gEnablePhase1 = true;
+    gEnablePhase2 = true;
+    //parameter_group pg;
+    //g_pg = pg;
+    // working here
 
     
-
-    // read parameter_name.lst file
-    // read parameter list file
-    read_parameter_list_file();
-
-
-
 
 
     // First, create a root file to hold all of the histograms
@@ -510,14 +533,57 @@ void loadFiles(int i)
     //book1DHistograms(5,"OCE_","P2","hTotalE_");
     //book1DHistograms(0, "2e_", "P1", "hTotalE_");
     //book1DHistograms(0, "2e_", "P2", "hTotalE_");
-    book1DHistograms(0, "2e_", "P" + Phase, "hTotalE_");
-    book1DHistograms(1, "2e_", "P" + Phase, "hSingleEnergy_");
-    book1DHistograms(2, "2e_", "P" + Phase, "hHighEnergy_");
-    book1DHistograms(3, "2e_", "P" + Phase, "hLowEnergy_");
-    book1DHistograms(4, "2e_", "P" + Phase, "hEnergySum_");
-    book1DHistograms(5, "2e_", "P" + Phase, "hEnergyDiff_");
-    book2DHistograms(0, "2e_", "P" + Phase, "hHighLowEnergy_");
-  
+
+
+    // 1d: Phase 1 & 2
+    for(int channel = 0; channel < number1DHists; ++ channel)
+    {
+        //book1DHistograms(0, "2e_", "hTotalE_");
+        book1DHistograms(channel, "2e_", channel_histname_1D[channel]);
+    }
+    //book1DHistograms(1, "2e_", "hSingleEnergy_");
+    //book1DHistograms(2, "2e_", "hHighEnergy_");
+    //book1DHistograms(3, "2e_", "hLowEnergy_");
+    //book1DHistograms(4, "2e_", "hEnergySum_");
+    //book1DHistograms(5, "2e_", "hEnergyDiff_");
+    //map_1d_channel_to_phase[0] = 0;
+    //map_1d_channel_to_phase[1] = 0;
+    //map_1d_channel_to_phase[2] = 0;
+    //map_1d_channel_to_phase[3] = 0;
+    //map_1d_channel_to_phase[4] = 0;
+    //map_1d_channel_to_phase[5] = 0;
+
+    // 1d: Phase 2
+    for(int channel = 0; channel < number2DHists; ++ channel)
+    {
+        book2DHistograms(channel, "2e_", channel_histname_2D[channel]);
+    }
+#if 0
+    book1DHistograms( 6, "2e_", "hTotalE_");
+    book1DHistograms( 7, "2e_", "hSingleEnergy_");
+    book1DHistograms( 8, "2e_", "hHighEnergy_");
+    book1DHistograms( 9, "2e_", "hLowEnergy_");
+    book1DHistograms(10, "2e_", "hEnergySum_");
+    book1DHistograms(11, "2e_", "hEnergyDiff_");
+    map_1d_channel_to_phase[6] = 1;
+    map_1d_channel_to_phase[7] = 1;
+    map_1d_channel_to_phase[8] = 1;
+    map_1d_channel_to_phase[9] = 1;
+    map_1d_channel_to_phase[10] = 1;
+    map_1d_channel_to_phase[11] = 1;
+#endif
+
+    std::cout << "All histograms loaded" << std::endl;
+
+#if 0
+    // 2d: Phase 1
+    book2DHistograms(0, "2e_", "P2", "hHighLowEnergy_");
+    map_2d_channel_to_phase[0] = 0;
+
+    // 2d: Phase 2
+    book2DHistograms(1, "2e_", "P2", "hHighLowEnergy_");
+    map_2d_channel_to_phase[1] = 1;
+#endif
     // Array to hold activity adjustment parameters
     //Double_t AdjustActs[numberParams];
     //Double_t AdjustActs_Err[numberParams];
@@ -532,9 +598,9 @@ void loadFiles(int i)
     }
     */
     // TODO: fix this
-    xi_31_init_value = 0.0;
-    xi_31_init_error = 0.0;
-    get_paramInitValueError(thePhase, 1, xi_31_init_value, xi_31_init_error);
+    //xi_31_init_value = 0.0;
+    //xi_31_init_error = 0.0;
+    //get_paramInitValueError(thePhase, 1, xi_31_init_value, xi_31_init_error);
     //AdjustActs[1] = xi_31_init_value;
 
     /*
@@ -603,12 +669,13 @@ void loadFiles(int i)
 
 
 
+
     ///////////////////////////////////////////////////////////////////////////
     // HSD fixed xi_31 = HSD fit
     ///////////////////////////////////////////////////////////////////////////
 
     // do not do this in parallel mode
-    if(0 || (MODE_PARALLEL == 0))
+    if(1 || (MODE_PARALLEL == 0))
     {
         // create minimizer
         ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
@@ -617,14 +684,35 @@ void loadFiles(int i)
 
         // initialize fit
         //fitBackgrounds_init(theParameterState, theMinimizer, AdjustActs, AdjustActs_Err);
-        const double xi_31_value = xi_31_init_value;
-        const double xi_31_error = xi_31_init_error;
+        //const double xi_31_value = xi_31_init_value;
+        //const double xi_31_error = xi_31_init_error;
+        const int xi_31_param_number = g_pg.get_xi_31_ext_param_number();
+        const double xi_31_value = g_pg.file_params.at(xi_31_param_number).paramInitValue;
+        const double xi_31_error = g_pg.file_params.at(xi_31_param_number).paramInitError;
+        std::cout << "xi_31_param_number=" << xi_31_param_number
+                  << " xi_31=" << xi_31_value << " +- " << xi_31_error << std::endl;
         fitBackgrounds_init(theParameterStateBefore, theMinimizer, xi_31_value, xi_31_error);
-
         // get parameters and chi2 value before fit
         std::vector<double> params_before = theParameterStateBefore.Params();
         std::vector<double> param_errs_before = theParameterStateBefore.Errors();
+
+        for(int i = 0; i < params_before.size(); ++ i)
+        {
+            std::cout << "i=" << i << " param[i]=" << params_before.at(i) << std::endl;
+        }
+
         double fval_before = theFCN.operator()(params_before);
+
+        // draw before fit
+        draw_input_data drawinputdata;
+        drawinputdata.chi2 = fval_before;
+        drawinputdata.serial_dir = "HSD";
+        drawinputdata.saveas_filename = "HSD_before";
+        drawinputdata.saveas_png = true;
+       
+        draw(drawinputdata,
+             params_before,
+             param_errs_before);
 
         // fix xi_31 parameter
         TString i_str;
@@ -649,20 +737,26 @@ void loadFiles(int i)
         std::vector<double> params_after = theParameterStateAfter.Params();
         std::vector<double> param_errs_after = theParameterStateAfter.Errors();
 
-        // draw result
+        for(int i = 0; i < params_after.size(); ++ i)
+        {
+            std::cout << "i=" << i << " param[i]=" << params_after.at(i) << std::endl;
+        }
+
         double fval_after = theFCN.operator()(params_after);
-        draw(thePhase,
-             params_after, param_errs_after,
-             fval_after, params_after.at(1),
-             number_job_id,
-             "HSD_after.png", ".",
-             g_mode_fake_data);
+
+        // draw after fit
+        drawinputdata.chi2 = fval_after;
+        drawinputdata.saveas_filename = "HSD_after";
+       
+        draw(drawinputdata,
+             params_after,
+             param_errs_after);
 
         theParameterStateBefore.Release(std::string(minuit_param_name));
     }
 
 
-
+#if 0
     ///////////////////////////////////////////////////////////////////////////
     // SSD fixed xi_31 = SSD fit
     ///////////////////////////////////////////////////////////////////////////
@@ -815,7 +909,7 @@ void loadFiles(int i)
         std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
         std::cout << "fval_before=" << fval_before << std::endl;
     }
-
+#endif
 
 //    draw_channel(1, params, fval, "test_channel_1.png");
 //    TH1D *j1, *j2, *j3, *j4;
@@ -907,7 +1001,8 @@ void loadFiles(int i)
     return 0;
 #endif
 
-
+// reenable this one
+/*
     if(1)
     {
         // create minimizer
@@ -933,7 +1028,7 @@ void loadFiles(int i)
     {
         //newloglikfitter_gA_chisquaretest(minuit, AdjustActs, AdjustActs_Err);
     }
-
+*/
 
     ///////////////////////////////////////////////////////////////////////////
 #if 0
