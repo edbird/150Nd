@@ -37,6 +37,21 @@ void book2DHistograms_helper(
         if(success == true)
         {
             scale_factor = g_pg.file_params.at(param_number).paramInitValue;
+
+            // account for 208 Tl branching ratio of 36 %
+            if((mc_name.find("tl208_int_rot") != std::string::npos) ||
+               (mc_name.find("tl208_feShield") != std::string::npos) || // TODO: this doesn't seem to work
+               (mc_name.find("tl208_pmt") != std::string::npos))
+               // TODO: do not apply to tl208_air ?
+            {
+                std::cout << "mc_name=" << mc_name << " applying additional scaling factor of 0.36" << std::endl;
+                //std::cin.get();
+                scale_factor *= 0.36;
+                // TODO: check that this is not already applied in
+                // fit_2e
+                // NOTE: it isn't
+            }
+            
             std::cout << "mc_name=" << mc_name << " param_number=" << param_number << " scale_factor=" << scale_factor << std::endl;
 
             // TODO:

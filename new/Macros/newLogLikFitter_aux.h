@@ -27,10 +27,10 @@ int get_ndf_1D(const TH1D *const hist_MC, const TH1D *const hist_data)
     {
         if(hist_MC->GetBinContent(bin_ix) > 0.0)
         {
-            if(hist_data->GetBinContent(bin_ix) > 0.0)
-            {
+            //if(hist_data->GetBinContent(bin_ix) > 0.0)
+            //{
                 ++ ndf;
-            }
+            //}
         }
     }
     return ndf;
@@ -302,6 +302,7 @@ void canvas_saveas_helper(const std::string &directory, const std::string &savea
             ((saveas_filename[length - 1] == '*') && (saveas_filename[length - 2] == '.'))
           )
         {
+
             // TODO: get the name based on the histogram type
             // from data accessable via loop index i
             std::string base_name = saveas_filename.substr(0, length - 2);
@@ -320,7 +321,7 @@ void canvas_saveas_helper(const std::string &directory, const std::string &savea
                     fullname = directory + "/";
                 }
                 fullname += name;
-                std::cout << "saving as " << fullname << std::endl;
+                std::cout << "extension=\".*\": multisave: saving as " << fullname << std::endl;
                 canvas->SaveAs(fullname.c_str());
             }
         }

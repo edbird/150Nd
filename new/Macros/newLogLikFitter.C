@@ -51,12 +51,12 @@
 #include "newLogLikFitter_reweight.h"
 #include "newLogLikFitter_reweight_apply.h"
 #include "newLogLikFitter_stacker_helper.h"
+#include "newLogLikFitter_logpoisson.h"
 #include "newLogLikFitter_drawchannel.h"
 #include "newLogLikFitter_draw.h"
 #include "newLogLikFitter_draw_2D.h"
 #include "newLogLikFitter_draw_outputdiff.h"
 #include "newLogLikFitter_draw_all.h"
-#include "newLogLikFitter_logpoisson.h"
 #include "newLogLikFitter_buildfakedata.h"
 #include "MinimizeFCNAxialVector.h"
 #include "newLogLikFitter_fitBackgrounds.h"
@@ -692,27 +692,7 @@ void loadFiles(int i)
         std::cout << "xi_31_param_number=" << xi_31_param_number
                   << " xi_31=" << xi_31_value << " +- " << xi_31_error << std::endl;
         fitBackgrounds_init(theParameterStateBefore, theMinimizer, xi_31_value, xi_31_error);
-        // get parameters and chi2 value before fit
-        std::vector<double> params_before = theParameterStateBefore.Params();
-        std::vector<double> param_errs_before = theParameterStateBefore.Errors();
 
-        for(int i = 0; i < params_before.size(); ++ i)
-        {
-            std::cout << "i=" << i << " param[i]=" << params_before.at(i) << std::endl;
-        }
-
-        double fval_before = theFCN.operator()(params_before);
-
-        // draw before fit
-        draw_input_data drawinputdata;
-        drawinputdata.chi2 = fval_before;
-        drawinputdata.serial_dir = "HSD";
-        drawinputdata.saveas_filename = "HSD_before";
-        drawinputdata.saveas_png = true;
-       
-        draw(drawinputdata,
-             params_before,
-             param_errs_before);
 
         // fix xi_31 parameter
         TString i_str;
@@ -722,6 +702,31 @@ void loadFiles(int i)
         TString minuit_param_name = "_" + i_str + "_" + minuit_param_number_str + "_";
         theParameterStateBefore.Fix(std::string(minuit_param_name));
         theParameterStateBefore.SetValue(std::string(minuit_param_name), 0.0); // HSD
+
+
+        // get parameters and chi2 value before fit
+        std::vector<double> params_before = theParameterStateBefore.Params();
+        std::vector<double> param_errs_before = theParameterStateBefore.Errors();
+
+        for(int i = 0; i < params_before.size(); ++ i)
+        {
+            std::cout << "i=" << i << " param[i]=" << params_before.at(i) << std::endl;
+        }
+        
+        double fval_before = theFCN.operator()(params_before);
+        int ndf = theFCN.ndf - theParameterStateBefore.VariableParameters();
+
+        // draw before fit
+        draw_input_data drawinputdata;
+        drawinputdata.chi2 = fval_before;
+        drawinputdata.ndf = ndf;
+        drawinputdata.serial_dir = "HSD";
+        drawinputdata.saveas_filename = "HSD_before";
+        drawinputdata.saveas_png = true;
+       
+        draw(drawinputdata,
+             params_before,
+             param_errs_before);
 
         // exec fit
         // this will fit backgrounds and the 150Nd amplitude parameter
@@ -743,9 +748,11 @@ void loadFiles(int i)
         }
 
         double fval_after = theFCN.operator()(params_after);
+        ndf = theFCN.ndf - theParameterStateAfter.VariableParameters();
 
         // draw after fit
         drawinputdata.chi2 = fval_after;
+        drawinputdata.ndf = ndf;
         drawinputdata.saveas_filename = "HSD_after";
        
         draw(drawinputdata,
@@ -756,7 +763,8 @@ void loadFiles(int i)
     }
 
 
-#if 0
+
+#if 1
     ///////////////////////////////////////////////////////////////////////////
     // SSD fixed xi_31 = SSD fit
     ///////////////////////////////////////////////////////////////////////////
@@ -774,14 +782,12 @@ void loadFiles(int i)
 
         // initialize fit
         //fitBackgrounds_init(theParameterState, theMinimizer, AdjustActs, AdjustActs_Err);
-        const double xi_31_value = xi_31_init_value;
-        const double xi_31_error = xi_31_init_error;
+        const int xi_31_param_number = g_pg.get_xi_31_ext_param_number();
+        const double xi_31_value = g_pg.file_params.at(xi_31_param_number).paramInitValue;
+        const double xi_31_error = g_pg.file_params.at(xi_31_param_number).paramInitError;
+        std::cout << "xi_31_param_number=" << xi_31_param_number
+                  << " xi_31=" << xi_31_value << " +- " << xi_31_error << std::endl;
         fitBackgrounds_init(theParameterStateBefore, theMinimizer, xi_31_value, xi_31_error);
-
-        // get parameters and chi2 value before fit
-        std::vector<double> params_before = theParameterStateBefore.Params();
-        std::vector<double> param_errs_before = theParameterStateBefore.Errors();
-        double fval_before = theFCN.operator()(params_before);
 
         // fix xi_31 parameter
         TString i_str;
@@ -791,6 +797,24 @@ void loadFiles(int i)
         TString minuit_param_name = "_" + i_str + "_" + minuit_param_number_str + "_";
         theParameterStateBefore.Fix(std::string(minuit_param_name));
         theParameterStateBefore.SetValue(std::string(minuit_param_name), 0.296); // SSD
+
+        // get parameters and chi2 value before fit
+        std::vector<double> params_before = theParameterStateBefore.Params();
+        std::vector<double> param_errs_before = theParameterStateBefore.Errors();
+        double fval_before = theFCN.operator()(params_before);
+        int ndf = theFCN.ndf - theParameterStateBefore.VariableParameters();
+
+        // draw before fit
+        draw_input_data drawinputdata;
+        drawinputdata.chi2 = fval_before;
+        drawinputdata.ndf = ndf;
+        drawinputdata.serial_dir = "SSD";
+        drawinputdata.saveas_filename = "SSD_before";
+        drawinputdata.saveas_png = true;
+       
+        draw(drawinputdata,
+             params_before,
+             param_errs_before);
         
         // exec fit
         // this will fit backgrounds and the 150Nd amplitude parameter
@@ -806,17 +830,21 @@ void loadFiles(int i)
         std::vector<double> params_after = theParameterStateAfter.Params();
         std::vector<double> param_errs_after = theParameterStateAfter.Errors();
 
-        // draw result
         double fval_after = theFCN.operator()(params_after);
-        draw(thePhase,
-             params_after, param_errs_after,
-             fval_after, params_after.at(1),
-             number_job_id,
-             "SSD_after.png", ".",
-             g_mode_fake_data);
+        ndf = theFCN.ndf - theParameterStateAfter.VariableParameters();
+
+        // draw result
+        drawinputdata.chi2 = fval_after;
+        drawinputdata.ndf = ndf;
+        drawinputdata.saveas_filename = "SSD_after";
+       
+        draw(drawinputdata,
+             params_after,
+             param_errs_after);
 
         theParameterStateBefore.Release(std::string(minuit_param_name));
     }
+#endif
 
     #if 0
     std::cout << "AdjustActs: ";
@@ -854,6 +882,7 @@ void loadFiles(int i)
     // All Parameter Fit
     ///////////////////////////////////////////////////////////////////////////
 
+#if 1
     // do not do this in parallel mode
     if(0 || (MODE_PARALLEL == 0))
     {
@@ -864,14 +893,30 @@ void loadFiles(int i)
 
         // initialize fit
         //fitBackgrounds_init(theParameterState, theMinimizer, AdjustActs, AdjustActs_Err);
-        const double xi_31_value = xi_31_init_value;
-        const double xi_31_error = xi_31_init_error;
+        const int xi_31_param_number = g_pg.get_xi_31_ext_param_number();
+        const double xi_31_value = g_pg.file_params.at(xi_31_param_number).paramInitValue;
+        const double xi_31_error = g_pg.file_params.at(xi_31_param_number).paramInitError;
+        std::cout << "xi_31_param_number=" << xi_31_param_number
+                  << " xi_31=" << xi_31_value << " +- " << xi_31_error << std::endl;
         fitBackgrounds_init(theParameterStateBefore, theMinimizer, xi_31_value, xi_31_error);
 
         // get parameters and chi2 value before fit
         std::vector<double> params_before = theParameterStateBefore.Params();
         std::vector<double> param_errs_before = theParameterStateBefore.Errors();
         double fval_before = theFCN.operator()(params_before);
+        int ndf = theFCN.ndf - theParameterStateBefore.VariableParameters();
+
+        // draw before fit
+        draw_input_data drawinputdata;
+        drawinputdata.chi2 = fval_before;
+        drawinputdata.ndf = ndf;
+        drawinputdata.serial_dir = "xifree";
+        drawinputdata.saveas_filename = "xifree_before";
+        drawinputdata.saveas_png = true;
+       
+        draw(drawinputdata,
+             params_before,
+             param_errs_before);
 
         // exec fit
         // do fit with all parameters free
@@ -886,14 +931,18 @@ void loadFiles(int i)
         std::vector<double> params_after = theParameterStateAfter.Params();
         std::vector<double> param_errs_after = theParameterStateAfter.Errors();
 
-        // draw result
         double fval_after = theFCN.operator()(params_after);
-        draw(thePhase,
-             params_after, param_errs_after,
-             fval_after, params_after.at(1), // TODO: don't need to pass this
-             number_job_id,
-             "allparameterfit_after.png", ".",
-             g_mode_fake_data);
+        ndf = theFCN.ndf - theParameterStateAfter.VariableParameters();
+
+        // draw result
+        drawinputdata.chi2 = fval_after;
+        drawinputdata.ndf = ndf;
+        drawinputdata.saveas_filename = "xifree_after";
+       
+        draw(drawinputdata,
+             params_after,
+             param_errs_after);
+
         
         // minimize
         //ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, init_par, init_err);

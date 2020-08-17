@@ -2104,10 +2104,42 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
             if(thePhase == 0)
             {
                 if((1869 <= run) && (run <= 3395)) cut = false;
+                
+                #if TRUTH_ENABLE
+                if(mode_flag == 0)
+                {
+                    if((sampleName.CompareTo("nd150_rot_2b2n_m4") == 0)   ||
+                       (sampleName.CompareTo("nd150_rot_2n2b_m4") == 0))
+                    {
+                        if(electronEnergy[0] < 0.3 || electronEnergy[1] < 0.3)
+                        {
+                            std::cout << "problem in fit_2e electron energy too low" << std::endl;
+                        }
+                        outputTree->Fill();
+                        outputTree_small->Fill();
+                    }
+                }
+                #endif
             }
             else if(thePhase == 1)
             {
                 if((3396 <= run) && (run <= 9186)) cut = false;
+
+                #if TRUTH_ENABLE
+                if(mode_flag == 0)
+                {
+                    if((sampleName.CompareTo("nd150_rot_2b2n_m4") == 0)   ||
+                       (sampleName.CompareTo("nd150_rot_2n2b_m4") == 0))
+                    {
+                        if(electronEnergy[0] < 0.3 || electronEnergy[1] < 0.3)
+                        {
+                            std::cout << "problem in fit_2e electron energy too low" << std::endl;
+                        }
+                        outputTree->Fill();
+                        outputTree_small->Fill();
+                    }
+                }
+                #endif
             }
             else if(nocutonphase == 1)
             {
@@ -2117,6 +2149,7 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
             {
                 cut = true;
             }
+
             // accept P1 and P2 for testing purposes
             //cut = false;
             if(cut == true) continue;
@@ -2308,21 +2341,6 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
         }
 
 
-        #if TRUTH_ENABLE
-        if(mode_flag == 0)
-        {
-            if((sampleName.CompareTo("nd150_rot_2b2n_m4") == 0)   ||
-               (sampleName.CompareTo("nd150_rot_2n2b_m4") == 0))
-            {
-                if(electronEnergy[0] < 0.3 || electronEnergy[1] < 0.3)
-                {
-                    std::cout << "problem in fit_2e electron energy too low" << std::endl;
-                }
-                outputTree->Fill();
-                outputTree_small->Fill();
-            }
-        }
-        #endif
 
     } //~event_i
      

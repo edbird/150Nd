@@ -371,7 +371,7 @@ class parameter_group
         const std::string& mc_name,
         int &param_number)
     {
-        std::cout << __func__ << " mc_name=" << mc_name << std::endl;
+        //std::cout << __func__ << " mc_name=" << mc_name << std::endl;
         bool success = false;
         std::map<int, file_parameter>::iterator it{file_params.begin()};
         int param_index = 0;
@@ -379,7 +379,7 @@ class parameter_group
         {
             for(std::size_t j{0}; (success == false) && (j < it->second.MCNameList.size()); ++ j)
             {
-                std::cout << "param_index=" << param_index << " j=" << j << " mc_name: " << it->second.MCNameList.at(j) << std::endl;
+                //std::cout << "param_index=" << param_index << " j=" << j << " mc_name: " << it->second.MCNameList.at(j) << std::endl;
 
                 if(it->second.MCNameList.at(j) == mc_name)
                 {

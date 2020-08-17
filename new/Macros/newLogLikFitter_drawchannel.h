@@ -4,6 +4,40 @@
 
 
 
+double calc_chi2_draw(TH1D *data1D, TH1D *hAllMC1D)
+{
+    double sum = 0.0;
+    for(Int_t i = 1; i < hAllMC1D->GetNbinsX(); ++ i)
+    {
+
+        double c_data = data1D->GetBinContent(i);
+        double c_MC = hAllMC1D->GetBinContent(i);
+
+        /*
+        double e_data = data1D->GetBinError(i);
+        double e_MC = hAllMC1D->GetBinError(i);
+
+        if(c_data == 0.0 && e_data == 0.0) continue;
+        if(c_MC == 0.0 && e_MC == 0.0) continue;
+
+        //e_MC = 0.0;
+
+        double num = (c_data - c_MC);
+        num = num * num;
+        double den = e_MC * e_MC + e_data * e_data;
+        sum += num / den;
+        */
+
+        sum += logpoisson(c_data, c_MC);
+    }
+    //return sum;
+    return -2.0 * sum;
+}
+
+
+
+
+
 
 
 
@@ -38,10 +72,10 @@ class draw_input_data
 
         saveas_filename = "untitled";
 
-        bool saveas_png = true;
-        bool saveas_pdf = false;
-        bool saveas_eps = false;
-        bool saveas_C = false;
+        saveas_png = true;
+        saveas_pdf = false;
+        saveas_eps = false;
+        saveas_C = false;
     }
 
     bool draw_P1;
@@ -235,6 +269,11 @@ void draw_channel_phase(
 
         //std::cout << "debug: number of data samples: " << allDataSamples1D->GetEntries() << std::endl;
         //std::cout << "debug: number of MC samples: " << allMCSamples1D[0]->GetEntries() << std::endl;
+
+
+        //std::cout << "mode_fake_data=" << mode_fake_data << std::endl;
+        //std::cout << allDataSamples1D->GetEntries() << std::endl;
+        //std::cin.get();
 
 
         // additional array index
@@ -562,7 +601,10 @@ void draw_channel_phase(
         hAllMC1D_Px->GetYaxis()->SetRangeUser(PAD_U_Y_MIN_Px, PAD_U_Y_MAX_Px);
     //    data1D->SetMaximum(PAD_U_Y_MAX);
     //    data1D->SetMinimum(PAD_U_Y_MIN);
-        data1D_Px->GetYaxis()->SetRangeUser(PAD_U_Y_MIN_Px, PAD_U_Y_MAX_Px);
+        if(mode_fake_data == false)
+        {
+            data1D_Px->GetYaxis()->SetRangeUser(PAD_U_Y_MIN_Px, PAD_U_Y_MAX_Px);
+        }
         if(mode_fake_data == true)
         {
             fakeData1D_Px->GetYaxis()->SetRangeUser(PAD_U_Y_MIN_Px, PAD_U_Y_MAX_Px);
@@ -712,12 +754,15 @@ void draw_channel_phase(
         hAllMC1D_Px->SetTitle("Total MC (" + Nmc_Px_str + ")");
         hAllMC1D_Px->Draw("hist same");
         hAllMC1D_Px->GetYaxis()->SetRangeUser(PAD_U_Y_MIN_Px, PAD_U_Y_MAX_Px);
-        data1D_Px->SetLineWidth(2);
-        data1D_Px->SetMarkerStyle(20);
-        data1D_Px->SetMarkerSize(1.0);
-        data1D_Px->SetLineColor(kBlack); // TODO: not needed? I forget reason for adding
-        data1D_Px->SetMarkerColor(kBlack); // TODO
-        data1D_Px->SetFillColor(kBlack); // TODO
+        if(mode_fake_data == false)
+        {
+            data1D_Px->SetLineWidth(2);
+            data1D_Px->SetMarkerStyle(20);
+            data1D_Px->SetMarkerSize(1.0);
+            data1D_Px->SetLineColor(kBlack); // TODO: not needed? I forget reason for adding
+            data1D_Px->SetMarkerColor(kBlack); // TODO
+            data1D_Px->SetFillColor(kBlack); // TODO
+        }
         if(mode_fake_data == true)
         {
             fakeData1D_Px->SetLineWidth(2);
@@ -728,8 +773,11 @@ void draw_channel_phase(
             fakeData1D_Px->SetFillColor(kBlack);
         }
         TString Ndata_Px_str;
-        Ndata_Px_str.Form("%i", (int)data1D_Px->Integral()); // TODO: float?
-        data1D_Px->SetTitle("Data (" + Ndata_Px_str + ")");
+        if(mode_fake_data == false)
+        {
+            Ndata_Px_str.Form("%i", (int)data1D_Px->Integral()); // TODO: float?
+            data1D_Px->SetTitle("Data (" + Ndata_Px_str + ")");
+        }
         TString Nfakedata_Px_str;
         if(mode_fake_data == true)
         {
@@ -754,6 +802,7 @@ void draw_channel_phase(
         if(mode_fake_data == false)
         {
             ndf_Px = get_ndf_1D(hAllMC1D_Px, data1D_Px);
+            /*
             if(phase_arg_str == "P1")
             {
                 ndf_Px -= drawinputdata.nfreeparam_P1; 
@@ -766,11 +815,13 @@ void draw_channel_phase(
             {
                 ndf_Px -= drawinputdata.nfreeparam;
             }
+            */
         }
         if(mode_fake_data == true)
         {
             ndf_Px = get_ndf_1D(hAllMC1D_Px, fakeData1D_Px);
         }
+        ndf_Px -= 1;
         //int igood;
         TString ndf_Px_str;
 
@@ -811,6 +862,7 @@ void draw_channel_phase(
         chi2_str.Form("%4.3f", chi2);
         */
         double fval_Px = 0.0;
+        /*
         if(phase_arg_str == "P1")
         {
             fval_Px = drawinputdata.chi2_P1;
@@ -823,8 +875,17 @@ void draw_channel_phase(
         {
             fval_Px = drawinputdata.chi2;
         }
+        */
+        if(mode_fake_data == false)
+        {
+            fval_Px = calc_chi2_draw(data1D_Px, hAllMC1D_Px);
+        }
+        if(mode_fake_data == true)
+        {
+            fval_Px = calc_chi2_draw(fakeData1D_Px, hAllMC1D_Px);
+        }
         TString fval_Px_str;
-        fval_Px_str.Form("%4.3f", fval_Px);
+        fval_Px_str.Form("%.1f", fval_Px);
         ndf_Px_str.Form("%i", ndf_Px);
         /*
         mychi2_str.Form("%4.3f", mychi2);
@@ -851,7 +912,7 @@ void draw_channel_phase(
         //axis2->SetTickSize(0.05 / (0.3 * 0.6));
         axis2->Draw();
 
-        TLegend *leg = new TLegend(0.6, 0.1, 0.85, 0.85);
+        TLegend *leg = new TLegend(0.615, 0.1, 0.855, 0.85);
         if(mode_fake_data == false)
         {
             leg->AddEntry(data1D_Px, "Data (" + Ndata_Px_str + ")", "PE"); // TODO PEL ??? works?
@@ -894,12 +955,28 @@ void draw_channel_phase(
         int xi_31_ext_param_number = g_pg.get_xi_31_ext_param_number();
         double xi_31_Px = params.at(xi_31_ext_param_number);
         TString xilatexstr;
-        xilatexstr.Form("#xi_{31}^{2#nu#beta#beta}=%3.3f", xi_31_Px);
+        xilatexstr.Form("#xi_{31}^{2#nu#beta#beta} = %.3f", xi_31_Px);
         TLatex xilatex;
         xilatex.SetNDC();
         xilatex.SetTextFont(63);
         xilatex.SetTextSize(20);
-        xilatex.DrawLatex(0.4, 0.75, xilatexstr);
+        xilatex.DrawLatex(0.425, 0.70, xilatexstr);
+
+        double chi2_Px = drawinputdata.chi2;
+        int chi2_ndf_Px = drawinputdata.ndf;
+        TString chi2_Px_str;
+        chi2_Px_str.Form("%.1f", chi2_Px);
+        TString chi2_ndf_Px_str;
+        chi2_ndf_Px_str.Form("%i", chi2_ndf_Px);
+
+        TString chilatexstr;
+        chilatexstr.Form("#frac{#chi^{2}_{global}}{ndf} = #frac{%s}{%s}", chi2_Px_str.Data(), chi2_ndf_Px_str.Data());
+
+        TLatex chilatex;
+        chilatex.SetNDC();
+        chilatex.SetTextFont(63);
+        chilatex.SetTextSize(20);
+        chilatex.DrawLatex(0.425, 0.45, chilatexstr);
 
 
         // second pad

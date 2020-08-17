@@ -23,9 +23,388 @@ void rebuild_150Nd_MC(const double, const double);
 // this function does not work if reweight is called before this function is
 // called
 // for obvious reasons
-#if 0
 void build_fake_data()
 {
+
+    //bool debugprint = true;
+    int debuglevel = 2;
+
+    allFakeDataSamples1D = new TObjArray();
+    allFakeDataSamples2D = new TObjArray();
+
+    for(int channel = 0; channel < number1DHists; ++ channel)
+    {
+        TH1D *tmpTotalMC1D_P1 = nullptr;
+        TH1D *tmpTotalMC1D_P2 = nullptr;
+
+        if(debuglevel >= 2)
+        {
+            std::cout << "channel=" << channel << std::endl;
+        }
+
+        // loop over all the parameters
+        std::map<int, file_parameter>::iterator it{g_pg.file_params.begin()};
+        for(; it != g_pg.file_params.end(); ++ it)
+        {
+            int paramNumberInt = -1;
+
+            int paramNumber = it->second.paramNumber;
+            bool paramEnabled = it->second.paramEnabled;
+            bool paramEnabledP1 = it->second.paramEnabledP1;
+            bool paramEnabledP2 = it->second.paramEnabledP2;
+            double paramInitValue = it->second.paramInitValue;
+            double paramInitError = it->second.paramInitError;
+
+            if(debuglevel >= 1)
+            {
+                std::cout << "paramNumber=" << paramNumber << std::endl;
+            }
+
+            bool ok = false;
+            if(paramEnabled == true)
+            {
+                if(gEnablePhase1 == true)
+                {
+                    if(paramEnabledP1 == true)
+                    {
+                        ok = true;
+                    }
+                }
+
+                if(gEnablePhase2 == true)
+                {
+                    if(paramEnabledP2 == true)
+                    {
+                        ok = true;
+                    }
+                }
+            }
+            if(ok == false)
+            {
+                if(debuglevel >= 1)
+                {
+                    std::cout << __func__ << " ok == false" << std::endl;
+                    std::cin.get();
+                }
+                continue;
+            }
+
+
+            // iterate over list of MC
+            std::vector<std::string>::iterator mc_name_it{it->second.MCNameList.begin()};
+            for(; mc_name_it != it->second.MCNameList.end(); ++ mc_name_it)
+            {
+                std::string mc_name = *mc_name_it;
+                std::string histname = std::string(channel_histname_1D[channel]);
+                std::string search_object_P1 = histname + mc_name + "_P1_fit";
+                std::string search_object_P2 = histname + mc_name + "_P2_fit";
+                std::string hname_P1 = histname + std::string(DataFile) + "_P1";
+                std::string hname_P2 = histname + std::string(DataFile) + "_P2";
+                TH1D *tmpHist1D_P1 = nullptr;
+                TH1D *tmpHist1D_P2 = nullptr;
+                std::cout << "hname_P1=" << hname_P1 << std::endl;
+                std::cout << "hname_P2=" << hname_P2 << std::endl;
+                //std::cin.get();
+
+                if(debuglevel >= 3)
+                {
+                    std::cout << "search_object_P1=" << search_object_P1
+                              << " search_object_P2=" << search_object_P2 << std::endl;
+                }
+
+                paramNumberInt = g_pg.ExtToIntParamNumberMap.at(paramNumber);
+                if(debuglevel >= 3)
+                {
+                    std::cout << "paramNumber=" << paramNumber << " -> " << paramNumberInt << std::endl;
+                }
+
+                if(paramEnabledP1 == true)
+                {
+
+                    if(debuglevel >= 2)
+                    {
+                        std::cout << "enabled P1" << std::endl;
+                    }
+
+                    tmpHist1D_P1 = (TH1D*)allMCSamples1D[channel]->FindObject(search_object_P1.c_str())->Clone();
+
+                    if(tmpHist1D_P1 == nullptr)
+                    {
+                        std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
+                        throw "problem";
+                    }
+
+                    Double_t scale_factor_P1 = paramInitValue;
+                    if(debuglevel >= 2)
+                    {
+                        std::cout << "scale factor P1: " << scale_factor_P1 << std::endl;
+                    }
+                    tmpHist1D_P1->Scale(scale_factor_P1);
+
+                    // found the mc samples, they are stored in tmpHist1D_P1 and tmpHist1D_P2
+                    if(tmpTotalMC1D_P1 == nullptr)
+                    {
+                        tmpTotalMC1D_P1 = (TH1D*)tmpHist1D_P1->Clone(TString(hname_P1));
+                    }
+                    else
+                    {
+                        tmpTotalMC1D_P1->Add(tmpHist1D_P1);
+                    }
+                }
+                else
+                {
+                    if(debuglevel >= 2)
+                    {
+                        std::cout << "disabled P1" << std::endl;
+                    }
+                }
+
+                if(paramEnabledP2 == true)
+                {
+                    if(debuglevel >= 2)
+                    {
+                        std::cout << "enabled P2" << std::endl;
+                    }
+
+                    tmpHist1D_P2 = (TH1D*)allMCSamples1D[channel]->FindObject(search_object_P2.c_str())->Clone();
+                
+                    if(tmpHist1D_P2 == nullptr)
+                    {
+                        std::cout << "ERROR: Could not find object " << search_object_P2 << std::endl;
+                        throw "problem";
+                    }
+
+                    Double_t scale_factor_P2 = paramInitValue;
+                    if(debuglevel >= 2)
+                    {
+                        std::cout << "scale factor P2: " << scale_factor_P2 << std::endl;
+                    }
+                    tmpHist1D_P2->Scale(scale_factor_P2);
+
+                    // found the mc samples, they are stored in tmpHist1D_P1 and tmpHist1D_P2
+                    if(tmpTotalMC1D_P2 == nullptr)
+                    {
+                        tmpTotalMC1D_P2 = (TH1D*)tmpHist1D_P2->Clone(TString(hname_P2));
+                    }
+                    else
+                    {
+                        tmpTotalMC1D_P2->Add(tmpHist1D_P2);
+                    }
+                }
+                else
+                {
+                    if(debuglevel >= 2)
+                    {
+                        std::cout << "disabled P2" << std::endl;
+                    }
+                }
+
+
+
+
+                // TODO: what is parameter is NOT enabled
+
+            } // mc sample name iterator
+
+        } // file_param iterator
+
+        allFakeDataSamples1D->Add(tmpTotalMC1D_P1);
+        allFakeDataSamples1D->Add(tmpTotalMC1D_P2);
+
+    } // channel
+
+
+    for(int channel = 0; channel < number2DHists; ++ channel)
+    {
+        TH2D *tmpTotalMC2D_P1 = nullptr;
+        TH2D *tmpTotalMC2D_P2 = nullptr;
+
+        if(debuglevel >= 2)
+        {
+            std::cout << "channel=" << channel << " (2D)" << std::endl;
+        }
+
+        // loop over all the parameters
+        std::map<int, file_parameter>::iterator it{g_pg.file_params.begin()};
+        for(; it != g_pg.file_params.end(); ++ it)
+        {
+            int paramNumberInt = -1;
+
+            int paramNumber = it->second.paramNumber;
+            bool paramEnabled = it->second.paramEnabled;
+            bool paramEnabledP1 = it->second.paramEnabledP1;
+            bool paramEnabledP2 = it->second.paramEnabledP2;
+            double paramInitValue = it->second.paramInitValue;
+            double paramInitError = it->second.paramInitError;
+            int paramConstraintMode = it->second.paramConstraintMode;
+
+            if(debuglevel >= 2)
+            {
+                std::cout << "paramNumber=" << paramNumber << std::endl;
+            }
+
+            bool ok = false;
+            if(paramEnabled == true)
+            {
+                if(gEnablePhase1 == true)
+                {
+                    if(paramEnabledP1 == true)
+                    {
+                        ok = true;
+                    }
+                }
+
+                if(gEnablePhase2 == true)
+                {
+                    if(paramEnabledP2 == true)
+                    {
+                        ok = true;
+                    }
+                }
+            }
+            if(ok == false)
+            {
+                if(debuglevel >= 1)
+                {
+                    std::cout << __func__ << " ok == false" << std::endl;
+                    std::cin.get();
+                }
+                continue;
+            }
+
+            // 
+            std::vector<std::string>::iterator mc_name_it{it->second.MCNameList.begin()};
+            for(; mc_name_it != it->second.MCNameList.end(); ++ mc_name_it)
+            {
+                std::string mc_name = *mc_name_it;
+                std::string histname = std::string(channel_histname_2D[channel]);
+                std::string search_object_P1 = histname + mc_name + "_P1_fit";
+                std::string search_object_P2 = histname + mc_name + "_P2_fit";
+                TH2D *tmpHist2D_P1 = nullptr;
+                TH2D *tmpHist2D_P2 = nullptr;
+                std::string hname_P1 = histname + std::string(DataFile) + "_P1";
+                std::string hname_P2 = histname + std::string(DataFile) + "_P2";
+                std::cout << "hname_P1=" << hname_P1 << std::endl;
+                std::cout << "hname_P2=" << hname_P2 << std::endl;
+                //std::cin.get();
+
+                paramNumberInt = g_pg.ExtToIntParamNumberMap.at(paramNumber);
+                if(debuglevel >= 2)
+                {
+                    std::cout << "paramNumber=" << paramNumber << " -> " << paramNumberInt << std::endl;
+                }
+
+                if(paramEnabledP1 == true)
+                {
+                    if(debuglevel >= 2)
+                    {
+                        std::cout << "enabled P1" << std::endl;
+                    }
+
+                    tmpHist2D_P1 = (TH2D*)allMCSamples2D[channel]->FindObject(search_object_P1.c_str())->Clone();
+
+                    if(tmpHist2D_P1 == nullptr)
+                    {
+                        std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
+                        throw "problem";
+                    }
+
+                    Double_t scale_factor_P1 = paramInitValue;
+                    if(debuglevel >= 2)
+                    {
+                        std::cout << "scale_factor_P1=" << scale_factor_P1 << std::endl;
+                    }
+                    
+                    tmpHist2D_P1->Scale(scale_factor_P1);
+
+                    if(tmpTotalMC2D_P1 == nullptr)
+                    {
+                        tmpTotalMC2D_P1 = (TH2D*)tmpHist2D_P1->Clone(TString(hname_P1));
+                    }
+                    else
+                    {
+                        tmpTotalMC2D_P1->Add(tmpHist2D_P1);
+                    }
+                }
+
+                if(paramEnabledP2 == true)
+                {
+                    if(debuglevel >= 2)
+                    {
+                        std::cout << "enabled P2" << std::endl;
+                    }
+
+                    tmpHist2D_P2 = (TH2D*)allMCSamples2D[channel]->FindObject(search_object_P2.c_str())->Clone();
+                
+                    if(tmpHist2D_P2 == nullptr)
+                    {
+                        std::cout << "ERROR: Could not find object " << search_object_P2 << std::endl;
+                        throw "problem";
+                    }
+
+                    Double_t scale_factor_P2 = paramInitValue;
+                    if(debuglevel >= 2)
+                    {
+                        std::cout << "scale_factor_P2=" << scale_factor_P2 << std::endl;
+                    }
+                    
+                    tmpHist2D_P2->Scale(scale_factor_P2);
+
+                    if(tmpTotalMC2D_P2 == nullptr)
+                    {
+                        tmpTotalMC2D_P2 = (TH2D*)tmpHist2D_P2->Clone(TString(hname_P2));
+                    }
+                    else
+                    {
+                        tmpTotalMC2D_P2->Add(tmpHist2D_P2);
+                    }
+                }
+
+                // TODO: what is parameter is NOT enabled
+
+            } // mc sample name iterator
+
+        } // file_param iterator
+
+        allFakeDataSamples2D->Add(tmpTotalMC2D_P1);
+        allFakeDataSamples2D->Add(tmpTotalMC2D_P2);
+
+    } // channel
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#if 0
+
+
 
     std::cout << "build_fake_data()" << std::endl;
 
@@ -366,13 +745,12 @@ void build_fake_data()
         std::cout << "The integral for fake data is " << hAllMC2D[i]->Integral() << std::endl;
     }
 
-
+#endif
 
 
 
 
 }
-#endif
 
 
 
@@ -478,44 +856,74 @@ void rebuild_150Nd_MC(const double xi_31, const double xi_31_baseline)
         std::cout << "channel=" << channel << std::endl;
  
         std::string histname = std::string(channel_histname_1D[channel]);
-        std::string search_object_P1 = histname + std::string(Nd150Files[0]) + "_P1";
-        std::string search_object_P2 = histname + std::string(Nd150Files[0]) + "_P2";
+        std::string search_object_P1 = histname + std::string(Nd150Files[0]) + "_P1_fit";
+        std::string search_object_P2 = histname + std::string(Nd150Files[0]) + "_P2_fit";
 
-        TObject *tmpobj_P1 = allDataSamples1D->FindObject(search_object_P1.c_str());
-        TObject *tmpobj_P2 = allDataSamples1D->FindObject(search_object_P2.c_str());
-        allDataSamples1D->Remove(tmpobj_P1);
-        allDataSamples1D->Remove(tmpobj_P2);
+        if(debugprint)
+        {
+            std::cout << "search_object_P1=" << search_object_P1 << std::endl;
+            std::cout << "search_object_P2=" << search_object_P2 << std::endl;
+        }
+
+        TObject *tmpobj_P1 = allMCSamples1D[channel]->FindObject(search_object_P1.c_str());
+        TObject *tmpobj_P2 = allMCSamples1D[channel]->FindObject(search_object_P2.c_str());
+        if(tmpobj_P1 == nullptr)
+        {
+            std::cout << "could not find object: " << search_object_P1 << std::endl;
+            /*for(int i = 0; i < allMCSamples1D[channel]->GetEntries(); ++ i)
+            {
+                std::cout << allMCSamples1D[channel]->At(i)->GetName() << std::endl;
+            }*/
+            throw "problem";
+        }
+        if(tmpobj_P2 == nullptr)
+        {
+            std::cout << "could not find object: " << search_object_P2 << std::endl;
+            throw "problem";
+        }
+        allMCSamples1D[channel]->Remove(tmpobj_P1);
+        allMCSamples1D[channel]->Remove(tmpobj_P2);
     } // channel
 
-#if 0
     // search through each channel for 150nd samples
     //for(int channel = 0; channel < allDataSamples2D->GetEntries(); ++ channel)
     for(int channel = 0; channel < number2DHists; ++ channel)
     {
         std::cout << "channel=" << channel << std::endl;
 
-        // search through each sample for this channel
-        for(int i = 0; i < allMCSamples2D[channel]->GetEntries(); ++ i)
+        std::string histname = std::string(channel_histname_2D[channel]);
+        std::string search_object_P1 = histname + std::string(Nd150Files[0]) + "_P1_fit";
+        std::string search_object_P2 = histname + std::string(Nd150Files[0]) + "_P2_fit";
+
+        if(debugprint)
         {
-            TH1D *tmpHist = (TH1D*)allMCSamples2D[channel]->At(i);
-            TString tmpHist_name = tmpHist->GetName();
-            std::cout << "tmpHist_name=" << tmpHist_name << std::endl;
+            std::cout << "search_object_P1=" << search_object_P1 << std::endl;
+            std::cout << "search_object_P2=" << search_object_P2 << std::endl;
+        }
 
-            // if name contains this string, it needs to be reweighted
-            if(tmpHist_name.Contains("nd150_rot_2n2b_m4") ||
-               tmpHist_name.Contains("nd150_rot_2b2n_m4"))
-            {
-                // remove histogram
-                allMCSamples2D[channel]->RemoveAt(i);
-                break;
-                // TODO: will only work for a maximum of 1 histograms
-                // removed because index i will shift due to removing
-                // histogram at i
-            }
-
-        } // i
+        TObject *tmpobj_P1 = allMCSamples2D[channel]->FindObject(search_object_P1.c_str());
+        TObject *tmpobj_P2 = allMCSamples2D[channel]->FindObject(search_object_P2.c_str());
+        if(tmpobj_P1 == nullptr)
+        {
+            std::cout << "could not find object: " << search_object_P1 << std::endl;
+            throw "problem";
+        }
+        if(tmpobj_P2 == nullptr)
+        {
+            std::cout << "could not find object: " << search_object_P2 << std::endl;
+            throw "problem";
+        }
+        if(allMCSamples2D[channel]->Remove(tmpobj_P1) == nullptr)
+        {
+            std::cout << "FAILED TO REMOVE" << std::endl;
+            throw "failed to remove";
+        }
+        if(allMCSamples2D[channel]->Remove(tmpobj_P2) == nullptr)
+        {
+            std::cout << "FAILED TO REMOVE" << std::endl;
+            throw "failed to remove";
+        }
     } // channel
-#endif
 
     if(debugprint)
     {
@@ -572,7 +980,10 @@ void rebuild_150Nd_MC(const double xi_31, const double xi_31_baseline)
 
     // TODO: just another example of manual code edits
     // make a file describing the channels to fit as well as the parameters
-    std::cout << "adding P1 histograms" << std::endl;
+    if(debugprint)
+    {
+        std::cout << "adding P1 histograms" << std::endl;
+    }
     allMCSamples1D[0]->Add(hTotalE_P1);
     allMCSamples1D[1]->Add(hSingleEnergy_P1);
     allMCSamples1D[2]->Add(hHighEnergy_P1);
@@ -580,7 +991,10 @@ void rebuild_150Nd_MC(const double xi_31, const double xi_31_baseline)
     allMCSamples1D[4]->Add(hEnergySum_P1);
     allMCSamples1D[5]->Add(hEnergyDiff_P1);
 
-    std::cout << "adding P2 histograms" << std::endl;
+    if(debugprint)
+    {
+        std::cout << "adding P2 histograms" << std::endl;
+    }
     allMCSamples1D[0]->Add(hTotalE_P2);
     allMCSamples1D[1]->Add(hSingleEnergy_P2);
     allMCSamples1D[2]->Add(hHighEnergy_P2);
@@ -592,6 +1006,7 @@ void rebuild_150Nd_MC(const double xi_31, const double xi_31_baseline)
     allMCSamples2D[0]->Add(hHighLowEnergy_P1);
     allMCSamples2D[0]->Add(hHighLowEnergy_P2);
 }
+
 
 
 

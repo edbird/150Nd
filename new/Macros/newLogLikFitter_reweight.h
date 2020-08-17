@@ -374,6 +374,10 @@ Double_t ReWeight3(const Double_t T1, const Double_t T2,
     Double_t h_nEqNull_c{h_nEqNull->GetBinContent(bin_x, bin_y)};
     Double_t h_nEqTwo_c{h_nEqTwo->GetBinContent(bin_x, bin_y)};
   
+    h_nEqNull_c = ((TH2*)h_nEqNull)->Interpolate(T1, T2);
+    h_nEqTwo_c = ((TH2*)h_nEqTwo)->Interpolate(T1, T2);
+
+
     // get the weight for this T1, T2
     // the input data is for epsilon = 0.0
     //Double_t phase_1{1.0 / psiN0};

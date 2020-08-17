@@ -140,7 +140,10 @@ void fitBackgrounds_init(
         {
             // this is a fixed parameter
             // define parameter using constrained value if hard constrained
-            std::cout << "HARD" << std::endl;
+            if(debugprint)
+            {
+                std::cout << "HARD" << std::endl;
+            }
 
             TString minuit_param_name = "_" + paramNumber_str + "_" + minuit_param_number_str + "_FIXED";
             
@@ -161,7 +164,10 @@ void fitBackgrounds_init(
         else
         {
             // param is either free or soft constrained
-            std::cout << "SOFT / FREE" << std::endl;
+            if(debugprint)
+            {
+                std::cout << "SOFT / FREE" << std::endl;
+            }
 
             TString minuit_param_name = "_" + paramNumber_str + "_" + minuit_param_number_str + "_";
 
