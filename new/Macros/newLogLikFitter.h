@@ -51,13 +51,13 @@ const Int_t MODE_PARALLEL = 0;
 //const TString gMODE_Phase = "BOTH"; // BOTH/P1/P2
 bool gEnablePhase1;
 bool gEnablePhase2;
-std::map<int, int> map_1d_channel_to_phase;
-std::map<int, int> map_2d_channel_to_phase;
+//std::map<int, int> map_1d_channel_to_phase;
+//std::map<int, int> map_2d_channel_to_phase;
 
 parameter_group g_pg;
 
 bool g_mode_fake_data = false;
-std::string g_datetimestamp_string;
+//std::string g_datetimestamp_string;
 
 // globals required in logLikelihood function but cannot be passed as
 // parameters easily
@@ -316,7 +316,7 @@ const std::string channel_histname_1D[number1DHists] =
 
 const std::string channel_histname_2D[number2DHists] =
 {
-    "hHighLowEnergy_",
+    "hHighLowEnergy_"
 };
 
 const bool channel_enable_draw_1D[number1DHists] =
@@ -347,8 +347,8 @@ TObjArray *allFakeDataSamples1D;
 TObjArray *allFakeDataSamples2D;
 
 // select between data / fake data in transparent way
-TObjArray *allDataOrFakeDataSamples1D;
-TObjArray *allDataOrFakeDataSamples2D;
+//TObjArray *allDataOrFakeDataSamples1D;
+//TObjArray *allDataOrFakeDataSamples2D;
 
 
 std::vector<std::pair<double,double>> ll_walk;

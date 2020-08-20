@@ -214,6 +214,21 @@ class parameter_group
     }
 
 
+    int get_number_free_params() const
+    {
+        int sum = 0;
+        std::map<int, file_parameter>::const_iterator it{file_params.cbegin()};
+        for(; it != file_params.cend(); ++ it)
+        {
+            if(it->second.paramConstraintMode == MODE_CONSTRAINT_FREE)
+            {
+                ++ sum;
+            }
+        }
+        return sum;
+    }
+
+
     int get_xi_31_int_param_number()
     {
         if(xi_31_int_ext_param_number_set == true)
@@ -371,6 +386,9 @@ class parameter_group
         const std::string& mc_name,
         int &param_number)
     {
+
+        int debuglevel = 1;
+
         //std::cout << __func__ << " mc_name=" << mc_name << std::endl;
         bool success = false;
         std::map<int, file_parameter>::iterator it{file_params.begin()};
@@ -385,14 +403,25 @@ class parameter_group
                 {
                     success = true;
                     param_number = param_index;
-                    std::cout << mc_name << " -> " << param_index << std::endl;
+                    if(debuglevel >= 2)
+                    {
+                        std::cout << mc_name << " -> " << param_index << std::endl;
+                    }
                 }
             }
 
             ++ param_index;
         }
 
-        std::cout << "return: success=" << success << " param_number=" << param_number << std::endl;
+        if(success == false)
+        {
+            std::cout << "ERROR in " << __func__ << " could not find object with mc_name=" << mc_name << std::endl;
+        }
+    
+        if(debuglevel >= 3)
+        {
+            std::cout << "return: success=" << success << " param_number=" << param_number << std::endl;
+        }
         return success;
     }
 

@@ -3,6 +3,29 @@
 
 
 
+void deleter_helper(TString hname)
+{
+    int debuglevel = 1;
+
+    TObject *hist = gROOT->FindObject(hname);
+    if(hist == nullptr)
+    {
+        if(debuglevel >= 3)
+        {
+            std::cout << hname << " nullptr!" << std::endl;
+        }
+    }
+    else
+    {
+        if(debuglevel >= 3)
+        {
+            std::cout << "delete " << hist->GetName() << std::endl;
+        }
+        delete hist;
+    }
+}
+
+
 // xi31 reweighting function for 150Nd spectra
 //void reweight_apply(TH2D *output, const TH1D *const input,
 void reweight_apply(
@@ -33,7 +56,12 @@ void reweight_apply(
 {
     TString tinput_filename = "Nd150_2eNg_output_truth_postprocessed_small.root";
 
-    std::cout << "reweight_apply: xi_31=" << xi_31 << " xi_31_baseline=" << xi_31_baseline << std::endl;
+    int debuglevel = 1;
+
+    if(debuglevel >= 2)
+    {
+        std::cout << "reweight_apply: xi_31=" << xi_31 << " xi_31_baseline=" << xi_31_baseline << std::endl;
+    }
 
     //std::cout << "reweight_apply" << std::endl;
 
@@ -41,235 +69,54 @@ void reweight_apply(
     const TString sampleName = Nd150Files[0];
     const TString name_append = "";
 
-    bool debugprint = true;
 
     // TODO: should these have "reweight" at the end? is this not a (minor)
     // problem in that these histograms do not exist on the first call
     // to this function?
     // is the P1/P2 in the right place?
 
-    if(debugprint)
+    if(debuglevel >= 3)
     {
         std::cout << "search and remove P1 histograms" << std::endl;
     }
+ 
+    // this is required to remove the objects from gROOT memory
+    deleter_helper("hTotalE_" + sampleName + name_append + "_P1_fit");
+    deleter_helper("hSingleEnergy_" + sampleName + name_append + "_P1_fit");
+    deleter_helper("hHighEnergy_" + sampleName + name_append + "_P1_fit"); 
+    deleter_helper("hLowEnergy_" + sampleName + name_append + "_P1_fit"); 
+    deleter_helper("hEnergySum_" + sampleName + name_append + "_P1_fit"); 
+    deleter_helper("hEnergyDiff_" + sampleName + name_append + "_P1_fit"); 
+    deleter_helper("hHighLowEnergy_" + sampleName + name_append + "_P1_fit");
+    deleter_helper("hWeight_" + sampleName + name_append + "_P1_fit"); 
 
 
-    TH1D *hTotalE_P1 = (TH1D*)gROOT->FindObject("hTotalE_" + sampleName + name_append + "_P1_fit");
-    if(hTotalE_P1 == nullptr)
-    {
-        if(debugprint)
-        {
-            std::cout << "hTotalE_P1 nullptr!" << std::endl;
-        }
-        //std::cin.get();
-    }
-    else
-    {
-        delete hTotalE_P1;
-    }
-
-    TH1D *hSingleEnergy_P1 = (TH1D*)gROOT->FindObject("hSingleEnergy_" + sampleName + name_append + "_P1_fit");
-    if(hSingleEnergy_P1 == nullptr)
-    {
-        if(debugprint)
-        {
-            std::cout << "hSingleEnergy_P1 nullptr!" << std::endl;
-        }
-    }
-    else
-    {
-        delete hSingleEnergy_P1;
-    }
-    
-    TH1D *hHighEnergy_P1 =  (TH1D*)gROOT->FindObject("hHighEnergy_" + sampleName + name_append + "_P1_fit");
-    if(hHighEnergy_P1 == nullptr)
-    {
-        if(debugprint)
-        {
-            std::cout << "hHighEnergy_P1 nullptr!" << std::endl;
-        }
-    }
-    else
-    {
-        delete hHighEnergy_P1;
-    }
-    
-    TH1D* hLowEnergy_P1 = (TH1D*)gROOT->FindObject("hLowEnergy_" + sampleName + name_append + "_P1_fit");
-    if(hLowEnergy_P1 == nullptr)
-    {
-        if(debugprint)
-        {
-            std::cout << "hLowEnergy_P1 nullptr!" << std::endl;
-        }
-    }
-    else
-    {
-        delete hLowEnergy_P1;
-    }
-    
-    TH1D* hEnergySum_P1 = (TH1D*)gROOT->FindObject("hEnergySum_" + sampleName + name_append + "_P1_fit");
-    if(hEnergySum_P1 == nullptr)
-    {
-        if(debugprint)
-        {
-            std::cout << "hEnergySum_P1 nullptr!" << std::endl;
-        }
-    }
-    else
-    {
-        delete hEnergySum_P1;
-    }
-    
-    TH1D* hEnergyDiff_P1 = (TH1D*)gROOT->FindObject("hEnergyDiff_" + sampleName + name_append + "_P1_fit");
-    if(hEnergyDiff_P1 == nullptr)
-    {
-        if(debugprint)
-        {
-            std::cout << "hEnergyDiff_P1 nullptr!" << std::endl;
-        }
-    }
-    else
-    {
-        delete hEnergyDiff_P1;
-    }
-    
-    TH2D* hHighLowEnergy_P1 = (TH2D*)gROOT->FindObject("hHighLowEnergy_" + sampleName + name_append + "_P1_fit");
-    if(hHighLowEnergy_P1 == nullptr)
-    {
-        if(debugprint)
-        {
-            std::cout << "hHighLowEnergy_P1 nullptr!" << std::endl;
-        }
-    }
-    else
-    {
-        delete hHighLowEnergy_P1;
-    }
-    
-    TH1D* hWeight_P1 = (TH1D*)gROOT->FindObject("hWeight_" + sampleName + name_append + "_P1_fit");
-    if(hWeight_P1 == nullptr)
-    {
-        if(debugprint)
-        {
-            std::cout << "hWeight_P1 nullptr!" << std::endl;
-        }
-    }
-    else
-    {
-        delete hWeight_P1;
-    }
-
-
-
-    if(debugprint)
+    if(debuglevel >= 3)
     {
         std::cout << "search and remove P2 histograms" << std::endl;
     }
 
+    // this is required to remove the objects from gROOT memory
+    deleter_helper("hTotalE_" + sampleName + name_append + "_P2_fit");
+    deleter_helper("hSingleEnergy_" + sampleName + name_append + "_P2_fit");
+    deleter_helper("hHighEnergy_" + sampleName + name_append + "_P2_fit"); 
+    deleter_helper("hLowEnergy_" + sampleName + name_append + "_P2_fit"); 
+    deleter_helper("hEnergySum_" + sampleName + name_append + "_P2_fit"); 
+    deleter_helper("hEnergyDiff_" + sampleName + name_append + "_P2_fit"); 
+    deleter_helper("hHighLowEnergy_" + sampleName + name_append + "_P2_fit");
+    deleter_helper("hWeight_" + sampleName + name_append + "_P2_fit"); 
 
-    TH1D *hTotalE_P2 = (TH1D*)gROOT->FindObject("hTotalE_" + sampleName + name_append + "_P2_fit");
-    if(hTotalE_P2 == nullptr)
+    if(debuglevel >= 4)
     {
-        if(debugprint)
-        {
-            std::cout << "hTotalE_P2 nullptr!" << std::endl;
-        }
+        std::cout << "gROOT->FindObject test:" << std::endl;
+        std::cout << "gROOT->FindObject(\"hTotalE_nd150_rot_2n2b_m4_P2_fit\") -> " << gROOT->FindObject("hTotalE_nd150_rot_2n2b_m4_P2_fit") << std::endl;
+        std::cout << "gROOT->FindObject(\"hHighLowEnergy_nd150_rot_2n2b_m4_P2_fit\") -> " << gROOT->FindObject("hHighLowEnergy_nd150_rot_2n2b_m4_P2_fit") << std::endl;
+        delete (TH1D*)gROOT->FindObject("hTotalE_nd150_rot_2n2b_m4_P2_fit");
+        delete (TH2D*)gROOT->FindObject("hHighLowEnergy_nd150_rot_2n2b_m4_P2_fit");
+        std::cout << "gROOT->FindObject(\"hTotalE_nd150_rot_2n2b_m4_P2_fit\") -> " << gROOT->FindObject("hTotalE_nd150_rot_2n2b_m4_P2_fit") << std::endl;
+        std::cout << "gROOT->FindObject(\"hHighLowEnergy_nd150_rot_2n2b_m4_P2_fit\") -> " << gROOT->FindObject("hHighLowEnergy_nd150_rot_2n2b_m4_P2_fit") << std::endl;
+        std::cout << "end of test" << std::endl;
         //std::cin.get();
-    }
-    else
-    {
-        delete hTotalE_P2;
-    }
-
-    TH1D *hSingleEnergy_P2 = (TH1D*)gROOT->FindObject("hSingleEnergy_" + sampleName + name_append + "_P2_fit");
-    if(hSingleEnergy_P2 == nullptr)
-    {
-        if(debugprint)
-        {
-            std::cout << "hSingleEnergy_P2 nullptr!" << std::endl;
-        }
-    }
-    else
-    {
-        delete hSingleEnergy_P2;
-    }
-    
-    TH1D *hHighEnergy_P2 = (TH1D*)gROOT->FindObject("hHighEnergy_" + sampleName + name_append + "_P2_fit");
-    if(hHighEnergy_P2 == nullptr)
-    {
-        if(debugprint)
-        {
-            std::cout << "hHighEnergy_P2 nullptr!" << std::endl;
-        }
-    }
-    else
-    {
-        delete hHighEnergy_P2;
-    }
-    
-    TH1D* hLowEnergy_P2 = (TH1D*)gROOT->FindObject("hLowEnergy_" + sampleName + name_append + "_P2_fit");
-    if(hLowEnergy_P2 == nullptr)
-    {
-        if(debugprint)
-        {
-            std::cout << "hLowEnergy_P2 nullptr!" << std::endl;
-        }
-    }
-    else
-    {
-        delete hLowEnergy_P2;
-    }
-    
-    TH1D* hEnergySum_P2 = (TH1D*)gROOT->FindObject("hEnergySum_" + sampleName + name_append + "_P2_fit");
-    if(hEnergySum_P2 == nullptr)
-    {
-        if(debugprint)
-        {
-            std::cout << "hEnergySum_P2 nullptr!" << std::endl;
-        }
-    }
-    else
-    {
-        delete hEnergySum_P2;
-    }
-    
-    TH1D* hEnergyDiff_P2 = (TH1D*)gROOT->FindObject("hEnergyDiff_" + sampleName + name_append + "_P2_fit");
-    if(hEnergyDiff_P2 == nullptr)
-    {
-        if(debugprint)
-        {
-            std::cout << "hEnergyDiff_P2 nullptr!" << std::endl;
-        }
-    }
-    else
-    {
-        delete hEnergyDiff_P2;
-    }
-    
-    TH2D* hHighLowEnergy_P2 = (TH2D*)gROOT->FindObject("hHighLowEnergy_" + sampleName + name_append + "_P2_fit");
-    if(hHighLowEnergy_P2 == nullptr)
-    {
-        if(debugprint)
-        {
-            std::cout << "hHighLowEnergy_P2 nullptr!" << std::endl;
-        }
-    }
-    else
-    {
-        delete hHighLowEnergy_P2;
-    }
-    
-    TH1D* hWeight_P2 = (TH1D*)gROOT->FindObject("hWeight_" + sampleName + name_append + "_P2_fit");
-    if(hWeight_P2 == nullptr)
-    {
-        if(debugprint)
-        {
-            std::cout << "hWeight_P2 nullptr!" << std::endl;
-        }
-    }
-    else
-    {
-        delete hWeight_P2;
     }
 
     //std::cout << "gROOT" << std::endl;
@@ -277,10 +124,11 @@ void reweight_apply(
     //gROOT->GetListOfClasses()->Print();
     //gDirectory->ls();
 
-    if(debugprint)
+    if(debuglevel >= 3)
     {
         std::cout << "create P1 histograms" << std::endl;
     }
+    //std::cin.get();
 
 
     // TODO: this does not work, need to re-Fill histogram using file
@@ -328,7 +176,7 @@ void reweight_apply(
                                 //50, -2.0, 4.0);
                                 50, 0.0, 0.0);
 
-    if(debugprint)
+    if(debuglevel >= 3)
     {
         std::cout << "create P2 histograms" << std::endl;
     }
@@ -429,7 +277,7 @@ void reweight_apply(
     //const Double_t* const el_energy_{staticsgroup.Get_el_energy_()};
     //const Double_t &gen_weight{staticsgroup.Get_gen_weight()};
     
-    if(debugprint)
+    if(debuglevel >= 5)
     {
         std::cout << "filling..." << std::endl;
     }

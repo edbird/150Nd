@@ -197,8 +197,6 @@ void draw(const draw_input_data &drawinputdata,
           const std::vector<double> &param_errs)
 {
 
-    bool mode_fake_data = g_mode_fake_data;
-
     ///////////////////////////////////////////////////////////////////////////
     // draw result
     ///////////////////////////////////////////////////////////////////////////
@@ -331,7 +329,7 @@ void draw_get_total_data_MC(
     TH1D *&hLowEnergy_allMC_out,
     TH1D *&hHighEnergy_data_out,
     TH1D *&hLowEnergy_data_out,
-    bool mode_fake_data = false,
+    bool g_mode_fake_data = false,
     int channel_index)
 {
 
@@ -396,7 +394,7 @@ void draw_get_total_data_MC(
         // uses at(i), but i should always be zero and there should be an
         // additional array index
         data1D[i] = (TH1D*)allDataSamples1D->At(i)->Clone();
-        if(mode_fake_data == true)
+        if(g_mode_fake_data == true)
         {
             fakeData1D[i] = (TH1D*)allFakeDataSamples1D->At(i)->Clone(); // TODO
             // TODO: will not work if logLikelihood not called before
@@ -641,7 +639,7 @@ void draw_get_total_data_MC(
         //data1D[i]->SetMaximum(PAD_U_Y_MAX);
         //data1D[i]->SetMinimum(PAD_U_Y_MIN);
         data1D[i]->GetYaxis()->SetRangeUser(PAD_U_Y_MIN, PAD_U_Y_MAX);
-        if(mode_fake_data == true)
+        if(g_mode_fake_data == true)
         {
             //fakeData1D[i]->SetMaximum(PAD_U_Y_MAX);
             //fakeData1D[i]->SetMinimum(PAD_U_Y_MIN);
@@ -649,11 +647,11 @@ void draw_get_total_data_MC(
         }
 
 
-        if(mode_fake_data == false)
+        if(g_mode_fake_data == false)
         {
             hRatio[i] = (TH1D*)data1D[i]->Clone();
         }
-        if(mode_fake_data == true)
+        if(g_mode_fake_data == true)
         {
             hRatio[i] = (TH1D*)fakeData1D[i]->Clone();
         }
@@ -662,7 +660,7 @@ void draw_get_total_data_MC(
         hRatio[i]->SetTitle("");
 
         std::cout << "draw-> MC Integral() = " << hAllMC1D[i]->Integral() << std::endl;
-        if(mode_fake_data == true)
+        if(g_mode_fake_data == true)
         {
             std::cout << "draw-> fakeData Integral() = " << fakeData1D[i]->Integral() << std::endl;
         }
@@ -800,7 +798,7 @@ void draw_get_total_data_MC(
         data1D[i]->SetLineColor(kBlack);
         data1D[i]->SetMarkerColor(kBlack);
         data1D[i]->SetFillColor(kBlack);
-        if(mode_fake_data == true)
+        if(g_mode_fake_data == true)
         {
             fakeData1D[i]->SetLineWidth(2);
             fakeData1D[i]->SetMarkerStyle(20);
@@ -813,18 +811,18 @@ void draw_get_total_data_MC(
         Ndata_str.Form("%i", (int)data1D[i]->Integral()); // TODO: float?
         data1D[i]->SetTitle("Data (" + Ndata_str + ")");
         TString Nfakedata_str;
-        if(mode_fake_data == true)
+        if(g_mode_fake_data == true)
         {
             Nfakedata_str.Form("%i", (int)fakeData1D[i]->Integral()); // TODO: float?
             fakeData1D[i]->SetTitle("Fake Data (" + Ndata_str + ")");
         }
-        if(mode_fake_data == false)
+        if(g_mode_fake_data == false)
         {
             //data1D[i]->Draw("PEsames");
             data1D[i]->Draw("PEsame");
             data1D[i]->GetYaxis()->SetRangeUser(PAD_U_Y_MIN, PAD_U_Y_MAX);
         }
-        if(mode_fake_data == true)
+        if(g_mode_fake_data == true)
         {
             fakeData1D[i]->Draw("PEsame");
             fakeData1D[i]->GetYaxis()->SetRangeUser(PAD_U_Y_MIN, PAD_U_Y_MAX);
@@ -866,11 +864,11 @@ void draw_get_total_data_MC(
         axis2->Draw();
 
         TLegend *leg = new TLegend(0.6, 0.1, 0.85, 0.85);
-        if(mode_fake_data == false)
+        if(g_mode_fake_data == false)
         {
             leg->AddEntry(data1D[i], "Data (" + Ndata_str + ")", "PE");
         }
-        if(mode_fake_data == true)
+        if(g_mode_fake_data == true)
         {
             leg->AddEntry(fakeData1D[i], "Fake Data (" + Nfakedata_str + ")", "PE");
         }
@@ -958,11 +956,11 @@ void draw_get_total_data_MC(
         if(i == 2)
         {
             hHighEnergy_allMC_out = (TH1D*)hAllMC1D[i]->Clone();
-            if(mode_fake_data == false)
+            if(g_mode_fake_data == false)
             {
                 hHighEnergy_data_out = (TH1D*)data1D[i]->Clone();
             }
-            if(mode_fake_data)
+            if(g_mode_fake_data)
             {
                 hHighEnergy_data_out = (TH1D*)fakeData1D[i]->Clone();
             }
@@ -970,11 +968,11 @@ void draw_get_total_data_MC(
         else if(i == 3)
         {
             hLowEnergy_allMC_out = (TH1D*)hAllMC1D[i]->Clone();
-            if(mode_fake_data == false)
+            if(g_mode_fake_data == false)
             {
                 hLowEnergy_data_out = (TH1D*)data1D[i]->Clone();
             }
-            if(mode_fake_data)
+            if(g_mode_fake_data)
             {
                 hLowEnergy_data_out = (TH1D*)fakeData1D[i]->Clone();
             }

@@ -169,6 +169,8 @@ void book1DHistograms_helper(
     const int nBkgs,
     TString *BkgFiles)//, TH1D *tmpHist)
 {
+
+    int debuglevel = 2;
         
     TH1D *tmpHist_P1 = nullptr;
     TH1D *tmpHist_P2 = nullptr;
@@ -206,7 +208,11 @@ void book1DHistograms_helper(
                 // NOTE: it isn't
             }
             
-            std::cout << "mc_name=" << mc_name << " param_number=" << param_number << " scale_factor=" << scale_factor << std::endl;
+
+            if(debuglevel >= 3)
+            {
+                std::cout << "mc_name=" << mc_name << " param_number=" << param_number << " scale_factor=" << scale_factor << std::endl;
+            }
 
             //std::string directory("scaled/hTotalE_/");
             std::string directory("scaled/" + theHistogram + "/");
@@ -215,7 +221,10 @@ void book1DHistograms_helper(
             //std::string new_name(theHistogram + BkgFiles[i] + "_fit"); // TODO: probably need a different new_name for P1 and P2
             std::string new_name_P1(theHistogram + BkgFiles[i] + "_P1_fit"); // TODO: probably need a different new_name for P1 and P2
             std::string new_name_P2(theHistogram + BkgFiles[i] + "_P2_fit"); // TODO: probably need a different new_name for P1 and P2
-            std::cout << "fullname=" << fullname << std::endl;
+            if(debuglevel >= 3)
+            {
+                std::cout << "fullname=" << fullname << std::endl;
+            }
 
             //gDirectory->GetListOfKeys();
 
@@ -224,7 +233,10 @@ void book1DHistograms_helper(
             tmpHist_P2 = (TH1D*)aFile_P2->Get(fullname.c_str())->Clone(new_name_P2.c_str());
             // TODO: should not clone but setname() here?
 
-            std::cout << "check the name of histograms: (P1): " << tmpHist_P1->GetName() << " (P2): " << tmpHist_P2->GetName() << std::endl;
+            if(debuglevel >= 2)
+            {
+                std::cout << "check the name of histograms: (P1): " << tmpHist_P1->GetName() << " (P2): " << tmpHist_P2->GetName() << std::endl;
+            }
             // TODO: suspect I need to add P1 or P2 to the histograms
             // TODO: need to be careful with some histograms because they have
             // a P1 IN, P2 IN, etc... they are different depending on P1, P2
@@ -281,7 +293,7 @@ void book1DHistograms_helper(
                 // the default (not reweighted) nd150 spectra
                 // TODO: this may no longer be true
 
-                allMCSamples1D[channel_counter]->Add(tmpHist_P1);
+                allMCSamples1D[channel_counter]->Add((TH1D*)tmpHist_P1);
                 // TODO: does this work as expected for secular equlibrium samples?
 
                 //std::cout << tmpHist->GetName() << std::endl;
@@ -306,7 +318,7 @@ void book1DHistograms_helper(
                     throw "Error";
                 }
 
-                allMCSamples1D[channel_counter]->Add(tmpHist_P2);
+                allMCSamples1D[channel_counter]->Add((TH1D*)tmpHist_P2);
             }
             else
             {
@@ -371,6 +383,8 @@ void book1DHistograms_helper(
 void book1DHistograms(Int_t channel_counter, TString theChannel, TString theHistogram)
 {
 
+    int debuglevel = 2;
+
     //std::cout << "booking 1D hists for " << theChannel << " " << thePhase_arg << std::endl;
     std::cout << "booking 1D hists for " << theChannel << " " << "P1 and P2" << std::endl;
     allMCSamples1D[channel_counter] = new TObjArray();
@@ -379,15 +393,20 @@ void book1DHistograms(Int_t channel_counter, TString theChannel, TString theHist
     //TFile *aFile = TFile::Open("Nd150_" + theChannel + thePhase_arg + ".root");
     TString thePhase_arg_P1 = "P1";
     TString thePhase_arg_P2 = "P2";
-    TFile *aFileP1 = TFile::Open("Nd150_" + theChannel + thePhase_arg_P1 + ".root");
-    TFile *aFileP2 = TFile::Open("Nd150_" + theChannel + thePhase_arg_P2 + ".root");
+    //TFile *aFileP1 = TFile::Open("Nd150_" + theChannel + thePhase_arg_P1 + ".root");
+    //TFile *aFileP2 = TFile::Open("Nd150_" + theChannel + thePhase_arg_P2 + ".root");
+    TFile *aFileP1 = new TFile("Nd150_" + theChannel + thePhase_arg_P1 + ".root");
+    TFile *aFileP2 = new TFile("Nd150_" + theChannel + thePhase_arg_P2 + ".root");
     //gDirectory->cd("singleHistos");
     //gDirectory->ls();
 
 
     //TH1D *tmpHist = nullptr; //new TH1D("tmpHist_" + theChannel + thePhase_arg, "" , 1, 0, 1);
-    
-    std::cout << "External" << std::endl;
+
+    if(debuglevel >= 2)
+    {
+        std::cout << "External" << std::endl;
+    }
     book1DHistograms_helper(aFileP1, aFileP2,
                             channel_counter, theChannel,
                             theHistogram,
@@ -397,7 +416,10 @@ void book1DHistograms(Int_t channel_counter, TString theChannel, TString theHist
 
     // TODO: does this work as expected for secular equlibrium samples?
 
-    std::cout << "Internal" << std::endl;
+    if(debuglevel >= 2)
+    {
+        std::cout << "Internal" << std::endl;
+    }
     book1DHistograms_helper(aFileP1, aFileP2,
                             channel_counter, theChannel,
                             theHistogram,
@@ -405,7 +427,10 @@ void book1DHistograms(Int_t channel_counter, TString theChannel, TString theHist
                             InternalBkgFiles);//,
                             //tmpHist);
 
-    std::cout << "Rn 222" << std::endl;
+    if(debuglevel >= 2)
+    {
+        std::cout << "Rn 222" << std::endl;
+    }
     book1DHistograms_helper(aFileP1, aFileP2,
                             channel_counter, theChannel,
                             theHistogram,
@@ -414,7 +439,10 @@ void book1DHistograms(Int_t channel_counter, TString theChannel, TString theHist
                             Rn222BkgFilesNew);//,
                             //tmpHist);
 
-    std::cout << "Rn 220" << std::endl;
+    if(debuglevel >= 2)
+    {
+        std::cout << "Rn 220" << std::endl;
+    }
     book1DHistograms_helper(aFileP1, aFileP2,
                             channel_counter, theChannel,
                             theHistogram,
@@ -422,7 +450,10 @@ void book1DHistograms(Int_t channel_counter, TString theChannel, TString theHist
                             Rn220BkgFiles);//,
                             //tmpHist);
 
-    std::cout << "Neighbour" << std::endl;
+    if(debuglevel >= 2)
+    {
+        std::cout << "Neighbour" << std::endl;
+    }
     book1DHistograms_helper(aFileP1, aFileP2,
                             channel_counter, theChannel,
                             theHistogram,
@@ -430,7 +461,10 @@ void book1DHistograms(Int_t channel_counter, TString theChannel, TString theHist
                             NeighbourFiles);//,
                             //tmpHist);
 
-    std::cout << "Nd150" << std::endl;
+    if(debuglevel >= 2)
+    {
+        std::cout << "Nd150" << std::endl;
+    }
     book1DHistograms_helper(aFileP1, aFileP2,
                             channel_counter, theChannel,
                             theHistogram,
@@ -440,74 +474,92 @@ void book1DHistograms(Int_t channel_counter, TString theChannel, TString theHist
 
     // TODO: need P1 and P2 data here
 
-    std::cout << "Data" << std::endl;
-    // TODO here
-    // what is name in other section of code
-    //std::string name(theHistogram + "data_2e");
-    //std::string directory("processeddata/hTotalE_/");
-    std::string directory("processeddata/" + theHistogram + "/");
-    std::string name(theHistogram + DataFile);
-    //std::string fake_data_name(theHistogram + "data_2e_fake");
-    std::string fullname = directory + name;
-    std::cout << "fullname=" << fullname << std::endl;
-    //if(gDirectory->GetListOfKeys()->Contains(fullname.c_str()))
-    //TH1D *tmpHist = (TH1D*)gDirectory->Get(fullname.c_str())->Clone();
-    std::string new_name_P1(theHistogram + DataFile + "_P1"); // TODO: probably need a different new_name for P1 and P2
-    std::string new_name_P2(theHistogram + DataFile + "_P2"); // TODO: probably need a different new_name for P1 and P2 check works
-    TH1D *tmpHist_P1 = (TH1D*)aFileP1->Get(fullname.c_str())->Clone(new_name_P1.c_str());
-    TH1D *tmpHist_P2 = (TH1D*)aFileP2->Get(fullname.c_str())->Clone(new_name_P2.c_str());
-            // TODO: suspect I need to add P1 or P2 to the histograms
-            // TODO: need to be careful with some histograms because they have
-            // a P1 IN, P2 IN, etc... they are different depending on P1, P2
-            // as in the name is different... in fit_2e.C
-    // TODO: should not clone but setname() here?
-    std::cout << "check the name of histograms: (P1): " << tmpHist_P1->GetName() << " (P2): " << tmpHist_P2->GetName() << std::endl;
-    if(tmpHist_P1 != nullptr)
-    {
-        //TH1D *tmpHist = nullptr;
-        // 2020-04-03: removed changing of histogram name
-        //std::string hist_name("data_" + theChannel + thePhase_arg);
-        //std::cout << "Get() : " << name << " from file, Clone() : " << hist_name << std::endl;
-        //tmpHist = (TH1D*)gDirectory->Get(name.c_str())->Clone(hist_name.c_str());
-        //tmpHist = (TH1D*)gDirectory->Get(fullname.c_str())->Clone();
-        allDataSamples1D->Add((TH1D*)tmpHist_P1);
-    }
-    else
-    {
-        std::cout << "gDirectory->GetListOfKeys() does not contain " << fullname << std::endl;
-        std::cout << __func__ << " could not find histogram in file: " << fullname << " - disabling parameter number TODO fix this error" << std::endl;
-    }
 
-    if(tmpHist_P2 != nullptr)
+    if(g_mode_fake_data == false)
     {
-        allDataSamples1D->Add((TH1D*)tmpHist_P2);
-    }
-    else
-    {
-        std::cout << "gDirectory->GetListOfKeys() does not contain " << fullname << std::endl;
-        std::cout << __func__ << " could not find histogram in file: " << fullname << " - disabling parameter number TODO fix this error" << std::endl;
-    }
-    /*
-    if(gDirectory->GetListOfKeys()->Contains(theHistogram + "Data"))
-    {
-        std::string name(theHistogram + "Data");
-        std::cout << "Get() : " << name << " from file, Clone() : " << "Data_" + theChannel + thePhase_arg << std::endl;
-        tmpHist = (TH1D*)gDirectory->Get(name.c_str())->Clone("Data_" + theChannel + thePhase_arg);
-        allDataSamples1D->Add((TH1D*)tmpHist);
-    }
-    else
-    {
-        std::cout << "gDirectory->GetListOfKeys() does not contain " << theHistogram + "Data" << std::endl;
-    }
-    */
+        if(debuglevel >= 2)
+        {
+            std::cout << "Data" << std::endl;
+        }
+        // TODO here
+        // what is name in other section of code
+        //std::string name(theHistogram + "data_2e");
+        //std::string directory("processeddata/hTotalE_/");
+        std::string directory("processeddata/" + theHistogram + "/");
+        std::string name(theHistogram + DataFile);
+        //std::string fake_data_name(theHistogram + "data_2e_fake");
+        std::string fullname = directory + name;
+        std::cout << "fullname=" << fullname << std::endl;
+        //if(gDirectory->GetListOfKeys()->Contains(fullname.c_str()))
+        //TH1D *tmpHist = (TH1D*)gDirectory->Get(fullname.c_str())->Clone();
+        std::string new_name_P1(theHistogram + DataFile + "_P1"); // TODO: probably need a different new_name for P1 and P2
+        std::string new_name_P2(theHistogram + DataFile + "_P2"); // TODO: probably need a different new_name for P1 and P2 check works
+        TH1D *tmpHist_P1 = (TH1D*)aFileP1->Get(fullname.c_str())->Clone(new_name_P1.c_str());
+        TH1D *tmpHist_P2 = (TH1D*)aFileP2->Get(fullname.c_str())->Clone(new_name_P2.c_str());
+                // TODO: suspect I need to add P1 or P2 to the histograms
+                // TODO: need to be careful with some histograms because they have
+                // a P1 IN, P2 IN, etc... they are different depending on P1, P2
+                // as in the name is different... in fit_2e.C
+        // TODO: should not clone but setname() here?
+        std::cout << "check the name of histograms: (P1): " << tmpHist_P1->GetName() << " (P2): " << tmpHist_P2->GetName() << std::endl;
+        if(tmpHist_P1 != nullptr)
+        {
+            //TH1D *tmpHist = nullptr;
+            // 2020-04-03: removed changing of histogram name
+            //std::string hist_name("data_" + theChannel + thePhase_arg);
+            //std::cout << "Get() : " << name << " from file, Clone() : " << hist_name << std::endl;
+            //tmpHist = (TH1D*)gDirectory->Get(name.c_str())->Clone(hist_name.c_str());
+            //tmpHist = (TH1D*)gDirectory->Get(fullname.c_str())->Clone();
+            allDataSamples1D->Add((TH1D*)tmpHist_P1);
+        }
+        else
+        {
+            std::cout << "gDirectory->GetListOfKeys() does not contain " << fullname << std::endl;
+            std::cout << __func__ << " could not find histogram in file: " << fullname << " - disabling parameter number TODO fix this error" << std::endl;
+        }
 
+        if(tmpHist_P2 != nullptr)
+        {
+            allDataSamples1D->Add((TH1D*)tmpHist_P2);
+        }
+        else
+        {
+            std::cout << "gDirectory->GetListOfKeys() does not contain " << fullname << std::endl;
+            std::cout << __func__ << " could not find histogram in file: " << fullname << " - disabling parameter number TODO fix this error" << std::endl;
+        }
+        /*
+        if(gDirectory->GetListOfKeys()->Contains(theHistogram + "Data"))
+        {
+            std::string name(theHistogram + "Data");
+            std::cout << "Get() : " << name << " from file, Clone() : " << "Data_" + theChannel + thePhase_arg << std::endl;
+            tmpHist = (TH1D*)gDirectory->Get(name.c_str())->Clone("Data_" + theChannel + thePhase_arg);
+            allDataSamples1D->Add((TH1D*)tmpHist);
+        }
+        else
+        {
+            std::cout << "gDirectory->GetListOfKeys() does not contain " << theHistogram + "Data" << std::endl;
+        }
+        */
+
+    }
+    else if(g_mode_fake_data == true)
+    {
+        if(debuglevel >= 1)
+        {
+            std::cout << "not loading data: g_mode_fake_data=true" << std::endl;
+        }
+    }
 
 
 
     // std::cout << tmpHist->GetName() << std::endl;
     // tmpHist->Delete();
-    // aFile->Close();
+    //aFile->Close();
     // aFile->Delete();
+    aFileP1->Close();
+    delete aFileP1;
+    aFileP2->Close();
+    delete aFileP2;
 }
 
 

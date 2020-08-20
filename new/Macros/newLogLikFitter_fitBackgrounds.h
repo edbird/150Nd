@@ -19,7 +19,7 @@ void fitBackgrounds_init(
 //    std::cout << " 1 " << AdjustActs[1] << std::endl;
 //    std::cin.get();
 
-    bool debugprint = true;
+    bool debugprint = false;
     if(debugprint)
     {
         std::cout << ">>>>> fitBackgrounds_init()" << std::endl;
@@ -157,7 +157,7 @@ void fitBackgrounds_init(
             {
                 // MC sample amplitude parameter
                 theParameterState.Add(std::string(minuit_param_name), 1.0, 0.5);
-                theParameterState.SetLowerLimit(minuit_param_number, 0.0);
+                //theParameterState.SetLowerLimit(minuit_param_number, 0.0);
             }
             theParameterState.Fix(std::string(minuit_param_name));
         }
@@ -367,181 +367,157 @@ void fitBackgrounds_phasespace_init(
     ROOT::Minuit2::VariableMetricMinimizer& theMinimizer,
     //double *AdjustActs,
     //double *AdjustActs_Err,
-    const double Nd150_A,
-    const double xi_31
+    const double Nd150_A_value,
+    const double Nd150_A_error,
+    const double xi_31_value,
+    const double xi_31_error
     )
 {
-#if 0
     //std::cout << ">>>>> fitBackgrounds_phasespace_init()" << std::endl;
     //std::cout << "numberEnabledParams=" << numberEnabledParams << std::endl;
+
+    const int debuglevel = 1;
 
 
     ///////////////////////////////////////////////////////////////////////////
     // Phase 1: MINUIT PARAMETERS
     ///////////////////////////////////////////////////////////////////////////
 
-    for(int i = 0; i < numberParams; i++)
+    
+    std::map<int, file_parameter>::iterator it{g_pg.file_params.begin()};
+    for(; it != g_pg.file_params.end(); ++ it)
     {
-        // internal (minuit) parameter number
         int minuit_param_number = -1;
+        
+        int paramNumber = it->second.paramNumber;
+        bool paramEnabled = it->second.paramEnabled;
+        bool paramEnabledP1 = it->second.paramEnabledP1;
+        bool paramEnabledP2 = it->second.paramEnabledP2;
+        double paramInitValue = it->second.paramInitValue;
+        double paramInitError = it->second.paramInitError;
+        int paramConstraintMode = it->second.paramConstraintMode;
 
-        // check if parameter enabled
-        if(std::find(enabled_params.begin(), enabled_params.end(), i) == enabled_params.end())
+        if(debuglevel >= 3)
         {
-            // NOT enabled: ignore
+            std::cout << "paramNumber=" << paramNumber << std::endl;
+        }
+
+        // decide what to do depending on whether parameter is enabled
+        // and for which phases
+
+        bool ok = false;
+        if(paramEnabled == true)
+        {
+            if(gEnablePhase1 == true)
+            {
+                if(paramEnabledP1 == true)
+                {
+                    ok = true;
+                }
+            }
+
+            if(gEnablePhase2 == true)
+            {
+                if(paramEnabledP2 == true)
+                {
+                    ok = true;
+                }
+            }
+        }
+        if(ok == false)
+        {
+            std::cout << __func__ << " ok == false" << std::endl;
+            std::cin.get();
             continue;
         }
-        else
-        {
-            // is enabled: do nothing (exec code in following block)
+        // TODO: this correctly ignores any parameter which is disabled such that
+        // paramEnabled == false
+        // however, it also ignores parameters which are set as disabled for P1
+        // and P2, and when these are irrelevent due to the value of gEnablePhaseX
+        // so... the internal and external index will not match
+        // need to add some code to fix this when the parameters are read from
+        // file, (probably)
+        // unless I just ignore that here... perhaps paramEnabled dictates
+        // whether parameter is drawn and the phase1/phase2 enable flag
+        // is to decide whether minuit does the fit or not (in which case
+        // the param may still contribute to chisquare but may not be minimized
+        // by minuit)
 
-            // set internal parameter number
-            minuit_param_number = paramNumberToMinuitParamNumberMap.at(i);
-        }
-            
 
-        TString i_str;
-        i_str.Form("%i", i);
+        TString paramNumber_str;
+        paramNumber_str.Form("%i", paramNumber);
+        minuit_param_number = g_pg.ExtToIntParamNumberMap.at(paramNumber);
         TString minuit_param_number_str;
         minuit_param_number_str.Form("%i", minuit_param_number);
-        //std::cout << "DefineParameter: i=" << i << " -> minuit_param_number=" << minuit_param_number << std::endl;
 
-
-        // TODO: this function will fail, as parameters 0 and 1 should be fixed
-        // but they will not be marked as fixed!
-        if((i == 0) || (i == 1))
+        if(paramConstraintMode == MODE_CONSTRAINT_HARD)
         {
-            // Phase 1
+            // this is a fixed parameter
+            // define parameter using constrained value if hard constrained
+            if(debuglevel >= 3)
+            {
+                std::cout << "HARD" << std::endl;
+            }
 
-            // parameters 0 and 1 are fixed when fitting for fixed point
-            // in phase space
-            TString minuit_param_name_P1 = "_" + i_str + "_" + minuit_param_number_str + "_P1_FIXED";
+            TString minuit_param_name = "_" + paramNumber_str + "_" + minuit_param_number_str + "_FIXED";
             
-            if(i == 0)
+            if(paramNumber == 0)
             {
-                theParameterState.Add(std::string(minuit_param_name_P1), Nd150_A, 0.1 * Nd150_A);
-                theParameterState.Fix(std::string(minuit_param_name_P1));
+                theParameterState.Add(std::string(minuit_param_name), Nd150_A_value, Nd150_A_error);
+                //theParameterState.Fix(std::string(minuit_param_name));
             }
-            else if(i == 1)
+            //else if(paramNumber == g_pg.get_xi_31_ext_param_number())
+            else if(paramNumber == 1)
             {
-                theParameterState.Add(std::string(minuit_param_name_P1), xi_31, 0.1);
-                theParameterState.Fix(std::string(minuit_param_name_P1));
+                // xi_31 parameter
+                //theParameterState.Add(std::string(minuit_param_name), xi_31_value, xi_31_error); // instead of _Err was 0.5
+                //theParameterState.SetLowerLimit(i, 0.0); // no limit for xi
+                theParameterState.Add(std::string(minuit_param_name), xi_31_value, xi_31_error);
+                //theParameterState.Fix(std::string(minuit_param_name));
             }
+            else
+            {
+                // MC sample amplitude parameter
+                theParameterState.Add(std::string(minuit_param_name), 1.0, 0.1);
+                //theParameterState.SetLowerLimit(minuit_param_number, 0.0);
+            }
+            theParameterState.Fix(std::string(minuit_param_name));
         }
         else
         {
-            // parameter is not a "special" parameter (0 or 1... which is 
-            // 150Nd or xi_31... which are fixed due to the fact that we
-            // are plotting MPS
-
-            if(std::find(fixed_params.begin(), fixed_params.end(), i) != fixed_params.end())
+            // param is either free or soft constrained
+            if(debuglevel >= 3)
             {
-                // define parameter using constrained value if hard constrained
+                std::cout << "SOFT / FREE" << std::endl;
+            }
 
-                //std::cout << "minuit: fixed parameter i=" << i << std::endl;
-                TString minuit_param_name_P1 = "_" + i_str + "_" + minuit_param_number_str + "_P1_FIXED";
-                
-                theParameterState.Add(std::string(minuit_param_name), 1.0, 0.5);
+            TString minuit_param_name = "_" + paramNumber_str + "_" + minuit_param_number_str + "_";
+
+            if(paramNumber == 0)
+            {
+                theParameterState.Add(std::string(minuit_param_name), Nd150_A_value, Nd150_A_error);
                 theParameterState.Fix(std::string(minuit_param_name));
             }
-            else
+            //if(paramNumber == g_pg.get_xi_31_ext_param_number())
+            else if(paramNumber == 1)
             {
-                // define parameter using initial value if free/soft constrained
-                
-                //std::cout << "minuit: parameter i=" << i << " is enabled and not fixed, leaving free" << std::endl;
-                TString minuit_param_name_P1 = "_" + i_str + "_" + minuit_param_number_str + "_P1_";
-
-                theParameterState.Add(std::string(minuit_param_name_P1), 1.0, 0.1);
-                theParameterState.SetLowerLimit(i, 0.0); 
-            }
-        }
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Phase 2: MINUIT PARAMETERS
-    ///////////////////////////////////////////////////////////////////////////
-
-    for(int i = 0; i < numberParams; i++)
-    {
-        // internal (minuit) parameter number
-        int minuit_param_number = -1;
-
-        // check if parameter enabled
-        if(std::find(enabled_params.begin(), enabled_params.end(), i) == enabled_params.end())
-        {
-            // NOT enabled: ignore
-            continue;
-        }
-        else
-        {
-            // is enabled: do nothing (exec code in following block)
-
-            // set internal parameter number
-            minuit_param_number = paramNumberToMinuitParamNumberMap.at(i);
-        }
-            
-
-        TString i_str;
-        i_str.Form("%i", i);
-        TString minuit_param_number_str;
-        minuit_param_number_str.Form("%i", minuit_param_number);
-        //std::cout << "DefineParameter: i=" << i << " -> minuit_param_number=" << minuit_param_number << std::endl;
-
-
-        // TODO: this function will fail, as parameters 0 and 1 should be fixed
-        // but they will not be marked as fixed!
-        if((i == 0) || (i == 1))
-        {
-            // Phase 2
-
-            // parameters 0 and 1 are fixed when fitting for fixed point
-            // in phase space
-            TString minuit_param_name_P2 = "_" + i_str + "_" + minuit_param_number_str + "_P2_FIXED";
-            
-            if(i == 0)
-            {
-                theParameterState.Add(std::string(minuit_param_name_P2), Nd150_A, 0.1 * Nd150_A);
-                theParameterState.Fix(std::string(minuit_param_name_P2));
-            }
-            else if(i == 1)
-            {
-                theParameterState.Add(std::string(minuit_param_name_P2), xi_31, 0.1);
-                theParameterState.Fix(std::string(minuit_param_name_P2));
-            }
-        }
-        else
-        {
-            // parameter is not a "special" parameter (0 or 1... which is 
-            // 150Nd or xi_31... which are fixed due to the fact that we
-            // are plotting MPS
-
-            if(std::find(fixed_params.begin(), fixed_params.end(), i) != fixed_params.end())
-            {
-                // define parameter using constrained value if hard constrained
-
-                //std::cout << "minuit: fixed parameter i=" << i << std::endl;
-                TString minuit_param_name_P2 = "_" + i_str + "_" + minuit_param_number_str + "_P2_FIXED";
-                
-                theParameterState.Add(std::string(minuit_param_name_P2), 1.0, 0.5);
-                theParameterState.Fix(std::string(minuit_param_name_P2));
+                // xi_31 parameter
+                theParameterState.Add(std::string(minuit_param_name), xi_31_value, xi_31_error); // instead of _Err was 0.5
+                theParameterState.Fix(std::string(minuit_param_name));
+                //theParameterState.SetLowerLimit(minuit_param_number, -1.0); // was -0.4
             }
             else
             {
-                // define parameter using initial value if free/soft constrained
-                
-                //std::cout << "minuit: parameter i=" << i << " is enabled and not fixed, leaving free" << std::endl;
-                TString minuit_param_name = "_" + i_str + "_" + minuit_param_number_str + "_";
-
-                theParameterState.Add(std::string(minuit_param_name_P2), 1.0, 0.1);
-                theParameterState.SetLowerLimit(i, 0.0);
+                // MC sample amplitude parameter
+                theParameterState.Add(std::string(minuit_param_name), 1.0, 0.1);
+                theParameterState.SetLowerLimit(minuit_param_number, 0.0);
             }
+
+            // TODO: set initial error using initError/initValue
         }
+
     }
 
-    //std::cout << "all parameters fixed" << std::endl;
-    //std::cout << "Ready to exec fix" << std::endl;
-    //std::cout << "return" << std::endl;
-#endif
 }
 
 
@@ -584,24 +560,18 @@ ROOT::Minuit2::FunctionMinimum fitBackgrounds_exec(
 }
 
 
-/*
 ROOT::Minuit2::FunctionMinimum fitBackgrounds_phasespace_exec(
     ROOT::Minuit2::MnUserParameterState& theParameterState,
     ROOT::Minuit2::VariableMetricMinimizer& theMinimizer,
     MinimizeFCNAxialVector &theFCN
     )
 {
-//                std::cout << "i 1 exec: " << AdjustActs[i] << std::endl;
-//                std::cin.get();
-#if 0
     ROOT::Minuit2::MnStrategy theStrategy(1);
     ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, theParameterState, theStrategy);
 
     return FCN_min;
 
-#endif
 }
-*/
 
 
 

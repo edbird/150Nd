@@ -27,7 +27,7 @@ void build_fake_data()
 {
 
     //bool debugprint = true;
-    int debuglevel = 2;
+    int debuglevel = 1;
 
     allFakeDataSamples1D = new TObjArray();
     allFakeDataSamples2D = new TObjArray();
@@ -55,7 +55,7 @@ void build_fake_data()
             double paramInitValue = it->second.paramInitValue;
             double paramInitError = it->second.paramInitError;
 
-            if(debuglevel >= 1)
+            if(debuglevel >= 3)
             {
                 std::cout << "paramNumber=" << paramNumber << std::endl;
             }
@@ -100,6 +100,8 @@ void build_fake_data()
                 std::string search_object_P2 = histname + mc_name + "_P2_fit";
                 std::string hname_P1 = histname + std::string(DataFile) + "_P1";
                 std::string hname_P2 = histname + std::string(DataFile) + "_P2";
+                //std::string hname_P1 = histname + "fakedata_2e" + "_P1";
+                //std::string hname_P2 = histname + "fakedata_2e" + "_P2";
                 TH1D *tmpHist1D_P1 = nullptr;
                 TH1D *tmpHist1D_P2 = nullptr;
                 std::cout << "hname_P1=" << hname_P1 << std::endl;
@@ -144,10 +146,18 @@ void build_fake_data()
                     // found the mc samples, they are stored in tmpHist1D_P1 and tmpHist1D_P2
                     if(tmpTotalMC1D_P1 == nullptr)
                     {
+                        if(debuglevel >= 3)
+                        {
+                            std::cout << "Clone()" << std::endl;
+                        }
                         tmpTotalMC1D_P1 = (TH1D*)tmpHist1D_P1->Clone(TString(hname_P1));
                     }
                     else
                     {
+                        if(debuglevel >= 3)
+                        {
+                            std::cout << "Add()" << std::endl;
+                        }
                         tmpTotalMC1D_P1->Add(tmpHist1D_P1);
                     }
                 }
@@ -184,10 +194,18 @@ void build_fake_data()
                     // found the mc samples, they are stored in tmpHist1D_P1 and tmpHist1D_P2
                     if(tmpTotalMC1D_P2 == nullptr)
                     {
+                        if(debuglevel >= 3)
+                        {
+                            std::cout << "Clone()" << std::endl;
+                        }
                         tmpTotalMC1D_P2 = (TH1D*)tmpHist1D_P2->Clone(TString(hname_P2));
                     }
                     else
                     {
+                        if(debuglevel >= 3)
+                        {
+                            std::cout << "Add()" << std::endl;
+                        }
                         tmpTotalMC1D_P2->Add(tmpHist1D_P2);
                     }
                 }
@@ -238,7 +256,7 @@ void build_fake_data()
             double paramInitError = it->second.paramInitError;
             int paramConstraintMode = it->second.paramConstraintMode;
 
-            if(debuglevel >= 2)
+            if(debuglevel >= 3)
             {
                 std::cout << "paramNumber=" << paramNumber << std::endl;
             }
@@ -284,12 +302,14 @@ void build_fake_data()
                 TH2D *tmpHist2D_P2 = nullptr;
                 std::string hname_P1 = histname + std::string(DataFile) + "_P1";
                 std::string hname_P2 = histname + std::string(DataFile) + "_P2";
+                //std::string hname_P1 = histname + "fakedata_2e" + "_P1";
+                //std::string hname_P2 = histname + "fakedata_2e" + "_P2";
                 std::cout << "hname_P1=" << hname_P1 << std::endl;
                 std::cout << "hname_P2=" << hname_P2 << std::endl;
                 //std::cin.get();
 
                 paramNumberInt = g_pg.ExtToIntParamNumberMap.at(paramNumber);
-                if(debuglevel >= 2)
+                if(debuglevel >= 3)
                 {
                     std::cout << "paramNumber=" << paramNumber << " -> " << paramNumberInt << std::endl;
                 }
@@ -319,10 +339,18 @@ void build_fake_data()
 
                     if(tmpTotalMC2D_P1 == nullptr)
                     {
+                        if(debuglevel >= 3)
+                        {
+                            std::cout << "Clone()" << std::endl;
+                        }
                         tmpTotalMC2D_P1 = (TH2D*)tmpHist2D_P1->Clone(TString(hname_P1));
                     }
                     else
                     {
+                        if(debuglevel >= 3)
+                        {
+                            std::cout << "Add()" << std::endl;
+                        }
                         tmpTotalMC2D_P1->Add(tmpHist2D_P1);
                     }
                 }
@@ -352,10 +380,18 @@ void build_fake_data()
 
                     if(tmpTotalMC2D_P2 == nullptr)
                     {
+                        if(debuglevel >= 3)
+                        {
+                            std::cout << "Clone()" << std::endl;
+                        }
                         tmpTotalMC2D_P2 = (TH2D*)tmpHist2D_P2->Clone(TString(hname_P2));
                     }
                     else
                     {
+                        if(debuglevel >= 3)
+                        {
+                            std::cout << "Add()" << std::endl;
+                        }
                         tmpTotalMC2D_P2->Add(tmpHist2D_P2);
                     }
                 }
@@ -817,8 +853,7 @@ void build_fake_data()
 void rebuild_150Nd_MC(const double xi_31, const double xi_31_baseline)
 {
 
-    bool debugprint = true;
-
+    int debuglevel = 1;
 
     ///////////////////////////////////////////////////////////////////////
     // reweight hMinMaxEnergy_
@@ -853,13 +888,16 @@ void rebuild_150Nd_MC(const double xi_31, const double xi_31_baseline)
     //for(int channel = 0; channel < allDataSamples1D->GetEntries(); ++ channel)
     for(int channel = 0; channel < number1DHists; ++ channel)
     {
-        std::cout << "channel=" << channel << std::endl;
+        if(debuglevel >= 3)
+        {
+            std::cout << "channel=" << channel << std::endl;
+        }
  
         std::string histname = std::string(channel_histname_1D[channel]);
         std::string search_object_P1 = histname + std::string(Nd150Files[0]) + "_P1_fit";
         std::string search_object_P2 = histname + std::string(Nd150Files[0]) + "_P2_fit";
 
-        if(debugprint)
+        if(debuglevel >= 3)
         {
             std::cout << "search_object_P1=" << search_object_P1 << std::endl;
             std::cout << "search_object_P2=" << search_object_P2 << std::endl;
@@ -881,8 +919,35 @@ void rebuild_150Nd_MC(const double xi_31, const double xi_31_baseline)
             std::cout << "could not find object: " << search_object_P2 << std::endl;
             throw "problem";
         }
-        allMCSamples1D[channel]->Remove(tmpobj_P1);
-        allMCSamples1D[channel]->Remove(tmpobj_P2);
+
+        if(debuglevel >= 5)
+        {
+            std::cout << "before ->Remove():" << std::endl;
+            for(int i = 0; i < allMCSamples1D[channel]->GetEntries(); ++ i)
+            {
+                std::cout << allMCSamples1D[channel]->At(i)->GetName() << std::endl;
+            }
+        }
+        // NOTE: this just removes the object from the TObjArray
+        // it does not delete the object from gROOT memory
+        if(allMCSamples1D[channel]->Remove(tmpobj_P1) == nullptr)
+        {
+            std::cout << "FAILED TO REMOVE" << std::endl;
+            throw "failed to remove";
+        }
+        if(allMCSamples1D[channel]->Remove(tmpobj_P2) == nullptr)
+        {
+            std::cout << "FAILED TO REMOVE" << std::endl;
+            throw "failed to remove";
+        }
+        if(debuglevel >= 5)
+        {
+            std::cout << "after ->Remove():" << std::endl;
+            for(int i = 0; i < allMCSamples1D[channel]->GetEntries(); ++ i)
+            {
+                std::cout << allMCSamples1D[channel]->At(i)->GetName() << std::endl;
+            }
+        }
     } // channel
 
     // search through each channel for 150nd samples
@@ -895,7 +960,7 @@ void rebuild_150Nd_MC(const double xi_31, const double xi_31_baseline)
         std::string search_object_P1 = histname + std::string(Nd150Files[0]) + "_P1_fit";
         std::string search_object_P2 = histname + std::string(Nd150Files[0]) + "_P2_fit";
 
-        if(debugprint)
+        if(debuglevel >= 3)
         {
             std::cout << "search_object_P1=" << search_object_P1 << std::endl;
             std::cout << "search_object_P2=" << search_object_P2 << std::endl;
@@ -913,6 +978,17 @@ void rebuild_150Nd_MC(const double xi_31, const double xi_31_baseline)
             std::cout << "could not find object: " << search_object_P2 << std::endl;
             throw "problem";
         }
+
+        if(debuglevel >= 5)
+        {
+            std::cout << "before ->Remove():" << std::endl;
+            for(int i = 0; i < allMCSamples2D[channel]->GetEntries(); ++ i)
+            {
+                std::cout << allMCSamples2D[channel]->At(i)->GetName() << std::endl;
+            }
+        }
+        // NOTE: this just removes the object from the TObjArray
+        // it does not delete the object from gROOT memory
         if(allMCSamples2D[channel]->Remove(tmpobj_P1) == nullptr)
         {
             std::cout << "FAILED TO REMOVE" << std::endl;
@@ -923,9 +999,17 @@ void rebuild_150Nd_MC(const double xi_31, const double xi_31_baseline)
             std::cout << "FAILED TO REMOVE" << std::endl;
             throw "failed to remove";
         }
+        if(debuglevel >= 5)
+        {
+            std::cout << "after ->Remove():" << std::endl;
+            for(int i = 0; i < allMCSamples2D[channel]->GetEntries(); ++ i)
+            {
+                std::cout << allMCSamples2D[channel]->At(i)->GetName() << std::endl;
+            }
+        }
     } // channel
 
-    if(debugprint)
+    if(debuglevel >= 2)
     {
         std::cout << "xi_31=" << xi_31 << " xi_31_baseline=" << xi_31_baseline << std::endl;
     }
@@ -934,7 +1018,7 @@ void rebuild_150Nd_MC(const double xi_31, const double xi_31_baseline)
 
     TH1D *hWeight_P1 = nullptr;
     TH1D *hWeight_P2 = nullptr; // TODO: move?
-    if(debugprint || false)
+    if(debuglevel >= 5)
     {
         std::cout << "before reweight_apply()" << std::endl;
     }
@@ -962,7 +1046,7 @@ void rebuild_150Nd_MC(const double xi_31, const double xi_31_baseline)
         psiN0,
         psiN2,
         bb_Q);
-    if(debugprint || false)
+    if(debuglevel >= 5)
     {
         std::cout << "after reweight_apply()" << std::endl;
     }
@@ -980,7 +1064,7 @@ void rebuild_150Nd_MC(const double xi_31, const double xi_31_baseline)
 
     // TODO: just another example of manual code edits
     // make a file describing the channels to fit as well as the parameters
-    if(debugprint)
+    if(debuglevel >= 4)
     {
         std::cout << "adding P1 histograms" << std::endl;
     }
@@ -991,7 +1075,9 @@ void rebuild_150Nd_MC(const double xi_31, const double xi_31_baseline)
     allMCSamples1D[4]->Add(hEnergySum_P1);
     allMCSamples1D[5]->Add(hEnergyDiff_P1);
 
-    if(debugprint)
+    allMCSamples2D[0]->Add(hHighLowEnergy_P1);
+    
+    if(debuglevel >= 4)
     {
         std::cout << "adding P2 histograms" << std::endl;
     }
@@ -1003,7 +1089,6 @@ void rebuild_150Nd_MC(const double xi_31, const double xi_31_baseline)
     allMCSamples1D[5]->Add(hEnergyDiff_P2);
 
 
-    allMCSamples2D[0]->Add(hHighLowEnergy_P1);
     allMCSamples2D[0]->Add(hHighLowEnergy_P2);
 }
 

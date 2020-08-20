@@ -16,6 +16,8 @@ void book2DHistograms_helper(
     TString *BkgFiles)
     //, TH1D *tmpHist)
 {
+
+    int debuglevel = 2;
         
     TH2D *tmpHist_P1 = nullptr;
     TH2D *tmpHist_P2 = nullptr;
@@ -52,7 +54,10 @@ void book2DHistograms_helper(
                 // NOTE: it isn't
             }
             
-            std::cout << "mc_name=" << mc_name << " param_number=" << param_number << " scale_factor=" << scale_factor << std::endl;
+            if(debuglevel >= 3)
+            {
+                std::cout << "mc_name=" << mc_name << " param_number=" << param_number << " scale_factor=" << scale_factor << std::endl;
+            }
 
             // TODO:
             //std::string directory("scaled/hHighLowEnergy_/");
@@ -61,12 +66,20 @@ void book2DHistograms_helper(
             std::string fullname = directory + name;
             std::string new_name_P1(theHistogram + BkgFiles[i] + "_P1_fit");
             std::string new_name_P2(theHistogram + BkgFiles[i] + "_P2_fit");
-            std::cout << "fullname=" << fullname << std::endl;
+            if(debuglevel >= 3)
+            {
+                std::cout << "fullname=" << fullname << std::endl;
+            }
 
             // TODO: try catch block
             // load sample
             tmpHist_P1 = (TH2D*)aFile_P1->Get(fullname.c_str())->Clone(new_name_P1.c_str());
             tmpHist_P2 = (TH2D*)aFile_P2->Get(fullname.c_str())->Clone(new_name_P2.c_str());
+
+            if(debuglevel >= 2)
+            {
+                std::cout << "check the name of histograms: (P1): " << tmpHist_P1->GetName() << " (P2): " << tmpHist_P2->GetName() << std::endl;
+            }
             
             if(tmpHist_P1 != nullptr)
             {
@@ -83,7 +96,7 @@ void book2DHistograms_helper(
                     throw std::runtime_error("param_number=1");
                 }
 
-                allMCSamples2D[channel_counter]->Add(tmpHist_P1);
+                allMCSamples2D[channel_counter]->Add((TH2D*)tmpHist_P1);
             }
             else
             {
@@ -107,7 +120,7 @@ void book2DHistograms_helper(
                     throw std::runtime_error("param_number=1");
                 }
 
-                allMCSamples2D[channel_counter]->Add(tmpHist_P2);
+                allMCSamples2D[channel_counter]->Add((TH2D*)tmpHist_P2);
             }
             else
             {
@@ -246,31 +259,45 @@ void book2DHistograms_helper(
 // theChannel = "2e_"
 // thePhase = "P1"
 // theHistogram = "hHighLowEnergy_"
-void book2DHistograms(Int_t channel_counter, TString theChannel, TString theHistogram) {
+void book2DHistograms(Int_t channel_counter, TString theChannel, TString theHistogram)
+{
+
+    int debuglevel = 2;
 
     std::cout << "booking 2D hists for " << theChannel << " " << "P1 and P2" << std::endl;
     allMCSamples2D[channel_counter] = new TObjArray();
 
     TString thePhase_arg_P1 = "P1";
     TString thePhase_arg_P2 = "P2";
-    TFile *aFileP1 = TFile::Open("Nd150_" + theChannel + thePhase_arg_P1 + ".root");
-    TFile *aFileP2 = TFile::Open("Nd150_" + theChannel + thePhase_arg_P2 + ".root");
+    //TFile *aFileP1 = TFile::Open("Nd150_" + theChannel + thePhase_arg_P1 + ".root");
+    //TFile *aFileP2 = TFile::Open("Nd150_" + theChannel + thePhase_arg_P2 + ".root");
+    TFile *aFileP1 = new TFile("Nd150_" + theChannel + thePhase_arg_P1 + ".root");
+    TFile *aFileP2 = new TFile("Nd150_" + theChannel + thePhase_arg_P2 + ".root");
     
-    std::cout << "External" << std::endl;
+    if(debuglevel >= 2)
+    {
+        std::cout << "External" << std::endl;
+    }
     book2DHistograms_helper(aFileP1, aFileP2,
                             channel_counter, theChannel,
                             theHistogram,
                             nExternalBkgs,
                             ExternalBkgFiles);
 
-    std::cout << "Internal" << std::endl;
+    if(debuglevel >= 2)
+    {
+        std::cout << "Internal" << std::endl;
+    }
     book2DHistograms_helper(aFileP1, aFileP2,
                             channel_counter, theChannel,
                             theHistogram,
                             nInternalBkgs,
                             InternalBkgFiles);
 
-    std::cout << "Rn 222" << std::endl;
+    if(debuglevel >= 2)
+    {
+        std::cout << "Rn 222" << std::endl;
+    }
     book2DHistograms_helper(aFileP1, aFileP2,
                             channel_counter, theChannel,
                             theHistogram,
@@ -278,64 +305,91 @@ void book2DHistograms(Int_t channel_counter, TString theChannel, TString theHist
                             //Rn222BkgFiles);//,
                             Rn222BkgFilesNew);
 
-    std::cout << "Rn 220" << std::endl;
+    if(debuglevel >= 2)
+    {
+        std::cout << "Rn 220" << std::endl;
+    }
     book2DHistograms_helper(aFileP1, aFileP2,
                             channel_counter, theChannel,
                             theHistogram,
                             nRn220Bkgs,
                             Rn220BkgFiles);
 
-    std::cout << "Neighbour" << std::endl;
+    if(debuglevel >= 2)
+    {
+        std::cout << "Neighbour" << std::endl;
+    }
     book2DHistograms_helper(aFileP1, aFileP2,
                             channel_counter, theChannel,
                             theHistogram,
                             nNeighbours,
                             NeighbourFiles);
 
-    std::cout << "Nd150" << std::endl;
+    if(debuglevel >= 2)
+    {
+        std::cout << "Nd150" << std::endl;
+    }
     book2DHistograms_helper(aFileP1, aFileP2,
                             channel_counter, theChannel,
                             theHistogram,
                             nNd150Samples,
                             Nd150Files);
 
-    std::cout << "Data" << std::endl;
-    // TODO here
-    // what is name in other section of code
-    //std::string name(theHistogram + "data_2e");
-    std::string directory("processeddata/" + theHistogram + "/");
-    std::string name(theHistogram + DataFile);
-    //std::string fake_data_name(theHistogram + "data_2e_fake");
-    std::string fullname = directory + name;
-    std::cout << "fullname=" << fullname << std::endl;
+    if(g_mode_fake_data == false)
+    {
+        if(debuglevel >= 2)
+        {
+            std::cout << "Data" << std::endl;
+        }
+        // TODO here
+        // what is name in other section of code
+        //std::string name(theHistogram + "data_2e");
+        std::string directory("processeddata/" + theHistogram + "/");
+        std::string name(theHistogram + DataFile);
+        //std::string fake_data_name(theHistogram + "data_2e_fake");
+        std::string fullname = directory + name;
+        std::cout << "fullname=" << fullname << std::endl;
 
-    // load histogram from file
-    // TODO: try catch block
-    std::string new_name_P1(theHistogram + DataFile + "_P1"); // TODO: probably need a different new_name for P1 and P2
-    std::string new_name_P2(theHistogram + DataFile + "_P2"); // TODO: probably need a different new_name for P1 and P2 check works
-    TH1D *tmpHist_P1 = (TH1D*)aFileP1->Get(fullname.c_str())->Clone(new_name_P1.c_str());
-    TH1D *tmpHist_P2 = (TH1D*)aFileP2->Get(fullname.c_str())->Clone(new_name_P2.c_str());
-    //TH1D *tmpHist = (TH1D*)aFile->Get(fullname.c_str())->Clone();
-    if(tmpHist_P1 != nullptr)
-    {
-        allDataSamples2D->Add((TH2D*)tmpHist_P1);
-    }
-    else
-    {
-        std::cout << "gDirectory->GetListOfKeys() does not contain " << fullname << std::endl;
-    }
+        // load histogram from file
+        // TODO: try catch block
+        std::string new_name_P1(theHistogram + DataFile + "_P1"); // TODO: probably need a different new_name for P1 and P2
+        std::string new_name_P2(theHistogram + DataFile + "_P2"); // TODO: probably need a different new_name for P1 and P2 check works
+        TH1D *tmpHist_P1 = (TH1D*)aFileP1->Get(fullname.c_str())->Clone(new_name_P1.c_str());
+        TH1D *tmpHist_P2 = (TH1D*)aFileP2->Get(fullname.c_str())->Clone(new_name_P2.c_str());
+        //TH1D *tmpHist = (TH1D*)aFile->Get(fullname.c_str())->Clone();
+        std::cout << "check the name of histograms: (P1): " << tmpHist_P1->GetName() << " (P2): " << tmpHist_P2->GetName() << std::endl;
+        if(tmpHist_P1 != nullptr)
+        {
+            allDataSamples2D->Add((TH2D*)tmpHist_P1);
+        }
+        else
+        {
+            std::cout << "gDirectory->GetListOfKeys() does not contain " << fullname << std::endl;
+        }
 
-    if(tmpHist_P2 != nullptr)
-    {
-        allDataSamples2D->Add((TH2D*)tmpHist_P2);
+        if(tmpHist_P2 != nullptr)
+        {
+            allDataSamples2D->Add((TH2D*)tmpHist_P2);
+        }
+        else
+        {
+            std::cout << __func__ << " ERROR: could not find " << fullname << " in file" << std::endl;
+        }
     }
-    else
+    else if(g_mode_fake_data == true)
     {
-        std::cout << __func__ << " ERROR: could not find " << fullname << " in file" << std::endl;
+        if(debuglevel >= 1)
+        {
+            std::cout << "not loading data: g_mode_fake_data=true" << std::endl;
+        }
     }
 
     // aFile->Close();
     // aFile->Delete();
+    aFileP1->Close();
+    delete aFileP1;
+    aFileP2->Close();
+    delete aFileP2;
 }
 
 

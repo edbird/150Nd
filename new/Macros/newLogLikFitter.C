@@ -354,6 +354,10 @@ void newLogLikFitter(int i)
 void loadFiles(int i)
 {
 
+    TH1::AddDirectory(false);
+    TH2::AddDirectory(false);
+
+
     ///////////////////////////////////////////////////////////////////////////
     // parallel mode code
     ///////////////////////////////////////////////////////////////////////////
@@ -385,7 +389,7 @@ void loadFiles(int i)
         number_job_id = 0;
         output_name = "noparallel";
         start_index = 0;
-        stop_index = 301;
+        stop_index = 51;
     }
 
 
@@ -507,8 +511,6 @@ void loadFiles(int i)
     
 
 
-    // First, create a root file to hold all of the histograms
-    TFile *myFile = TFile::Open("Nd150_loglikResults.root", "RECREATE");
     //myFile->Close();
     // 2020-04-02: removed call to close, no idea why this was here
     // or if it is supposed to be here for some reason?
@@ -539,6 +541,7 @@ void loadFiles(int i)
     for(int channel = 0; channel < number1DHists; ++ channel)
     {
         //book1DHistograms(0, "2e_", "hTotalE_");
+        std::cout << "book1DHistograms(" << channel << ", 2e_," << channel_histname_1D[channel] << ")" << std::endl;
         book1DHistograms(channel, "2e_", channel_histname_1D[channel]);
     }
     //book1DHistograms(1, "2e_", "hSingleEnergy_");
@@ -553,9 +556,10 @@ void loadFiles(int i)
     //map_1d_channel_to_phase[4] = 0;
     //map_1d_channel_to_phase[5] = 0;
 
-    // 1d: Phase 2
+    // 2d: Phase 1 & 2
     for(int channel = 0; channel < number2DHists; ++ channel)
     {
+        std::cout << "book2DHistograms(" << channel << ", 2e_," << channel_histname_2D[channel] << ")" << std::endl;
         book2DHistograms(channel, "2e_", channel_histname_2D[channel]);
     }
 #if 0
@@ -574,6 +578,11 @@ void loadFiles(int i)
 #endif
 
     std::cout << "All histograms loaded" << std::endl;
+
+
+
+    // First, create a root file to hold all of the histograms
+    //TFile *myFile = TFile::Open("Nd150_loglikResults.root", "RECREATE");
 
 #if 0
     // 2d: Phase 1
@@ -675,7 +684,7 @@ void loadFiles(int i)
     ///////////////////////////////////////////////////////////////////////////
 
     // do not do this in parallel mode
-    if(1 || (MODE_PARALLEL == 0))
+    if(0)// || (MODE_PARALLEL == 0))
     {
         // create minimizer
         ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
@@ -714,7 +723,8 @@ void loadFiles(int i)
         }
         
         double fval_before = theFCN.operator()(params_before);
-        int ndf = theFCN.ndf - theParameterStateBefore.VariableParameters();
+        //int ndf = theFCN.ndf - theParameterStateBefore.VariableParameters();
+        int ndf = theFCN.ndf - g_pg.get_number_free_params();
 
         // draw before fit
         draw_input_data drawinputdata;
@@ -748,7 +758,8 @@ void loadFiles(int i)
         }
 
         double fval_after = theFCN.operator()(params_after);
-        ndf = theFCN.ndf - theParameterStateAfter.VariableParameters();
+        //ndf = theFCN.ndf - theParameterStateAfter.VariableParameters();
+        ndf = theFCN.ndf - g_pg.get_number_free_params();
 
         // draw after fit
         drawinputdata.chi2 = fval_after;
@@ -773,7 +784,7 @@ void loadFiles(int i)
     // TODO: this block doesn't really make sense, unless we fit
     // for xi_31 = SSD with xi_31 fixed
     // do not do this in parallel mode
-    if(0 || (MODE_PARALLEL == 0))
+    if(0)// || (MODE_PARALLEL == 0))
     {
         // create minimizer
         ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
@@ -802,7 +813,8 @@ void loadFiles(int i)
         std::vector<double> params_before = theParameterStateBefore.Params();
         std::vector<double> param_errs_before = theParameterStateBefore.Errors();
         double fval_before = theFCN.operator()(params_before);
-        int ndf = theFCN.ndf - theParameterStateBefore.VariableParameters();
+        //int ndf = theFCN.ndf - theParameterStateBefore.VariableParameters();
+        int ndf = theFCN.ndf - g_pg.get_number_free_params();
 
         // draw before fit
         draw_input_data drawinputdata;
@@ -831,7 +843,8 @@ void loadFiles(int i)
         std::vector<double> param_errs_after = theParameterStateAfter.Errors();
 
         double fval_after = theFCN.operator()(params_after);
-        ndf = theFCN.ndf - theParameterStateAfter.VariableParameters();
+        //ndf = theFCN.ndf - theParameterStateAfter.VariableParameters();
+        ndf = theFCN.ndf - g_pg.get_number_free_params();
 
         // draw result
         drawinputdata.chi2 = fval_after;
@@ -884,7 +897,7 @@ void loadFiles(int i)
 
 #if 1
     // do not do this in parallel mode
-    if(0 || (MODE_PARALLEL == 0))
+    if(0) // || (MODE_PARALLEL == 0))
     {
         // create minimizer
         ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
@@ -904,7 +917,8 @@ void loadFiles(int i)
         std::vector<double> params_before = theParameterStateBefore.Params();
         std::vector<double> param_errs_before = theParameterStateBefore.Errors();
         double fval_before = theFCN.operator()(params_before);
-        int ndf = theFCN.ndf - theParameterStateBefore.VariableParameters();
+        //int ndf = theFCN.ndf - theParameterStateBefore.VariableParameters();
+        int ndf = theFCN.ndf - g_pg.get_number_free_params();
 
         // draw before fit
         draw_input_data drawinputdata;
@@ -932,7 +946,8 @@ void loadFiles(int i)
         std::vector<double> param_errs_after = theParameterStateAfter.Errors();
 
         double fval_after = theFCN.operator()(params_after);
-        ndf = theFCN.ndf - theParameterStateAfter.VariableParameters();
+        //ndf = theFCN.ndf - theParameterStateAfter.VariableParameters();
+        ndf = theFCN.ndf - g_pg.get_number_free_params();
 
         // draw result
         drawinputdata.chi2 = fval_after;
@@ -1050,8 +1065,7 @@ void loadFiles(int i)
     return 0;
 #endif
 
-// reenable this one
-/*
+    // reenable this one
     if(1)
     {
         // create minimizer
@@ -1067,18 +1081,21 @@ void loadFiles(int i)
         //fitBackgrounds_phasespace_init(theParameterState, theMinimizer, 1.0, xi_31_value);
 
         std::cout << "ready to test MPS" << std::endl;
+        std::cout << "output_name=" << output_name << std::endl;
+        std::cout << "start_index=" << start_index << std::endl;
+        std::cout << "stop_index=" << stop_index << std::endl;
+        //std::cin.get();
         //newloglikfitter_testmyphasespace(theParameterState, theFCN); //, FCN_min);
-        newloglikfitter_testmyphasespace(number_job_id, output_name, start_index, stop_index);
+        newloglikfitter_testmyphasespace_newversion(number_job_id, output_name, start_index, stop_index);
         std::cout << "MPS done" << std::endl;
     }
    
-
+/*
     if(0)
     {
         //newloglikfitter_gA_chisquaretest(minuit, AdjustActs, AdjustActs_Err);
     }
 */
-
     ///////////////////////////////////////////////////////////////////////////
 #if 0
     print_adjustacts(std::cout, params, param_errs);

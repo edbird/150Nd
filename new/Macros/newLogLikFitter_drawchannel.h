@@ -93,7 +93,7 @@ class draw_input_data
     double nfreeparam_P2;
     
     // obtain from global variable
-    //bool mode_fake_data;
+    //bool g_mode_fake_data;
 
     bool mode_parallel;
     int parallel_job_id;
@@ -218,9 +218,7 @@ void draw_channel_phase(
     )
 {
 
-    bool debugprint = false;
-
-    bool mode_fake_data = g_mode_fake_data;
+    int debuglevel = 2;
 
     std::vector<std::string> phase_arg_strs;
     if(phase_arg_str == "P1")
@@ -271,7 +269,7 @@ void draw_channel_phase(
         //std::cout << "debug: number of MC samples: " << allMCSamples1D[0]->GetEntries() << std::endl;
 
 
-        //std::cout << "mode_fake_data=" << mode_fake_data << std::endl;
+        //std::cout << "g_mode_fake_data=" << g_mode_fake_data << std::endl;
         //std::cout << allDataSamples1D->GetEntries() << std::endl;
         //std::cin.get();
 
@@ -284,11 +282,12 @@ void draw_channel_phase(
         {
             std::string search_object_Px = histname + std::string(DataFile) + "_" + (*it);
             //std::string search_object_P2 = histname + std::string(DataFile) + "_P2";
-            if(mode_fake_data == false)
+            if(g_mode_fake_data == false)
             {
                 if(data1D_Px == nullptr)
                 {
-                    data1D_Px = (TH1D*)allDataSamples1D->FindObject(search_object_Px.c_str())->Clone();
+                    TString name = TString(allDataSamples1D->FindObject(search_object_Px.c_str())->GetName()) + "_drawclone";
+                    data1D_Px = (TH1D*)allDataSamples1D->FindObject(search_object_Px.c_str())->Clone(name);
                     //tmpDataHistP2 = (TH1D*)allDataSamples1D->FindObject(search_object_P2.c_str());
                 }
                 else
@@ -296,11 +295,12 @@ void draw_channel_phase(
                     data1D_Px->Add((TH1D*)allDataSamples1D->FindObject(search_object_Px.c_str()));
                 }
             }
-            if(mode_fake_data == true)
+            if(g_mode_fake_data == true)
             {
                 if(fakeData1D_Px == nullptr)
                 {
-                    fakeData1D_Px = (TH1D*)allFakeDataSamples1D->FindObject(search_object_Px.c_str())->Clone();
+                    TString name = TString(allFakeDataSamples1D->FindObject(search_object_Px.c_str())->GetName()) + "_drawclone";
+                    fakeData1D_Px = (TH1D*)allFakeDataSamples1D->FindObject(search_object_Px.c_str())->Clone(name);
                     //tmpDataHistP2 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P2.c_str());
                     // TODO: will not work if logLikelihood not called before
                     // because LL function calls function to construct fakedata
@@ -347,9 +347,9 @@ void draw_channel_phase(
                 }
             }
 
-            if(debugprint)
+            if(debuglevel >= 2)
             {
-                std::cout << "paramNumber=" << paramNumber << std::endl;
+                std::cout << "paramNumber=" << paramNumber << " P1: " << paramEnabledP1 << " P2: " << paramEnabledP2 << std::endl;
             }
 
             bool ok = false;
@@ -387,7 +387,7 @@ void draw_channel_phase(
                 TH1D *tmpHist1D_P2 = nullptr;
 
                 paramNumberInt = g_pg.ExtToIntParamNumberMap.at(paramNumber);
-                if(debugprint)
+                if(debuglevel >= 2)
                 {
                     std::cout << "paramNumber=" << paramNumber << " -> " << paramNumberInt << std::endl;
                 }
@@ -395,7 +395,8 @@ void draw_channel_phase(
 
                 if(paramEnabledP1 == true)
                 {
-                    tmpHist1D_P1 = (TH1D*)allMCSamples1D[channel]->FindObject(search_object_P1.c_str())->Clone(); // need to clone to scale
+                    TString name = TString(allMCSamples1D[channel]->FindObject(search_object_P1.c_str())->GetName()) + "_tmp";
+                    tmpHist1D_P1 = (TH1D*)allMCSamples1D[channel]->FindObject(search_object_P1.c_str())->Clone(name); // need to clone to scale
                     
                     if(tmpHist1D_P1 == nullptr)
                     {
@@ -440,7 +441,8 @@ void draw_channel_phase(
                 
                 if(paramEnabledP2 == true)
                 {
-                    tmpHist1D_P2 = (TH1D*)allMCSamples1D[channel]->FindObject(search_object_P2.c_str()); // clone done in other functions
+                    TString name = TString(allMCSamples1D[channel]->FindObject(search_object_P2.c_str())->GetName()) + "_tmp";
+                    tmpHist1D_P2 = (TH1D*)allMCSamples1D[channel]->FindObject(search_object_P2.c_str())->Clone(name); // need clone to scale
                 
                     if(tmpHist1D_P2 == nullptr)
                     {
@@ -601,22 +603,24 @@ void draw_channel_phase(
         hAllMC1D_Px->GetYaxis()->SetRangeUser(PAD_U_Y_MIN_Px, PAD_U_Y_MAX_Px);
     //    data1D->SetMaximum(PAD_U_Y_MAX);
     //    data1D->SetMinimum(PAD_U_Y_MIN);
-        if(mode_fake_data == false)
+        if(g_mode_fake_data == false)
         {
             data1D_Px->GetYaxis()->SetRangeUser(PAD_U_Y_MIN_Px, PAD_U_Y_MAX_Px);
         }
-        if(mode_fake_data == true)
+        if(g_mode_fake_data == true)
         {
             fakeData1D_Px->GetYaxis()->SetRangeUser(PAD_U_Y_MIN_Px, PAD_U_Y_MAX_Px);
         }
 
-        if(mode_fake_data == false)
+        if(g_mode_fake_data == false)
         {
-            hRatio_Px = (TH1D*)data1D_Px->Clone();
+            TString name = TString(data1D_Px->GetName()) + "_ratio";
+            hRatio_Px = (TH1D*)data1D_Px->Clone(name);
         }
-        if(mode_fake_data == true)
+        if(g_mode_fake_data == true)
         {
-            hRatio_Px = (TH1D*)fakeData1D_Px->Clone();
+            TString name = TString(fakeData1D_Px->GetName()) + "_ratio";
+            hRatio_Px = (TH1D*)fakeData1D_Px->Clone(name);
         }
         //hRatio->Sumw2();
         hRatio_Px->Divide(hAllMC1D_Px);
@@ -754,7 +758,7 @@ void draw_channel_phase(
         hAllMC1D_Px->SetTitle("Total MC (" + Nmc_Px_str + ")");
         hAllMC1D_Px->Draw("hist same");
         hAllMC1D_Px->GetYaxis()->SetRangeUser(PAD_U_Y_MIN_Px, PAD_U_Y_MAX_Px);
-        if(mode_fake_data == false)
+        if(g_mode_fake_data == false)
         {
             data1D_Px->SetLineWidth(2);
             data1D_Px->SetMarkerStyle(20);
@@ -763,7 +767,7 @@ void draw_channel_phase(
             data1D_Px->SetMarkerColor(kBlack); // TODO
             data1D_Px->SetFillColor(kBlack); // TODO
         }
-        if(mode_fake_data == true)
+        if(g_mode_fake_data == true)
         {
             fakeData1D_Px->SetLineWidth(2);
             fakeData1D_Px->SetMarkerStyle(20);
@@ -773,24 +777,24 @@ void draw_channel_phase(
             fakeData1D_Px->SetFillColor(kBlack);
         }
         TString Ndata_Px_str;
-        if(mode_fake_data == false)
+        if(g_mode_fake_data == false)
         {
             Ndata_Px_str.Form("%i", (int)data1D_Px->Integral()); // TODO: float?
             data1D_Px->SetTitle("Data (" + Ndata_Px_str + ")");
         }
         TString Nfakedata_Px_str;
-        if(mode_fake_data == true)
+        if(g_mode_fake_data == true)
         {
             Nfakedata_Px_str.Form("%i", (int)fakeData1D_Px->Integral()); // TODO: float?
             fakeData1D_Px->SetTitle("Fake Data (" + Nfakedata_Px_str + ")");
         }
-        if(mode_fake_data == false)
+        if(g_mode_fake_data == false)
         {
             //data1D_Px[i]->Draw("PEsames");
             data1D_Px->Draw("PEsame");
             data1D_Px->GetYaxis()->SetRangeUser(PAD_U_Y_MIN_Px, PAD_U_Y_MAX_Px);
         }
-        if(mode_fake_data == true)
+        if(g_mode_fake_data == true)
         {
             fakeData1D_Px->Draw("PEsame");
             fakeData1D_Px->GetYaxis()->SetRangeUser(PAD_U_Y_MIN_Px, PAD_U_Y_MAX_Px);
@@ -799,7 +803,7 @@ void draw_channel_phase(
 
         //double chi2;
         int ndf_Px = -1;
-        if(mode_fake_data == false)
+        if(g_mode_fake_data == false)
         {
             ndf_Px = get_ndf_1D(hAllMC1D_Px, data1D_Px);
             /*
@@ -817,7 +821,7 @@ void draw_channel_phase(
             }
             */
         }
-        if(mode_fake_data == true)
+        if(g_mode_fake_data == true)
         {
             ndf_Px = get_ndf_1D(hAllMC1D_Px, fakeData1D_Px);
         }
@@ -876,11 +880,11 @@ void draw_channel_phase(
             fval_Px = drawinputdata.chi2;
         }
         */
-        if(mode_fake_data == false)
+        if(g_mode_fake_data == false)
         {
             fval_Px = calc_chi2_draw(data1D_Px, hAllMC1D_Px);
         }
-        if(mode_fake_data == true)
+        if(g_mode_fake_data == true)
         {
             fval_Px = calc_chi2_draw(fakeData1D_Px, hAllMC1D_Px);
         }
@@ -913,11 +917,11 @@ void draw_channel_phase(
         axis2->Draw();
 
         TLegend *leg = new TLegend(0.615, 0.1, 0.855, 0.85);
-        if(mode_fake_data == false)
+        if(g_mode_fake_data == false)
         {
             leg->AddEntry(data1D_Px, "Data (" + Ndata_Px_str + ")", "PE"); // TODO PEL ??? works?
         }
-        if(mode_fake_data == true)
+        if(g_mode_fake_data == true)
         {
             leg->AddEntry(fakeData1D_Px, "Fake Data (" + Nfakedata_Px_str + ")", "PE");
         }
