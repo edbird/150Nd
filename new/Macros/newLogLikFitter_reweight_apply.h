@@ -394,8 +394,8 @@ void reweight_apply(
         const Double_t trueT1{trueElectronEnergy[lowE_index]};
         //const Double_t T0{trueElectronEnergy[highE_index] / bb_Q};
         //const Double_t T1{trueElectronEnergy[lowE_index] / bb_Q};
-        const Double_t el_energy_0{electronEnergy[highE_index]};
-        const Double_t el_energy_1{electronEnergy[lowE_index]};
+        Double_t el_energy_0{electronEnergy[highE_index]};
+        Double_t el_energy_1{electronEnergy[lowE_index]};
 
         if(doprint)
         {
@@ -481,6 +481,14 @@ void reweight_apply(
 
 
         /*** SYSTEMATICS **********************************************************/
+
+        // new implementation of a linear systematic
+        if(true)
+        {
+            const double systematic_energy_offset = -0.1;
+            el_energy_0 = el_energy_0 + systematic_energy_offset;
+            el_energy_1 = el_energy_1 + systematic_energy_offset;
+        }
 
     /*
         if(staticsgroup.systematic_enable_energy_multiply)
@@ -622,6 +630,7 @@ void reweight_apply(
         
         if(thePhase == 0)
         {
+        /*
             hTotalE_output_P1->Fill(electronEnergy[0] + electronEnergy[1], 1.0 * weight);
             hSingleEnergy_output_P1->Fill(electronEnergy[lowE_index], 1.0 * weight);
             hSingleEnergy_output_P1->Fill(electronEnergy[highE_index], 1.0 * weight);
@@ -630,6 +639,15 @@ void reweight_apply(
             hHighLowEnergy_output_P1->Fill(electronEnergy[lowE_index], electronEnergy[highE_index], 1.0 * weight);
             hEnergySum_output_P1->Fill(electronEnergy[highE_index] + electronEnergy[lowE_index], 1.0 * weight);
             hEnergyDiff_output_P1->Fill(electronEnergy[highE_index] - electronEnergy[lowE_index], 1.0 * weight);
+        */
+            hTotalE_output_P1->Fill(el_energy_0 + el_energy_1, 1.0 * weight);
+            hSingleEnergy_output_P1->Fill(el_energy_1, 1.0 * weight);
+            hSingleEnergy_output_P1->Fill(el_energy_0, 1.0 * weight);
+            hHighEnergy_output_P1->Fill(el_energy_0, 1.0 * weight);
+            hLowEnergy_output_P1->Fill(el_energy_1, 1.0 * weight);
+            hHighLowEnergy_output_P1->Fill(el_energy_1, el_energy_0, 1.0 * weight);
+            hEnergySum_output_P1->Fill(el_energy_0 + el_energy_1, 1.0 * weight);
+            hEnergyDiff_output_P1->Fill(el_energy_0 - el_energy_1, 1.0 * weight);
 
             hWeight_output_P1->Fill(1.0 * weight);
 
@@ -638,6 +656,7 @@ void reweight_apply(
         }
         else if(thePhase == 1)
         {
+        /*
             hTotalE_output_P2->Fill(electronEnergy[0] + electronEnergy[1], 1.0 * weight);
             hSingleEnergy_output_P2->Fill(electronEnergy[lowE_index], 1.0 * weight);
             hSingleEnergy_output_P2->Fill(electronEnergy[highE_index], 1.0 * weight);
@@ -646,6 +665,15 @@ void reweight_apply(
             hHighLowEnergy_output_P2->Fill(electronEnergy[lowE_index], electronEnergy[highE_index], 1.0 * weight);
             hEnergySum_output_P2->Fill(electronEnergy[highE_index] + electronEnergy[lowE_index], 1.0 * weight);
             hEnergyDiff_output_P2->Fill(electronEnergy[highE_index] - electronEnergy[lowE_index], 1.0 * weight);
+        */
+            hTotalE_output_P2->Fill(el_energy_0 + el_energy_1, 1.0 * weight);
+            hSingleEnergy_output_P2->Fill(el_energy_1, 1.0 * weight);
+            hSingleEnergy_output_P2->Fill(el_energy_0, 1.0 * weight);
+            hHighEnergy_output_P2->Fill(el_energy_0, 1.0 * weight);
+            hLowEnergy_output_P2->Fill(el_energy_1, 1.0 * weight);
+            hHighLowEnergy_output_P2->Fill(el_energy_1, el_energy_0, 1.0 * weight);
+            hEnergySum_output_P2->Fill(el_energy_0 + el_energy_1, 1.0 * weight);
+            hEnergyDiff_output_P2->Fill(el_energy_0 - el_energy_1, 1.0 * weight);
 
             hWeight_output_P2->Fill(1.0 * weight);
 

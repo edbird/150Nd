@@ -218,7 +218,7 @@ void draw_channel_phase(
     )
 {
 
-    int debuglevel = 2;
+    int debuglevel = 1;
 
     std::vector<std::string> phase_arg_strs;
     if(phase_arg_str == "P1")

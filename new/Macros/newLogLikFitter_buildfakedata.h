@@ -954,7 +954,10 @@ void rebuild_150Nd_MC(const double xi_31, const double xi_31_baseline)
     //for(int channel = 0; channel < allDataSamples2D->GetEntries(); ++ channel)
     for(int channel = 0; channel < number2DHists; ++ channel)
     {
-        std::cout << "channel=" << channel << std::endl;
+        if(debuglevel >= 3)
+        {
+            std::cout << "channel=" << channel << std::endl;
+        }
 
         std::string histname = std::string(channel_histname_2D[channel]);
         std::string search_object_P1 = histname + std::string(Nd150Files[0]) + "_P1_fit";

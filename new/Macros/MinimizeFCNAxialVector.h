@@ -31,7 +31,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
 
 
     MinimizeFCNAxialVector()
-        : error_def{0.5} // LL // TODO: check as I am actually minimizing chisquare
+        : error_def{1.0} // LL // TODO: check as I am actually minimizing chisquare
     {
     }
 

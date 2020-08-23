@@ -822,6 +822,7 @@ void loadFiles(int i)
         drawinputdata.ndf = ndf;
         drawinputdata.serial_dir = "SSD";
         drawinputdata.saveas_filename = "SSD_before";
+        drawinputdata.saveas_filename = "SSD_systematic1_before";
         drawinputdata.saveas_png = true;
        
         draw(drawinputdata,
@@ -850,6 +851,7 @@ void loadFiles(int i)
         drawinputdata.chi2 = fval_after;
         drawinputdata.ndf = ndf;
         drawinputdata.saveas_filename = "SSD_after";
+        drawinputdata.saveas_filename = "SSD_systematic1_after";
        
         draw(drawinputdata,
              params_after,
@@ -897,7 +899,7 @@ void loadFiles(int i)
 
 #if 1
     // do not do this in parallel mode
-    if(0) // || (MODE_PARALLEL == 0))
+    if(1) // || (MODE_PARALLEL == 0))
     {
         // create minimizer
         ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
@@ -1066,7 +1068,7 @@ void loadFiles(int i)
 #endif
 
     // reenable this one
-    if(1)
+    if(0)
     {
         // create minimizer
         //ROOT::Minuit2::MnUserParameterState theParameterState;

@@ -856,7 +856,7 @@ void newloglikfitter_testmyphasespace_newversion(
         //bestfitpoint->SetMarkerSize(2.0);
         //bestfitpoint->Draw();
 
-        if(ll_walk_save.size() > 0
+        if(ll_walk_save.size() > 0)
         {
             std::vector<TLine*> linesteps;
             for(std::size_t ix_walk = 0; ix_walk < ll_walk_save.size() - 1; ++ ix_walk)
