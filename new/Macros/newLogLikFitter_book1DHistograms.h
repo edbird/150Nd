@@ -233,7 +233,7 @@ void book1DHistograms_helper(
             tmpHist_P2 = (TH1D*)aFile_P2->Get(fullname.c_str())->Clone(new_name_P2.c_str());
             // TODO: should not clone but setname() here?
 
-            if(debuglevel >= 2)
+            if(debuglevel >= 3)
             {
                 std::cout << "check the name of histograms: (P1): " << tmpHist_P1->GetName() << " (P2): " << tmpHist_P2->GetName() << std::endl;
             }
@@ -501,7 +501,10 @@ void book1DHistograms(Int_t channel_counter, TString theChannel, TString theHist
                 // a P1 IN, P2 IN, etc... they are different depending on P1, P2
                 // as in the name is different... in fit_2e.C
         // TODO: should not clone but setname() here?
-        std::cout << "check the name of histograms: (P1): " << tmpHist_P1->GetName() << " (P2): " << tmpHist_P2->GetName() << std::endl;
+        if(debuglevel >= 3)
+        {
+            std::cout << "check the name of histograms: (P1): " << tmpHist_P1->GetName() << " (P2): " << tmpHist_P2->GetName() << std::endl;
+        }
         if(tmpHist_P1 != nullptr)
         {
             //TH1D *tmpHist = nullptr;
@@ -544,10 +547,13 @@ void book1DHistograms(Int_t channel_counter, TString theChannel, TString theHist
     }
     else if(g_mode_fake_data == true)
     {
-        if(debuglevel >= 1)
+        if(debuglevel >= 2)
         {
-            std::cout << "not loading data: g_mode_fake_data=true" << std::endl;
+            std::cout << "FakeData" << std::endl;
         }
+
+        //systematic_energy_offset = 0.0;
+        //rebuild_fake_data_systematics();
     }
 
 

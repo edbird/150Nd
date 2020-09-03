@@ -50,7 +50,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
     double operator()(const std::vector<double> &param) const
     {
 
-        const int debuglevel = 1;
+        const int debuglevel = 50;
         
 
 
@@ -72,6 +72,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
         Double_t fval = 0.0;
 
         // TODO: need to re-enable to use MODE fake data
+        /*
         if(g_mode_fake_data == true)
         {
             if(allFakeDataSamples1D == nullptr)
@@ -84,6 +85,8 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                 build_fake_data();
             }
         }
+        */
+        // TODO: manually call this from main function (loadFiles)
 
 
         // save the walk
@@ -101,7 +104,20 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
         // 1 = data
         // 2 = MC
         // 3 = both in quadrature
-        const int EMODE = 2;
+        const int EMODE = 1; // only use errors from data:
+        // reason:
+        // what do errors represent? uncertainty on a sample
+        // in the case of real or fake data, the uncertainty is
+        // sqrt(N) for each bin, because this is the statistical uncertainty
+        // in a counting experiment (not really, it's actually poisson but
+        // gaussian approximation is good enough)
+        // and there is no uncertainty on the MC because we assume infinite
+        // statistics for these samples (not quite true but number of events
+        // is much higher than number of data events) - we rescale the MC
+        // to the required activity for the livetime of the experiment but
+        // regardless of this sqrt(N) would be rescaled accordingly as well
+        // and N for MC >> N for data, adding in the rescaling factor we find
+        // that the MC uncertainty is even smaller
 
 
         int xi_31_ext_param_number = g_pg.get_xi_31_ext_param_number(); 
@@ -115,6 +131,21 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                       << " param[" << xi_31_ext_param_number << "]="
                       << param[xi_31_ext_param_number] << std::endl;
         }
+
+
+        /*
+        if(systematic_energy_offset != systematic_energy_offset_last)
+        {
+            systematic_energy_offset_last = systematic_energy_offset;
+            
+            if(debuglevel >= 2)
+            {
+                std::cout << __func__ << " rebuild_150Nd_data() -> systematic_energy_offset=" << systematic_energy_offset << std::endl;
+            }
+
+            rebuild_150Nd_data();
+        }
+        */
 
 
         // TODO: will not work if parameter number changes
@@ -216,8 +247,18 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             //Double_t *tmpFakeData1D_P2 = nullptr;
 
             std::string histname = std::string(channel_histname_1D[channel]);
-            std::string search_object_P1 = histname + std::string(DataFile) + "_P1";
-            std::string search_object_P2 = histname + std::string(DataFile) + "_P2";
+            std::string search_object_P1;
+            std::string search_object_P2;
+            if(g_mode_fake_data == false)
+            {
+                search_object_P1 = histname + std::string(DataFile) + "_P1";
+                search_object_P2 = histname + std::string(DataFile) + "_P2";
+            }
+            else if(g_mode_fake_data == true)
+            {
+                search_object_P1 = histname + std::string("fakedata") + "_P1";
+                search_object_P2 = histname + std::string("fakedata") + "_P2";
+            }
             TH1D *tmpDataHist1D_P1 = nullptr;
             TH1D *tmpDataHist1D_P2 = nullptr;
             
@@ -292,7 +333,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                 double paramInitError = it->second.paramInitError;
                 int paramConstraintMode = it->second.paramConstraintMode;
 
-                if(debuglevel >= 3)
+                if(debuglevel >= 4)
                 {
                     std::cout << "paramNumber=" << paramNumber << std::endl;
                 }
@@ -315,6 +356,11 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                             ok = true;
                         }
                     }
+                }
+                else
+                {
+                    ok = true;
+                    continue;
                 }
                 if(ok == false)
                 {
@@ -389,14 +435,14 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                     TH1D *tmpHist1D_P1 = nullptr;
                     TH1D *tmpHist1D_P2 = nullptr;
     
-                    if(debuglevel >= 3)
+                    if(debuglevel >= 5)
                     {
                         std::cout << "search_object_P1=" << search_object_P1
                                   << " search_object_P2=" << search_object_P2 << std::endl;
                     }
 
                     paramNumberInt = g_pg.ExtToIntParamNumberMap.at(paramNumber);
-                    if(debuglevel >= 3)
+                    if(debuglevel >= 5)
                     {
                         std::cout << "paramNumber=" << paramNumber << " -> " << paramNumberInt << std::endl;
                     }
@@ -413,7 +459,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                         }
 
                         Double_t scale_factor_P1 = param.at(paramNumberInt);
-                        if(debuglevel >= 2)
+                        if(debuglevel >= 4)
                         {
                             std::cout << "enabled P1: scale factor P1: " << scale_factor_P1 << std::endl;
                         }
@@ -438,7 +484,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                     }
                     else
                     {
-                        if(debuglevel >= 2)
+                        if(debuglevel >= 4)
                         {
                             std::cout << "disabled P1" << std::endl;
                         }
@@ -456,7 +502,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                         }
 
                         Double_t scale_factor_P2 = param.at(paramNumberInt);
-                        if(debuglevel >= 2)
+                        if(debuglevel >= 4)
                         {
                             std::cout << "enabled P2: scale factor P2: " << scale_factor_P2 << std::endl;
                         }
@@ -522,6 +568,10 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                 // NOTE: Log(poisson) is always negative! so fval goes UP NOT DOWN
                 if(nMC_P1 >= 0.0)
                 {
+                    if(nMC_P1 == 0.0)
+                    {
+                        continue;
+                    }
                     double lp_P1 = logpoisson(nData_P1, nMC_P1);
                     //double lp = logpoisson(nFakeData, nMC);
                     //double lp = logpoisson_sterling(nFakeData, nMC);
@@ -531,7 +581,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                         ++ ndf_P1;
                     }
 
-                    if(debuglevel >= 3)
+                    if(debuglevel >= 6)
                     {
                         std::cout << "bin_x=" << bin_x << " lp_P1=" << lp_P1 << " nData_P1=" << nData_P1 << " nMC_P1=" << nMC_P1 << " (1)" << std::endl;
                     }
@@ -541,7 +591,8 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                 // this appears to happen a lot
                 else
                 {
-                    std::cout << "MC WENT LOWER THAN ZERO" << std::endl;
+                    std::cout << "MC WENT LOWER THAN ZERO - 1D P1" << std::endl;
+                    std::cout << "nMC_P1=" << nMC_P1 << std::endl;
 
                     double lp_P1 = logpoisson(nData_P1, 0.0);
                     //double lp = logpoisson(nFakeData, 1.0e-05);
@@ -552,7 +603,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                         ++ ndf_P1;
                     }
 
-                    if(debuglevel >= 3)
+                    if(debuglevel >= 6)
                     {
                         std::cout << "bin_x=" << bin_x << " lp_P1=" << lp_P1 << " nData_P1=" << nData_P1 << " nMC_P1=" << nMC_P1 << " (2)" << std::endl;
                     }
@@ -572,6 +623,10 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                 // NOTE: Log(poisson) is always negative! so fval goes UP NOT DOWN
                 if(nMC_P2 >= 0.0)
                 {
+                    if(nMC_P2 == 0.0)
+                    {
+                        continue;
+                    }
                     double lp_P2 = logpoisson(nData_P2, nMC_P2);
                     //double lp = logpoisson(nFakeData, nMC);
                     //double lp = logpoisson_sterling(nFakeData, nMC);
@@ -591,7 +646,8 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                 // this appears to happen a lot
                 else
                 {
-                    std::cout << "MC WENT LOWER THAN ZERO" << std::endl;
+                    std::cout << "MC WENT LOWER THAN ZERO - 1D P2" << std::endl;
+                    std::cout << "nMC_P2=" << nMC_P2 << std::endl;
 
                     double lp_P2 = logpoisson(nData_P2, 0.0);
                     //double lp = logpoisson(nFakeData, 1.0e-05);
@@ -622,7 +678,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             tmpTotalMC1D_P2 = nullptr;
 
 
-            if(debuglevel >= 2)
+            if(debuglevel >= 5)
             {
                 std::cout << "1D: channel " << channel << " enabled, ll_chanel_P1=" << ll_channel_P1 << " ll_channel_P2=" << ll_channel_P2 << std::endl;
             }
@@ -632,7 +688,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
         } // channel
 
         ndf = ndf_P1 + ndf_P2;
-        if(debuglevel >= 2)
+        if(debuglevel >= 4)
         {
             std::cout << "ndf=" << ndf << " ndf_P1=" << ndf_P2 << " ndf_P2=" << ndf_P2 << std::endl;
         }
@@ -678,7 +734,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             std::string histname = std::string(channel_histname_2D[channel]);
             std::string search_object_P1 = histname + std::string(DataFile) + "_P1";
             std::string search_object_P2 = histname + std::string(DataFile) + "_P2";
-            if(debuglevel >= 3)
+            if(debuglevel >= 4)
             {
                 std::cout << "search_object_P1=" << search_object_P1
                           << " search_object_P2=" << search_object_P2 << std::endl;
@@ -776,6 +832,11 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                         }
                     }
                 }
+                else
+                {
+                    ok = true;
+                    continue;
+                }
                 if(ok == false)
                 {
                     if(debuglevel >= 0)
@@ -809,14 +870,14 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                     TH2D *tmpHist2D_P2 = nullptr;
 
                     paramNumberInt = g_pg.ExtToIntParamNumberMap.at(paramNumber);
-                    if(debuglevel >= 3)
+                    if(debuglevel >= 4)
                     {
                         std::cout << "paramNumber=" << paramNumber << " -> " << paramNumberInt << std::endl;
                     }
 
                     if(paramEnabledP1 == true)
                     {
-                        if(debuglevel >= 2)
+                        if(debuglevel >= 5)
                         {
                             std::cout << "enabled P1" << std::endl;
                         }
@@ -830,7 +891,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                         }
 
                         Double_t scale_factor_P1 = param.at(paramNumberInt);
-                        if(debuglevel >= 2)
+                        if(debuglevel >= 5)
                         {
                             std::cout << "scale_factor_P1=" << scale_factor_P1 << std::endl;
                         }
@@ -844,7 +905,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
 
                     if(paramEnabledP2 == true)
                     {
-                        if(debuglevel >= 2)
+                        if(debuglevel >= 5)
                         {
                             std::cout << "enabled P2" << std::endl;
                         }
@@ -858,7 +919,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                         }
 
                         Double_t scale_factor_P2 = param.at(paramNumberInt);
-                        if(debuglevel >= 2)
+                        if(debuglevel >= 5)
                         {
                             std::cout << "scale_factor_P2=" << scale_factor_P2 << std::endl;
                         }
@@ -912,6 +973,10 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                     // NOTE: Log(poisson) is always negative! so fval goes UP NOT DOWN
                     if(nMC_P1 >= 0.0)
                     {
+                        if(nMC_P1 == 0.0)
+                        {
+                            continue;
+                        }
                         double lp_P1 = logpoisson(nData_P1, nMC_P1);
                         //double lp = logpoisson(nFakeData, nMC);
                         //double lp = logpoisson_sterling(nFakeData, nMC);
@@ -921,7 +986,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                             ++ ndf_P1;
                         }
 
-                        if(debuglevel >= 3)
+                        if(debuglevel >= 6)
                         {
                             std::cout << "bin_x=" << bin_x << " bin_y=" << bin_y << " lp_P1=" << lp_P1 << " nData_P1=" << nData_P1 << " nMC_P1=" << nMC_P1 << " (1)" << std::endl;
                         }
@@ -931,7 +996,8 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                     // this appears to happen a lot
                     else
                     {
-                        std::cout << "MC WENT LOWER THAN ZERO" << std::endl;
+                        std::cout << "MC WENT LOWER THAN ZERO - 2D P1" << std::endl;
+                        std::cout << "nMC_P1=" << nMC_P1 << std::endl;
 
                         double lp_P1 = logpoisson(nData_P1, 0.0);
                         //double lp = logpoisson(nFakeData, 1.0e-05);
@@ -942,7 +1008,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                             ++ ndf_P1;
                         }
 
-                        if(debuglevel >= 3)
+                        if(debuglevel >= 6)
                         {
                             std::cout << "bin_x=" << bin_x << " bin_y=" << bin_y << " lp_P1=" << lp_P1 << " nData_P1=" << nData_P1 << " nMC_P1=" << nMC_P1 << " (2)" << std::endl;
                         }
@@ -958,6 +1024,10 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                     // NOTE: Log(poisson) is always negative! so fval goes UP NOT DOWN
                     if(nMC_P2 >= 0.0)
                     {
+                        if(nMC_P2 == 0.0)
+                        {
+                            continue;
+                        }
                         double lp_P2 = logpoisson(nData_P2, nMC_P2);
                         //double lp = logpoisson(nFakeData, nMC);
                         //double lp = logpoisson_sterling(nFakeData, nMC);
@@ -967,7 +1037,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                             ++ ndf_P2;
                         }
 
-                        if(debuglevel >= 3)
+                        if(debuglevel >= 6)
                         {
                             std::cout << "bin_x=" << bin_x << " bin_y=" << bin_y << " lp_P2=" << lp_P2 << " nData_P2=" << nData_P2 << " nMC_P2=" << nMC_P2 << " (1)" << std::endl;
                         }
@@ -977,7 +1047,8 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                     // this appears to happen a lot
                     else
                     {
-                        std::cout << "MC WENT LOWER THAN ZERO" << std::endl;
+                        std::cout << "MC WENT LOWER THAN ZERO - 2D P2" << std::endl;
+                        std::cout << "nMC_P2=" << nMC_P2 << std::endl;
 
                         double lp_P2 = logpoisson(nData_P2, 0.0);
                         //double lp = logpoisson(nFakeData, 1.0e-05);
@@ -988,7 +1059,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                             ++ ndf_P2;
                         }
 
-                        if(debuglevel >= 3)
+                        if(debuglevel >= 6)
                         {
                             std::cout << "bin_x=" << bin_x << " bin_y=" << bin_y << " lp_P2=" << lp_P2 << " nData_P2=" << nData_P2 << " nMC_P2=" << nMC_P2 << " (2)" << std::endl;
                         }
@@ -1008,7 +1079,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             tmpTotalMC2D_P2 = nullptr;
 
 
-            if(debuglevel >= 2)
+            if(debuglevel >= 5)
             {
                 std::cout << "2D: channel " << channel << " enabled, ll_channel_P1=" << ll_channel_P1 << " ll_channel_P2=" << ll_channel_P2 << std::endl;
             }
@@ -1018,7 +1089,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
         } // channel
         
         ndf += ndf_P1 + ndf_P2;
-        if(debuglevel >= 2)
+        if(debuglevel >= 5)
         {
             std::cout << "ndf=" << ndf << std::endl;
         }
@@ -1271,6 +1342,13 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             double paramConstraintValue = it->second.paramConstraintValue;
             double paramConstraintError = it->second.paramConstraintError;
             int paramConstraintMode = it->second.paramConstraintMode;
+
+            // stop it crashing
+            // (below)
+            if(paramEnabled == false)
+            {
+                continue;
+            }
 
             paramNumberInt = g_pg.ExtToIntParamNumberMap.at(paramNumber);
 

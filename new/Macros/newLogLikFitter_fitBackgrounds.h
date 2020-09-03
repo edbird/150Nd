@@ -86,7 +86,10 @@ void fitBackgrounds_init(
         double paramInitError = it->second.paramInitError;
         int paramConstraintMode = it->second.paramConstraintMode;
 
-        std::cout << "paramNumber=" << paramNumber << std::endl;
+        if(debugprint)
+        {
+            std::cout << "paramNumber=" << paramNumber << std::endl;
+        }
 
         // decide what to do depending on whether parameter is enabled
         // and for which phases
@@ -109,6 +112,11 @@ void fitBackgrounds_init(
                     ok = true;
                 }
             }
+        }
+        else
+        {
+            ok = true;
+            continue;
         }
         if(ok == false)
         {
@@ -423,6 +431,11 @@ void fitBackgrounds_phasespace_init(
                     ok = true;
                 }
             }
+        }
+        else
+        {
+            ok = true;
+            continue;
         }
         if(ok == false)
         {

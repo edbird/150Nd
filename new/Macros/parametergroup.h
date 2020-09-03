@@ -445,6 +445,8 @@ class parameter_group
         {
             std::cout << "param_index=" << param_index << std::endl;
             int paramNumber = param_index;
+            if(it->second.paramEnabled == true)
+            {
             int intParamNumber = ExtToIntParamNumberMap.at(paramNumber);
             int extParamNumber = IntToExtParamNumberMap.at(intParamNumber);
             std::cout << "intParamNumber=" << intParamNumber << std::endl;
@@ -468,7 +470,29 @@ class parameter_group
             std::cout << "paramName=" << it->second.paramName << std::endl;
             std::cout << "paramHumanReadableName=" << it->second.paramHumanReadableName << std::endl;
             std::cout << "*****" << std::endl;
-
+            }
+            else
+            {
+            std::cout << "MCNameList" << std::endl;
+            for(int j = 0; j < it->second.MCNameList.size(); ++ j)
+            {
+                std::string mcname = it->second.MCNameList.at(j);
+                int mcnameparamnumber = MCNameToExtParamNumberMap.at(it->second.MCNameList.at(j));
+                std::cout << mcname << " -> " << mcnameparamnumber << std::endl;
+            }
+            std::cout << "paramNumber=" << it->second.paramNumber << std::endl;
+            std::cout << "paramEnabled=" << it->second.paramEnabled << std::endl;
+            std::cout << "paramEnabledP1=" << it->second.paramEnabledP1 << std::endl;
+            std::cout << "paramEnabledP2=" << it->second.paramEnabledP2 << std::endl;
+            std::cout << "paramInitValue=" << it->second.paramInitValue << std::endl;
+            std::cout << "paramInitError=" << it->second.paramInitError << std::endl;
+            std::cout << "paramConstraintValue=" << it->second.paramConstraintValue << std::endl;
+            std::cout << "paramConstraintError=" << it->second.paramConstraintError << std::endl;
+            std::cout << "paramConstraintMode=" << it->second.paramConstraintMode << std::endl;
+            std::cout << "paramName=" << it->second.paramName << std::endl;
+            std::cout << "paramHumanReadableName=" << it->second.paramHumanReadableName << std::endl;
+            std::cout << "*****" << std::endl;
+            }
             ++ param_index;
         }
         std::cout << std::endl;

@@ -3,7 +3,7 @@
 
 
 
-
+// TODO: should this include the parameters?
 double calc_chi2_draw(TH1D *data1D, TH1D *hAllMC1D)
 {
     double sum = 0.0;
@@ -12,6 +12,16 @@ double calc_chi2_draw(TH1D *data1D, TH1D *hAllMC1D)
 
         double c_data = data1D->GetBinContent(i);
         double c_MC = hAllMC1D->GetBinContent(i);
+        double lp = 0.0;
+
+        if(c_MC >= 0.0)
+        {
+            if(c_MC == 0.0)
+            {
+                continue;
+            }
+            lp = logpoisson(c_data, c_MC);
+        }
 
         /*
         double e_data = data1D->GetBinError(i);
@@ -28,7 +38,8 @@ double calc_chi2_draw(TH1D *data1D, TH1D *hAllMC1D)
         sum += num / den;
         */
 
-        sum += logpoisson(c_data, c_MC);
+        //sum += logpoisson(c_data, c_MC);
+        sum += lp;
     }
     //return sum;
     return -2.0 * sum;
@@ -280,7 +291,16 @@ void draw_channel_phase(
         for(std::vector<std::string>::iterator it{phase_arg_strs.begin()};
             it != phase_arg_strs.end(); ++ it)
         {
-            std::string search_object_Px = histname + std::string(DataFile) + "_" + (*it);
+            std::string search_object_Px;
+            if(g_mode_fake_data == false)
+            {
+                search_object_Px = histname + std::string(DataFile) + "_" + (*it);
+            }
+            else if(g_mode_fake_data == true)
+            {
+                search_object_Px = histname + std::string("fakedata") + "_" + (*it);
+            }
+            //std::cout << "search_object_Px=" << search_object_Px << std::endl;
             //std::string search_object_P2 = histname + std::string(DataFile) + "_P2";
             if(g_mode_fake_data == false)
             {
@@ -295,7 +315,7 @@ void draw_channel_phase(
                     data1D_Px->Add((TH1D*)allDataSamples1D->FindObject(search_object_Px.c_str()));
                 }
             }
-            if(g_mode_fake_data == true)
+            else if(g_mode_fake_data == true)
             {
                 if(fakeData1D_Px == nullptr)
                 {
@@ -407,6 +427,12 @@ void draw_channel_phase(
 
                     Double_t scale_factor_P1 = params.at(paramNumberInt);
                     tmpHist1D_P1->Scale(scale_factor_P1);
+                    if(TString(tmpHist1D_P1->GetName()).Contains("hSingleEnergy_"))
+                    {
+                        std::cout << "P1: name=" << tmpHist1D_P1->GetName() << std::endl;
+                        std::cout << "scale_factor=" << scale_factor_P1 << std::endl;
+                        std::cout << "bin 10: " << tmpHist1D_P1->GetBinContent(10) << std::endl;
+                    }
 
 
                     if(tmpHist1D_P1->Integral() > 0)
@@ -453,6 +479,12 @@ void draw_channel_phase(
 
                     Double_t scale_factor_P2 = params.at(paramNumberInt);
                     tmpHist1D_P2->Scale(scale_factor_P2);
+                    if(TString(tmpHist1D_P2->GetName()).Contains("hSingleEnergy_"))
+                    {
+                        std::cout << "P2: name=" << tmpHist1D_P2->GetName() << std::endl;
+                        std::cout << "scale_factor=" << scale_factor_P2 << std::endl;
+                        std::cout << "bin 10: " << tmpHist1D_P2->GetBinContent(10) << std::endl;
+                    }
 
                     
                     if(tmpHist1D_P2->Integral() > 0)
@@ -607,7 +639,7 @@ void draw_channel_phase(
         {
             data1D_Px->GetYaxis()->SetRangeUser(PAD_U_Y_MIN_Px, PAD_U_Y_MAX_Px);
         }
-        if(g_mode_fake_data == true)
+        else if(g_mode_fake_data == true)
         {
             fakeData1D_Px->GetYaxis()->SetRangeUser(PAD_U_Y_MIN_Px, PAD_U_Y_MAX_Px);
         }
@@ -617,7 +649,7 @@ void draw_channel_phase(
             TString name = TString(data1D_Px->GetName()) + "_ratio";
             hRatio_Px = (TH1D*)data1D_Px->Clone(name);
         }
-        if(g_mode_fake_data == true)
+        else if(g_mode_fake_data == true)
         {
             TString name = TString(fakeData1D_Px->GetName()) + "_ratio";
             hRatio_Px = (TH1D*)fakeData1D_Px->Clone(name);

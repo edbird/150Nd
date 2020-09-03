@@ -57,7 +57,7 @@ void loadFiles()
     gStyle->SetOptStat(0);
 
     //First, create a root file to hold all of the histograms
-    TFile *myFile = TFile::Open("Nd150_2e_P" + Phase + ".root", "RECREATE");
+    TFile *myFile = new TFile("Nd150_2e_P" + Phase + ".root", "RECREATE");
     TDirectory *dir = gDirectory;
     //TDirectory *dir_sh = dir->mkdir("singleHistos"); 
     //dir_sh->mkdir("unscaled");
@@ -81,12 +81,13 @@ void loadFiles()
     // 4 = select L0 IN events
     // 8 = select L0 OUT events
     // 16 = select L>0 (IN+OUT) events
+    /*
     std::map<std::string, uint64_t> sample_split_flags;
     sample_split_flags["bi214_sfoil"] = (uint64_t)1 | (uint64_t)2;
     sample_split_flags["pb214_sfoil"] = (uint64_t)1 | (uint64_t)2;
     sample_split_flags["bi214_swire"] = (uint64_t)4 | (uint64_t)8 | (uint64_t)16;
     sample_split_flags["pb214_swire"] = (uint64_t)4 | (uint64_t)8 | (uint64_t)16;
-
+    */
 
 
     // open and reset file for storing the number of events that pass cuts
@@ -126,7 +127,7 @@ void loadFiles()
     }
     std::cout << "... DONE." << std::endl;
 
-
+    #if 0
     std::cout << std::endl;
     std::cout << ">>>>> Reading in Rn222 backgrounds..." << std::endl;
     for(int i = 0; i < nRn222BkgsInput; i++)
@@ -194,6 +195,21 @@ void loadFiles()
     */
     }
     std::cout << "... DONE." << std::endl;
+    #endif
+
+
+
+
+    std::cout << std::endl;
+    std::cout << ">>>>> Reading in Rn222 backgrounds..." << std::endl;
+    for(int i = 0; i < nRn222Bkgs; i++)
+    {
+        makeHistograms("externals/", Rn222BkgFilesNew[i], ofile_cutcount, 0);
+        makeHistograms("externals/", Rn222BkgFilesNew[i], ofile_cutcount, 1);
+    }
+    std::cout << "... DONE." << std::endl;
+
+
 
 
     std::cout << std::endl;
@@ -240,7 +256,12 @@ void loadFiles()
 //                to hold histogram data, may wish to change behaviour
 //                depending on value of the flag such that the NAMES
 //                and pointers are always unique (surpress root warnings)
-void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cutcount, const Int_t mode_flag = 0, const uint64_t sample_split_flags = 0)
+void makeHistograms(
+    TString thePath,
+    TString sampleName,
+    std::ofstream& ofile_cutcount,
+    const Int_t mode_flag = 0,
+    const uint64_t sample_split_flags = 0)
 {
 
     // enable / disable additional cuts
@@ -352,6 +373,7 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
 
 
     TString name_sample_split_additional = "";
+    /*
     if(sample_split_flags == 0x01)
     {
         // IN
@@ -382,8 +404,8 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
         std::cout << "sample_split_flags is 16" << std::endl;
         name_sample_split_additional = "_Lg0";
     }
-
     std::cout << "name_sample_split_additional=" << name_sample_split_additional << std::endl;
+    */
 
     hRun                    = new TH1D("hRun_" + sampleName + name_sample_split_additional + name_append,
                                        "Phase " + Phase + " " + sampleName + name_sample_split_additional + name_append + " runs; run numbers",
@@ -839,10 +861,17 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
     TTree *outputTree_small = nullptr;
     if(mode_flag == 0)
     {
+        outputFile_small = new TFile(filePath + thePath + sampleName + "/Nd150_2eNg_output_postprocessed_small.root", "recreate");
+        outputFile_small->mkdir("Nd150_2eNg");                                                                           
+        outputFile_small->cd("Nd150_2eNg");                                                  
+        outputTree_small = new TTree("Nd150_2eNg", "Nd150_2eNg");
+    
+        #if 0
         if((sampleName.CompareTo("nd150_rot_2b2n_m4") == 0)   ||
            (sampleName.CompareTo("nd150_rot_2n2b_m4") == 0))
         {
             // create output tree with information saved
+            /*
             outputFile = new TFile("Nd150_2eNg_output_truth_postprocessed.root", "recreate");
             outputFile->mkdir("Nd150_2eNg");                                                                           
             outputFile->cd("Nd150_2eNg");                                                  
@@ -852,7 +881,49 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
             outputFile_small->mkdir("Nd150_2eNg");                                                                           
             outputFile_small->cd("Nd150_2eNg");                                                  
             outputTree_small = new TTree("Nd150_2eNg", "Nd150_2eNg");
+            */
+            //#if TRUTH_ENABLE
+            /*
+            outputFile = new TFile(filePath + thePath + sampleName + "/Nd150_2eNg_output_truth_postprocessed.root", "recreate");
+            outputFile->mkdir("Nd150_2eNg");                                                                           
+            outputFile->cd("Nd150_2eNg");                                                  
+            outputTree = new TTree("Nd150_2eNg", "Nd150_2eNg");
+            */
+
+            /*
+            outputFile_small = new TFile(filePath + thePath + sampleName + "/Nd150_2eNg_output_truth_postprocessed_small.root", "recreate");
+            outputFile_small->mkdir("Nd150_2eNg");                                                                           
+            outputFile_small->cd("Nd150_2eNg");                                                  
+            outputTree_small = new TTree("Nd150_2eNg", "Nd150_2eNg");
+            */
+            //#else
+            /*
+            outputFile = new TFile(filePath + thePath + sampleName + "/Nd150_2eNg_output_postprocessed.root", "recreate");
+            outputFile->mkdir("Nd150_2eNg");                                                                           
+            outputFile->cd("Nd150_2eNg");                                                  
+            outputTree = new TTree("Nd150_2eNg", "Nd150_2eNg");
+            */
+            // NOTE: changed 2020-08-28: all files uniform naming scheme
+            outputFile_small = new TFile(filePath + thePath + sampleName + "/Nd150_2eNg_output_postprocessed_small.root", "recreate");
+            outputFile_small->mkdir("Nd150_2eNg");                                                                           
+            outputFile_small->cd("Nd150_2eNg");                                                  
+            outputTree_small = new TTree("Nd150_2eNg", "Nd150_2eNg");
+            //#endif
         }
+        else
+        {
+            /*
+            outputFile = new TFile(filePath + thePath + sampleName + "/Nd150_2eNg_output_postprocessed.root", "recreate");
+            outputFile->mkdir("Nd150_2eNg");                                                                           
+            outputFile->cd("Nd150_2eNg");                                                  
+            outputTree = new TTree("Nd150_2eNg", "Nd150_2eNg");
+            */
+            outputFile_small = new TFile(filePath + thePath + sampleName + "/Nd150_2eNg_output_postprocessed_small.root", "recreate");
+            outputFile_small->mkdir("Nd150_2eNg");                                                                           
+            outputFile_small->cd("Nd150_2eNg");                                                  
+            outputTree_small = new TTree("Nd150_2eNg", "Nd150_2eNg");
+        }
+        #endif
     }
     #endif
 
@@ -1046,91 +1117,111 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
         if((sampleName.CompareTo("nd150_rot_2b2n_m4") == 0)   ||
            (sampleName.CompareTo("nd150_rot_2n2b_m4") == 0))
         {
-            theTree->SetBranchAddress("trueElectronEnergy"      , trueElectronEnergy);
-
-            outputTree->Branch("Event"                      , &event                        , "event/I");
-            outputTree->Branch("Run"                        , &run                          , "run/I");
-            outputTree->Branch("runStatus"                  , &runStatus                    , "runStatus/I");
-            outputTree->Branch("nElectrons"                 , &nElectrons                   , "nElectrons/I");
-
-            outputTree->Branch("radonWeight"                , &radonWeight                  , "radonWeight/D");
-            outputTree->Branch("bi210Weight"                , &bi210Weight                  , "bi210Weight/D");
-            outputTree->Branch("foilSide"                   , &foilSide                     , "foilSide/I");
-            outputTree->Branch("eventTime"                  , &eventTime                    , "eventTime/D");
-
-            outputTree->Branch("trueVertexR"                , &trueVertexR                  , "trueVertexR/D");
-            outputTree->Branch("trueVertexZ"                , &trueVertexZ                  , "trueVertexZ/D");
-            outputTree->Branch("trueVertexSector"           , &trueVertexSector             , "trueVertexSector/D");
-            outputTree->Branch("trueVertexLayer"            , &trueVertexLayer              , "trueVertexLayer/I");
-
-            outputTree->Branch("electronEnergy"             , electronEnergy                , "electronEnergy[2]/D");
-            outputTree->Branch("eTrackLength"               , eTrackLength                  , "eTrackLength[2]/D");
-            outputTree->Branch("electronSide"               , electronSide                  , "electronSide[2]/I");
-            outputTree->Branch("trackSign"                  , trackSign                     , "trackSign[2]/D");
-            outputTree->Branch("electronMeasTime"           , electronMeasTime              , "electronMeasTime[2]/D");
-            outputTree->Branch("electronDMeasTime"          , electronDMeasTime             , "electronDMeasTime[2]/D");
-            outputTree->Branch("electronBlockType"          , electronBlockType             , "electronBlockType[2]/I");
-
-            outputTree->Branch("internalPull"               , &eeInternalPull               , "eeInternalPull/D");
-            outputTree->Branch("internalProb"               , &eeInternalProb               , "eeInternalProb/D");
-            outputTree->Branch("externalPull"               , &eeExternalPull               , "eeExternalPull/D");
-            outputTree->Branch("externalProb"               , &eeExternalProb               , "eeExternalProb/D");
-            outputTree->Branch("cosee"                      , &cosee                        , "cosee/D");
-            outputTree->Branch("cosee_weight"               , &cosee_weight                 , "cosee_weight/D");
-
-            outputTree->Branch("electronPMT"                , electronPMT                   , "electronPMT[2]/I");
-            outputTree->Branch("electronLDFlag"             , electronLDFlag                , "electronLDFlag[2]/I");
-            outputTree->Branch("electronLDCorr"             , electronLDCorr                , "electronLDCorr[2]/D");
-            outputTree->Branch("electronLDCorrErr"          , electronLDCorrErr             , "electronLDCorrErr[2]/D");
-
-            outputTree->Branch("vertexZ"                    , vertexZ                       , "vertexZ[2]/D");
-            outputTree->Branch("vertexSec"                  , vertexSec                     , "vertexSec[2]/D");
-            outputTree->Branch("vertexR"                    , vertexR                       , "vertexR[2]/D");
-
-            outputTree->Branch("vertexInHotSpot"            , vertexInHotSpot               , "vertexInHotSpot[2]/O");
-
-            outputTree->Branch("firstGgHitLayer"            , firstGgHitLayer               , "firstGgHitLayer[2]/I");
-            outputTree->Branch("lastGgHitLayer"             , lastGgHitLayer                , "lastGgHitLayer[2]/I");
-
-            outputTree->Branch("NAPromptGgHits"             , &NAPromptGgHits               , "NAPromptGgHits/I");
-            outputTree->Branch("NAPromptGgHitsSide"         , NAPromptGgHitsSide            , "NAPromptGgHitsSide/I"); // TODO: should be array?
-            outputTree->Branch("NAPromptGgHitsDist2Vertex"  , NAPromptGgHitsDist2Vertex     , "NAPromptGgHitsDist2Vertex[NAPromptGgHits]/D");
-            outputTree->Branch("NAPromptGgHitsDist2Calo"    , NAPromptGgHitsDist2Calo       , "NAPromptGgHitsDist2Calo[NAPromptGgHits]/D");
-
-            outputTree->Branch("nGammaClusters"             , &nGammaClusters               , "nGammaClusters/I");
-            outputTree->Branch("nInCluster"                 , &nInCluster                   , "nInCluster[nGammaClusters]/I");
-            outputTree->Branch("clusterEnergy"              , clusterEnergy                 , "clusterEnergy[nGammaClusters]/D");
-            outputTree->Branch("clusterTimeSpan"            , clusterTimeSpan               , "clusterTimeSpan[nGammaClusters]/D");
-
-            outputTree->Branch("nTotalClusterHits"          , &nTotalClusterHits            , "nTotalClusterHits/I");
-            outputTree->Branch("clusterHitEnergy"           , clusterHitEnergy              , "clusterHitEnergy[nTotalClusterHits]/D");
-            outputTree->Branch("clusterHitPMT"              , clusterHitPMT                 , "clusterHitPMT[nTotalClusterHits]/I");
-            outputTree->Branch("clusterHitLDFlag"           , clusterHitLDFlag              , "clusterHitLDFlag[nTotalClusterHits]/I");
-            outputTree->Branch("clusterHitLDCorr"           , clusterHitLDCorr              , "clusterHitLDCorr[nTotalClusterHits]/D");
-            outputTree->Branch("clusterHitLDCorrErr"        , clusterHitLDCorrErr           , "clusterHitLDCorrErr[nTotalClusterHits]/D");
-            outputTree->Branch("clusterHitSec"              , clusterHitSec                 , "clusterHitSec[nTotalClusterHits]/D");
-            outputTree->Branch("clusterHitZ"                , clusterHitZ                   , "clusterHitZ[nTotalClusterHits]/D");
-
-            outputTree->Branch("trueElectronEnergy"         , trueElectronEnergy            , "trueElectronEnergy[2]/D");
-
-
-
-
-            outputTree_small->Branch("Run"                        , &run                          , "run/I");
-            outputTree_small->Branch("nElectrons"                 , &nElectrons                   , "nElectrons/I");
-            outputTree_small->Branch("electronEnergy"             , electronEnergy                , "electronEnergy[2]/D");
-            outputTree_small->Branch("trueElectronEnergy"         , trueElectronEnergy            , "trueElectronEnergy[2]/D");
+            theTree->SetBranchAddress("trueElectronEnergy" , trueElectronEnergy);
         }
         else
         {
             trueElectronEnergy[0] = 0.;
             trueElectronEnergy[1] = 0.;
         }
+
+        ///////////////////////////////////////////////////////////////////////
+        // do this for all sample types
+        ///////////////////////////////////////////////////////////////////////
+
+        // big tree, all information
+
+        /*
+        outputTree->Branch("Event"                      , &event                        , "event/I");
+        outputTree->Branch("Run"                        , &run                          , "run/I");
+        outputTree->Branch("runStatus"                  , &runStatus                    , "runStatus/I");
+        outputTree->Branch("nElectrons"                 , &nElectrons                   , "nElectrons/I");
+
+        outputTree->Branch("radonWeight"                , &radonWeight                  , "radonWeight/D");
+        outputTree->Branch("bi210Weight"                , &bi210Weight                  , "bi210Weight/D");
+        outputTree->Branch("foilSide"                   , &foilSide                     , "foilSide/I");
+        outputTree->Branch("eventTime"                  , &eventTime                    , "eventTime/D");
+
+        outputTree->Branch("trueVertexR"                , &trueVertexR                  , "trueVertexR/D");
+        outputTree->Branch("trueVertexZ"                , &trueVertexZ                  , "trueVertexZ/D");
+        outputTree->Branch("trueVertexSector"           , &trueVertexSector             , "trueVertexSector/D");
+        outputTree->Branch("trueVertexLayer"            , &trueVertexLayer              , "trueVertexLayer/I");
+
+        outputTree->Branch("electronEnergy"             , electronEnergy                , "electronEnergy[2]/D");
+        outputTree->Branch("eTrackLength"               , eTrackLength                  , "eTrackLength[2]/D");
+        outputTree->Branch("electronSide"               , electronSide                  , "electronSide[2]/I");
+        outputTree->Branch("trackSign"                  , trackSign                     , "trackSign[2]/D");
+        outputTree->Branch("electronMeasTime"           , electronMeasTime              , "electronMeasTime[2]/D");
+        outputTree->Branch("electronDMeasTime"          , electronDMeasTime             , "electronDMeasTime[2]/D");
+        outputTree->Branch("electronBlockType"          , electronBlockType             , "electronBlockType[2]/I");
+
+        outputTree->Branch("internalPull"               , &eeInternalPull               , "eeInternalPull/D");
+        outputTree->Branch("internalProb"               , &eeInternalProb               , "eeInternalProb/D");
+        outputTree->Branch("externalPull"               , &eeExternalPull               , "eeExternalPull/D");
+        outputTree->Branch("externalProb"               , &eeExternalProb               , "eeExternalProb/D");
+        outputTree->Branch("cosee"                      , &cosee                        , "cosee/D");
+        outputTree->Branch("cosee_weight"               , &cosee_weight                 , "cosee_weight/D");
+
+        outputTree->Branch("electronPMT"                , electronPMT                   , "electronPMT[2]/I");
+        outputTree->Branch("electronLDFlag"             , electronLDFlag                , "electronLDFlag[2]/I");
+        outputTree->Branch("electronLDCorr"             , electronLDCorr                , "electronLDCorr[2]/D");
+        outputTree->Branch("electronLDCorrErr"          , electronLDCorrErr             , "electronLDCorrErr[2]/D");
+
+        outputTree->Branch("vertexZ"                    , vertexZ                       , "vertexZ[2]/D");
+        outputTree->Branch("vertexSec"                  , vertexSec                     , "vertexSec[2]/D");
+        outputTree->Branch("vertexR"                    , vertexR                       , "vertexR[2]/D");
+
+        outputTree->Branch("vertexInHotSpot"            , vertexInHotSpot               , "vertexInHotSpot[2]/O");
+
+        outputTree->Branch("firstGgHitLayer"            , firstGgHitLayer               , "firstGgHitLayer[2]/I");
+        outputTree->Branch("lastGgHitLayer"             , lastGgHitLayer                , "lastGgHitLayer[2]/I");
+
+        outputTree->Branch("NAPromptGgHits"             , &NAPromptGgHits               , "NAPromptGgHits/I");
+        outputTree->Branch("NAPromptGgHitsSide"         , NAPromptGgHitsSide            , "NAPromptGgHitsSide/I"); // TODO: should be array?
+        outputTree->Branch("NAPromptGgHitsDist2Vertex"  , NAPromptGgHitsDist2Vertex     , "NAPromptGgHitsDist2Vertex[NAPromptGgHits]/D");
+        outputTree->Branch("NAPromptGgHitsDist2Calo"    , NAPromptGgHitsDist2Calo       , "NAPromptGgHitsDist2Calo[NAPromptGgHits]/D");
+
+        outputTree->Branch("nGammaClusters"             , &nGammaClusters               , "nGammaClusters/I");
+        outputTree->Branch("nInCluster"                 , &nInCluster                   , "nInCluster[nGammaClusters]/I");
+        outputTree->Branch("clusterEnergy"              , clusterEnergy                 , "clusterEnergy[nGammaClusters]/D");
+        outputTree->Branch("clusterTimeSpan"            , clusterTimeSpan               , "clusterTimeSpan[nGammaClusters]/D");
+
+        outputTree->Branch("nTotalClusterHits"          , &nTotalClusterHits            , "nTotalClusterHits/I");
+        outputTree->Branch("clusterHitEnergy"           , clusterHitEnergy              , "clusterHitEnergy[nTotalClusterHits]/D");
+        outputTree->Branch("clusterHitPMT"              , clusterHitPMT                 , "clusterHitPMT[nTotalClusterHits]/I");
+        outputTree->Branch("clusterHitLDFlag"           , clusterHitLDFlag              , "clusterHitLDFlag[nTotalClusterHits]/I");
+        outputTree->Branch("clusterHitLDCorr"           , clusterHitLDCorr              , "clusterHitLDCorr[nTotalClusterHits]/D");
+        outputTree->Branch("clusterHitLDCorrErr"        , clusterHitLDCorrErr           , "clusterHitLDCorrErr[nTotalClusterHits]/D");
+        outputTree->Branch("clusterHitSec"              , clusterHitSec                 , "clusterHitSec[nTotalClusterHits]/D");
+        outputTree->Branch("clusterHitZ"                , clusterHitZ                   , "clusterHitZ[nTotalClusterHits]/D");
+
+        outputTree->Branch("trueElectronEnergy"         , trueElectronEnergy            , "trueElectronEnergy[2]/D"); 
+        */
+
+        // small tree, essential information
+
+        outputTree_small->Branch("Run"                          , &run                      , "run/I");
+        outputTree_small->Branch("eventTime"                    , &eventTime                , "eventTime/D");
+        //outputTree_small->Branch("nElectrons"                 , &nElectrons               , "nElectrons/I"); // could remove
+        outputTree_small->Branch("radonWeight"                  , &radonWeight              , "radonWeight/D");
+        outputTree_small->Branch("bi210Weight"                  , &bi210Weight              , "bi210Weight/D");
+        outputTree_small->Branch("electronEnergy"               , electronEnergy            , "electronEnergy[2]/D");
+        // truth information, save in all files to maintain homogenaity
+        outputTree_small->Branch("trueElectronEnergy"           , trueElectronEnergy        , "trueElectronEnergy[2]/D");
+    }
+    #else
+    if(mode_flag == 0)
+    {
+        // TODO:
+        // don't really care about filling this in because never run code
+        // without TRUTH_ENABLE now
     }
     #endif
 
-    std::cout << "Processing: " << sampleName << std::endl;
-
+    if(mode_flag == 0)
+    {
+        std::cout << "Processing: " << sampleName << std::endl;
+    }
 
     Int_t electron_cut_A = 0;
     //Int_t electron_cut_B = 0;
@@ -1155,10 +1246,10 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
         ++ total_event_count;
 
         bool cut = false;
-        if(event_i % 1000 == 0)
-        {
-            std::cout << "\r Processing complete : " << 100 * event_i / events << "%" << std::flush;
-        }
+        //if(event_i % 1000 == 0)
+        //{
+        //    std::cout << "\r Processing complete : " << 100 * event_i / events << "%" << std::flush;
+        //}
         theTree->GetEvent(event_i);
 
 
@@ -1269,6 +1360,7 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
         // side = -1: FAIL
         // layer: 0 - 8 inclusive = valid
         // -1 = fail
+        #if 0
         if(mode_flag_2 == 1)
         {
             if(sample_split_flags == 0x01)
@@ -1293,10 +1385,11 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
                 name_sample_split_additional = "_INL0";
                 if(foilSide != 0)
                 {
-                    if(trueVertexLayer != 0)
-                    {
-                        continue;
-                    }
+                    continue;
+                }
+                if(trueVertexLayer != 0)
+                {
+                    continue;
                 }
             }
             else if(sample_split_flags == 0x08)
@@ -1305,10 +1398,11 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
                 name_sample_split_additional = "_OUTL0";
                 if(foilSide != 1)
                 {
-                    if(trueVertexLayer != 0)
-                    {
-                        continue;
-                    }
+                    continue;
+                }
+                if(trueVertexLayer != 0)
+                {
+                    continue;
                 }
             }
             else if(sample_split_flags == 0x10)
@@ -1321,6 +1415,7 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
                 }
             }
         }
+        #endif
 
 
         ++ cut_counter[cc]; // cut 0 - input count
@@ -2073,6 +2168,39 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
         ++ cut_counter[cc]; // cut 13 (was cut 14) - delta
         ++ cc;
         
+        // save data to file if electronEnergy >= 0.2 MeV
+        // and phase is P1 or P2
+        if(mode_flag == 0)
+        {
+            if((electronEnergy[0] < 0.2) || (electronEnergy[1] < 0.2))
+            {
+                // do not save to file
+            }
+            else
+            {
+                if(thePhase == 0)
+                {
+                    //if((1869 <= run) && (run <= 3395)) cut = false;
+                    
+                    #if TRUTH_ENABLE
+                    //outputTree->Fill();
+                    outputTree_small->Fill();
+                    #endif
+                }
+                else if(thePhase == 1)
+                {
+                    //if((3396 <= run) && (run <= 9186)) cut = false;
+
+                    #if TRUTH_ENABLE
+                    //outputTree->Fill();
+                    outputTree_small->Fill();
+                    #endif
+                }
+            }
+        }
+
+
+
         // 26: Each E_e >= 300 keV
         // (33) Each E_e >= 300 keV
         // 7. The energy of each electron is required to be at least 0.3 MeV, as single electron energies
@@ -2104,42 +2232,10 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
             if(thePhase == 0)
             {
                 if((1869 <= run) && (run <= 3395)) cut = false;
-                
-                #if TRUTH_ENABLE
-                if(mode_flag == 0)
-                {
-                    if((sampleName.CompareTo("nd150_rot_2b2n_m4") == 0)   ||
-                       (sampleName.CompareTo("nd150_rot_2n2b_m4") == 0))
-                    {
-                        if(electronEnergy[0] < 0.3 || electronEnergy[1] < 0.3)
-                        {
-                            std::cout << "problem in fit_2e electron energy too low" << std::endl;
-                        }
-                        outputTree->Fill();
-                        outputTree_small->Fill();
-                    }
-                }
-                #endif
             }
             else if(thePhase == 1)
             {
                 if((3396 <= run) && (run <= 9186)) cut = false;
-
-                #if TRUTH_ENABLE
-                if(mode_flag == 0)
-                {
-                    if((sampleName.CompareTo("nd150_rot_2b2n_m4") == 0)   ||
-                       (sampleName.CompareTo("nd150_rot_2n2b_m4") == 0))
-                    {
-                        if(electronEnergy[0] < 0.3 || electronEnergy[1] < 0.3)
-                        {
-                            std::cout << "problem in fit_2e electron energy too low" << std::endl;
-                        }
-                        outputTree->Fill();
-                        outputTree_small->Fill();
-                    }
-                }
-                #endif
             }
             else if(nocutonphase == 1)
             {
@@ -2345,23 +2441,32 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
     } //~event_i
      
 
-    ofile_cutcount << sampleName << "\t" << total_event_count << "\t" << event_pass_count << std::endl;
-    std::cout << sampleName << "\t" << total_event_count << "\t" << event_pass_count << std::endl;
-    std::cout << "electron_cut_A=" << electron_cut_A << std::endl;
+    if(mode_flag == 0)
+    {
+        //std::cout << hSingleEnergy->GetName() << " -> " << hSingleEnergy->GetBinContent(10) << std::endl;
+    }
+
+
+    if(mode_flag == 0)
+    {
+        ofile_cutcount  << sampleName << "    " << "" << total_event_count << "    " << "" << event_pass_count << std::endl;
+        std::cout       << sampleName << "    " << "total_event_count=" << total_event_count << "    " << "event_pass_count=" << event_pass_count << std::endl;
+    }
+    //std::cout << "electron_cut_A=" << electron_cut_A << std::endl;
     std::cout << std::endl;
 
     #if TRUTH_ENABLE
     if(mode_flag == 0)
     {
-        if((sampleName.CompareTo("nd150_rot_2b2n_m4") == 0)   ||
-           (sampleName.CompareTo("nd150_rot_2n2b_m4") == 0))
-        {
-            outputTree->Write();
-            outputFile->Close();
+        //if((sampleName.CompareTo("nd150_rot_2b2n_m4") == 0)   ||
+        //   (sampleName.CompareTo("nd150_rot_2n2b_m4") == 0))
+        //{
+        //outputTree->Write();
+        //outputFile->Close();
 
-            outputTree_small->Write();
-            outputFile_small->Close();
-        }
+        outputTree_small->Write();
+        outputFile_small->Close();
+        //}
     }
     #endif
 
@@ -2403,7 +2508,7 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
     ++ cc;
     cut_description[cc] = "none";
 
-    std::cout << "Here are the cut counts" << std::endl;
+    //std::cout << "Here are the cut counts" << std::endl;
     std::string of_cutcount_filename;
     if(mode_flag == 0)
     {
@@ -2417,7 +2522,7 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
     of_cutcount << sampleName << std::endl;
     for(int i = 0; i < nCuts; i++)
     {
-        std::cout << "Passed cut " << i << ": " << cut_counter[i] << " events. Description=\"" << cut_description[i] << "\"" << std::endl;
+        //std::cout << "Passed cut " << i << ": " << cut_counter[i] << " events. Description=\"" << cut_description[i] << "\"" << std::endl;
         of_cutcount << "Passed cut " << i << ": " << cut_counter[i] << " events. Description=\"" << cut_description[i] << "\"" << std::endl; 
     }
     of_cutcount << std::endl;
@@ -2431,7 +2536,7 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
     }
 
 
-    TFile *myFile = TFile::Open("Nd150_2e_P" + Phase + ".root", "UPDATE");
+    TFile *myFile = new TFile("Nd150_2e_P" + Phase + ".root", "UPDATE");
     TDirectory *dir = gDirectory;
     //dir->cd("singleHistos/unscaled");
     //dir->cd("rawdata");
@@ -2447,8 +2552,8 @@ void makeHistograms(TString thePath, TString sampleName, std::ofstream& ofile_cu
 
     //std::cout << "writing histograms into \"singleHistos/unscaled\'" << std::endl;
     //std::cout << "writing: singleHistos/unscaled/" << hTotalE->GetName() << std::endl;
-    std::cout << "writing histograms into \"rawdata" << "\" or \"processeddata\"" << std::endl;
-    std::cout << "writing: rawdata or processeddata ... " << hTotalE->GetName() << std::endl;
+    //std::cout << "writing histograms into \"rawdata" << "\" or \"processeddata\"" << std::endl;
+    //std::cout << "writing: rawdata or processeddata ... " << hTotalE->GetName() << std::endl;
 
     //for(int i = 0; i < numHistograms; ++ i)
     for(std::map<TString, TH1*>::iterator it{hpmap.begin()}; it != hpmap.end(); ++ it)
@@ -2530,6 +2635,7 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
     //TObjArray *allSamples[nSamples];
     for(int i = 0; i < nSamples; i++)
     {
+
         // create new object array
         //std::cout << sampleFiles[i] << std::endl;
         allSamples[i] = new TObjArray();
@@ -2537,6 +2643,10 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
 
         // read efficiency from file
         std::ifstream ifile_cutcount("cutcount.txt");
+        if(!ifile_cutcount.is_open())
+        {
+            std::cout << "failed to open file " << "cutcount.txt" << std::endl;
+        }
 
         //double sample_total_event_count;
         double sample_pass_count;
@@ -2576,6 +2686,10 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
             }
         }
         inFile.open(filePath + typedir + sample_file_name + "/JobSummary.txt");
+        if(!inFile.is_open())
+        {
+            std::cout << "failed to open " << filePath + typedir + sample_file_name + "/JobSummary.txt" << std::endl;
+        }
         // cout << "JobSummary stuff is here: "
         // 	 << filePath << "internals/" << InternalBkgFiles[i] << "/JobSummary.txt"
         // 	 << endl;
@@ -2589,6 +2703,10 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
         // have to scale the histogram appropriately.  So now we need to fetch the activity from the txt file
         std::ifstream inFile2;
         inFile2.open(activityfile.c_str());
+        if(!inFile2.is_open())
+        {
+            std::cout << "failed to open " << activityfile << std::endl;
+        }
 
         bool found = false;
         while((!found) && (!inFile2.eof()))
@@ -2780,7 +2898,18 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
                 std::cout << std::endl;
             }
 
+
+
             tmpHist->Scale(TotalTime / sampleNGenMC[i]);
+            if(mode_flag == 0)
+            {
+                if(TString(tmpHist->GetName()).Contains("hSingleEnergy_"))
+                {
+                    std::cout << tmpHist->GetName() << " -> " << tmpHist->GetBinContent(10) << std::endl;
+                    //std::cin.get();
+                }
+                //std::cout << tmpHist->GetName() << " -> scale=" << TotalTime / sampleNGenMC[i] << std::endl;
+            }
             
             if(mode_flag == 0)
             {
@@ -2803,6 +2932,16 @@ void scale(TFile* myFile,                       // INPUT: unscaled histograms ar
             //    //throw "fault";
             //}
             tmpHist->Scale(sampleActivity[thePhase * nSamples + i]);
+            if(mode_flag == 0)
+            {
+                if(TString(tmpHist->GetName()).Contains("hSingleEnergy_"))
+                {
+                    std::cout << "after scaling by activity A=" << sampleActivity[thePhase * nSamples + i] << " the 10th bin contains:" << std::endl;
+                    std::cout << tmpHist->GetName() << " -> " << tmpHist->GetBinContent(10) << std::endl;
+                    //std::cin.get();
+                }
+                //std::cout << tmpHist->GetName() << " -> scale=" << TotalTime / sampleNGenMC[i] << std::endl;
+            }
             if(mode_flag == 0)
             {
                 // write into scaled2 / histogram_name subdirectory

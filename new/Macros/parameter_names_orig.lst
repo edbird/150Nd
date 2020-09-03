@@ -113,14 +113,15 @@ BREAK
 #   ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # TODO: check these
 0	enabled     P1_enabled  P2_enabled  3.45e-04    3.45e-05    useinit     useinit     free    ND150       nd150                       nd150_rot_2n2b_m4                               END # 470215
-1   enabled     P1_enabled  P2_enabled  0.296       0.1         useinit     useinit     free    NA          xi_31                       NOMC                                            END
+#1   enabled     P1_enabled  P2_enabled  0.296       0.1         useinit     useinit     free    NA          xi_31                       NOMC                                            END
+1   enabled     P1_enabled  P2_enabled  0.0         0.1         useinit     useinit     free    NA          xi_31                       NOMC                                            END
 BREAK
 # TODO: bug: line with whitespace crashes
 BREAK
 2	enabled     P1_enabled  P2_enabled  1.70e-3   	0.02e-3     useinit     useinit     soft    INTERNAL    ac228_bi212_tl208_int       ac228_int_rot   bi212_int_rot   tl208_int_rot   END # 2490, 1359, 7134
 3   enabled     P1_enabled  P2_enabled  5.66e-3     0.15e-3     useinit     useinit     soft    INTERNAL    bi207_int                   bi207_int_rot  	                                END # 9906
 4   enabled     P1_enabled  P2_enabled  0.29e-3     0.01e-3     useinit     useinit     soft    INTERNAL    bi214_int                   bi214_int_rot   pb214_int_rot                   END # 6839, 173
-5   enabled  	P1_enabled  P2_enabled  2.98e-3     0.21e-3     useinit     useinit     soft    INTERNAL    eu152_int                   eu152_int_rot                                   END # 138
+5   enabled     P1_enabled  P2_enabled  2.98e-3     0.21e-3     useinit     useinit     soft    INTERNAL    eu152_int                   eu152_int_rot                                   END # 138
 6   enabled     P1_enabled  P2_enabled  1.08e-3     0.25e-3     useinit     useinit     soft    INTERNAL    eu154_int                   eu154_int_rot  	                                END # 385
 7   enabled     P1_enabled  P2_enabled  10.14e-3    0.08e-3     useinit     useinit     soft    INTERNAL    k40_int                     k40_int_rot	                                    END # 737
 8   enabled     P1_enabled  P2_enabled  1.54e-3     0.04e-3     useinit     useinit     soft    INTERNAL    pa234m_int                  pa234m_int_rot                                  END # 3877
@@ -140,7 +141,7 @@ BREAK
 19  enabled     P1_enabled  P2_enabled  0.08e-03    0.01e-03    useinit     useinit     soft    NEIGHBOUR   ca48_bi214                  ca48_63_rot_bi214	                            END
 20  enabled     P1_enabled  P2_enabled  0.3e-03     0.1e-03     useinit     useinit     soft    NEIGHBOUR   ca48_pa234m                 ca48_63_rot_pa234m	                            END
 21  enabled     P1_enabled  P2_enabled  29.6e-03    0.1e-03     useinit     useinit     soft    NEIGHBOUR   ca48_y90                    ca48_63_rot_y90	                                END
-#10  enabled     P1_enabled P2_enabled  5.27e-03    0.07e-03    useinit     useinit     soft    mo100_99_rot_k40	                            END # 0 # TODO: something wrong in cov matrix output for this sample
+#10  disabled     P1_enabled P2_enabled  5.27e-03    0.07e-03    useinit     useinit     soft    mo100_99_rot_k40	                            END # 0 # TODO: something wrong in cov matrix output for this sample
 BREAK
 # NO EVENTS
 22  enabled     P1_enabled  P2_enabled  1.3e-3      0.2e-3      useinit     useinit     soft    RN222       bi210_sfoil                 bi210_sfoil 	                                END     # 0 events
@@ -158,9 +159,9 @@ BREAK
 31  enabled     P1_enabled  P2_enabled  1124.0	    93.0        useinit     useinit     soft    RN222       k40_pmt                     k40_pmt	                                        END     # 5 events
 32  enabled     P1_enabled  P2_enabled  16.0        4.0         useinit     useinit     soft    RN222       k40_scint                   k40_scintIN k40_scintOUT k40_scintPET           END     # 0 events
 BREAK
-#22  enabled     P1_enabled P2_enabled  1.0e-3      0.6e-3      same        same        useinit     useinit     same        same        soft    soft    bi214_sfoil     pb214_sfoil	    END # 271, 23
-#23  enabled     P1_enabled P2_enabled  1.3e-3      1.6e-3      same        same        useinit     useinit     same        same        soft    soft    bi214_swire     pb214_swire 	END
-#23  enabled     P1_enabled P2_enabled  1.3e-3      1.0e-3      same        same        useinit     useinit     same        same        soft    soft    bi214_swire     pb214_swire 	END # 328, 21
+#22  disabled     P1_enabled P2_enabled  1.0e-3      0.6e-3      same        same        useinit     useinit     same        same        soft    soft    bi214_sfoil     pb214_sfoil	    END # 271, 23
+#23  disabled     P1_enabled P2_enabled  1.3e-3      1.6e-3      same        same        useinit     useinit     same        same        soft    soft    bi214_swire     pb214_swire 	END
+#23  disabled     P1_enabled P2_enabled  1.3e-3      1.0e-3      same        same        useinit     useinit     same        same        soft    soft    bi214_swire     pb214_swire 	END # 328, 21
 # TODO: these do not work useinit/same problem
 33  enabled     P1_enabled  P2_disabled 8.5e-3      8.5e-4      useinit     useinit     soft    RN222       bi214_pb214_sfoil_in_P1     bi214_sfoil_IN      pb214_sfoil_IN              END
 34  enabled     P1_enabled  P2_disabled 5.3e-3      5.3e-4      useinit     useinit     soft    RN222       bi214_pb214_sfoil_out_P1    bi214_sfoil_OUT     pb214_sfoil_OUT             END

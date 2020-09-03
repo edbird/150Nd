@@ -76,7 +76,7 @@ void book2DHistograms_helper(
             tmpHist_P1 = (TH2D*)aFile_P1->Get(fullname.c_str())->Clone(new_name_P1.c_str());
             tmpHist_P2 = (TH2D*)aFile_P2->Get(fullname.c_str())->Clone(new_name_P2.c_str());
 
-            if(debuglevel >= 2)
+            if(debuglevel >= 3)
             {
                 std::cout << "check the name of histograms: (P1): " << tmpHist_P1->GetName() << " (P2): " << tmpHist_P2->GetName() << std::endl;
             }
@@ -357,7 +357,10 @@ void book2DHistograms(Int_t channel_counter, TString theChannel, TString theHist
         TH1D *tmpHist_P1 = (TH1D*)aFileP1->Get(fullname.c_str())->Clone(new_name_P1.c_str());
         TH1D *tmpHist_P2 = (TH1D*)aFileP2->Get(fullname.c_str())->Clone(new_name_P2.c_str());
         //TH1D *tmpHist = (TH1D*)aFile->Get(fullname.c_str())->Clone();
-        std::cout << "check the name of histograms: (P1): " << tmpHist_P1->GetName() << " (P2): " << tmpHist_P2->GetName() << std::endl;
+        if(debuglevel >= 3)
+        {
+            std::cout << "check the name of histograms: (P1): " << tmpHist_P1->GetName() << " (P2): " << tmpHist_P2->GetName() << std::endl;
+        }
         if(tmpHist_P1 != nullptr)
         {
             allDataSamples2D->Add((TH2D*)tmpHist_P1);
@@ -378,10 +381,15 @@ void book2DHistograms(Int_t channel_counter, TString theChannel, TString theHist
     }
     else if(g_mode_fake_data == true)
     {
-        if(debuglevel >= 1)
+        if(debuglevel >= 2)
         {
-            std::cout << "not loading data: g_mode_fake_data=true" << std::endl;
+            std::cout << "FakeData" << std::endl;
         }
+
+        // TODO: this is called in both 1D and 2D book histograms function
+        // not sure what to do about it
+        // removed from here
+        //rebuild_fake_data_systematics();
     }
 
     // aFile->Close();

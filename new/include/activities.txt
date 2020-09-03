@@ -3,7 +3,7 @@ nd150_rot_2b2n_m4	    0.345e-3	0.345e-3
 
 bi214_int_rot           0.29e-3     0.29e-3
 pb214_int_rot           0.29e-3     0.29e-3
-tl208_int_rot           0.62e-3     0.62e-3
+tl208_int_rot           0.70e-3     0.70e-3
 ac228_int_rot           1.70e-3     1.70e-3
 bi212_int_rot           1.70e-3     1.70e-3
 bi207_int_rot           5.66e-3     5.66e-3

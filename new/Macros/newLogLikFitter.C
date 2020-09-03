@@ -46,10 +46,13 @@
 #include "newLogLikFitter_aux.h"
 #include "newLogLikFitter_printfitresult.h"
 #include "newLogLikFitter_read_parameternames_lst.h"
-#include "newLogLikFitter_book1DHistograms.h"
-#include "newLogLikFitter_book2DHistograms.h"
+#include "Systematics.h"
 #include "newLogLikFitter_reweight.h"
 #include "newLogLikFitter_reweight_apply.h"
+#include "newLogLikFitter_reweight_apply_fakedata.h"
+#include "newLogLikFitter_buildfakedata.h"
+#include "newLogLikFitter_book1DHistograms.h"
+#include "newLogLikFitter_book2DHistograms.h"
 #include "newLogLikFitter_stacker_helper.h"
 #include "newLogLikFitter_logpoisson.h"
 #include "newLogLikFitter_drawchannel.h"
@@ -57,11 +60,58 @@
 #include "newLogLikFitter_draw_2D.h"
 #include "newLogLikFitter_draw_outputdiff.h"
 #include "newLogLikFitter_draw_all.h"
-#include "newLogLikFitter_buildfakedata.h"
+#include "newLogLikFitter_rebuild_150Nd_MC.h"
+#include "newLogLikFitter_rebuild_150Nd_data.h"
 #include "MinimizeFCNAxialVector.h"
 #include "newLogLikFitter_fitBackgrounds.h"
 #include "newLogLikFitter_chisquaretest.h"
 #include "newLogLikFitter_test.h"
+
+
+
+
+            // 2020-04-17 Notes:
+            // output histograms do not look right (2d MPS plots)
+            //
+            // range of values for parameter include values such as
+            // -8 to 10
+            // -15 to 15
+            // these ranges seem too large? / are indicating very large uncertainty
+            // update: caused by a bug in the min/max parameter settings, now fixed
+            // (not fixed in h_mps)
+            //
+            // there is a white square in the center. what value does this have?
+            // is it negative, or zero?
+            //
+            // h_mps looks different to h_mps_10_0, they should be the same!
+            // update: they are the same if ranges set the same and fval_min
+            // is subtracted from fval before filling
+            //
+            // my guess was that the change in parameter values and thus n_mc
+            // is having a much weaker effect compared to the penalty term
+            // why is this?
+            // this may not be correct, since all plots appear identical
+            // indicating that something is not being computed correctly
+
+
+
+
+
+                //
+                // if n is large, then exp(-n) may fail in Poisson calc
+                // n! may also fail, so use Stirling
+                //
+                // so calculate LL from expansion of log
+                //
+                //if(nMC > 10.0)
+                //{
+                //    // nMC > 1.0e-05 here already
+                //    const double l = nMC;
+                //    const double n = nData;
+                //    const double stirling = n*TMath::Log(n) - n;
+                //    ll_channel += -l + n*TMath::Log(l) - stirling;
+                //}
+
 
 
 // TODO:
@@ -498,8 +548,10 @@ void loadFiles(int i)
     allDataSamples1D = new TObjArray();
     allDataSamples2D = new TObjArray();
     // TODO could call build_fake_data() in this function after load?
-    allFakeDataSamples1D = nullptr;
-    allFakeDataSamples2D = nullptr;
+    //allFakeDataSamples1D = nullptr;
+    //allFakeDataSamples2D = nullptr;
+    allFakeDataSamples1D = new TObjArray();
+    allFakeDataSamples2D = new TObjArray();
 
 
     gEnablePhase1 = true;
@@ -537,11 +589,15 @@ void loadFiles(int i)
     //book1DHistograms(0, "2e_", "P2", "hTotalE_");
 
 
+    gSystematics.systematic_energy_offset = 0.1;
+    rebuild_fake_data_systematics();
+
+
     // 1d: Phase 1 & 2
     for(int channel = 0; channel < number1DHists; ++ channel)
     {
         //book1DHistograms(0, "2e_", "hTotalE_");
-        std::cout << "book1DHistograms(" << channel << ", 2e_," << channel_histname_1D[channel] << ")" << std::endl;
+        std::cout << "book1DHistograms(" << channel << ", 2e_, " << channel_histname_1D[channel] << ")" << std::endl;
         book1DHistograms(channel, "2e_", channel_histname_1D[channel]);
     }
     //book1DHistograms(1, "2e_", "hSingleEnergy_");
@@ -559,7 +615,7 @@ void loadFiles(int i)
     // 2d: Phase 1 & 2
     for(int channel = 0; channel < number2DHists; ++ channel)
     {
-        std::cout << "book2DHistograms(" << channel << ", 2e_," << channel_histname_2D[channel] << ")" << std::endl;
+        std::cout << "book2DHistograms(" << channel << ", 2e_, " << channel_histname_2D[channel] << ")" << std::endl;
         book2DHistograms(channel, "2e_", channel_histname_2D[channel]);
     }
 #if 0
@@ -892,7 +948,8 @@ void loadFiles(int i)
             //CovMatrix,
             //number_free_params);
 */
-    
+
+#if 0
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit
     ///////////////////////////////////////////////////////////////////////////
@@ -974,6 +1031,122 @@ void loadFiles(int i)
 
         std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
         std::cout << "fval_before=" << fval_before << std::endl;
+    }
+#endif
+#endif
+
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit - Variable Systematic Parameter
+    ///////////////////////////////////////////////////////////////////////////
+
+#if 1
+    TCanvas *results_c = nullptr;
+    // do not do this in parallel mode
+    if(1) // || (MODE_PARALLEL == 0))
+    {
+
+        std::vector<double> results_x;
+        std::vector<double> results_y;
+
+        const int i_max = 0;
+        //for(int i = 0; i <= i_max; ++ i)
+        {
+
+            /*const double min = systematic_energy_offset_min;
+            const double max = systematic_energy_offset_max;
+            const double diff = max - min;*/
+            //const double fr = (double)i / (double)i_max;
+            //systematic_energy_offset = fr * diff + min;
+            /*systematic_energy_offset = systematic_energy_offset_min;*/
+            double systematic_energy_offset = gSystematics.systematic_energy_offset;
+            std::cout << "seo=" << systematic_energy_offset << std::endl;
+
+            std::string name_extra = "seo_" + std::to_string(systematic_energy_offset);
+
+            // create minimizer
+            ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
+            ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
+            MinimizeFCNAxialVector theFCN;
+
+            // initialize fit
+            //fitBackgrounds_init(theParameterState, theMinimizer, AdjustActs, AdjustActs_Err);
+            const int xi_31_param_number = g_pg.get_xi_31_ext_param_number();
+            const double xi_31_value = g_pg.file_params.at(xi_31_param_number).paramInitValue;
+            const double xi_31_error = g_pg.file_params.at(xi_31_param_number).paramInitError;
+            std::cout << "xi_31_param_number=" << xi_31_param_number
+                      << " xi_31=" << xi_31_value << " +- " << xi_31_error << std::endl;
+            fitBackgrounds_init(theParameterStateBefore, theMinimizer, xi_31_value, xi_31_error);
+
+            // get parameters and chi2 value before fit
+            std::vector<double> params_before = theParameterStateBefore.Params();
+            std::vector<double> param_errs_before = theParameterStateBefore.Errors();
+            double fval_before = theFCN.operator()(params_before);
+            //int ndf = theFCN.ndf - theParameterStateBefore.VariableParameters();
+            int ndf = theFCN.ndf - g_pg.get_number_free_params();
+
+            // draw before fit
+            draw_input_data drawinputdata;
+            drawinputdata.chi2 = fval_before;
+            drawinputdata.ndf = ndf;
+            drawinputdata.serial_dir = "xifree";
+            drawinputdata.saveas_filename = std::string("xifree_before") + "_" + name_extra;
+            drawinputdata.saveas_png = true;
+           
+            draw(drawinputdata,
+                 params_before,
+                 param_errs_before);
+
+
+            // exec fit
+            // do fit with all parameters free
+            ROOT::Minuit2::FunctionMinimum FCN_min =
+                fitBackgrounds_exec(
+                    theParameterStateBefore,
+                    theMinimizer,
+                    theFCN);
+
+            // get result
+            ROOT::Minuit2::MnUserParameterState theParameterStateAfter = FCN_min.UserParameters();
+            std::vector<double> params_after = theParameterStateAfter.Params();
+            std::vector<double> param_errs_after = theParameterStateAfter.Errors();
+
+            double fval_after = theFCN.operator()(params_after);
+            //ndf = theFCN.ndf - theParameterStateAfter.VariableParameters();
+            ndf = theFCN.ndf - g_pg.get_number_free_params();
+
+            // draw result
+            drawinputdata.chi2 = fval_after;
+            drawinputdata.ndf = ndf;
+            drawinputdata.saveas_filename = std::string("xifree_after") + "_" + name_extra;
+           
+            draw(drawinputdata,
+                 params_after,
+                 param_errs_after);
+
+            
+            // minimize
+            //ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, init_par, init_err);
+            //ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, init_par, init_err);
+            /*
+            std::cout << "Minimization finished" << std::endl;
+            std::cout << "minimum: " << FCN_min << std::endl;
+            std::cout << "chi2: " << FCN_min.Fval() << std::endl;
+            std::cout << "edm: " << FCN_min.Edm() << std::endl;
+            */
+
+
+            std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
+            std::cout << "fval_before=" << fval_before << std::endl;
+
+            results_x.push_back(systematic_energy_offset);
+            results_y.push_back(params_after.at(1));
+        }
+
+        TGraph *results_g = new TGraph(results_x.size(), results_x.data(), results_y.data());
+        results_c = new TCanvas("results", "results");
+        results_g->Draw();
     }
 #endif
 

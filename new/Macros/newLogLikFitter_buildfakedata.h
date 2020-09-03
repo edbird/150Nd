@@ -16,7 +16,221 @@
 // disable other backgrounds and check result
 
 
-void rebuild_150Nd_MC(const double, const double);
+
+///////////////////////////////////////////////////////////////////////////////
+// build_fake_data() function
+// with systematics
+///////////////////////////////////////////////////////////////////////////////
+
+void rebuild_fake_data_systematics()
+{
+
+    std::cout << "calling " << __func__ << std::endl;
+    std::cout << "--- systematics ---" << std::endl;
+    std::cout << gSystematics.systematic_energy_offset << std::endl;
+    std::cin.get();
+
+
+    int debuglevel = 10;
+
+    ///////////////////////////////////////////////////////////////////////////
+    // remove existing fake data from memory
+    ///////////////////////////////////////////////////////////////////////////
+
+    // pointers to new histograms
+    TH1D *hTotalE_P1 = nullptr;
+    TH1D *hSingleEnergy_P1 = nullptr;
+    TH1D *hHighEnergy_P1 = nullptr;
+    TH1D *hLowEnergy_P1 = nullptr;
+    TH1D *hEnergySum_P1 = nullptr;
+    TH1D *hEnergyDiff_P1 = nullptr;
+    TH2D *hHighLowEnergy_P1 = nullptr;
+
+    TH1D *hTotalE_P2 = nullptr;
+    TH1D *hSingleEnergy_P2 = nullptr;
+    TH1D *hHighEnergy_P2 = nullptr;
+    TH1D *hLowEnergy_P2 = nullptr;
+    TH1D *hEnergySum_P2 = nullptr;
+    TH1D *hEnergyDiff_P2 = nullptr;
+    TH2D *hHighLowEnergy_P2 = nullptr;
+
+    // search through each channel for fake data samples (1D)
+    for(int channel = 0; channel < number1DHists; ++ channel)
+    {
+        if(debuglevel >= 3)
+        {
+            std::cout << "channel=" << channel << std::endl;
+            std::cin.get();
+        }
+ 
+        std::string histname = std::string(channel_histname_1D[channel]);
+        //std::string search_object_P1 = histname + std::string("fake_") + std::string(DataFile) + "_P1";
+        //std::string search_object_P2 = histname + std::string("fake_") + std::string(DataFile) + "_P2";
+        std::string search_object_P1 = histname + std::string("fakedata") + "_P1";
+        std::string search_object_P2 = histname + std::string("fakedata") + "_P2";
+
+        if(debuglevel >= 3)
+        {
+            std::cout << "search_object_P1=" << search_object_P1 << std::endl;
+            std::cout << "search_object_P2=" << search_object_P2 << std::endl;
+        }
+
+        TObject *tmpobj_P1 = allFakeDataSamples1D->FindObject(search_object_P1.c_str());
+        TObject *tmpobj_P2 = allFakeDataSamples1D->FindObject(search_object_P2.c_str());
+        if(tmpobj_P1 == nullptr)
+        {
+            std::cout << "could not find object: " << search_object_P1 << std::endl;
+            //throw "problem";
+            // TODO: disabled, as this will always trigger on first iteration
+        }
+        if(tmpobj_P2 == nullptr)
+        {
+            std::cout << "could not find object: " << search_object_P2 << std::endl;
+            //throw "problem";
+            // TODO: disabled, as this will always trigger on first iteration
+        }
+
+        // NOTE: this just removes the object from the TObjArray
+        // it does not delete the object from gROOT memory
+        if(allFakeDataSamples1D->Remove(tmpobj_P1) == nullptr)
+        {
+            std::cout << "FAILED TO REMOVE" << std::endl;
+            //throw "failed to remove";
+            // TODO: disabled, as this will always trigger on first iteration
+        }
+        allFakeDataSamples1D->Compress();
+
+        if(allFakeDataSamples1D->Remove(tmpobj_P2) == nullptr)
+        {
+            std::cout << "FAILED TO REMOVE" << std::endl;
+            //throw "failed to remove";
+            // TODO: disabled, as this will always trigger on first iteration
+        }
+        allFakeDataSamples1D->Compress();
+        
+    } // channel
+    
+
+    // search through each channel for fake data samples (2D)
+    for(int channel = 0; channel < number2DHists; ++ channel)
+    {
+        if(debuglevel >= 3)
+        {
+            std::cout << "channel=" << channel << std::endl;
+        }
+
+        std::string histname = std::string(channel_histname_2D[channel]);
+        std::string search_object_P1 = histname + std::string("fakedata") + "_P1";
+        std::string search_object_P2 = histname + std::string("fakedata") + "_P2";
+
+        if(debuglevel >= 3)
+        {
+            std::cout << "search_object_P1=" << search_object_P1 << std::endl;
+            std::cout << "search_object_P2=" << search_object_P2 << std::endl;
+        }
+
+        TObject *tmpobj_P1 = allFakeDataSamples2D->FindObject(search_object_P1.c_str());
+        TObject *tmpobj_P2 = allFakeDataSamples2D->FindObject(search_object_P2.c_str());
+        if(tmpobj_P1 == nullptr)
+        {
+            std::cout << "could not find object: " << search_object_P1 << std::endl;
+            //throw "problem";
+            // TODO: disabled, as this will always trigger on first iteration
+        }
+        if(tmpobj_P2 == nullptr)
+        {
+            std::cout << "could not find object: " << search_object_P2 << std::endl;
+            //throw "problem";
+            // TODO: disabled, as this will always trigger on first iteration
+        }
+
+        // NOTE: this just removes the object from the TObjArray
+        // it does not delete the object from gROOT memory
+        if(allFakeDataSamples2D->Remove(tmpobj_P1) == nullptr)
+        {
+            std::cout << "FAILED TO REMOVE" << std::endl;
+            //throw "failed to remove";
+            // TODO: disabled, as this will always trigger on first iteration
+        }
+        allFakeDataSamples2D->Compress();
+        
+        if(allFakeDataSamples2D->Remove(tmpobj_P2) == nullptr)
+        {
+            std::cout << "FAILED TO REMOVE" << std::endl;
+            //throw "failed to remove";
+            // TODO: disabled, as this will always trigger on first iteration
+        }
+        allFakeDataSamples2D->Compress();
+
+    } // channel
+    
+
+    ///////////////////////////////////////////////////////////////////////////
+    // re-create fake data samples by reading in from files
+    ///////////////////////////////////////////////////////////////////////////
+
+    if(debuglevel >= 2)
+    {
+        std::cout << "recreating fake data by reading from file and applying systematics" << std::endl;
+    }
+
+    // look at 150 Nd xi_31 reweighting code to find closest example of what to do here
+    // here we need to apply to all samples not just one
+    reweight_apply_fakedata(
+        hTotalE_P1,
+        hSingleEnergy_P1,
+        hHighEnergy_P1,
+        hLowEnergy_P1,
+        hEnergySum_P1,
+        hEnergyDiff_P1,
+        hHighLowEnergy_P1,
+        hTotalE_P2,
+        hSingleEnergy_P2,
+        hHighEnergy_P2,
+        hLowEnergy_P2,
+        hEnergySum_P2,
+        hEnergyDiff_P2,
+        hHighLowEnergy_P2);
+
+
+    if(debuglevel >= 4)
+    {
+        std::cout << "adding P1 histograms" << std::endl;
+    }
+    allFakeDataSamples1D->Add(hTotalE_P1);
+    allFakeDataSamples1D->Add(hSingleEnergy_P1);
+    allFakeDataSamples1D->Add(hHighEnergy_P1);
+    allFakeDataSamples1D->Add(hLowEnergy_P1);
+    allFakeDataSamples1D->Add(hEnergySum_P1);
+    allFakeDataSamples1D->Add(hEnergyDiff_P1);
+
+    allFakeDataSamples2D->Add(hHighLowEnergy_P1);
+    
+    if(debuglevel >= 4)
+    {
+        std::cout << "adding P2 histograms" << std::endl;
+    }
+    allFakeDataSamples1D->Add(hTotalE_P2);
+    allFakeDataSamples1D->Add(hSingleEnergy_P2);
+    allFakeDataSamples1D->Add(hHighEnergy_P2);
+    allFakeDataSamples1D->Add(hLowEnergy_P2);
+    allFakeDataSamples1D->Add(hEnergySum_P2);
+    allFakeDataSamples1D->Add(hEnergyDiff_P2);
+
+    allFakeDataSamples2D->Add(hHighLowEnergy_P2);
+
+}
+
+
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+// legacy build_fake_data() function
+// no systematics
+// builds fake data by summing MC histograms
+///////////////////////////////////////////////////////////////////////////////
 
 
 // NOTE:
@@ -27,7 +241,7 @@ void build_fake_data()
 {
 
     //bool debugprint = true;
-    int debuglevel = 1;
+    int debuglevel = 5;
 
     allFakeDataSamples1D = new TObjArray();
     allFakeDataSamples2D = new TObjArray();
@@ -98,15 +312,18 @@ void build_fake_data()
                 std::string histname = std::string(channel_histname_1D[channel]);
                 std::string search_object_P1 = histname + mc_name + "_P1_fit";
                 std::string search_object_P2 = histname + mc_name + "_P2_fit";
-                std::string hname_P1 = histname + std::string(DataFile) + "_P1";
-                std::string hname_P2 = histname + std::string(DataFile) + "_P2";
+                std::string hname_P1 = histname + std::string("fake_") + std::string(DataFile) + "_P1"; // TODO: problem, this has same name as real data sample
+                std::string hname_P2 = histname + std::string("fake_") + std::string(DataFile) + "_P2"; // NOTE: changed to add "fake" but other code might be broken
                 //std::string hname_P1 = histname + "fakedata_2e" + "_P1";
                 //std::string hname_P2 = histname + "fakedata_2e" + "_P2";
                 TH1D *tmpHist1D_P1 = nullptr;
                 TH1D *tmpHist1D_P2 = nullptr;
-                std::cout << "hname_P1=" << hname_P1 << std::endl;
-                std::cout << "hname_P2=" << hname_P2 << std::endl;
-                //std::cin.get();
+                if(debuglevel <= 2)
+                {
+                    std::cout << "hname_P1=" << hname_P1 << std::endl;
+                    std::cout << "hname_P2=" << hname_P2 << std::endl;
+                    //std::cin.get();
+                }
 
                 if(debuglevel >= 3)
                 {
@@ -133,7 +350,8 @@ void build_fake_data()
                     if(tmpHist1D_P1 == nullptr)
                     {
                         std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
-                        throw "problem";
+                        //throw "problem";
+                        // TODO: disabled, as this will always trigger on first iteration
                     }
 
                     Double_t scale_factor_P1 = paramInitValue;
@@ -181,7 +399,8 @@ void build_fake_data()
                     if(tmpHist1D_P2 == nullptr)
                     {
                         std::cout << "ERROR: Could not find object " << search_object_P2 << std::endl;
-                        throw "problem";
+                        //throw "problem";
+                        // TODO: disabled, as this will always trigger on first iteration
                     }
 
                     Double_t scale_factor_P2 = paramInitValue;
@@ -300,8 +519,8 @@ void build_fake_data()
                 std::string search_object_P2 = histname + mc_name + "_P2_fit";
                 TH2D *tmpHist2D_P1 = nullptr;
                 TH2D *tmpHist2D_P2 = nullptr;
-                std::string hname_P1 = histname + std::string(DataFile) + "_P1";
-                std::string hname_P2 = histname + std::string(DataFile) + "_P2";
+                std::string hname_P1 = histname + std::string("fake_") + std::string(DataFile) + "_P1"; // problem: this has same name as real data
+                std::string hname_P2 = histname + std::string("fake_") + std::string(DataFile) + "_P2"; // NOTE: changed to add "fake" but other code might now be broken
                 //std::string hname_P1 = histname + "fakedata_2e" + "_P1";
                 //std::string hname_P2 = histname + "fakedata_2e" + "_P2";
                 std::cout << "hname_P1=" << hname_P1 << std::endl;
@@ -326,7 +545,8 @@ void build_fake_data()
                     if(tmpHist2D_P1 == nullptr)
                     {
                         std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
-                        throw "problem";
+                        //throw "problem";
+                        // TODO: disabled, as this will always trigger on first iteration
                     }
 
                     Double_t scale_factor_P1 = paramInitValue;
@@ -367,7 +587,8 @@ void build_fake_data()
                     if(tmpHist2D_P2 == nullptr)
                     {
                         std::cout << "ERROR: Could not find object " << search_object_P2 << std::endl;
-                        throw "problem";
+                        //throw "problem";
+                        // TODO: disabled, as this will always trigger on first iteration
                     }
 
                     Double_t scale_factor_P2 = paramInitValue;
@@ -787,322 +1008,6 @@ void build_fake_data()
 
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            // 2020-04-17 Notes:
-            // output histograms do not look right (2d MPS plots)
-            //
-            // range of values for parameter include values such as
-            // -8 to 10
-            // -15 to 15
-            // these ranges seem too large? / are indicating very large uncertainty
-            // update: caused by a bug in the min/max parameter settings, now fixed
-            // (not fixed in h_mps)
-            //
-            // there is a white square in the center. what value does this have?
-            // is it negative, or zero?
-            //
-            // h_mps looks different to h_mps_10_0, they should be the same!
-            // update: they are the same if ranges set the same and fval_min
-            // is subtracted from fval before filling
-            //
-            // my guess was that the change in parameter values and thus n_mc
-            // is having a much weaker effect compared to the penalty term
-            // why is this?
-            // this may not be correct, since all plots appear identical
-            // indicating that something is not being computed correctly
-
-
-
-
-
-                //
-                // if n is large, then exp(-n) may fail in Poisson calc
-                // n! may also fail, so use Stirling
-                //
-                // so calculate LL from expansion of log
-                //
-                //if(nMC > 10.0)
-                //{
-                //    // nMC > 1.0e-05 here already
-                //    const double l = nMC;
-                //    const double n = nData;
-                //    const double stirling = n*TMath::Log(n) - n;
-                //    ll_channel += -l + n*TMath::Log(l) - stirling;
-                //}
-
-
-
-
-void rebuild_150Nd_MC(const double xi_31, const double xi_31_baseline)
-{
-
-    int debuglevel = 1;
-
-    ///////////////////////////////////////////////////////////////////////
-    // reweight hMinMaxEnergy_
-    // reweight all
-    ///////////////////////////////////////////////////////////////////////
-
-
-    // new code to reweight 150Nd by xi_{31} parameter
-
-    // pointers of histograms to pass to reweight function
-    TH1D *hTotalE_P1 = nullptr;
-    TH1D *hSingleEnergy_P1 = nullptr;
-    TH1D *hHighEnergy_P1 = nullptr;
-    TH1D *hLowEnergy_P1 = nullptr;
-    TH1D *hEnergySum_P1 = nullptr;
-    TH1D *hEnergyDiff_P1 = nullptr;
-    TH2D *hHighLowEnergy_P1 = nullptr;
-
-    TH1D *hTotalE_P2 = nullptr;
-    TH1D *hSingleEnergy_P2 = nullptr;
-    TH1D *hHighEnergy_P2 = nullptr;
-    TH1D *hLowEnergy_P2 = nullptr;
-    TH1D *hEnergySum_P2 = nullptr;
-    TH1D *hEnergyDiff_P2 = nullptr;
-    TH2D *hHighLowEnergy_P2 = nullptr;
-
-    /*
-    TH1D *hSingleEnergyClone = nullptr;
-    */
-
-    // search through each channel for 150nd samples
-    //for(int channel = 0; channel < allDataSamples1D->GetEntries(); ++ channel)
-    for(int channel = 0; channel < number1DHists; ++ channel)
-    {
-        if(debuglevel >= 3)
-        {
-            std::cout << "channel=" << channel << std::endl;
-        }
- 
-        std::string histname = std::string(channel_histname_1D[channel]);
-        std::string search_object_P1 = histname + std::string(Nd150Files[0]) + "_P1_fit";
-        std::string search_object_P2 = histname + std::string(Nd150Files[0]) + "_P2_fit";
-
-        if(debuglevel >= 3)
-        {
-            std::cout << "search_object_P1=" << search_object_P1 << std::endl;
-            std::cout << "search_object_P2=" << search_object_P2 << std::endl;
-        }
-
-        TObject *tmpobj_P1 = allMCSamples1D[channel]->FindObject(search_object_P1.c_str());
-        TObject *tmpobj_P2 = allMCSamples1D[channel]->FindObject(search_object_P2.c_str());
-        if(tmpobj_P1 == nullptr)
-        {
-            std::cout << "could not find object: " << search_object_P1 << std::endl;
-            /*for(int i = 0; i < allMCSamples1D[channel]->GetEntries(); ++ i)
-            {
-                std::cout << allMCSamples1D[channel]->At(i)->GetName() << std::endl;
-            }*/
-            throw "problem";
-        }
-        if(tmpobj_P2 == nullptr)
-        {
-            std::cout << "could not find object: " << search_object_P2 << std::endl;
-            throw "problem";
-        }
-
-        if(debuglevel >= 5)
-        {
-            std::cout << "before ->Remove():" << std::endl;
-            for(int i = 0; i < allMCSamples1D[channel]->GetEntries(); ++ i)
-            {
-                std::cout << allMCSamples1D[channel]->At(i)->GetName() << std::endl;
-            }
-        }
-        // NOTE: this just removes the object from the TObjArray
-        // it does not delete the object from gROOT memory
-        if(allMCSamples1D[channel]->Remove(tmpobj_P1) == nullptr)
-        {
-            std::cout << "FAILED TO REMOVE" << std::endl;
-            throw "failed to remove";
-        }
-        if(allMCSamples1D[channel]->Remove(tmpobj_P2) == nullptr)
-        {
-            std::cout << "FAILED TO REMOVE" << std::endl;
-            throw "failed to remove";
-        }
-        if(debuglevel >= 5)
-        {
-            std::cout << "after ->Remove():" << std::endl;
-            for(int i = 0; i < allMCSamples1D[channel]->GetEntries(); ++ i)
-            {
-                std::cout << allMCSamples1D[channel]->At(i)->GetName() << std::endl;
-            }
-        }
-    } // channel
-
-    // search through each channel for 150nd samples
-    //for(int channel = 0; channel < allDataSamples2D->GetEntries(); ++ channel)
-    for(int channel = 0; channel < number2DHists; ++ channel)
-    {
-        if(debuglevel >= 3)
-        {
-            std::cout << "channel=" << channel << std::endl;
-        }
-
-        std::string histname = std::string(channel_histname_2D[channel]);
-        std::string search_object_P1 = histname + std::string(Nd150Files[0]) + "_P1_fit";
-        std::string search_object_P2 = histname + std::string(Nd150Files[0]) + "_P2_fit";
-
-        if(debuglevel >= 3)
-        {
-            std::cout << "search_object_P1=" << search_object_P1 << std::endl;
-            std::cout << "search_object_P2=" << search_object_P2 << std::endl;
-        }
-
-        TObject *tmpobj_P1 = allMCSamples2D[channel]->FindObject(search_object_P1.c_str());
-        TObject *tmpobj_P2 = allMCSamples2D[channel]->FindObject(search_object_P2.c_str());
-        if(tmpobj_P1 == nullptr)
-        {
-            std::cout << "could not find object: " << search_object_P1 << std::endl;
-            throw "problem";
-        }
-        if(tmpobj_P2 == nullptr)
-        {
-            std::cout << "could not find object: " << search_object_P2 << std::endl;
-            throw "problem";
-        }
-
-        if(debuglevel >= 5)
-        {
-            std::cout << "before ->Remove():" << std::endl;
-            for(int i = 0; i < allMCSamples2D[channel]->GetEntries(); ++ i)
-            {
-                std::cout << allMCSamples2D[channel]->At(i)->GetName() << std::endl;
-            }
-        }
-        // NOTE: this just removes the object from the TObjArray
-        // it does not delete the object from gROOT memory
-        if(allMCSamples2D[channel]->Remove(tmpobj_P1) == nullptr)
-        {
-            std::cout << "FAILED TO REMOVE" << std::endl;
-            throw "failed to remove";
-        }
-        if(allMCSamples2D[channel]->Remove(tmpobj_P2) == nullptr)
-        {
-            std::cout << "FAILED TO REMOVE" << std::endl;
-            throw "failed to remove";
-        }
-        if(debuglevel >= 5)
-        {
-            std::cout << "after ->Remove():" << std::endl;
-            for(int i = 0; i < allMCSamples2D[channel]->GetEntries(); ++ i)
-            {
-                std::cout << allMCSamples2D[channel]->At(i)->GetName() << std::endl;
-            }
-        }
-    } // channel
-
-    if(debuglevel >= 2)
-    {
-        std::cout << "xi_31=" << xi_31 << " xi_31_baseline=" << xi_31_baseline << std::endl;
-    }
-    //const double xi_31_baseline{0.296};
-    // NOTE: 2020-06-17 this was a bug, removed
-
-    TH1D *hWeight_P1 = nullptr;
-    TH1D *hWeight_P2 = nullptr; // TODO: move?
-    if(debuglevel >= 5)
-    {
-        std::cout << "before reweight_apply()" << std::endl;
-    }
-    reweight_apply(
-        hTotalE_P1,
-        hSingleEnergy_P1,
-        hHighEnergy_P1,
-        hLowEnergy_P1,
-        hEnergySum_P1,
-        hEnergyDiff_P1,
-        hHighLowEnergy_P1,
-        hWeight_P1,
-        hTotalE_P2,
-        hSingleEnergy_P2,
-        hHighEnergy_P2,
-        hLowEnergy_P2,
-        hEnergySum_P2,
-        hEnergyDiff_P2,
-        hHighLowEnergy_P2,
-        hWeight_P2,
-        xi_31,
-        xi_31_baseline,
-        h_nEqNull,
-        h_nEqTwo,
-        psiN0,
-        psiN2,
-        bb_Q);
-    if(debuglevel >= 5)
-    {
-        std::cout << "after reweight_apply()" << std::endl;
-    }
-
-    /*
-    hSingleEnergyClone->Divide(hSingleEnergy);
-    for(Int_t ii = 1; ii <= hSingleEnergyClone->GetNbinsX(); ++ ii)
-    {
-        float content = hSingleEnergyClone->GetBinContent(ii);
-        std::cout << "content: " << ii << " " << content << std::endl;
-    }
-    std::cin.get();
-    */
-
-
-    // TODO: just another example of manual code edits
-    // make a file describing the channels to fit as well as the parameters
-    if(debuglevel >= 4)
-    {
-        std::cout << "adding P1 histograms" << std::endl;
-    }
-    allMCSamples1D[0]->Add(hTotalE_P1);
-    allMCSamples1D[1]->Add(hSingleEnergy_P1);
-    allMCSamples1D[2]->Add(hHighEnergy_P1);
-    allMCSamples1D[3]->Add(hLowEnergy_P1);
-    allMCSamples1D[4]->Add(hEnergySum_P1);
-    allMCSamples1D[5]->Add(hEnergyDiff_P1);
-
-    allMCSamples2D[0]->Add(hHighLowEnergy_P1);
-    
-    if(debuglevel >= 4)
-    {
-        std::cout << "adding P2 histograms" << std::endl;
-    }
-    allMCSamples1D[0]->Add(hTotalE_P2);
-    allMCSamples1D[1]->Add(hSingleEnergy_P2);
-    allMCSamples1D[2]->Add(hHighEnergy_P2);
-    allMCSamples1D[3]->Add(hLowEnergy_P2);
-    allMCSamples1D[4]->Add(hEnergySum_P2);
-    allMCSamples1D[5]->Add(hEnergyDiff_P2);
-
-
-    allMCSamples2D[0]->Add(hHighLowEnergy_P2);
-}
-
-
-
-
-
-
-
-
-
 
 
 #endif // NEWLOGLIKFITTER_BUILDFAKEDATA_H
