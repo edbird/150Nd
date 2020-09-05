@@ -691,7 +691,7 @@ void reweight_apply_fakedata(
             // realistic scaling for amplitude
             // debatable whether this is a good thing to include
             // makes the MPS have the same y axis range
-            if(sampleName.Contains("nd150")
+            if(sampleName.Contains("nd150"))
             {
                 const double scale_factor = (double)events / weight_total_150Nd;
 
