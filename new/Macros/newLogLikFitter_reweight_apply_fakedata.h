@@ -697,6 +697,7 @@ void reweight_apply_fakedata(
             // realistic scaling for amplitude
             // debatable whether this is a good thing to include
             // makes the MPS have the same y axis range
+            /*
             if(sampleName.Contains("nd150"))
             {
                 const double scale_factor = event_pass_count_150Nd / weight_total_150Nd;
@@ -718,6 +719,7 @@ void reweight_apply_fakedata(
                 hEnergySum_P2_tmp->Scale(scale_factor);
                 hEnergyDiff_P2_tmp->Scale(scale_factor);
             }
+            */
 
             // P1
             hTotalE_P1_tmp->Scale(paramInitValue);

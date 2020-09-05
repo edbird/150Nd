@@ -1059,13 +1059,13 @@ void loadFiles(int i)
 #if 1
     TCanvas *results_c = nullptr;
     // do not do this in parallel mode
-    if(0) // || (MODE_PARALLEL == 0))
+    if(1) // || (MODE_PARALLEL == 0))
     {
 
         std::vector<double> results_x;
         std::vector<double> results_y;
 
-        const int i_max = 10;
+        const int i_max = 33;
         for(int i = 0; i <= i_max; ++ i)
         {
 
@@ -1256,7 +1256,7 @@ void loadFiles(int i)
 #endif
 
     // reenable this one
-    if(1)
+    if(0)
     {
         gSystematics.systematic_energy_offset = 0.0;
         double systematic_energy_offset = gSystematics.systematic_energy_offset;
