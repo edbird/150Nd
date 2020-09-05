@@ -539,7 +539,7 @@ void reweight_apply_fakedata(
                     Double_t _weight{ReWeight3(trueT0, trueT1, xi_31_baseline, xi_31, h_nEqNull, h_nEqTwo, psiN0, psiN2, "true")}; // TODO remove true?
                     weight *= _weight;
 
-                    weight_total += _weight;
+                    weight_total_150Nd += _weight;
                 }
 
 
