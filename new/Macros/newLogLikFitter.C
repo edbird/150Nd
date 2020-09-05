@@ -1261,8 +1261,6 @@ void loadFiles(int i)
         gSystematics.systematic_energy_offset = 0.0;
         double systematic_energy_offset = gSystematics.systematic_energy_offset;
         std::cout << "seo=" << systematic_energy_offset << std::endl;
-        std::cout << "xi_31_baseline=" << xi_31_baseline << " check this number" << std::endl;
-        std::cin.get();
         rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itsel
 
         // create minimizer

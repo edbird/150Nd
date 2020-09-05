@@ -449,6 +449,7 @@ void reweight_apply_fakedata(
             double el_energy_1;
 
             double weight_total_150Nd = 0.0;
+            double event_pass_count_150Nd = 0.0;
 
             Long_t events = (Long_t)inputTree->GetEntries();
             for(Long_t event_i = 0; event_i < events; ++ event_i)
@@ -539,7 +540,7 @@ void reweight_apply_fakedata(
                     Double_t _weight{ReWeight3(trueT0, trueT1, xi_31_baseline, xi_31, h_nEqNull, h_nEqTwo, psiN0, psiN2, "true")}; // TODO remove true?
                     weight *= _weight;
 
-                    weight_total_150Nd += _weight;
+                    //weight_total_150Nd += _weight;
                 }
 
 
@@ -583,6 +584,11 @@ void reweight_apply_fakedata(
                     continue;
                 }
 
+                if(sampleName.Contains("nd150"))
+                {
+                    weight_total_150Nd += 1.0 * weight;
+                    event_pass_count_150Nd += 1.0;
+                }
 
                 ///////////////////////////////////////////////////////////////
                 // fill histograms
@@ -693,7 +699,7 @@ void reweight_apply_fakedata(
             // makes the MPS have the same y axis range
             if(sampleName.Contains("nd150"))
             {
-                const double scale_factor = (double)events / weight_total_150Nd;
+                const double scale_factor = event_pass_count_150Nd / weight_total_150Nd;
 
                 // P1
                 hTotalE_P1_tmp->Scale(scale_factor);
