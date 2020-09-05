@@ -262,18 +262,18 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             TH1D *tmpDataHist1D_P1 = nullptr;
             TH1D *tmpDataHist1D_P2 = nullptr;
             
-                if(debuglevel >= 5)
-                {
-                    std::cout << "search_object_P1=" << search_object_P1
-                              << " search_object_P2=" << search_object_P2 << std::endl;
-                }
+            if(debuglevel >= 6)
+            {
+                std::cout << "search_object_P1=" << search_object_P1
+                          << " search_object_P2=" << search_object_P2 << std::endl;
+            }
 
             if(g_mode_fake_data == false)
             {
                 tmpDataHist1D_P1 = (TH1D*)allDataSamples1D->FindObject(search_object_P1.c_str());
                 tmpDataHist1D_P2 = (TH1D*)allDataSamples1D->FindObject(search_object_P2.c_str());
             }
-            if(g_mode_fake_data == true)
+            else if(g_mode_fake_data == true)
             {
                 tmpDataHist1D_P1 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P1.c_str());
                 tmpDataHist1D_P2 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P2.c_str());
@@ -736,15 +736,26 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             Double_t *tmpData2D_P2 = nullptr;
             //Double_t *tmpFakeData2D_P1 = nullptr; //(TH2D*)allFakeDataSamples2D->At(channel);
             //Double_t *tmpFakeData2D_P2 = nullptr;
-
             std::string histname = std::string(channel_histname_2D[channel]);
-            std::string search_object_P1 = histname + std::string(DataFile) + "_P1";
-            std::string search_object_P2 = histname + std::string(DataFile) + "_P2";
+            std::string search_object_P1;
+            std::string search_object_P2;
+            if(g_mode_fake_data == false)
+            {
+                search_object_P1 = histname + std::string(DataFile) + "_P1";
+                search_object_P2 = histname + std::string(DataFile) + "_P2";
+            }
+            else if(g_mode_fake_data == true)
+            {
+                search_object_P1 = histname + std::string("fakedata") + "_P1";
+                search_object_P2 = histname + std::string("fakedata") + "_P2";
+            }
+
             if(debuglevel >= 6)
             {
                 std::cout << "search_object_P1=" << search_object_P1
                           << " search_object_P2=" << search_object_P2 << std::endl;
             }
+
             TH2D *tmpDataHistP1 = nullptr;
             TH2D *tmpDataHistP2 = nullptr;
             
@@ -753,7 +764,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                 tmpDataHistP1 = (TH2D*)allDataSamples2D->FindObject(search_object_P1.c_str());
                 tmpDataHistP2 = (TH2D*)allDataSamples2D->FindObject(search_object_P2.c_str());
             }
-            if(g_mode_fake_data == true)
+            else if(g_mode_fake_data == true)
             {
                 tmpDataHistP1 = (TH2D*)allFakeDataSamples2D->FindObject(search_object_P1.c_str());
                 tmpDataHistP2 = (TH2D*)allFakeDataSamples2D->FindObject(search_object_P2.c_str());

@@ -279,10 +279,10 @@ void newloglikfitter_testmyphasespace_newversion(
     //param_1_min = -0.4;
     //param_1_max = 1.6; TODO
     // fake data values
-    if(g_mode_fake_data)
+    if(g_mode_fake_data == true)
     {
-        param_1_min = -0.4;
-        param_1_max = 0.6;
+//        param_1_min = -0.4;
+//        param_1_max = 0.6;
     }
     // hack to get HSD
     //param_1_min = -0.1;
@@ -303,10 +303,10 @@ void newloglikfitter_testmyphasespace_newversion(
     //param_2_min = 0.0;
     //param_2_max = 3.0;  //TODO
     // fake data values
-    if(g_mode_fake_data)
+    if(g_mode_fake_data == true)
     {
-        param_2_min = 0.2;
-        param_2_max = 1.8;
+//        param_2_min = 0.2;
+//        param_2_max = 1.8;
     }
     // hack to get HSD
     //param_1_min = 0.9999;
