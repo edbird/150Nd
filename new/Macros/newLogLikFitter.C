@@ -50,6 +50,7 @@
 #include "newLogLikFitter_reweight.h"
 #include "newLogLikFitter_reweight_apply.h"
 #include "newLogLikFitter_reweight_apply_fakedata.h"
+#include "newLogLikFitter_reweight_apply_data.h"
 #include "newLogLikFitter_buildfakedata.h"
 #include "newLogLikFitter_book1DHistograms.h"
 #include "newLogLikFitter_book2DHistograms.h"
@@ -62,6 +63,7 @@
 #include "newLogLikFitter_draw_all.h"
 #include "newLogLikFitter_rebuild_150Nd_MC.h"
 #include "newLogLikFitter_rebuild_150Nd_data.h"
+#include "newLogLikFitter_rebuild_150Nd_fakedata.h"
 #include "MinimizeFCNAxialVector.h"
 #include "newLogLikFitter_fitBackgrounds.h"
 #include "newLogLikFitter_chisquaretest.h"
@@ -504,6 +506,8 @@ void loadFiles(int i)
 //    last_xi_31_parameter_value = 0.0;
 
 
+
+
     ///*const Double_t*/ bb_Q = 3.368;
     double count = 0;
     if(count_G0 == count_G2)
@@ -589,8 +593,19 @@ void loadFiles(int i)
     //book1DHistograms(0, "2e_", "P2", "hTotalE_");
 
 
-    gSystematics.systematic_energy_offset = 0.1;
-    rebuild_fake_data_systematics();
+    gSystematics.systematic_energy_offset = -0.1;
+    const int xi_31_ext_param_number = g_pg.get_xi_31_ext_param_number();
+        //if(param[xi_31_ext_param_number] != g_pg.file_params.at(xi_31_ext_param_number).paramLastValue)
+    //const double xi_31{param[xi_31_ext_param_number]};
+    const double xi_31{g_pg.file_params.at(xi_31_ext_param_number).paramInitValue};
+    std::cout << "xi_31=" << xi_31 << std::endl;
+//    std::cin.get();
+    // NOTE: you put whatever value of xi_31 you like in here
+    // to construct fakedata with that xi_31 value
+    const double xi_31_SSD = 0.296;
+    //rebuild_fake_data_systematics(xi_31, xi_31_baseline);
+    rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itsel
+    //rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline); // want to check if the fitter can fit itself to itsel
 
 
     // 1d: Phase 1 & 2
@@ -1050,18 +1065,18 @@ void loadFiles(int i)
         std::vector<double> results_x;
         std::vector<double> results_y;
 
-        const int i_max = 0;
-        //for(int i = 0; i <= i_max; ++ i)
+        const int i_max = 10;
+        for(int i = 0; i <= i_max; ++ i)
         {
 
-            /*const double min = systematic_energy_offset_min;
-            const double max = systematic_energy_offset_max;
-            const double diff = max - min;*/
-            //const double fr = (double)i / (double)i_max;
-            //systematic_energy_offset = fr * diff + min;
-            /*systematic_energy_offset = systematic_energy_offset_min;*/
+            const double min = -0.1;
+            const double max = +0.1;
+            const double diff = max - min;
+            const double fr = (double)i / (double)i_max;
+            gSystematics.systematic_energy_offset = fr * diff + min;
             double systematic_energy_offset = gSystematics.systematic_energy_offset;
             std::cout << "seo=" << systematic_energy_offset << std::endl;
+            rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itsel
 
             std::string name_extra = "seo_" + std::to_string(systematic_energy_offset);
 

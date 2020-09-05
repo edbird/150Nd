@@ -50,7 +50,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
     double operator()(const std::vector<double> &param) const
     {
 
-        const int debuglevel = 50;
+        const int debuglevel = 3;
         
 
 
@@ -120,7 +120,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
         // that the MC uncertainty is even smaller
 
 
-        int xi_31_ext_param_number = g_pg.get_xi_31_ext_param_number(); 
+        const int xi_31_ext_param_number = g_pg.get_xi_31_ext_param_number(); 
 
 
         if(debuglevel >= 2)
@@ -160,7 +160,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             //std::cout << "rebuilding 150 Nd MC" << std::endl;
 
             const double xi_31{param[xi_31_ext_param_number]};
-            if(debuglevel >= 2)
+            if(debuglevel >= 3)
             {
                 std::cout << "rebuild 150Nd MC" << std::endl;
                 std::cout << "param[" << xi_31_ext_param_number << "]=" << param[xi_31_ext_param_number] << " != " << g_pg.file_params.at(xi_31_ext_param_number).paramLastValue << std::endl;
@@ -190,7 +190,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
         }
         else
         {
-            if(debuglevel >= 2)
+            if(debuglevel >= 4)
             {
                 std::cout << "dont rebuild 150Nd MC" << std::endl;
             }
@@ -213,7 +213,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
         // loop over all channels
         for(int channel = 0; channel < number1DHists; ++ channel)
         {
-            if(debuglevel >= 3)
+            if(debuglevel >= 4)
             {
                 std::cout << "channel=" << channel << std::endl;
             }
@@ -222,7 +222,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             // check channel enabled
             if(channel_enable_1D[channel] == 0)
             {
-                if(debuglevel >= 2)
+                if(debuglevel >= 5)
                 {
                     std::cout << "1D: channel " << channel << " disabled, skip" << std::endl;
                 }
@@ -262,7 +262,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             TH1D *tmpDataHist1D_P1 = nullptr;
             TH1D *tmpDataHist1D_P2 = nullptr;
             
-                if(debuglevel >= 3)
+                if(debuglevel >= 5)
                 {
                     std::cout << "search_object_P1=" << search_object_P1
                               << " search_object_P2=" << search_object_P2 << std::endl;
@@ -459,7 +459,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                         }
 
                         Double_t scale_factor_P1 = param.at(paramNumberInt);
-                        if(debuglevel >= 4)
+                        if(debuglevel >= 5)
                         {
                             std::cout << "enabled P1: scale factor P1: " << scale_factor_P1 << std::endl;
                         }
@@ -527,7 +527,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                     }
                     else
                     {
-                        if(debuglevel >= 2)
+                        if(debuglevel >= 4)
                         {
                             std::cout << "disabled P2" << std::endl;
                         }
@@ -594,6 +594,9 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                     std::cout << "MC WENT LOWER THAN ZERO - 1D P1" << std::endl;
                     std::cout << "nMC_P1=" << nMC_P1 << std::endl;
 
+                    std::cout << "ignore this bin" << std::endl;
+                    continue;
+
                     double lp_P1 = logpoisson(nData_P1, 0.0);
                     //double lp = logpoisson(nFakeData, 1.0e-05);
                     //double lp = logpoisson_sterling(nFakeData, 1.0e-05);
@@ -603,7 +606,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                         ++ ndf_P1;
                     }
 
-                    if(debuglevel >= 6)
+                    if(debuglevel >= 3)
                     {
                         std::cout << "bin_x=" << bin_x << " lp_P1=" << lp_P1 << " nData_P1=" << nData_P1 << " nMC_P1=" << nMC_P1 << " (2)" << std::endl;
                     }
@@ -636,7 +639,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                         ++ ndf_P2;
                     }
 
-                    if(debuglevel >= 3)
+                    if(debuglevel >= 6)
                     {
                         std::cout << "bin_x=" << bin_x << " lp_P2=" << lp_P2 << " nData_P2=" << nData_P2 << " nMC_P2=" << nMC_P2 << " (1)" << std::endl;
                     }
@@ -648,6 +651,9 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                 {
                     std::cout << "MC WENT LOWER THAN ZERO - 1D P2" << std::endl;
                     std::cout << "nMC_P2=" << nMC_P2 << std::endl;
+
+                    std::cout << "ignore this bin" << std::endl;
+                    continue;
 
                     double lp_P2 = logpoisson(nData_P2, 0.0);
                     //double lp = logpoisson(nFakeData, 1.0e-05);
@@ -678,7 +684,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             tmpTotalMC1D_P2 = nullptr;
 
 
-            if(debuglevel >= 5)
+            if(debuglevel >= 3)
             {
                 std::cout << "1D: channel " << channel << " enabled, ll_chanel_P1=" << ll_channel_P1 << " ll_channel_P2=" << ll_channel_P2 << std::endl;
             }
@@ -703,7 +709,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
         // loop over all channels
         for(int channel = 0; channel < number2DHists; ++ channel)
         {
-            if(debuglevel >= 3)
+            if(debuglevel >= 4)
             {
                 std::cout << "channel=" << channel << " (2D)" << std::endl;
             }
@@ -711,7 +717,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             // check channel enabled
             if(channel_enable_2D[channel] == 0)
             {
-                if(debuglevel >= 2)
+                if(debuglevel >= 5)
                 {
                     std::cout << "2D: channel " << channel << " disabled, skip" << std::endl;
                 }
@@ -734,7 +740,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             std::string histname = std::string(channel_histname_2D[channel]);
             std::string search_object_P1 = histname + std::string(DataFile) + "_P1";
             std::string search_object_P2 = histname + std::string(DataFile) + "_P2";
-            if(debuglevel >= 4)
+            if(debuglevel >= 6)
             {
                 std::cout << "search_object_P1=" << search_object_P1
                           << " search_object_P2=" << search_object_P2 << std::endl;
@@ -808,7 +814,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                 double paramInitError = it->second.paramInitError;
                 int paramConstraintMode = it->second.paramConstraintMode;
 
-                if(debuglevel >= 3)
+                if(debuglevel >= 4)
                 {
                     std::cout << "paramNumber=" << paramNumber << std::endl;
                 }
@@ -870,14 +876,14 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                     TH2D *tmpHist2D_P2 = nullptr;
 
                     paramNumberInt = g_pg.ExtToIntParamNumberMap.at(paramNumber);
-                    if(debuglevel >= 4)
+                    if(debuglevel >= 5)
                     {
                         std::cout << "paramNumber=" << paramNumber << " -> " << paramNumberInt << std::endl;
                     }
 
                     if(paramEnabledP1 == true)
                     {
-                        if(debuglevel >= 5)
+                        if(debuglevel >= 6)
                         {
                             std::cout << "enabled P1" << std::endl;
                         }
@@ -891,7 +897,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                         }
 
                         Double_t scale_factor_P1 = param.at(paramNumberInt);
-                        if(debuglevel >= 5)
+                        if(debuglevel >= 6)
                         {
                             std::cout << "scale_factor_P1=" << scale_factor_P1 << std::endl;
                         }
@@ -905,7 +911,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
 
                     if(paramEnabledP2 == true)
                     {
-                        if(debuglevel >= 5)
+                        if(debuglevel >= 6)
                         {
                             std::cout << "enabled P2" << std::endl;
                         }
@@ -919,7 +925,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                         }
 
                         Double_t scale_factor_P2 = param.at(paramNumberInt);
-                        if(debuglevel >= 5)
+                        if(debuglevel >= 6)
                         {
                             std::cout << "scale_factor_P2=" << scale_factor_P2 << std::endl;
                         }
@@ -999,6 +1005,9 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                         std::cout << "MC WENT LOWER THAN ZERO - 2D P1" << std::endl;
                         std::cout << "nMC_P1=" << nMC_P1 << std::endl;
 
+                        std::cout << "ignore this bin" << std::endl;
+                        continue;
+
                         double lp_P1 = logpoisson(nData_P1, 0.0);
                         //double lp = logpoisson(nFakeData, 1.0e-05);
                         //double lp = logpoisson_sterling(nFakeData, 1.0e-05);
@@ -1008,7 +1017,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                             ++ ndf_P1;
                         }
 
-                        if(debuglevel >= 6)
+                        if(debuglevel >= 3)
                         {
                             std::cout << "bin_x=" << bin_x << " bin_y=" << bin_y << " lp_P1=" << lp_P1 << " nData_P1=" << nData_P1 << " nMC_P1=" << nMC_P1 << " (2)" << std::endl;
                         }
@@ -1050,6 +1059,9 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                         std::cout << "MC WENT LOWER THAN ZERO - 2D P2" << std::endl;
                         std::cout << "nMC_P2=" << nMC_P2 << std::endl;
 
+                        std::cout << "ignore this bin" << std::endl;
+                        continue;
+
                         double lp_P2 = logpoisson(nData_P2, 0.0);
                         //double lp = logpoisson(nFakeData, 1.0e-05);
                         //double lp = logpoisson_sterling(nFakeData, 1.0e-05);
@@ -1059,7 +1071,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                             ++ ndf_P2;
                         }
 
-                        if(debuglevel >= 6)
+                        if(debuglevel >= 3)
                         {
                             std::cout << "bin_x=" << bin_x << " bin_y=" << bin_y << " lp_P2=" << lp_P2 << " nData_P2=" << nData_P2 << " nMC_P2=" << nMC_P2 << " (2)" << std::endl;
                         }
@@ -1089,7 +1101,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
         } // channel
         
         ndf += ndf_P1 + ndf_P2;
-        if(debuglevel >= 5)
+        if(debuglevel >= 6)
         {
             std::cout << "ndf=" << ndf << std::endl;
         }
@@ -1352,7 +1364,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
 
             paramNumberInt = g_pg.ExtToIntParamNumberMap.at(paramNumber);
 
-            if(debuglevel >= 3)
+            if(debuglevel >= 5)
             {
                 std::cout << "paramNumber=" << paramNumber << " -> " << paramNumberInt << std::endl;
             }
@@ -1377,7 +1389,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
 
             if(paramConstraintMode == MODE_CONSTRAINT_SOFT)
             {
-                if(debuglevel >= 3)
+                if(debuglevel >= 6)
                 {
                     std::cout << "soft" << std::endl;
                 }
@@ -1386,7 +1398,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             else if(paramConstraintMode == MODE_CONSTRAINT_FREE)
             {
                 //-- ndf;
-                if(debuglevel >= 3)
+                if(debuglevel >= 6)
                 {
                     std::cout << "free" << std::endl;
                 }
@@ -1394,7 +1406,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             }
             else if(paramConstraintMode == MODE_CONSTRAINT_HARD)
             {
-                if(debuglevel >= 3)
+                if(debuglevel >= 6)
                 {
                     std::cout << "hard" << std::endl;
                 }
@@ -1437,7 +1449,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             }
             
             penalty = std::pow((value - paramConstraintValue) / paramConstraintError, 2.0);
-            if(debuglevel >= 3)
+            if(debuglevel >= 5)
             {
                 //std::cout << "j=" << j << std::endl;
                 std::cout << "paramNumber=" << paramNumber
@@ -1665,7 +1677,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
         }
 #endif
 
-        if(debuglevel >= 2)
+        if(debuglevel >= 4)
         {
             std::cout << "penalty_term=" << penalty_term << std::endl;
         }

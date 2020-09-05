@@ -290,7 +290,8 @@ class parameter_group
 
         int axial_vector_parameter_0_param_number = get_xi_31_ext_param_number();
         std::cout << "axial_vector_parameter_0_param_number=" << axial_vector_parameter_0_param_number << std::endl;
-        file_params.at(axial_vector_parameter_0_param_number).paramInitValue = 0.0; // HSD, forces reweighting
+        //file_params.at(axial_vector_parameter_0_param_number).paramInitValue = 0.0; // HSD, forces reweighting
+        file_params.at(axial_vector_parameter_0_param_number).paramLastValue = -std::numeric_limits<double>::infinity(); // HSD, forces reweighting to initial value set in parameter_names.lst
     }
 
 

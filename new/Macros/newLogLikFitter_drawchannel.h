@@ -427,11 +427,14 @@ void draw_channel_phase(
 
                     Double_t scale_factor_P1 = params.at(paramNumberInt);
                     tmpHist1D_P1->Scale(scale_factor_P1);
-                    if(TString(tmpHist1D_P1->GetName()).Contains("hSingleEnergy_"))
+                    if(debuglevel >= 6)
                     {
-                        std::cout << "P1: name=" << tmpHist1D_P1->GetName() << std::endl;
-                        std::cout << "scale_factor=" << scale_factor_P1 << std::endl;
-                        std::cout << "bin 10: " << tmpHist1D_P1->GetBinContent(10) << std::endl;
+                        if(TString(tmpHist1D_P1->GetName()).Contains("hSingleEnergy_"))
+                        {
+                            std::cout << "P1: name=" << tmpHist1D_P1->GetName() << std::endl;
+                            std::cout << "scale_factor=" << scale_factor_P1 << std::endl;
+                            std::cout << "bin 10: " << tmpHist1D_P1->GetBinContent(10) << std::endl;
+                        }
                     }
 
 
@@ -479,11 +482,14 @@ void draw_channel_phase(
 
                     Double_t scale_factor_P2 = params.at(paramNumberInt);
                     tmpHist1D_P2->Scale(scale_factor_P2);
-                    if(TString(tmpHist1D_P2->GetName()).Contains("hSingleEnergy_"))
+                    if(debuglevel >= 6)
                     {
-                        std::cout << "P2: name=" << tmpHist1D_P2->GetName() << std::endl;
-                        std::cout << "scale_factor=" << scale_factor_P2 << std::endl;
-                        std::cout << "bin 10: " << tmpHist1D_P2->GetBinContent(10) << std::endl;
+                        if(TString(tmpHist1D_P2->GetName()).Contains("hSingleEnergy_"))
+                        {
+                            std::cout << "P2: name=" << tmpHist1D_P2->GetName() << std::endl;
+                            std::cout << "scale_factor=" << scale_factor_P2 << std::endl;
+                            std::cout << "bin 10: " << tmpHist1D_P2->GetBinContent(10) << std::endl;
+                        }
                     }
 
                     

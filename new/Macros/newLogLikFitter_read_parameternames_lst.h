@@ -1077,6 +1077,7 @@ void read_parameter_list_file()
             {
                 std::cout << "ERROR: Syntax error in file " << paramFile_filename << " line " << line_count << std::endl;
             }
+
             // there is a fail event in this function that calls return
             // same as block of code here calling continue
             // because there is no code which follows this function call

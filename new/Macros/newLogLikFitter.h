@@ -324,15 +324,15 @@ const bool channel_enable_draw_1D[number1DHists] =
 {
     true,
     true,
-    true,
-    true,
-    true,
-    true
+    false,
+    false,
+    false,
+    false
 };
 
 const bool channel_enable_draw_2D[number2DHists] =
 {
-    true
+    false
 };
 
 // global variable to hold chisquare result
