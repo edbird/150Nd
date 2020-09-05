@@ -693,7 +693,7 @@ void reweight_apply_fakedata(
             // makes the MPS have the same y axis range
             if(sampleName.Contains("nd150")
             {
-                const double scale_factor = (double)events / weight_total;
+                const double scale_factor = (double)events / weight_total_150Nd;
 
                 // P1
                 hTotalE_P1_tmp->Scale(scale_factor);
