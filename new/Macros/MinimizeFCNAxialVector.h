@@ -50,7 +50,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
     double operator()(const std::vector<double> &param) const
     {
 
-        const int debuglevel = 3;
+        const int debuglevel = 1;
         
 
 
@@ -333,7 +333,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                 double paramInitError = it->second.paramInitError;
                 int paramConstraintMode = it->second.paramConstraintMode;
 
-                if(debuglevel >= 4)
+                if(debuglevel >= 5)
                 {
                     std::cout << "paramNumber=" << paramNumber << std::endl;
                 }
@@ -435,7 +435,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                     TH1D *tmpHist1D_P1 = nullptr;
                     TH1D *tmpHist1D_P2 = nullptr;
     
-                    if(debuglevel >= 5)
+                    if(debuglevel >= 6)
                     {
                         std::cout << "search_object_P1=" << search_object_P1
                                   << " search_object_P2=" << search_object_P2 << std::endl;
@@ -459,7 +459,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                         }
 
                         Double_t scale_factor_P1 = param.at(paramNumberInt);
-                        if(debuglevel >= 5)
+                        if(debuglevel >= 6)
                         {
                             std::cout << "enabled P1: scale factor P1: " << scale_factor_P1 << std::endl;
                         }
