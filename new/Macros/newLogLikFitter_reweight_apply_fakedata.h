@@ -448,6 +448,8 @@ void reweight_apply_fakedata(
             double el_energy_0;
             double el_energy_1;
 
+            double weight_total_150Nd = 0.0;
+
             Long_t events = (Long_t)inputTree->GetEntries();
             for(Long_t event_i = 0; event_i < events; ++ event_i)
             {
@@ -536,6 +538,8 @@ void reweight_apply_fakedata(
 
                     Double_t _weight{ReWeight3(trueT0, trueT1, xi_31_baseline, xi_31, h_nEqNull, h_nEqTwo, psiN0, psiN2, "true")}; // TODO remove true?
                     weight *= _weight;
+
+                    weight_total += _weight;
                 }
 
 
@@ -665,6 +669,31 @@ void reweight_apply_fakedata(
             if(sampleName.Contains("tl208"))
             {
                 const double scale_factor = 0.36;
+
+                // P1
+                hTotalE_P1_tmp->Scale(scale_factor);
+                hSingleEnergy_P1_tmp->Scale(scale_factor);
+                hHighEnergy_P1_tmp->Scale(scale_factor);
+                hLowEnergy_P1_tmp->Scale(scale_factor);
+                hHighLowEnergy_P1_tmp->Scale(scale_factor);
+                hEnergySum_P1_tmp->Scale(scale_factor);
+                hEnergyDiff_P1_tmp->Scale(scale_factor);
+                // P2
+                hTotalE_P2_tmp->Scale(scale_factor);
+                hSingleEnergy_P2_tmp->Scale(scale_factor);
+                hHighEnergy_P2_tmp->Scale(scale_factor);
+                hLowEnergy_P2_tmp->Scale(scale_factor);
+                hHighLowEnergy_P2_tmp->Scale(scale_factor);
+                hEnergySum_P2_tmp->Scale(scale_factor);
+                hEnergyDiff_P2_tmp->Scale(scale_factor);
+            }
+
+            // realistic scaling for amplitude
+            // debatable whether this is a good thing to include
+            // makes the MPS have the same y axis range
+            if(sampleName.Contains("nd150")
+            {
+                const double scale_factor = (double)events / weight_total;
 
                 // P1
                 hTotalE_P1_tmp->Scale(scale_factor);
