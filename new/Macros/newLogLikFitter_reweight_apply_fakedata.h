@@ -624,6 +624,8 @@ void reweight_apply_fakedata(
 
             }
 
+            inputFile->Close();
+
             //std::cout << hSingleEnergy_P2_tmp->GetName() << " -> " << hSingleEnergy_P2_tmp->GetBinContent(10) << std::endl;
 
             // scale
