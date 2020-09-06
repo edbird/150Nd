@@ -1058,14 +1058,23 @@ void loadFiles(int i)
 
 #if 1
     TCanvas *results_c = nullptr;
+    TCanvas *results_c_A = nullptr;
+    TCavnas *results_c_chi2_before = nullptr;
+    TCanvas *results_c_chi2_after = nullptr;
     // do not do this in parallel mode
     if(1) // || (MODE_PARALLEL == 0))
     {
 
         std::vector<double> results_x;
         std::vector<double> results_y;
+        std::vector<double> results_x_A;
+        std::vector<double> results_y_A;
+        std::vector<double> results_x_chi2_before;
+        std::vector<double> results_y_chi2_before;
+        std::vector<double> results_x_chi2_after;
+        std::vector<double> results_y_chi2_after;
 
-        const int i_max = 33;
+        const int i_max = 100;
         for(int i = 0; i <= i_max; ++ i)
         {
 
@@ -1157,11 +1166,33 @@ void loadFiles(int i)
 
             results_x.push_back(systematic_energy_offset);
             results_y.push_back(params_after.at(1));
+
+            results_x_A.push_back(systematic_energy_offset);
+            results_y_A.push_back(params_after.at(0));
+            
+            results_x_chi2_before.push_back(systematic_energy_offset);
+            results_y_chi2_before.push_back(fval_before);
+
+            results_x_chi2_after.push_back(systematic_energy_offset);
+            results_y_chi2_after.push_back(fval_after);
         }
 
         TGraph *results_g = new TGraph(results_x.size(), results_x.data(), results_y.data());
+        TGraph *results_g_A = new TGraph(results_x_A.size(), results_x_A.data(), results_y_A.data());
+        TGraph *results_g_chi2_before = new TGraph(results_x_chi2_before.size(), results_x_chi2_before.data(), results_y_chi2_before.data());
+        TGraph *results_g_chi2_after = new TGraph(results_x_chi2_after.size(), results_x_chi2_after.data(), results_y_chi2_after.data());
+
         results_c = new TCanvas("results", "results");
-        results_g->Draw();
+        results_g->Draw("P");
+
+        results_c_A = new TCanvas("results_A", "results_A");
+        results_g_A->Draw("P");
+
+        results_c_chi2_before = new TCanvas("results_chi2_before", "results_chi2_before");
+        results_g_chi2_before->Draw("P");
+
+        results_c_chi2_after = new TCanvas("results_chi2_after", "results_chi2_after");
+        results_g_chi2_after->Draw("P");
     }
 #endif
 
