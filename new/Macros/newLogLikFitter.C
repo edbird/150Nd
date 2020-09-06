@@ -1183,16 +1183,16 @@ void loadFiles(int i)
         TGraph *results_g_chi2_after = new TGraph(results_x_chi2_after.size(), results_x_chi2_after.data(), results_y_chi2_after.data());
 
         results_c = new TCanvas("results", "results");
-        results_g->Draw("P");
+        results_g->Draw();
 
         results_c_A = new TCanvas("results_A", "results_A");
-        results_g_A->Draw("P");
+        results_g_A->Draw();
 
         results_c_chi2_before = new TCanvas("results_chi2_before", "results_chi2_before");
-        results_g_chi2_before->Draw("P");
+        results_g_chi2_before->Draw();
 
         results_c_chi2_after = new TCanvas("results_chi2_after", "results_chi2_after");
-        results_g_chi2_after->Draw("P");
+        results_g_chi2_after->Draw();
     }
 #endif
 
