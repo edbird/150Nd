@@ -1059,7 +1059,7 @@ void loadFiles(int i)
 #if 1
     TCanvas *results_c = nullptr;
     TCanvas *results_c_A = nullptr;
-    TCavnas *results_c_chi2_before = nullptr;
+    TCanvas *results_c_chi2_before = nullptr;
     TCanvas *results_c_chi2_after = nullptr;
     // do not do this in parallel mode
     if(1) // || (MODE_PARALLEL == 0))
