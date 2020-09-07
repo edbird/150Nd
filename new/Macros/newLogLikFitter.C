@@ -607,6 +607,11 @@ void loadFiles(int i)
     rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itsel
     //rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline); // want to check if the fitter can fit itself to itsel
 
+    // testing bin numbers
+    gSystematics.systematic_energy_offset = 0.0;
+    rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itsel
+    gSystematics.systematic_energy_offset = -0.1;
+    rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itsel
 
     // 1d: Phase 1 & 2
     for(int channel = 0; channel < number1DHists; ++ channel)
@@ -1085,7 +1090,9 @@ void loadFiles(int i)
             gSystematics.systematic_energy_offset = fr * diff + min;
             double systematic_energy_offset = gSystematics.systematic_energy_offset;
             std::cout << "seo=" << systematic_energy_offset << std::endl;
-            rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itsel
+            //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itself
+            rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itself
+            // just check the output looks sensible
 
             std::string name_extra = "seo_" + std::to_string(systematic_energy_offset);
 
@@ -1121,7 +1128,7 @@ void loadFiles(int i)
             draw(drawinputdata,
                  params_before,
                  param_errs_before);
-
+            return 0;
 
             // exec fit
             // do fit with all parameters free

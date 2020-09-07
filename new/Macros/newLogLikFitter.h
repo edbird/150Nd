@@ -324,8 +324,8 @@ const bool channel_enable_draw_1D[number1DHists] =
 {
     true,
     true,
-    false,
-    false,
+    true,
+    true,
     false,
     false
 };

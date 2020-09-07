@@ -461,7 +461,7 @@ void reweight_apply_fakedata(
                 ///////////////////////////////////////////////////////////////
                 // see file: fit_2e.C for documentation
                 ///////////////////////////////////////////////////////////////
-                double weight = 1.;
+                double weight = 1.0;
                 if(sampleName.CompareTo("bi214_swire") == 0)
                 {
                     weight = radonWeight;
@@ -538,6 +538,14 @@ void reweight_apply_fakedata(
                     const Double_t trueT1{trueElectronEnergy[lowE_index]};
 
                     Double_t _weight{ReWeight3(trueT0, trueT1, xi_31_baseline, xi_31, h_nEqNull, h_nEqTwo, psiN0, psiN2, "true")}; // TODO remove true?
+
+                    /*
+                    if(_weight != 1.0)
+                    {
+                        std::cout << "_weight=" << _weight << std::endl;
+                    }
+                    */
+
                     weight *= _weight;
 
                     //weight_total_150Nd += _weight;
@@ -569,10 +577,16 @@ void reweight_apply_fakedata(
                 Double_t el_energy_0{electronEnergy[highE_index]};
                 Double_t el_energy_1{electronEnergy[lowE_index]};
 
+                //std::cout << "gSystematics.systematic_energy_offset=" << gSystematics.systematic_energy_offset << std::endl;
+                //std::cout << "el_energy_0=" << el_energy_0 << std::endl;
+                //std::cout << "el_energy_1=" << el_energy_1 << std::endl;
+
                 // linear energy offset systematic
                 el_energy_0 = el_energy_0 + gSystematics.systematic_energy_offset;
                 el_energy_1 = el_energy_1 + gSystematics.systematic_energy_offset;
 
+                //std::cout << "-> el_energy_0=" << el_energy_0 << std::endl;
+                //std::cout << "-> el_energy_1=" << el_energy_1 << std::endl;
 
 
                 ///////////////////////////////////////////////////////////////
@@ -650,6 +664,28 @@ void reweight_apply_fakedata(
 
             //std::cout << hSingleEnergy_P2_tmp->GetName() << " -> scale=" << TotalTime / sampleNGenMC << std::endl;
 
+            // note: was below ->Scale
+            if(debuglevel >= 5) // 5
+            {
+                std::cout << hTotalE_P2_tmp->GetName() << " : bin(7) -> " << hTotalE_P2_tmp->GetBinContent(7) << std::endl;
+                std::cout << hTotalE_P2_tmp->GetName() << " : bin(8) -> " << hTotalE_P2_tmp->GetBinContent(8) << std::endl;
+                std::cout << hTotalE_P2_tmp->GetName() << " : bin(9) -> " << hTotalE_P2_tmp->GetBinContent(9) << std::endl;
+                std::cout << hTotalE_P2_tmp->GetName() << " : bin(10) -> " << hTotalE_P2_tmp->GetBinContent(10) << std::endl;
+                std::cout << hTotalE_P2_tmp->GetName() << " : bin(11) -> " << hTotalE_P2_tmp->GetBinContent(11) << std::endl;
+                std::cout << hTotalE_P2_tmp->GetName() << " : bin(12) -> " << hTotalE_P2_tmp->GetBinContent(12) << std::endl;
+                std::cout << hTotalE_P2_tmp->GetName() << " : bin(13) -> " << hTotalE_P2_tmp->GetBinContent(13) << std::endl;
+
+                /*
+                std::cout << hSingleEnergy_P2_tmp->GetName() << " : bin(7) -> " << hSingleEnergy_P2_tmp->GetBinContent(7) << std::endl;
+                std::cout << hSingleEnergy_P2_tmp->GetName() << " : bin(8) -> " << hSingleEnergy_P2_tmp->GetBinContent(8) << std::endl;
+                std::cout << hSingleEnergy_P2_tmp->GetName() << " : bin(9) -> " << hSingleEnergy_P2_tmp->GetBinContent(9) << std::endl;
+                std::cout << hSingleEnergy_P2_tmp->GetName() << " : bin(10) -> " << hSingleEnergy_P2_tmp->GetBinContent(10) << std::endl;
+                std::cout << hSingleEnergy_P2_tmp->GetName() << " : bin(11) -> " << hSingleEnergy_P2_tmp->GetBinContent(11) << std::endl;
+                std::cout << hSingleEnergy_P2_tmp->GetName() << " : bin(12) -> " << hSingleEnergy_P2_tmp->GetBinContent(12) << std::endl;
+                std::cout << hSingleEnergy_P2_tmp->GetName() << " : bin(13) -> " << hSingleEnergy_P2_tmp->GetBinContent(13) << std::endl;
+                */
+            }
+
             // P1
             hTotalE_P1_tmp->Scale(TotalTime / sampleNGenMC);
             hSingleEnergy_P1_tmp->Scale(TotalTime / sampleNGenMC);
@@ -667,10 +703,6 @@ void reweight_apply_fakedata(
             hEnergySum_P2_tmp->Scale(TotalTime / sampleNGenMC);
             hEnergyDiff_P2_tmp->Scale(TotalTime / sampleNGenMC);
 
-            if(debuglevel >= 5)
-            {
-                std::cout << hSingleEnergy_P2_tmp->GetName() << " : bin(10) -> " << hSingleEnergy_P2_tmp->GetBinContent(10) << std::endl;
-            }
 
             //std::cout << "paramInitValue=" << paramInitValue << std::endl;
 
