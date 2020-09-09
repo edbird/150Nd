@@ -45,7 +45,7 @@ double logpoisson(const double nData, const double nMC)
 
     if(mnu < 0.0)
     {
-        std::cout << "settng mnu=0" << std::endl;
+        std::cout << "setting mnu=0" << std::endl;
         mnu = 0.0;
     }
     double ret = 0.0;

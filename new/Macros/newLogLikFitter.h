@@ -356,6 +356,17 @@ std::vector<std::pair<double,double>> ll_walk;
 std::vector<std::pair<double,double>> ll_walk_save;
 
 
+// chi square objects
+TH2D *V_CHEN = nullptr; // V channel enable (bin enable)
+TH2D *V_PHYS = nullptr; // V physics
+TH2D *V_PHYS_STAT = nullptr; // V physics, statistical
+TH2D *V_PHYS_SYS = nullptr; // V physics, systematic
+TH2D *D = nullptr; // data
+TH2D *M = nullptr; // MC (model)
+TH2D *D_minus_M = nullptr; // D - M
+TH2D *V_SUPER = nullptr; // containing all information from V matricies
+
+
 
 #if 0
 

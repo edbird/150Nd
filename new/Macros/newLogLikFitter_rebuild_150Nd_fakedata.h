@@ -16,7 +16,7 @@ void rebuild_fake_data_systematics(const double xi_31, const double xi_31_baseli
     std::cout << "--- systematics ---" << std::endl;
     std::cout << gSystematics.systematic_energy_offset << std::endl;
     std::cout << "xi_31=" << xi_31 << " xi_31_baseline=" << xi_31_baseline << std::endl;
-    std::cin.get();
+    //std::cin.get();
 
 
     int debuglevel = 9;

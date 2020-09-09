@@ -50,6 +50,12 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
     double operator()(const std::vector<double> &param) const
     {
 
+
+        const int MODE_LOGPOISSON = 0;
+        const int MODE_CHI2 = 1;
+        //const int MODE_METRIC = MODE_LOGPOISSON;
+        const int MODE_METRIC = MODE_CHI2;
+
         const int debuglevel = 1;
         
 
@@ -572,9 +578,31 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                     {
                         continue;
                     }
-                    double lp_P1 = logpoisson(nData_P1, nMC_P1);
-                    //double lp = logpoisson(nFakeData, nMC);
-                    //double lp = logpoisson_sterling(nFakeData, nMC);
+                    
+                    double lp_P1 = 0.0;
+                    if(MODE_METRIC == MODE_LOGPOISSON)
+                    {
+                        lp_P1 = logpoisson(nData_P1, nMC_P1);
+                        //double lp = logpoisson(nFakeData, nMC);
+                        //double lp = logpoisson_sterling(nFakeData, nMC);
+                    }
+                    else if(MODE_METRIC == MODE_CHI2)
+                    {
+                        // chi2 using sqrt(N), N = number of MC
+                        // this should be the same as the poisson method
+                        // except for events where nData > 0, nMC <= 0
+                        //double chi2_P1 = std::pow(nData_P1 - nMC_P1, 2.0) / std::pow(std::sqrt(nMC_P1), 2.0);
+
+                        //if(nData_P1 == 0.0) continue;
+                        //double chi2_P1 = std::pow(nData_P1 - nMC_P1, 2.0) / std::pow(std::sqrt(nData_P1), 2.0);
+                        if(nMC_P1 == 0.0) continue;
+                        double chi2_P1 = std::pow(nData_P1 - nMC_P1, 2.0) / std::pow(std::sqrt(nMC_P1), 2.0);
+                        
+                        //double chi2_P1 = std::pow((nData_P1 - nMC_P1) / nData_P1, 2.0);
+                        // TODO: presumably I need the if(nMC_P1 == 0.0) rejection
+                        lp_P1 = chi2_P1;
+                    }
+
                     ll_channel_P1 += lp_P1;
                     if(nData_P1 != 0.0 && nMC_P1 != 0.0)
                     {
@@ -591,13 +619,30 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                 // this appears to happen a lot
                 else
                 {
+                //TODO cleanup
                     std::cout << "MC WENT LOWER THAN ZERO - 1D P1" << std::endl;
                     std::cout << "nMC_P1=" << nMC_P1 << std::endl;
 
                     std::cout << "ignore this bin" << std::endl;
-                    continue;
+                    continue; // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-                    double lp_P1 = logpoisson(nData_P1, 0.0);
+                    double lp_P1 = 0.0;
+                    if(MODE_METRIC == MODE_LOGPOISSON)
+                    {
+                        lp_P1 = logpoisson(nData_P1, 0.0);
+                        //double lp_P1 = logpoisson(nData_P1, nMC_P1);
+                        //double lp = logpoisson(nFakeData, nMC);
+                        //double lp = logpoisson_sterling(nFakeData, nMC);
+                    }
+                    else if(MODE_METRIC == MODE_CHI2)
+                    {
+                        // chi2 using sqrt(N), N = number of MC
+                        // this should be the same as the poisson method
+                        // except for events where nData > 0, nMC <= 0
+                        double chi2_P1 = std::pow(nData_P1 - 0.0, 2.0) / std::pow(std::sqrt(0.0), 2.0);
+                        // TODO: presumably I need the if(nMC_P1 == 0.0) rejection
+                        lp_P1 = chi2_P1;
+                    }
                     //double lp = logpoisson(nFakeData, 1.0e-05);
                     //double lp = logpoisson_sterling(nFakeData, 1.0e-05);
                     ll_channel_P1 += lp_P1;
@@ -630,7 +675,30 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                     {
                         continue;
                     }
-                    double lp_P2 = logpoisson(nData_P2, nMC_P2);
+                    //double lp_P2 = logpoisson(nData_P2, nMC_P2);
+                    double lp_P2 = 0.0;
+                    if(MODE_METRIC == MODE_LOGPOISSON)
+                    {
+                        lp_P2 = logpoisson(nData_P2, nMC_P2);
+                        //double lp = logpoisson(nFakeData, nMC);
+                        //double lp = logpoisson_sterling(nFakeData, nMC);
+                    }
+                    else if(MODE_METRIC == MODE_CHI2)
+                    {
+                        // chi2 using sqrt(N), N = number of MC
+                        // this should be the same as the poisson method
+                        // except for events where nData > 0, nMC <= 0
+                        //double chi2_P2 = std::pow(nData_P2 - nMC_P2, 2.0) / std::pow(std::sqrt(nMC_P2), 2.0);
+
+                        //if(nData_P2 == 0.0) continue;
+                        //double chi2_P2 = std::pow(nData_P2 - nMC_P2, 2.0) / std::pow(std::sqrt(nData_P2), 2.0);
+                        
+                        if(nMC_P2 == 0.0) continue;
+                        double chi2_P2 = std::pow(nData_P2 - nMC_P2, 2.0) / std::pow(std::sqrt(nMC_P2), 2.0);
+                        
+                        // TODO: presumably I need the if(nMC_P1 == 0.0) rejection
+                        lp_P2 = chi2_P2;
+                    }
                     //double lp = logpoisson(nFakeData, nMC);
                     //double lp = logpoisson_sterling(nFakeData, nMC);
                     ll_channel_P2 += lp_P2;
@@ -994,7 +1062,24 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                         {
                             continue;
                         }
-                        double lp_P1 = logpoisson(nData_P1, nMC_P1);
+                        double lp_P1 = 0.0;
+                        if(MODE_METRIC == MODE_LOGPOISSON)
+                        {
+                            lp_P1 = logpoisson(nData_P1, nMC_P1);
+                            //double lp = logpoisson(nFakeData, nMC);
+                            //double lp = logpoisson_sterling(nFakeData, nMC);
+                        }
+                        else if(MODE_METRIC == MODE_CHI2)
+                        {
+                            // chi2 using sqrt(N), N = number of MC
+                            // this should be the same as the poisson method
+                            // except for events where nData > 0, nMC <= 0
+                            double chi2_P1 = std::pow(nData_P1 - nMC_P1, 2.0) / std::pow(std::sqrt(nMC_P1), 2.0);
+                            //double chi2_P1 = std::pow(nData_P1 - nMC_P1, 2.0) / std::pow(std::sqrt(nData_P1), 2.0);
+                            // TODO: presumably I need the if(nMC_P1 == 0.0) rejection
+                            lp_P1 = chi2_P1;
+                        }
+                        //double lp_P1 = logpoisson(nData_P1, nMC_P1);
                         //double lp = logpoisson(nFakeData, nMC);
                         //double lp = logpoisson_sterling(nFakeData, nMC);
                         ll_channel_P1 += lp_P1;
@@ -1048,7 +1133,24 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                         {
                             continue;
                         }
-                        double lp_P2 = logpoisson(nData_P2, nMC_P2);
+                        double lp_P2 = 0.0;
+                        if(MODE_METRIC == MODE_LOGPOISSON)
+                        {
+                            lp_P2 = logpoisson(nData_P2, nMC_P2);
+                            //double lp = logpoisson(nFakeData, nMC);
+                            //double lp = logpoisson_sterling(nFakeData, nMC);
+                        }
+                        else if(MODE_METRIC == MODE_CHI2)
+                        {
+                            // chi2 using sqrt(N), N = number of MC
+                            // this should be the same as the poisson method
+                            // except for events where nData > 0, nMC <= 0
+                            double chi2_P2 = std::pow(nData_P2 - nMC_P2, 2.0) / std::pow(std::sqrt(nMC_P2), 2.0);
+                            //double chi2_P2 = std::pow(nData_P2 - nMC_P2, 2.0) / std::pow(std::sqrt(nData_P2), 2.0);
+                            // TODO: presumably I need the if(nMC_P2 == 0.0) rejection
+                            lp_P2 = chi2_P2;
+                        }
+                        //double lp_P2 = logpoisson(nData_P2, nMC_P2);
                         //double lp = logpoisson(nFakeData, nMC);
                         //double lp = logpoisson_sterling(nFakeData, nMC);
                         ll_channel_P2 += lp_P2;
@@ -1699,7 +1801,14 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
         }
         */
       
-        fval = -2.0 * loglik + penalty_term;
+        if(MODE_METRIC == MODE_LOGPOISSON)
+        {
+            fval = -2.0 * loglik + penalty_term;
+        }
+        else if(MODE_METRIC == MODE_CHI2)
+        {
+            fval = loglik + penalty_term;
+        }
 
         //tmpData->Delete();
 

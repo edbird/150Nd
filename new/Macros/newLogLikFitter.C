@@ -608,10 +608,11 @@ void loadFiles(int i)
     //rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline); // want to check if the fitter can fit itself to itsel
 
     // testing bin numbers
-    gSystematics.systematic_energy_offset = 0.0;
-    rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itsel
+    /*gSystematics.systematic_energy_offset = 0.0;
+    rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itself
     gSystematics.systematic_energy_offset = -0.1;
-    rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itsel
+    rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itself
+    */
 
     // 1d: Phase 1 & 2
     for(int channel = 0; channel < number1DHists; ++ channel)
@@ -1062,16 +1063,19 @@ void loadFiles(int i)
     ///////////////////////////////////////////////////////////////////////////
 
 #if 1
-    TCanvas *results_c = nullptr;
+    TCanvas *results_c_xi_31 = nullptr;
     TCanvas *results_c_A = nullptr;
     TCanvas *results_c_chi2_before = nullptr;
     TCanvas *results_c_chi2_after = nullptr;
+
+    std::vector<TCanvas*> results_c_allparams;
+
     // do not do this in parallel mode
     if(1) // || (MODE_PARALLEL == 0))
     {
 
-        std::vector<double> results_x;
-        std::vector<double> results_y;
+        std::vector<double> results_x_xi_31;
+        std::vector<double> results_y_xi_31;
         std::vector<double> results_x_A;
         std::vector<double> results_y_A;
         std::vector<double> results_x_chi2_before;
@@ -1079,15 +1083,18 @@ void loadFiles(int i)
         std::vector<double> results_x_chi2_after;
         std::vector<double> results_y_chi2_after;
 
-        const int i_max = 100;
+        std::vector<std::vector<double>> results_y_allparams;
+
+        const int i_max = 10; //0;
         for(int i = 0; i <= i_max; ++ i)
         {
 
-            const double min = -0.1;
-            const double max = +0.1;
+            const double min = -0.01;
+            const double max = +0.01;
             const double diff = max - min;
             const double fr = (double)i / (double)i_max;
             gSystematics.systematic_energy_offset = fr * diff + min;
+            //gSystematics.systematic_energy_offset = 0.0;
             double systematic_energy_offset = gSystematics.systematic_energy_offset;
             std::cout << "seo=" << systematic_energy_offset << std::endl;
             //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itself
@@ -1117,6 +1124,16 @@ void loadFiles(int i)
             //int ndf = theFCN.ndf - theParameterStateBefore.VariableParameters();
             int ndf = theFCN.ndf - g_pg.get_number_free_params();
 
+            // initilize output vectors
+            if(i == 0)
+            {
+                for(int i = 0; i < g_pg.file_params.size(); ++ i)
+                {
+                    std::vector<double> blankvector;
+                    results_y_allparams.push_back(blankvector);
+                }
+            }
+
             // draw before fit
             draw_input_data drawinputdata;
             drawinputdata.chi2 = fval_before;
@@ -1128,7 +1145,6 @@ void loadFiles(int i)
             draw(drawinputdata,
                  params_before,
                  param_errs_before);
-            return 0;
 
             // exec fit
             // do fit with all parameters free
@@ -1171,8 +1187,8 @@ void loadFiles(int i)
             std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
             std::cout << "fval_before=" << fval_before << std::endl;
 
-            results_x.push_back(systematic_energy_offset);
-            results_y.push_back(params_after.at(1));
+            results_x_xi_31.push_back(systematic_energy_offset);
+            results_y_xi_31.push_back(params_after.at(1));
 
             results_x_A.push_back(systematic_energy_offset);
             results_y_A.push_back(params_after.at(0));
@@ -1182,15 +1198,35 @@ void loadFiles(int i)
 
             results_x_chi2_after.push_back(systematic_energy_offset);
             results_y_chi2_after.push_back(fval_after);
+
+            for(int i = 0; i < g_pg.file_params.size(); ++ i)
+            {
+                results_y_allparams.at(i).push_back(params_after.at(i));
+            }
         }
 
-        TGraph *results_g = new TGraph(results_x.size(), results_x.data(), results_y.data());
+        TGraph *results_g_xi_31 = new TGraph(results_x_xi_31.size(), results_x_xi_31.data(), results_y_xi_31.data());
         TGraph *results_g_A = new TGraph(results_x_A.size(), results_x_A.data(), results_y_A.data());
         TGraph *results_g_chi2_before = new TGraph(results_x_chi2_before.size(), results_x_chi2_before.data(), results_y_chi2_before.data());
         TGraph *results_g_chi2_after = new TGraph(results_x_chi2_after.size(), results_x_chi2_after.data(), results_y_chi2_after.data());
 
-        results_c = new TCanvas("results", "results");
-        results_g->Draw();
+        
+        for(int i = 0; i < g_pg.file_params.size(); ++ i)
+        {
+            TGraph *results_g_allparams =
+                new TGraph(results_x_xi_31.size(),
+                           results_x_xi_31.data(),
+                           results_y_allparams.at(i).data());
+
+            TString cname;
+            cname.Form("results_P%d", i);
+            results_c_allparams.at(i) = new TCanvas(cname, cname);
+            results_g_allparams->Draw();
+        }
+
+
+        results_c_xi_31 = new TCanvas("results_xi_31", "results_xi_31");
+        results_g_xi_31->Draw();
 
         results_c_A = new TCanvas("results_A", "results_A");
         results_g_A->Draw();
