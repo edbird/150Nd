@@ -1213,6 +1213,8 @@ void loadFiles(int i)
         
         for(int i = 0; i < g_pg.file_params.size(); ++ i)
         {
+            std::cout << "i=" << i << std::endl;
+
             TGraph *results_g_allparams =
                 new TGraph(results_x_xi_31.size(),
                            results_x_xi_31.data(),
@@ -1220,7 +1222,8 @@ void loadFiles(int i)
 
             TString cname;
             cname.Form("results_P%d", i);
-            results_c_allparams.at(i) = new TCanvas(cname, cname);
+            std::cout << "cname=" << cname << std::endl;
+            results_c_allparams.push_back(new TCanvas(cname, cname));
             results_g_allparams->Draw();
         }
 
