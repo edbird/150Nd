@@ -775,7 +775,7 @@ void reweight_apply_fakedata(
             
             //if(TString(hSingleEnergy_P2_tmp->GetName()).Contains("tl208"))
             //{
-                std::cout << __func__ << " GetName()->" << hSingleEnergy_P2_tmp->GetName() << ", bin 13: " << hSingleEnergy_P2_tmp->GetBinContent(13) << std::endl;
+            //    std::cout << __func__ << " GetName()->" << hSingleEnergy_P2_tmp->GetName() << ", bin 13: " << hSingleEnergy_P2_tmp->GetBinContent(13) << std::endl;
             //}
 
             /*
@@ -817,6 +817,8 @@ void reweight_apply_fakedata(
                 hHighLowEnergy_output_P2->Add(hHighLowEnergy_P2_tmp);
                 hEnergySum_output_P2->Add(hEnergySum_P2_tmp);
                 hEnergyDiff_output_P2->Add(hEnergyDiff_P2_tmp);
+
+                //std::cout << __func__ << " GetName()->" << hSingleEnergy_P2_tmp->GetName() << ", bin 13: " << hSingleEnergy_P2_tmp->GetBinContent(13) << " scale_factor_P2=" << paramInitValue <<std::endl;
             }
             // NOTE: 2020-09-10:
             // 

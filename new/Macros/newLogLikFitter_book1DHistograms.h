@@ -184,15 +184,42 @@ void book1DHistograms_helper(
         std::string mc_name = std::string(BkgFiles[i]);
 
         // convert mc_name to scale factor
-        Double_t scale_factor = 0.0;
-        int param_number = -1;
+        Double_t scale_factor_P2 = 0.0;
+        Double_t scale_factor_P1 = 0.0;
+        int param_number_P1 = -1;
+        int param_number_P2 = -1;
         //bool success = convert_MC_name_to_scale_factor(mc_name, param_number, scale_factor);
-        bool success = g_pg.convert_MC_name_to_param_number(mc_name, param_number);//, scale_factor);
+        bool success = g_pg.convert_MC_name_to_param_number(mc_name, param_number_P1, param_number_P2);//, scale_factor);
+
+        //std::cout << "param_number_P1=" << param_number_P1 << " param_number_P2=" << param_number_P2 << std::endl;
 
 
         if(success == true)
         {
-            scale_factor = g_pg.file_params.at(param_number).paramInitValue;
+            // should always be able to obtain 1 of these parameter numbers
+            // but sometimes one phase is disabled hence the param number
+            // is -1
+            if(param_number_P1 != -1)
+            {
+                scale_factor_P1 = g_pg.file_params.at(param_number_P1).paramInitValue;
+            }
+            else
+            {
+                std::cout << "WARNING: param_number_P2=" << param_number_P2 << std::endl;
+                std::cout << "mc_name=" << mc_name << std::endl;
+                // this is typically things such as bi214_air, which is ZERO for P2
+            }
+            if(param_number_P2 != -1)
+            {
+                scale_factor_P2 = g_pg.file_params.at(param_number_P2).paramInitValue;   
+            }
+            else
+            {
+                std::cout << "WARNING: param_number_P2=" << param_number_P2 << std::endl;
+                std::cout << "mc_name=" << mc_name << std::endl;
+                // this is typically things such as bi214_air, which is ZERO for P2
+            }
+            //std::cout << "mc_name=" << mc_name << " scale_factor_P1=" << scale_factor_P1 << " scale_factor_P2=" << scale_factor_P2 << std::endl;
 
             // account for 208 Tl branching ratio of 36 %
             if((mc_name.find("tl208_int_rot") != std::string::npos) ||
@@ -202,7 +229,8 @@ void book1DHistograms_helper(
             {
                 std::cout << "mc_name=" << mc_name << " applying additional scaling factor of 0.36" << std::endl;
                 //std::cin.get();
-                scale_factor *= 0.36;
+                scale_factor_P1 *= 0.36;
+                scale_factor_P2 *= 0.36;
                 // TODO: check that this is not already applied in
                 // fit_2e
                 // NOTE: it isn't
@@ -211,7 +239,7 @@ void book1DHistograms_helper(
 
             if(debuglevel >= 3)
             {
-                std::cout << "mc_name=" << mc_name << " param_number=" << param_number << " scale_factor=" << scale_factor << std::endl;
+                std::cout << "mc_name=" << mc_name << " param_number_P1=" << param_number_P1 << " param_number_P2=" << param_number_P2 << " scale_factor_P1=" << scale_factor_P1 << " scale_factor_P2=" << scale_factor_P2 << std::endl;
             }
 
             //std::string directory("scaled/hTotalE_/");
@@ -265,7 +293,7 @@ void book1DHistograms_helper(
                 // TODO: note this in input file documentation
                 // however, this may be an improvement because it
                 // guarantees minuit is responsible for error estimation
-                tmpHist_P1->Scale(scale_factor);
+                tmpHist_P1->Scale(scale_factor_P1);
                 //tmpHist_P2->Scale(scale_factor); // TODO; really not at all convinced this is going to work for the histograms where P1 and P2 are seperate params in the file
                 // samples are now scaled by activity
                 // changed input, and pre-scaling, now need to change output
@@ -282,7 +310,7 @@ void book1DHistograms_helper(
                 // multiply the bin content by AdjustActs parameter
                 // (minuit parameter)
 
-                if(param_number == 1)
+                if((param_number_P1 == 1) || (param_number_P2 == 1))
                 {
                     std::cout << "ERROR" << std::endl;
                     throw "Error";
@@ -301,7 +329,7 @@ void book1DHistograms_helper(
             }
             else
             {
-                std::cout << __func__ << " could not find histogram in file: " << fullname << " - disabling parameter number " << param_number << std::endl;
+                std::cout << __func__ << " could not find histogram in file: " << fullname << " - disabling parameter number " << param_number_P1 << " " << param_number_P2 << std::endl;
                 // cannot find histogram input data, so disable parameter
                 //std::remove(enabled_params.begin(), enabled_params.end(), param_number);
                 // TODO: may not re-implement this
@@ -310,9 +338,9 @@ void book1DHistograms_helper(
 
             if(tmpHist_P2 != nullptr)
             {
-                tmpHist_P2->Scale(scale_factor); // TODO; really not at all convinced this is going to work for the histograms where P1 and P2 are seperate params in the file
+                tmpHist_P2->Scale(scale_factor_P2); // TODO; really not at all convinced this is going to work for the histograms where P1 and P2 are seperate params in the file
 
-                if(param_number == 1)
+                if((param_number_P1 == 1) || (param_number_P2 == 1))
                 {
                     std::cout << "ERROR" << std::endl;
                     throw "Error";
@@ -322,7 +350,7 @@ void book1DHistograms_helper(
             }
             else
             {
-                std::cout << __func__ << " could not find histogram in file: " << fullname << " - disabling parameter number " << param_number << std::endl;
+                std::cout << __func__ << " could not find histogram in file: " << fullname << " - disabling parameter number " << param_number_P1  << " " << param_number_P2 << std::endl;
                 // cannot find histogram input data, so disable parameter
                 //std::remove(enabled_params.begin(), enabled_params.end(), param_number);
                 // TODO: may not re-implement this

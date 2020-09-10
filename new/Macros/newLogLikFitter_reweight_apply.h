@@ -946,9 +946,11 @@ void reweight_apply(
     hEnergyDiff_output_P2->Scale(TotalTime / sampleNGenMC_150Nd);
     
     std::string mc_name = std::string(Nd150Files[0]);
-    Double_t scale_factor = 0.0;
-    int param_number = -1;
-    bool success = g_pg.convert_MC_name_to_param_number(mc_name, param_number);
+    Double_t scale_factor_P1 = 0.0;
+    Double_t scale_factor_P2 = 0.0;
+    int param_number_P1 = -1;
+    int param_number_P2 = -1;
+    bool success = g_pg.convert_MC_name_to_param_number(mc_name, param_number_P1, param_number_P2);
     //std::cout << "mc_name=" << mc_name << " param_number=" << param_number << std::endl;
     //std::cin.get();
     if(success == true)
@@ -968,7 +970,8 @@ void reweight_apply(
         //get_paramInitValueError(thePhase, param_number, param_init_value, param_init_error);
 
         //Double_t scale_factor = param_init_value;
-        scale_factor = g_pg.file_params.at(param_number).paramInitValue;
+        scale_factor_P1 = g_pg.file_params.at(param_number_P1).paramInitValue;
+        scale_factor_P2 = g_pg.file_params.at(param_number_P2).paramInitValue;
 
         // NOTE: TODO
         // possible flaw with this method: error is no longer
@@ -978,21 +981,21 @@ void reweight_apply(
         // guarantees minuit is responsible for error estimation
         //std::cout << "scaling by: " << scale_factor << std::endl;
         //std::cin.get();
-        hTotalE_output_P1->Scale(scale_factor);
-        hSingleEnergy_output_P1->Scale(scale_factor);
-        hHighEnergy_output_P1->Scale(scale_factor);
-        hLowEnergy_output_P1->Scale(scale_factor);
-        hHighLowEnergy_output_P1->Scale(scale_factor);
-        hEnergySum_output_P1->Scale(scale_factor);
-        hEnergyDiff_output_P1->Scale(scale_factor);
+        hTotalE_output_P1->Scale(scale_factor_P1);
+        hSingleEnergy_output_P1->Scale(scale_factor_P1);
+        hHighEnergy_output_P1->Scale(scale_factor_P1);
+        hLowEnergy_output_P1->Scale(scale_factor_P1);
+        hHighLowEnergy_output_P1->Scale(scale_factor_P1);
+        hEnergySum_output_P1->Scale(scale_factor_P1);
+        hEnergyDiff_output_P1->Scale(scale_factor_P1);
 
-        hTotalE_output_P2->Scale(scale_factor);
-        hSingleEnergy_output_P2->Scale(scale_factor);
-        hHighEnergy_output_P2->Scale(scale_factor);
-        hLowEnergy_output_P2->Scale(scale_factor);
-        hHighLowEnergy_output_P2->Scale(scale_factor);
-        hEnergySum_output_P2->Scale(scale_factor);
-        hEnergyDiff_output_P2->Scale(scale_factor);
+        hTotalE_output_P2->Scale(scale_factor_P2);
+        hSingleEnergy_output_P2->Scale(scale_factor_P2);
+        hHighEnergy_output_P2->Scale(scale_factor_P2);
+        hLowEnergy_output_P2->Scale(scale_factor_P2);
+        hHighLowEnergy_output_P2->Scale(scale_factor_P2);
+        hEnergySum_output_P2->Scale(scale_factor_P2);
+        hEnergyDiff_output_P2->Scale(scale_factor_P2);
 
         // NOTE: Scale factor
         // samples are scaled by

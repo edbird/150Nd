@@ -248,7 +248,117 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                 V_CHEN = new TH2D("V_CHEN", "V_CHEN",
                                   NUM_BINS_XY, 0.0, NUM_BINS_XY,
                                   NUM_BINS_XY, 0.0, NUM_BINS_XY);
+                                  
+                // set the contents of V_CHEN
+                for(Int_t bin_i{1}; bin_i <= V_CHEN->GetNbinsX(); ++ bin_i)
+                {
+                    for(Int_t bin_j{1}; bin_j <= V_CHEN->GetNbinsY(); ++ bin_j)
+                    {
+                        const Double_t zero = 0.0;
+                        const Double_t one = 1.0;
+                        if(bin_i == bin_j)
+                        {
+                            if(bin_i <= number1DHists * 50 * 2)
+                            {
+                                // 1D hists section
+
+                                int channel_index = -1;
+                                if((50 * 2 * 0 + 1 <= bin_i) && (bin_i <= 50 * 2 * 1))
+                                {
+                                    channel_index = 0;
+                                }
+                                else if((50 * 2 * 1 + 1 <= bin_i) && (bin_i <= 50 * 2 * 2))
+                                {
+                                    channel_index = 1;
+                                }
+                                else if((50 * 2 * 2 + 1 <= bin_i) && (bin_i <= 50 * 2 * 3))
+                                {
+                                    channel_index = 2;
+                                }
+                                else if((50 * 2 * 3 + 1 <= bin_i) && (bin_i <= 50 * 2 * 4))
+                                {
+                                    channel_index = 3;
+                                }
+                                else if((50 * 2 * 4 + 1 <= bin_i) && (bin_i <= 50 * 2 * 5))
+                                {
+                                    channel_index = 4;
+                                }
+                                else if((50 * 2 * 5 + 1 <= bin_i) && (bin_i <= 50 * 2 * 6))
+                                {
+                                    channel_index = 5;
+                                }
+                                else
+                                {
+                                    std::cout << "V_CHEN ERROR" << std::endl;
+                                    std::cin.get();
+                                }
+
+                                if(channel_enable_1D[channel_index] == 1)
+                                {
+                                    V_CHEN->SetBinContent(bin_i, bin_j, one);
+                                }
+                                else
+                                {
+                                    V_CHEN->SetBinContent(bin_i, bin_j, zero);
+                                }
+                            }
+                            else if(bin_i <= number1DHists * 50 * 2 + number2DHists * 50 * 50 * 2)
+                            {
+                                int channel_index = -1;
+                                const int base = number1DHists * 50 * 2;
+                                if((base + 1 <= bin_i) && (bin_i <= base + 50 * 50 * 2 * 1))
+                                {
+                                    channel_index = 0;
+                                }
+                                else if((base + 50 * 50 * 2 * 1 + 1 <= bin_i) && (bin_i <= base + 50 * 50 * 2 * 2))
+                                {
+                                    channel_index = 1;
+                                }
+                                else
+                                {
+                                    std::cout << "V_CHEN ERROR" << std::endl;
+                                    std::cin.get();
+                                }
+
+                                // 2D hists section
+                                if(channel_enable_2D[channel_index] == 1)
+                                {
+                                    V_CHEN->SetBinContent(bin_i, bin_j, one);
+                                }
+                                else
+                                {
+                                    V_CHEN->SetBinContent(bin_i, bin_j, zero);
+                                }
+                            }
+                            else
+                            {
+                                std::cout << "V_CHEN ERROR" << std::endl;
+                                std::cin.get();
+                            }
+                        }
+                        else
+                        {
+                            V_CHEN->SetBinContent(bin_i, bin_j, zero);
+                        }
+                    }
+                }
             }
+
+            TCanvas *c_V_CHEN = new TCanvas("c_V_CHEN", "c_V_CHEN",
+                number1DHists * 50 * 2 + number2DHists * 50 * 50 * 2,
+                number1DHists * 50 * 2 + number2DHists * 50 * 50 * 2);
+            V_CHEN->SetTitle("");
+            c_V_CHEN->SetTopMargin(0.0);
+            c_V_CHEN->SetRightMargin(0.0);
+            c_V_CHEN->SetBottomMargin(0.0);
+            c_V_CHEN->SetLeftMargin(0.0);
+            c_V_CHEN->GetPad()->SetTicks(0, 0);
+            V_CHEN->GetZaxis()->SetRangeUser(-0.01, 1.01);
+            //V_CHEN->GetZaxis()->SetMinimum(-0.01);
+            //V_CHEN->GetZaxis()->SetMaximum(1.01);
+            V_CHEN->Draw("colz");
+            c_V_CHEN->SaveAs("debug_c_V_CHEN.png");
+
             if(V_PHYS == nullptr)
             {
                 std::cout << "Alloc V_PHYS" << std::endl;
@@ -269,6 +379,16 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                 V_PHYS_SYS = new TH2D("V_PHYS_SYS", "V_PHYS_SYS",
                                   NUM_BINS_XY, 0.0, NUM_BINS_XY,
                                   NUM_BINS_XY, 0.0, NUM_BINS_XY);
+
+                // clear the contents of V_PHYS_STAT
+                for(Int_t bin_i{1}; bin_i <= V_PHYS_STAT->GetNbinsX(); ++ bin_i)
+                {
+                    for(Int_t bin_j{1}; bin_j <= V_PHYS_STAT->GetNbinsY(); ++ bin_j)
+                    {
+                        const Double_t zero = 0.0;
+                        V_PHYS_STAT->SetBinContent(bin_i, bin_j, zero);
+                    }
+                }
             }
             if(D == nullptr)
             {
@@ -457,7 +577,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                     int paramNumberInt = -1;
 
                     int paramNumber = it->second.paramNumber;
-                    std::cout << "paramNumber=" << paramNumber << std::endl;
+                    //std::cout << "paramNumber=" << paramNumber << std::endl;
                     bool paramEnabled = it->second.paramEnabled;
                     bool paramEnabledP1 = it->second.paramEnabledP1;
                     bool paramEnabledP2 = it->second.paramEnabledP2;
@@ -683,16 +803,18 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                                 M->SetBinContent(super_index + 1, 1, content_output);
                                 //std::cout << "debug: " << "super_index=" << super_index << " content_input=" << content_input << " content_add=" << content_add << " content_output=" << content_output << " M:" << M->GetBinContent(super_index + 1, 1) << std::endl;
 
+                                /*
                                 if(channel == 1)
                                 {
                                     //if(mc_name.find("tl208") != std::string::npos)
                                     //{
                                         if(bin_x + 1 == 13)
                                         {
-                                            std::cout << "mc_name=" << mc_name << " content_add, bin 13=" << content_add << std::endl;
+                                            std::cout << "mc_name=" << mc_name << " content_add, bin 13=" << content_add << " scale_factor_P2=" << scale_factor_P2 << std::endl;
                                         }
                                     //}
                                 }
+                                */
                             }
                         }
                         else
@@ -712,8 +834,8 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
 
                 } // file_param iterator
 
-                std::cout << "LIST OF P2 DATA (construting M here) channel=" << channel << std::endl;
-                std::cout << "super_index (start, below) : " << channel * 2 * 50 + 50 + 0 << std::endl;
+                //std::cout << "LIST OF P2 DATA (construting M here) channel=" << channel << std::endl;
+                //std::cout << "super_index (start, below) : " << channel * 2 * 50 + 50 + 0 << std::endl;
                 for(Int_t bin_x{0}; bin_x < 50; ++ bin_x)
                 {
                     //tmpData1D_P2[bin_x] = tmpDataHist1D_P2->GetBinContent(bin_x);
@@ -742,28 +864,220 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             {
                 Double_t content_D = D->GetBinContent(binx, 1);
                 Double_t content_M = M->GetBinContent(binx, 1);
+                /*
                 if(content_D != 0.0)
                 {
                     std::cout << "binx=" << binx << " ~> " << content_D << " " << content_M << std::endl;
                 }
+                */
                 Double_t content_D_minus_M = content_D - content_M;
                 D_minus_M->SetBinContent(binx, 1, content_D_minus_M);
             }
 
             // draw
             
+            /*
             TCanvas *c_D_minus_M = new TCanvas("c_D_minus_M", "c_D_minus_M", 10000, 10000);
             D_minus_M->Draw("colz");
             c_D_minus_M->SaveAs("debug_c_D_minus_M.png");
-            
-            std::cin.get();
+            */
             
 
             // set V_PHYS_STAT
             for(Int_t binx{1}; binx <= M->GetNbinsX(); ++ binx)
             {
                 Double_t content = M->GetBinContent(binx);
+                //if(content == 0.0) continue;
+                //if(content < 0.0) continue;
+                if(content <= 0.0)
+                {
+                    V_PHYS_STAT->SetBinContent(binx, binx, 1.0);
+                }
+                else
+                {
+                    Double_t sigma = std::sqrt(content);
+                    //Double stat = 1.0 / (sigma * sigma);
+                    Double_t stat = 1.0 / std::abs(content);
+                    V_PHYS_STAT->SetBinContent(binx, binx, stat);
+                }
             }
+
+            // calculate (M - D) x V_PHYS x Transpose(M - D)
+            std::cout << "starting matrix calculations" << std::endl;
+            double chi2 = 0.0;
+            for(Int_t k{1}; k <= V_CHEN->GetNbinsY(); ++ k)
+            {
+                for(Int_t l{1}; l <= V_PHYS_STAT->GetNbinsY(); ++ l)
+                {
+                    for(Int_t m{1}; m <= V_PHYS_STAT->GetNbinsX(); ++ m)
+                    // transpose, should be applied to (M-D)->GetNbinsY() but this object does not exist
+                    {
+                        double D_content_1 = D->GetBinContent(k, 1);
+                        double M_content_1 = M->GetBinContent(k, 1);
+                        double delta_1 = D_content_1 - M_content_1;
+                        double V_CHEN_content = V_CHEN->GetBinContent(k, l);
+                        double V_PHYS_STAT_content = V_PHYS_STAT->GetBinContent(l, m);
+                        double D_content_2 = D->GetBinContent(m, 1);
+                        double M_content_2 = M->GetBinContent(m, 1);
+                        double delta_2 = D_content_2 - M_content_2;
+                        double next = delta_1 * V_CHEN_content * V_PHYS_STAT_content * delta_2;
+                        if(std::isnan(next))
+                        {
+                            std::cout << "NAN: next=" << next << " k=" << k << " l=" << l << " m=" << m << std::endl;
+                            std::cout << V_CHEN_content << std::endl;
+                            std::cout << V_PHYS_STAT_content << std::endl;
+                            std::cin.get();
+                        }
+                        else if(std::isinf(next))
+                        {
+                            std::cout << "INF: next=" << next << " k=" << k << " l=" << l << " m=" << m << std::endl;
+                            std::cout << V_CHEN_content << std::endl;
+                            std::cout << V_PHYS_STAT_content << std::endl;
+                            std::cin.get();
+                        }
+                        chi2 += next;
+                    }
+                }
+            }
+            std::cout << "finished matrix calculations" << std::endl;
+
+
+            // at this point have done 1D, 2D hists, but not the penalty terms
+
+            // penalty terms section
+            double penalty_term = 0.0;
+
+            // loop over all the parameters
+            std::map<int, file_parameter>::iterator it{g_pg.file_params.begin()};
+            for(; it != g_pg.file_params.end(); ++ it)
+            {
+                int paramNumberInt = -1;
+
+                int paramNumber = it->second.paramNumber;
+                bool paramEnabled = it->second.paramEnabled;
+                bool paramEnabledP1 = it->second.paramEnabledP1;
+                bool paramEnabledP2 = it->second.paramEnabledP2;
+                double paramInitValue = it->second.paramInitValue;
+                double paramInitError = it->second.paramInitError;
+                double paramConstraintValue = it->second.paramConstraintValue;
+                double paramConstraintError = it->second.paramConstraintError;
+                int paramConstraintMode = it->second.paramConstraintMode;
+
+                // stop it crashing
+                // (below)
+                if(paramEnabled == false)
+                {
+                    continue;
+                }
+
+                paramNumberInt = g_pg.ExtToIntParamNumberMap.at(paramNumber);
+
+                if(debuglevel >= 5)
+                {
+                    std::cout << "paramNumber=" << paramNumber << " -> " << paramNumberInt << std::endl;
+                }
+
+                if(paramEnabled == true)
+                {
+                    if((paramEnabledP1 == true) || (paramEnabledP2 == true))
+                    {
+                        // do nothing
+                    }
+                    else
+                    {
+                        // not enabled
+                        continue;
+                    }
+                }
+                else
+                {
+                    // not enabled
+                    continue;
+                }
+
+                if(paramConstraintMode == MODE_CONSTRAINT_SOFT)
+                {
+                    if(debuglevel >= 6)
+                    {
+                        std::cout << "soft" << std::endl;
+                    }
+                    // do nothing
+                }
+                else if(paramConstraintMode == MODE_CONSTRAINT_FREE)
+                {
+                    //-- ndf;
+                    if(debuglevel >= 6)
+                    {
+                        std::cout << "free" << std::endl;
+                    }
+                    continue;
+                }
+                else if(paramConstraintMode == MODE_CONSTRAINT_HARD)
+                {
+                    if(debuglevel >= 6)
+                    {
+                        std::cout << "hard" << std::endl;
+                    }
+                    continue;
+                }
+                else
+                {
+                    std::cout << "ERROR: Invalid value for paramNumber=" << paramNumber << ", paramConstraintMode=" << paramConstraintMode << std::endl;
+                }
+
+                // this parameter is from minuit internal and thus is in minuit
+                // internal units (not Bq)
+                // have to convert to Bq units
+                double param_value = param.at(paramNumberInt); // TODO this might break if we try to fit P1 seperatly and P2 seperatly
+                double activity_value_Bq = paramInitValue;
+            
+                // convert to Bq
+                // multiply by the initial value
+                // activity_value_Bq should really be called param_initial_value
+                //double activity_value_Bq = 0.0;
+                //double tmp_err;
+                //get_paramInitValueError(thePhase, i, activity_value_Bq, tmp_err);
+
+                double value = param_value * activity_value_Bq;
+                //double penalty = std::pow((param_value - constraint) / error, 2.0);
+                double penalty = 0.0;
+
+                // TODO
+                if(EMODE == 1)
+                {
+                    // data
+                }
+                else if(EMODE == 2)
+                {
+                    // MC
+                }   
+                else if(EMODE == 3)
+                {
+                    // quadrature
+                }
+                
+                penalty = std::pow((value - paramConstraintValue) / paramConstraintError, 2.0);
+                if(debuglevel >= 5)
+                {
+                    //std::cout << "j=" << j << std::endl;
+                    std::cout << "paramNumber=" << paramNumber
+                              << " value=" << value
+                              << " param_value=" << param_value
+                              << " paramConstraintValue=" << paramConstraintValue
+                              << " paramConstraintError=" << paramConstraintError
+                              << " penalty=" << penalty
+                              << std::endl;
+                }
+
+
+                // TODO: is this the correct error term?
+                // error on constraint rather than error on current fit value?
+
+                penalty_term += penalty;
+            }
+
+
+            return chi2;
 
         }
         else // if not new_method

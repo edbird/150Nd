@@ -383,47 +383,108 @@ class parameter_group
     }
 
 
+    // mc_name is not unique!
+    // throw error in case of duplicate mc_names for cases where both params
+    // are enabled (P1 and P2)
+    // otherwise return P1 and P2 param numbers independently
     bool convert_MC_name_to_param_number(
         const std::string& mc_name,
-        int &param_number)
+        int &param_number_P1,
+        int &param_number_P2)
     {
 
         int debuglevel = 1;
 
         //std::cout << __func__ << " mc_name=" << mc_name << std::endl;
-        bool success = false;
+        //bool success = false;
+        int count_P1 = 0;
+        int count_P2 = 0;
+        int param_number_P1_ret = -1;
+        int param_number_P2_ret = -1;
         std::map<int, file_parameter>::iterator it{file_params.begin()};
-        int param_index = 0;
-        for(; (success == false) && (it != file_params.end()); ++ it)
+        //int param_index = 0;
+        //for(; (success == false) && (it != file_params.end()); ++ it)
+        for(; it != file_params.end(); ++ it)
         {
-            for(std::size_t j{0}; (success == false) && (j < it->second.MCNameList.size()); ++ j)
+            //for(std::size_t j{0}; (success == false) && (j < it->second.MCNameList.size()); ++ j)
+            for(std::size_t j{0}; j < it->second.MCNameList.size(); ++ j)
             {
                 //std::cout << "param_index=" << param_index << " j=" << j << " mc_name: " << it->second.MCNameList.at(j) << std::endl;
 
                 if(it->second.MCNameList.at(j) == mc_name)
                 {
-                    success = true;
-                    param_number = param_index;
+                    //success = true;
+                    //param_number = param_index;
+                    if(it->second.paramEnabledP1)
+                    {
+                        if(count_P1 == 0)
+                        {
+                            param_number_P1_ret = it->second.paramNumber;
+                        }
+                        else
+                        {
+                            param_number_P1_ret = -1;
+                        }
+                        ++ count_P1;
+                    }
+                    if(it->second.paramEnabledP2)
+                    {
+                        if(count_P2 == 0)
+                        {   
+                            param_number_P2_ret = it->second.paramNumber;
+                        }
+                        else
+                        {
+                            param_number_P2_ret = -1;
+                        }
+                        ++ count_P2;
+                    }
                     if(debuglevel >= 2)
                     {
-                        std::cout << mc_name << " -> " << param_index << std::endl;
+                        //std::cout << mc_name << " -> " << param_index << std::endl;
+                        std::cout << mc_name << " -> " << param_number_P1_ret << " " << param_number_P2_ret << std::endl;
                     }
                 }
             }
 
-            ++ param_index;
+            //++ param_index;
         }
 
-        if(success == false)
-        {
-            std::cout << "ERROR in " << __func__ << " could not find object with mc_name=" << mc_name << std::endl;
-        }
+        //if(success == false)
+        //{
+        //    std::cout << "ERROR in " << __func__ << " could not find object with mc_name=" << mc_name << std::endl;
+        //}
     
+        if(count_P1 > 1)
+        {
+            std::cout << "Error: count_P1=" << count_P1 << std::endl;
+        }
+        if(count_P2 > 1)
+        {
+            std::cout << "Error: count_P2=" << count_P2 << std::endl;
+        }
+
+        if((count_P1 == 1) || (count_P2 == 1))
+        {
+            if(debuglevel >= 2)
+            {
+                std::cout << "success: count_P1=" << count_P1 << " count_P2=" << count_P2 << std::endl;
+            }
+
+            param_number_P1 = param_number_P1_ret;
+            param_number_P2 = param_number_P2_ret;
+
+            return true;
+        }
+
+        /*
         if(debuglevel >= 3)
         {
             std::cout << "return: success=" << success << " param_number=" << param_number << std::endl;
         }
-        return success;
+        */
+        //return success;
+        return false;
     }
 
 

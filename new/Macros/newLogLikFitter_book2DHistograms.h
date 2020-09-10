@@ -31,14 +31,16 @@ void book2DHistograms_helper(
         std::string mc_name = std::string(BkgFiles[i]);
 
         // convert mc_name to scale factor
-        Double_t scale_factor = 0.0;
-        int param_number = -1;
-        bool success = g_pg.convert_MC_name_to_param_number(mc_name, param_number);
+        Double_t scale_factor_P1 = 0.0;
+        Double_t scale_factor_P2 = 0.0;
+        int param_number_P1 = -1;
+        int param_number_P2 = -1;
+        bool success = g_pg.convert_MC_name_to_param_number(mc_name, param_number_P1, param_number_P2);
 
 
         if(success == true)
         {
-            scale_factor = g_pg.file_params.at(param_number).paramInitValue;
+            scale_factor_P1 = g_pg.file_params.at(param_number_P1).paramInitValue;
 
             // account for 208 Tl branching ratio of 36 %
             if((mc_name.find("tl208_int_rot") != std::string::npos) ||
@@ -48,7 +50,8 @@ void book2DHistograms_helper(
             {
                 std::cout << "mc_name=" << mc_name << " applying additional scaling factor of 0.36" << std::endl;
                 //std::cin.get();
-                scale_factor *= 0.36;
+                scale_factor_P1 *= 0.36;
+                scale_factor_P2 *= 0.36;
                 // TODO: check that this is not already applied in
                 // fit_2e
                 // NOTE: it isn't
@@ -56,7 +59,8 @@ void book2DHistograms_helper(
             
             if(debuglevel >= 3)
             {
-                std::cout << "mc_name=" << mc_name << " param_number=" << param_number << " scale_factor=" << scale_factor << std::endl;
+                //std::cout << "mc_name=" << mc_name << " param_number_P1=" << param_number_P1 << " scale_factor_P1=" << scale_factor_P1 << std::endl;
+                std::cout << "mc_name=" << mc_name << " param_number_P1=" << param_number_P1 << " param_number_P2=" << param_number_P2 << " scale_factor_P1=" << scale_factor_P1 << " scale_factor_P2=" << scale_factor_P2 << std::endl;
             }
 
             // TODO:
@@ -84,23 +88,23 @@ void book2DHistograms_helper(
             if(tmpHist_P1 != nullptr)
             {
                 // scale by activity
-                tmpHist_P1->Scale(scale_factor);
+                tmpHist_P1->Scale(scale_factor_P1);
 
                 // NOTE: do NOT apply xi reweighting here
                 // this section just LOADS histograms from file and we want to LOAD
                 // the default (not reweighted) nd150 spectra
 
-                if(param_number == 1)
+                if(param_number_P1 == 1)
                 {
                     std::cout << "ERROR" << std::endl;
-                    throw std::runtime_error("param_number=1");
+                    throw std::runtime_error("param_number_P1=1");
                 }
 
                 allMCSamples2D[channel_counter]->Add((TH2D*)tmpHist_P1);
             }
             else
             {
-                std::cout << __func__ << " could not find histogram in file: " << fullname << " - disabling parameter number " << param_number << std::endl;
+                std::cout << __func__ << " could not find histogram in file: " << fullname << " - disabling parameter number " << param_number_P1 << std::endl;
                 // cannot find histogram input data, so disable parameter
                 //std::remove(enabled_params.begin(), enabled_params.end(), param_number); // TODO
             }
@@ -108,23 +112,23 @@ void book2DHistograms_helper(
             if(tmpHist_P2 != nullptr)
             {
                 // scale by activity
-                tmpHist_P2->Scale(scale_factor);
+                tmpHist_P2->Scale(scale_factor_P2);
 
                 // NOTE: do NOT apply xi reweighting here
                 // this section just LOADS histograms from file and we want to LOAD
                 // the default (not reweighted) nd150 spectra
 
-                if(param_number == 1)
+                if(param_number_P2 == 1)
                 {
                     std::cout << "ERROR" << std::endl;
-                    throw std::runtime_error("param_number=1");
+                    throw std::runtime_error("param_number_P2=1");
                 }
 
                 allMCSamples2D[channel_counter]->Add((TH2D*)tmpHist_P2);
             }
             else
             {
-                std::cout << __func__ << " could not find histogram in file: " << fullname << " - disabling parameter number " << param_number << std::endl;
+                std::cout << __func__ << " could not find histogram in file: " << fullname << " - disabling parameter number " << param_number_P2 << std::endl;
                 // cannot find histogram input data, so disable parameter
                 //std::remove(enabled_params.begin(), enabled_params.end(), param_number); // TODO
             }
