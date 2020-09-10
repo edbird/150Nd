@@ -190,6 +190,14 @@ void rebuild_fake_data_systematics(const double xi_31, const double xi_31_baseli
         psiN2,
         bb_Q);
 
+    /*
+    std::cout << "LIST OF ALL P2 DATA (in fakedata function) for channel 1" << std::endl;
+    std::cin.get();
+    for(Int_t i = 1; i <= hSingleEnergy_P2->GetNbinsX(); ++ i)
+    {
+        std::cout << "i=" << i << " content=" << hSingleEnergy_P2->GetBinContent(i) << std::endl;
+    }
+    */
 
     if(debuglevel >= 4)
     {

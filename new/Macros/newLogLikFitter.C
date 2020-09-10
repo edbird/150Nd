@@ -593,7 +593,7 @@ void loadFiles(int i)
     //book1DHistograms(0, "2e_", "P2", "hTotalE_");
 
 
-    gSystematics.systematic_energy_offset = -0.1;
+    gSystematics.systematic_energy_offset = 0.0; //-0.1;
     const int xi_31_ext_param_number = g_pg.get_xi_31_ext_param_number();
         //if(param[xi_31_ext_param_number] != g_pg.file_params.at(xi_31_ext_param_number).paramLastValue)
     //const double xi_31{param[xi_31_ext_param_number]};
@@ -1085,7 +1085,7 @@ void loadFiles(int i)
 
         std::vector<std::vector<double>> results_y_allparams;
 
-        const int i_max = 10; //0;
+        const int i_max = 0; //10; //0;
         for(int i = 0; i <= i_max; ++ i)
         {
 
@@ -1093,8 +1093,8 @@ void loadFiles(int i)
             const double max = +0.01;
             const double diff = max - min;
             const double fr = (double)i / (double)i_max;
-            gSystematics.systematic_energy_offset = fr * diff + min;
-            //gSystematics.systematic_energy_offset = 0.0;
+            //gSystematics.systematic_energy_offset = fr * diff + min;
+            gSystematics.systematic_energy_offset = 0.0;
             double systematic_energy_offset = gSystematics.systematic_energy_offset;
             std::cout << "seo=" << systematic_energy_offset << std::endl;
             //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itself
@@ -1333,7 +1333,7 @@ void loadFiles(int i)
 #endif
 
     // reenable this one
-    if(0)
+    if(1)
     {
         gSystematics.systematic_energy_offset = 0.0;
         double systematic_energy_offset = gSystematics.systematic_energy_offset;

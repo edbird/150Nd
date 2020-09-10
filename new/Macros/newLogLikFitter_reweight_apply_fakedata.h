@@ -772,6 +772,11 @@ void reweight_apply_fakedata(
             hEnergySum_P2_tmp->Scale(paramInitValue);
             hEnergyDiff_P2_tmp->Scale(paramInitValue);
 
+            
+            //if(TString(hSingleEnergy_P2_tmp->GetName()).Contains("tl208"))
+            //{
+                std::cout << __func__ << " GetName()->" << hSingleEnergy_P2_tmp->GetName() << ", bin 13: " << hSingleEnergy_P2_tmp->GetBinContent(13) << std::endl;
+            //}
 
             /*
             std::cout << "name: " << hSingleEnergy_P2_tmp->GetName() << std::endl;
@@ -792,21 +797,36 @@ void reweight_apply_fakedata(
             ///////////////////////////////////////////////////////////////////
 
             // P1
-            hTotalE_output_P1->Add(hTotalE_P1_tmp);
-            hSingleEnergy_output_P1->Add(hSingleEnergy_P1_tmp);
-            hHighEnergy_output_P1->Add(hHighEnergy_P1_tmp);
-            hLowEnergy_output_P1->Add(hLowEnergy_P1_tmp);
-            hHighLowEnergy_output_P1->Add(hHighLowEnergy_P1_tmp);
-            hEnergySum_output_P1->Add(hEnergySum_P1_tmp);
-            hEnergyDiff_output_P1->Add(hEnergyDiff_P1_tmp);
+            if(paramEnabledP1 == true)
+            {
+                hTotalE_output_P1->Add(hTotalE_P1_tmp);
+                hSingleEnergy_output_P1->Add(hSingleEnergy_P1_tmp);
+                hHighEnergy_output_P1->Add(hHighEnergy_P1_tmp);
+                hLowEnergy_output_P1->Add(hLowEnergy_P1_tmp);
+                hHighLowEnergy_output_P1->Add(hHighLowEnergy_P1_tmp);
+                hEnergySum_output_P1->Add(hEnergySum_P1_tmp);
+                hEnergyDiff_output_P1->Add(hEnergyDiff_P1_tmp);
+            }
             // P2
-            hTotalE_output_P2->Add(hTotalE_P2_tmp);
-            hSingleEnergy_output_P2->Add(hSingleEnergy_P2_tmp);
-            hHighEnergy_output_P2->Add(hHighEnergy_P2_tmp);
-            hLowEnergy_output_P2->Add(hLowEnergy_P2_tmp);
-            hHighLowEnergy_output_P2->Add(hHighLowEnergy_P2_tmp);
-            hEnergySum_output_P2->Add(hEnergySum_P2_tmp);
-            hEnergyDiff_output_P2->Add(hEnergyDiff_P2_tmp);
+            if(paramEnabledP2 == true)
+            {
+                hTotalE_output_P2->Add(hTotalE_P2_tmp);
+                hSingleEnergy_output_P2->Add(hSingleEnergy_P2_tmp);
+                hHighEnergy_output_P2->Add(hHighEnergy_P2_tmp);
+                hLowEnergy_output_P2->Add(hLowEnergy_P2_tmp);
+                hHighLowEnergy_output_P2->Add(hHighLowEnergy_P2_tmp);
+                hEnergySum_output_P2->Add(hEnergySum_P2_tmp);
+                hEnergyDiff_output_P2->Add(hEnergyDiff_P2_tmp);
+            }
+            // NOTE: 2020-09-10:
+            // 
+            // This section was missing the check on paramEnabledPx
+            //
+            // There may be other sections of code missing this? (Check
+            // draw for example)
+            // Checked draw: drawchannel function is ok
+
+            // what to do with gEnabledPhasex?
         }
 
     }
