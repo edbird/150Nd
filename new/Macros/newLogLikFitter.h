@@ -56,8 +56,8 @@ bool gEnablePhase2;
 
 parameter_group g_pg;
 
-//bool g_mode_fake_data = false;
-bool g_mode_fake_data = true;
+bool g_mode_fake_data = false;
+//bool g_mode_fake_data = true;
 //std::string g_datetimestamp_string;
 
 // globals required in logLikelihood function but cannot be passed as
@@ -355,8 +355,280 @@ TObjArray *allFakeDataSamples2D;
 std::vector<std::pair<double,double>> ll_walk;
 std::vector<std::pair<double,double>> ll_walk_save;
 
+///////////////////////////////////////////////////////////////////////////////
+// chi2 objects for V MATRIX method, Phase 1
+///////////////////////////////////////////////////////////////////////////////
 
-// chi square objects
+TMatrixD *V_PHYS_1D_P1_MATHMORE[number1DHists] =
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+//std::vector<bool> *V_ENABLE_BIN_1D_P1[number1DHists] =
+//{
+//    nullptr,
+//    nullptr,
+//    nullptr,
+//    nullptr,
+//    nullptr,
+//    nullptr
+//};
+
+TH2D *V_PHYS_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+TH2D *V_PHYS_STAT_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+TH2D *V_PHYS_SYS1_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+TH2D *V_PHYS_SYS2_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+
+TH2D *D_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+TH2D *D_minus_M_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+TH2D *M_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// chi2 objects for V MATRIX method, Phase 2
+///////////////////////////////////////////////////////////////////////////////
+
+TMatrixD *V_PHYS_1D_P2_MATHMORE[number1DHists] =
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+bool recalculate_V_PHYS_xD_Px_MATHMORE = true;
+
+//std::vector<bool> *V_ENABLE_BIN_1D_P2[number1DHists] =
+//{
+//    nullptr,
+//    nullptr,
+//    nullptr,
+//    nullptr,
+//    nullptr,
+//    nullptr
+//};
+
+TH2D *V_PHYS_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+TH2D *V_PHYS_STAT_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+TH2D *V_PHYS_SYS1_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+TH2D *V_PHYS_SYS2_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+
+TH2D *D_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+TH2D *D_minus_M_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+TH2D *M_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// chi2 objects for V MATRIX method, Phase 1
+///////////////////////////////////////////////////////////////////////////////
+
+TH2D *V_PHYS_2D_P1[number2DHists] = 
+{
+    nullptr
+};
+
+TH2D *V_PHYS_STAT_2D_P1[number2DHists] = 
+{
+    nullptr
+};
+
+TH2D *V_PHYS_SYS1_2D_P1[number2DHists] = 
+{
+    nullptr
+};
+
+TH2D *V_PHYS_SYS2_2D_P1[number2DHists] = 
+{
+    nullptr
+};
+
+
+TH2D *D_2D_P1[number2DHists] = 
+{
+    nullptr
+};
+
+TH2D *D_minus_M_2D_P1[number2DHists] = 
+{
+    nullptr
+};
+
+TH2D *M_2D_P1[number2DHists] = 
+{
+    nullptr
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// chi2 objects for V MATRIX method, Phase 2
+///////////////////////////////////////////////////////////////////////////////
+
+TH2D *V_PHYS_2D_P2[number2DHists] = 
+{
+    nullptr
+};
+
+TH2D *V_PHYS_STAT_2D_P2[number2DHists] = 
+{
+    nullptr
+};
+
+TH2D *V_PHYS_SYS1_2D_P2[number2DHists] = 
+{
+    nullptr
+};
+
+TH2D *V_PHYS_SYS2_2D_P2[number2DHists] = 
+{
+    nullptr
+};
+
+
+TH2D *D_2D_P2[number2DHists] = 
+{
+    nullptr
+};
+
+TH2D *D_minus_M_2D_P2[number2DHists] = 
+{
+    nullptr
+};
+
+TH2D *M_2D_P2[number2DHists] = 
+{
+    nullptr
+};
+
+// chisquare objects
+/*
 TH2D *V_CHEN = nullptr; // V channel enable (bin enable)
 TH2D *V_PHYS = nullptr; // V physics
 TH2D *V_PHYS_STAT = nullptr; // V physics, statistical
@@ -365,7 +637,7 @@ TH2D *D = nullptr; // data
 TH2D *M = nullptr; // MC (model)
 TH2D *D_minus_M = nullptr; // D - M
 TH2D *V_SUPER = nullptr; // containing all information from V matricies
-
+*/
 
 
 #if 0

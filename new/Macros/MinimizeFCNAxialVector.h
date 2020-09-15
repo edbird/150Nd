@@ -207,6 +207,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
 
         bool new_method = true;
         //bool new_method = false;
+        double chi2_total = 0.0;
         if(new_method)
         {
 
@@ -241,6 +242,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             // super_index = number1DChannels * 2 * 50 + channel * 2 * 50 * 50 + 50 * bin_x + bin_x
             // for Phase 2:
             // super_index = number1DChannels * 2 * 50 + channel * 2 * 50 * 50 + 50 * 50 + 50 * bin_y + bin_x
+            #if 0
             const Int_t NUM_BINS_XY = 50 * 2 * number1DHists + 50 * 50 * 2 * number2DHists;
             if(V_CHEN == nullptr)
             {
@@ -358,87 +360,599 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             //V_CHEN->GetZaxis()->SetMaximum(1.01);
             V_CHEN->Draw("colz");
             c_V_CHEN->SaveAs("debug_c_V_CHEN.png");
+            #endif
+    
+            ///////////////////////////////////////////////////////////////////
+            // CERN ROOT MathMore Matrix Lib Objects
+            ///////////////////////////////////////////////////////////////////
 
-            if(V_PHYS == nullptr)
+            if(V_PHYS_1D_P1_MATHMORE[0] == nullptr)
             {
-                std::cout << "Alloc V_PHYS" << std::endl;
-                V_PHYS = new TH2D("V_PHYS", "V_PHYS",
-                                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
-                                  NUM_BINS_XY, 0.0, NUM_BINS_XY);
-            }
-            if(V_PHYS_STAT == nullptr)
-            {
-                std::cout << "Alloc V_PHYS_STAT" << std::endl;
-                V_PHYS_STAT = new TH2D("V_PHYS_STAT", "V_PHYS_STAT",
-                                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
-                                  NUM_BINS_XY, 0.0, NUM_BINS_XY);
-            }
-            if(V_PHYS_SYS == nullptr)
-            {
-                std::cout << "Alloc V_PHYS_SYS" << std::endl;
-                V_PHYS_SYS = new TH2D("V_PHYS_SYS", "V_PHYS_SYS",
-                                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
-                                  NUM_BINS_XY, 0.0, NUM_BINS_XY);
+                std::cout << "Alloc V_PHYS_MATHMORE" << std::endl;
 
-                // clear the contents of V_PHYS_STAT
-                for(Int_t bin_i{1}; bin_i <= V_PHYS_STAT->GetNbinsX(); ++ bin_i)
+                const Int_t NUM_BINS_XY = 50;
+
+                for(int ch = 0; ch < number1DHists; ++ ch)
                 {
-                    for(Int_t bin_j{1}; bin_j <= V_PHYS_STAT->GetNbinsY(); ++ bin_j)
+                    V_PHYS_1D_P1_MATHMORE[ch] = new TMatrixD(NUM_BINS_XY, NUM_BINS_XY);
+                    V_PHYS_1D_P2_MATHMORE[ch] = new TMatrixD(NUM_BINS_XY, NUM_BINS_XY);
+                }
+
+                for(int ch = 0; ch < number1DHists; ++ ch)
+                {
+                    for(Int_t iy = 0; iy < V_PHYS_1D_P1_MATHMORE[ch]->GetNrows(); ++ iy)
                     {
-                        const Double_t zero = 0.0;
-                        V_PHYS_STAT->SetBinContent(bin_i, bin_j, zero);
+                        for(Int_t ix = 0; ix < V_PHYS_1D_P1_MATHMORE[ch]->GetNcols(); ++ ix)
+                        {
+                            V_PHYS_1D_P1_MATHMORE[ch]->operator[](iy).operator[](ix) = 0.0;
+                            V_PHYS_1D_P2_MATHMORE[ch]->operator[](iy).operator[](ix) = 0.0;
+                        }
                     }
                 }
             }
-            if(D == nullptr)
+
+            if(recalculate_V_PHYS_xD_Px_MATHMORE == true)
             {
-                std::cout << "Alloc D" << std::endl;
-                D = new TH2D("D", "D",
-                                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
-                                  1, 0.0, 1.0);
+            // realloc these each time
+            for(int ch = 0; ch < number1DHists; ++ ch)
+            {
+                const Int_t NUM_BINS_XY = 50;
+                //delete V_ENABLE_BIN_1D_P1[ch];
+                //delete V_ENABLE_BIN_1D_P2[ch];
+                //V_ENABLE_BIN_1D_P1[ch] = new std::vector<bool>;
+                //V_ENABLE_BIN_1D_P2[ch] = new std::vector<bool>;
+                //V_ENABLE_BIN_1D_P1[ch]->reserve(NUM_BINS_XY);
+                //V_ENABLE_BIN_1D_P2[ch]->reserve(NUM_BINS_XY);
+            }
+
+            // TODO: I have no idea if this is confusing row with cols
+            // I have no idea if it matters
+            // I have no idea which way round the indices should be
+            /*for(int ch = 0; ch < number1DHists; ++ ch)
+            {
+                for(Int_t iy = 0; iy < V_PHYS_1D_P1_MATHMORE[ch]->GetNrows(); ++ iy)
+                {
+                    for(Int_t ix = 0; ix < V_PHYS_1D_P1_MATHMORE[ch]->GetNcols(); ++ ix)
+                    {
+                        V_PHYS_1D_P1_MATHMORE[ch]->operator[](iy).operator[](ix) = 0.0;
+                        V_PHYS_1D_P2_MATHMORE[ch]->operator[](iy).operator[](ix) = 0.0;
+                    }
+                }
+            }*/
+            }
+
+            ///////////////////////////////////////////////////////////////////
+            // V_PHYS
+            ///////////////////////////////////////////////////////////////////
+            if(V_PHYS_1D_P1[0] == nullptr)
+            {
+                std::cout << "Alloc V_PHYS" << std::endl;
+
+                // 1D
+                for(int ch = 0; ch < number1DHists; ++ ch)
+                {
+                    const Int_t NUM_BINS_XY = 50;
+                    TString hname;
+
+                    hname.Form("V_PHYS_1D_P1_CH%d", ch);
+                    V_PHYS_1D_P1[ch] = new TH2D(hname, hname,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY);
+
+                    hname.Form("V_PHYS_1D_P2_CH%d", ch);
+                    V_PHYS_1D_P2[ch] = new TH2D(hname, hname,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY);
+                }
+
+                // 2D
+                for(int ch = 0; ch < number2DHists; ++ ch)
+                {
+                    const Int_t NUM_BINS_XY = 50 * 50;
+                    TString hname;
+
+                    hname.Form("V_PHYS_2D_P1_CH%d", ch);
+                    V_PHYS_2D_P1[ch] = new TH2D(hname, hname,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY);
+
+                    hname.Form("V_PHYS_2D_P2_CH%d", ch);
+                    V_PHYS_2D_P2[ch] = new TH2D(hname, hname,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY);
+                }
+            }
+
+            if(recalculate_V_PHYS_xD_Px_MATHMORE == true)
+            {
+            // Set to zero
+            for(int ch = 0; ch < number1DHists; ++ ch)
+            {
+                for(Int_t bi = 1; bi <= V_PHYS_1D_P1[ch]->GetNbinsX(); ++ bi)
+                {
+                    const Double_t zero = 0.0;
+                    V_PHYS_1D_P1[ch]->SetBinContent(bi, 1, zero);
+                }
+
+                for(Int_t bi = 1; bi <= V_PHYS_1D_P2[ch]->GetNbinsX(); ++ bi)
+                {
+                    const Double_t zero = 0.0;
+                    V_PHYS_1D_P2[ch]->SetBinContent(bi, 1, zero);
+                }
+            }
+
+            // Set to zero
+            for(int ch = 0; ch < number2DHists; ++ ch)
+            {
+                for(Int_t bj = 1; bj <= V_PHYS_2D_P1[ch]->GetNbinsY(); ++ bj)
+                {
+                    for(Int_t bi = 1; bi <= V_PHYS_2D_P1[ch]->GetNbinsX(); ++ bi)
+                    {
+                        const Double_t zero = 0.0;
+                        V_PHYS_2D_P1[ch]->SetBinContent(bi, bj, zero);
+                    }
+                }
+                for(Int_t bj = 1; bj <= V_PHYS_2D_P2[ch]->GetNbinsY(); ++ bj)
+                {
+                    for(Int_t bi = 1; bi <= V_PHYS_2D_P2[ch]->GetNbinsX(); ++ bi)
+                    {
+                        const Double_t zero = 0.0;
+                        V_PHYS_2D_P2[ch]->SetBinContent(bi, bj, zero);
+                    }
+                }
+            }
+            }
+
+            ///////////////////////////////////////////////////////////////////
+            // V_PHYS_STAT
+            ///////////////////////////////////////////////////////////////////
+            if(V_PHYS_STAT_1D_P1[0] == nullptr)
+            {
+                //std::cout << "Alloc V_PHYS_STAT" << std::endl;
+                //V_PHYS_STAT = new TH2D("V_PHYS_STAT", "V_PHYS_STAT",
+                //                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
+                //                  NUM_BINS_XY, 0.0, NUM_BINS_XY);
+                std::cout << "Alloc V_PHYS_STAT" << std::endl;
+                for(int ch = 0; ch < number1DHists; ++ ch)
+                {
+                    const Int_t NUM_BINS_XY = 50;
+                    TString hname;
+
+                    hname.Form("V_PHYS_STAT_1D_P1_CH%d", ch);
+                    V_PHYS_STAT_1D_P1[ch] = new TH2D(hname, hname,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY);
+
+                    hname.Form("V_PHYS_STAT_1D_P2_CH%d", ch);
+                    V_PHYS_STAT_1D_P2[ch] = new TH2D(hname, hname,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY);
+                }
+
+                for(int ch = 0; ch < number2DHists; ++ ch)
+                {
+                    const Int_t NUM_BINS_XY = 50 * 50;
+                    TString hname;
+
+                    hname.Form("V_PHYS_STAT_2D_P1_CH%d", ch);
+                    V_PHYS_STAT_2D_P1[ch] = new TH2D(hname, hname,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY);
+
+                    hname.Form("V_PHYS_STAT_2D_P2_CH%d", ch);
+                    V_PHYS_STAT_2D_P2[ch] = new TH2D(hname, hname,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY);
+                }
+            }
+
+            if(recalculate_V_PHYS_xD_Px_MATHMORE == true)
+            {
+            // Set to zero
+            for(int ch = 0; ch < number1DHists; ++ ch)
+            {
+                for(Int_t bi = 1; bi <= V_PHYS_STAT_1D_P1[ch]->GetNbinsX(); ++ bi)
+                {
+                    const Double_t zero = 0.0;
+                    V_PHYS_STAT_1D_P1[ch]->SetBinContent(bi, 1, zero);
+                }
+                for(Int_t bi = 1; bi <= V_PHYS_STAT_1D_P2[ch]->GetNbinsX(); ++ bi)
+                {
+                    const Double_t zero = 0.0;
+                    V_PHYS_STAT_1D_P2[ch]->SetBinContent(bi, 1, zero);
+                }
+            }
+
+            //  Set to zero
+            for(int ch = 0; ch < number2DHists; ++ ch)
+            {
+                for(Int_t bj = 1; bj <= V_PHYS_STAT_2D_P1[ch]->GetNbinsY(); ++ bj)
+                {
+                    for(Int_t bi = 1; bi <= V_PHYS_STAT_2D_P1[ch]->GetNbinsX(); ++ bi)
+                    {
+                        const Double_t zero = 0.0;
+                        V_PHYS_STAT_2D_P1[ch]->SetBinContent(bi, bj, zero);
+                    }
+                }
+                for(Int_t bj = 1; bj <= V_PHYS_STAT_2D_P2[ch]->GetNbinsY(); ++ bj)
+                {
+                    for(Int_t bi = 1; bi <= V_PHYS_STAT_2D_P2[ch]->GetNbinsX(); ++ bi)
+                    {
+                        const Double_t zero = 0.0;
+                        V_PHYS_STAT_2D_P2[ch]->SetBinContent(bi, bj, zero);
+                    }
+                }
+            }
+            }
+
+            ///////////////////////////////////////////////////////////////////
+            // V_PHYS_SYS1
+            ///////////////////////////////////////////////////////////////////
+            if(V_PHYS_SYS1_1D_P1[0] == nullptr)
+            {
+                //std::cout << "Alloc V_PHYS_SYS" << std::endl;
+                //V_PHYS_SYS = new TH2D("V_PHYS_SYS", "V_PHYS_SYS",
+                //                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
+                //                  NUM_BINS_XY, 0.0, NUM_BINS_XY);
+
+                // clear the contents of V_PHYS_STAT
+                //for(Int_t bin_i{1}; bin_i <= V_PHYS_STAT->GetNbinsX(); ++ bin_i)
+                //{
+                //    for(Int_t bin_j{1}; bin_j <= V_PHYS_STAT->GetNbinsY(); ++ bin_j)
+                //    {
+                //        const Double_t zero = 0.0;
+                //        V_PHYS_STAT->SetBinContent(bin_i, bin_j, zero);
+                //    }
+                //}
+                std::cout << "Alloc V_PHYS_SYS1" << std::endl;
+                for(int ch = 0; ch < number1DHists; ++ ch)
+                {
+                    const Int_t NUM_BINS_XY = 50;
+                    TString hname;
+
+                    hname.Form("V_PHYS_SYS1_1D_P1_CH%d", ch);
+                    V_PHYS_SYS1_1D_P1[ch] = new TH2D(hname, hname,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY);
+
+                    hname.Form("V_PHYS_SYS1_1D_P2_CH%d", ch);
+                    V_PHYS_SYS1_1D_P2[ch] = new TH2D(hname, hname,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY);
+                }
+
+                for(int ch = 0; ch < number2DHists; ++ ch)
+                {
+                    const Int_t NUM_BINS_XY = 50 * 50;
+                    TString hname;
+
+                    hname.Form("V_PHYS_SYS1_2D_P1_CH%d", ch);
+                    V_PHYS_SYS1_2D_P1[ch] = new TH2D(hname, hname,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY);
+
+                    hname.Form("V_PHYS_SYS1_2D_P2_CH%d", ch);
+                    V_PHYS_SYS1_2D_P2[ch] = new TH2D(hname, hname,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY);
+                }
+            }
+
+            if(recalculate_V_PHYS_xD_Px_MATHMORE == true)
+            {
+            // Set to zero
+            for(int ch = 0; ch < number1DHists; ++ ch)
+            {
+                for(Int_t bi = 1; bi <= V_PHYS_SYS1_1D_P1[ch]->GetNbinsX(); ++ bi)
+                {
+                    const Double_t zero = 0.0;
+                    V_PHYS_SYS1_1D_P1[ch]->SetBinContent(bi, 1, zero);
+                }
+                for(Int_t bi = 1; bi <= V_PHYS_SYS1_1D_P2[ch]->GetNbinsX(); ++ bi)
+                {
+                    const Double_t zero = 0.0;
+                    V_PHYS_SYS1_1D_P2[ch]->SetBinContent(bi, 1, zero);
+                }
+            }
+
+            // Set to zero
+            for(int ch = 0; ch < number2DHists; ++ ch)
+            {
+                for(Int_t bj = 1; bj <= V_PHYS_SYS1_2D_P1[ch]->GetNbinsY(); ++ bj)
+                {
+                    for(Int_t bi = 1; bi <= V_PHYS_SYS1_2D_P1[ch]->GetNbinsX(); ++ bi)
+                    {
+                        const Double_t zero = 0.0;
+                        V_PHYS_SYS1_2D_P1[ch]->SetBinContent(bi, bj, zero);
+                    }
+                }
+                for(Int_t bj = 1; bj <= V_PHYS_SYS1_2D_P2[ch]->GetNbinsY(); ++ bj)
+                {
+                    for(Int_t bi = 1; bi <= V_PHYS_SYS1_2D_P2[ch]->GetNbinsX(); ++ bi)
+                    {
+                        const Double_t zero = 0.0;
+                        V_PHYS_SYS1_2D_P2[ch]->SetBinContent(bi, bj, zero);
+                    }
+                }
+            }
+            }
+
+            ///////////////////////////////////////////////////////////////////
+            // V_MATRIX D (data)
+            ///////////////////////////////////////////////////////////////////
+            if(D_1D_P1[0] == nullptr)
+            {
+                //std::cout << "Alloc D" << std::endl;
+                //D = new TH2D("D", "D",
+                //                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
+                //                  1, 0.0, 1.0);
 
                 // clear the contents of D
-                for(Int_t bin_i{1}; bin_i <= D->GetNbinsX(); ++ bin_i)
+                //for(Int_t bin_i{1}; bin_i <= D->GetNbinsX(); ++ bin_i)
+                //{
+                //    const Double_t zero = 0.0;
+                //    D->SetBinContent(bin_i, 1, zero);
+                //}
+                std::cout << "Alloc V_D" << std::endl;
+                for(int ch = 0; ch < number1DHists; ++ ch)
                 {
-                    const Double_t zero = 0.0;
-                    D->SetBinContent(bin_i, 1, zero);
+                    const Int_t NUM_BINS_XY = 50;
+                    TString hname;
+
+                    hname.Form("D_1D_P1_CH%d", ch);
+                    D_1D_P1[ch] = new TH2D(hname, hname,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY);
+
+                    hname.Form("D_1D_P2_CH%d", ch);
+                    D_1D_P2[ch] = new TH2D(hname, hname,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY);
+                }
+
+                for(int ch = 0; ch < number2DHists; ++ ch)
+                {
+                    const Int_t NUM_BINS_XY = 50 * 50;
+                    TString hname;
+
+                    hname.Form("D_2D_P1_CH%d", ch);
+                    D_2D_P1[ch] = new TH2D(hname, hname,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY);
+
+                    hname.Form("D_2D_P2_CH%d", ch);
+                    D_2D_P2[ch] = new TH2D(hname, hname,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY);
                 }
             }
-            if(M == nullptr)
+
+            // Set to zero
+            if(recalculate_V_PHYS_xD_Px_MATHMORE == true)
             {
-                std::cout << "Alloc M" << std::endl;
-                M = new TH2D("M", "M",
-                                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
-                                  1, 0.0, 1.0);
+            for(int ch = 0; ch < number1DHists; ++ ch)
+            {
+                for(Int_t bi = 1; bi <= D_1D_P1[ch]->GetNbinsX(); ++ bi)
+                {
+                    const Double_t zero = 0.0;
+                    D_1D_P1[ch]->SetBinContent(bi, 1, zero);
+                }
+                for(Int_t bi = 1; bi <= D_1D_P2[ch]->GetNbinsX(); ++ bi)
+                {
+                    const Double_t zero = 0.0;
+                    D_1D_P2[ch]->SetBinContent(bi, 1, zero);
+                }
+            }
+            
+            // Set to zero
+            for(int ch = 0; ch < number2DHists; ++ ch)
+            {
+                for(Int_t bj = 1; bj <= D_2D_P1[ch]->GetNbinsY(); ++ bj)
+                {
+                    for(Int_t bi = 1; bi <= D_2D_P1[ch]->GetNbinsX(); ++ bi)
+                    {
+                        const Double_t zero = 0.0;
+                        D_2D_P1[ch]->SetBinContent(bi, bj, zero);
+                    }
+                }
+                for(Int_t bj = 1; bj <= D_2D_P2[ch]->GetNbinsY(); ++ bj)
+                {
+                    for(Int_t bi = 1; bi <= D_2D_P2[ch]->GetNbinsX(); ++ bi)
+                    {
+                        const Double_t zero = 0.0;
+                        D_2D_P2[ch]->SetBinContent(bi, bj, zero);
+                    }
+                }
+            }
+            }
+
+            if(M_1D_P1[0] == nullptr)
+            {
+                //std::cout << "Alloc M" << std::endl;
+                //M = new TH2D("M", "M",
+                //                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
+                //                  1, 0.0, 1.0);
 
                 // clear the contents of M
-                for(Int_t bin_i{1}; bin_i <= M->GetNbinsX(); ++ bin_i)
+                //for(Int_t bin_i{1}; bin_i <= M->GetNbinsX(); ++ bin_i)
+                //{
+                //    const Double_t zero = 0.0;
+                //    M->SetBinContent(bin_i, 1, zero);
+                //}
+
+                // 1D
+                std::cout << "Alloc V_M" << std::endl;
+                for(int ch = 0; ch < number1DHists; ++ ch)
                 {
-                    const Double_t zero = 0.0;
-                    M->SetBinContent(bin_i, 1, zero);
+                    const Int_t NUM_BINS_XY = 50;
+                    TString hname;
+
+                    hname.Form("M_1D_P1_CH%d", ch);
+                    M_1D_P1[ch] = new TH2D(hname, hname,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY);
+
+                    hname.Form("M_1D_P2_CH%d", ch);
+                    M_1D_P2[ch] = new TH2D(hname, hname,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY);
+                }
+
+                // 2D
+                for(int ch = 0; ch < number2DHists; ++ ch)
+                {
+                    const Int_t NUM_BINS_XY = 50 * 50;
+                    TString hname;
+
+                    hname.Form("M_2D_P1_CH%d", ch);
+                    M_2D_P1[ch] = new TH2D(hname, hname,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY);
+
+                    hname.Form("M_2D_P2_CH%d", ch);
+                    M_2D_P2[ch] = new TH2D(hname, hname,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY);
                 }
             }
-            if(D_minus_M == nullptr)
+
+            // Set to zero
+            if(recalculate_V_PHYS_xD_Px_MATHMORE == true)
             {
+            for(int ch = 0; ch < number1DHists; ++ ch)
+            {
+                for(Int_t bi = 1; bi <= M_1D_P1[ch]->GetNbinsX(); ++ bi)
+                {
+                    const Double_t zero = 0.0;
+                    M_1D_P1[ch]->SetBinContent(bi, 1, zero);
+                }
+                for(Int_t bi = 1; bi <= M_1D_P2[ch]->GetNbinsX(); ++ bi)
+                {
+                    const Double_t zero = 0.0;
+                    M_1D_P2[ch]->SetBinContent(bi, 1, zero);
+                }
+            }
+
+            // Set to zero
+            for(int ch = 0; ch < number2DHists; ++ ch)
+            {
+                for(Int_t bj = 1; bj <= M_2D_P1[ch]->GetNbinsY(); ++ bj)
+                {
+                    for(Int_t bi = 1; bi <= M_2D_P1[ch]->GetNbinsX(); ++ bi)
+                    {
+                        const Double_t zero = 0.0;
+                        M_2D_P1[ch]->SetBinContent(bi, bj, zero);
+                    }
+                }
+                for(Int_t bj = 1; bj <= M_2D_P2[ch]->GetNbinsY(); ++ bj)
+                {
+                    for(Int_t bi = 1; bi <= M_2D_P2[ch]->GetNbinsX(); ++ bi)
+                    {
+                        const Double_t zero = 0.0;
+                        M_2D_P2[ch]->SetBinContent(bi, bj, zero);
+                    }
+                }
+            }
+            }
+
+            if(D_minus_M_1D_P1[0] == nullptr)
+            {
+                //std::cout << "Alloc D_minus_M" << std::endl;
+                //D_minus_M = new TH2D("D_minus_M", "D_minus_M",
+                //                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
+                //                  1, 0.0, 1.0);
+
+                // clear the contents of M
+                //for(Int_t bin_i{1}; bin_i <= D_minus_M->GetNbinsX(); ++ bin_i)
+                //{
+                //    const Double_t zero = 0.0;
+                //    D_minus_M->SetBinContent(bin_i, 1, zero);
+                //}
+
+                // 1D
                 std::cout << "Alloc D_minus_M" << std::endl;
-                D_minus_M = new TH2D("D_minus_M", "D_minus_M",
-                                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
-                                  1, 0.0, 1.0);
+                for(int ch = 0; ch < number1DHists; ++ ch)
+                {
+                    const Int_t NUM_BINS_XY = 50;
+                    TString hname;
 
-                // clear the contents of M
-                for(Int_t bin_i{1}; bin_i <= D_minus_M->GetNbinsX(); ++ bin_i)
+                    hname.Form("D_minus_M_1D_P1_CH%d", ch);
+                    D_minus_M_1D_P1[ch] = new TH2D(hname, hname,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY);
+
+                    hname.Form("D_minus_M_1D_P2_CH%d", ch);
+                    D_minus_M_1D_P2[ch] = new TH2D(hname, hname,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY);
+                }
+
+
+                // 2D
+                for(int ch = 0; ch < number2DHists; ++ ch)
+                {
+                    const Int_t NUM_BINS_XY = 50 * 50;
+                    TString hname;
+
+                    hname.Form("D_minus_M_2D_P1_CH%d", ch);
+                    D_minus_M_2D_P1[ch] = new TH2D(hname, hname,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY);
+
+                    hname.Form("D_minus_M_2D_P2_CH%d", ch);
+                    D_minus_M_2D_P2[ch] = new TH2D(hname, hname,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY,
+                                      NUM_BINS_XY, 0.0, NUM_BINS_XY);
+                }
+
+            }
+
+            if(recalculate_V_PHYS_xD_Px_MATHMORE == true)
+            {
+            // Set to zero
+            for(int ch = 0; ch < number1DHists; ++ ch)
+            {
+                for(Int_t bi = 1; bi <= D_minus_M_1D_P1[ch]->GetNbinsX(); ++ bi)
                 {
                     const Double_t zero = 0.0;
-                    D_minus_M->SetBinContent(bin_i, 1, zero);
+                    D_minus_M_1D_P1[ch]->SetBinContent(bi, 1, zero);
+                }
+                for(Int_t bi = 1; bi <= D_minus_M_1D_P2[ch]->GetNbinsX(); ++ bi)
+                {
+                    const Double_t zero = 0.0;
+                    D_minus_M_1D_P2[ch]->SetBinContent(bi, 1, zero);
                 }
             }
-            if(V_SUPER == nullptr)
+
+            // Set to zero
+            for(int ch = 0; ch < number2DHists; ++ ch)
             {
-                std::cout << "Alloc V_SUPER" << std::endl;
-                V_SUPER = new TH2D("V_SUPER", "V_SUPER",
-                                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
-                                  NUM_BINS_XY, 0.0, NUM_BINS_XY);
+                for(Int_t bj = 1; bj <= D_minus_M_2D_P1[ch]->GetNbinsY(); ++ bj)
+                {
+                    for(Int_t bi = 1; bi <= D_minus_M_2D_P1[ch]->GetNbinsX(); ++ bi)
+                    {
+                        const Double_t zero = 0.0;
+                        D_minus_M_2D_P1[ch]->SetBinContent(bi, bj, zero);
+                    }
+                }
+                for(Int_t bj = 1; bj <= D_minus_M_2D_P2[ch]->GetNbinsY(); ++ bj)
+                {
+                    for(Int_t bi = 1; bi <= D_minus_M_2D_P2[ch]->GetNbinsX(); ++ bi)
+                    {
+                        const Double_t zero = 0.0;
+                        D_minus_M_2D_P2[ch]->SetBinContent(bi, bj, zero);
+                    }
+                }
             }
+            }
+
+            //if(V_SUPER == nullptr)
+            //{
+            //    std::cout << "Alloc V_SUPER" << std::endl;
+            //    V_SUPER = new TH2D("V_SUPER", "V_SUPER",
+            //                      NUM_BINS_XY, 0.0, NUM_BINS_XY,
+            //                      NUM_BINS_XY, 0.0, NUM_BINS_XY);
+            //}
 
 
             ///////////////////////////////////////////////////////////////////////
@@ -458,6 +972,15 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                     std::cout << "channel=" << channel << std::endl;
                 }
 
+                // check channel enabled
+                if(channel_enable_1D[channel] == 0)
+                {
+                    if(debuglevel >= 5)
+                    {
+                        std::cout << "1D: channel " << channel << " disabled, skip" << std::endl;
+                    }
+                    continue;
+                }
 
                 // TODO: this no longer works because there are multiple phases
                 // in the tmpData1D arrays
@@ -517,11 +1040,14 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                 for(Int_t bin_x{0}; bin_x < tmpDataHist1D_P1->GetNbinsX(); ++ bin_x)
                 {
                     //tmpData1D_P1[bin_x] = tmpDataHist1D_P1->GetBinContent(bin_x);
-                    Int_t super_index = channel * 2 * 50 + bin_x;
+                    //Int_t super_index = channel * 2 * 50 + bin_x;
+                    Int_t super_index = bin_x;
                     Double_t content_input = 0.0;
                     Double_t content_add = tmpDataHist1D_P1->GetBinContent(bin_x + 1);
                     Double_t content_output = content_input + content_add;
-                    D->SetBinContent(super_index + 1, 1, content_output);
+                    D_1D_P1[channel]->SetBinContent(super_index + 1, 1, content_output);
+                    // reset M
+                    M_1D_P1[channel]->SetBinContent(super_index + 1, 1, 0.0);
                 }
                 
                 //std::cout << "LIST OF P2 DATA channel=" << channel << std::endl;
@@ -529,15 +1055,18 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                 for(Int_t bin_x{0}; bin_x < tmpDataHist1D_P2->GetNbinsX(); ++ bin_x)
                 {
                     //tmpData1D_P2[bin_x] = tmpDataHist1D_P2->GetBinContent(bin_x);
-                    Int_t super_index = channel * 2 * 50 + 50 + bin_x;
+                    //Int_t super_index = channel * 2 * 50 + 50 + bin_x;
+                    Int_t super_index = bin_x;
                     Double_t content_input = 0.0;
                     Double_t content_add = tmpDataHist1D_P2->GetBinContent(bin_x + 1);
                     Double_t content_output = content_input + content_add;
-                    D->SetBinContent(super_index + 1, 1, content_output);
+                    D_1D_P2[channel]->SetBinContent(super_index + 1, 1, content_output);
                     //std::cout << "bin_x=" << bin_x + 1 << " content=" << content_output << std::endl;
+                    // reset M
+                    M_1D_P2[channel]->SetBinContent(super_index + 1, 1, 0.0);
                 }
 
-            }
+            //}
 
 
             // can M change?
@@ -549,13 +1078,14 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             // just assume it always changes for now
 
 
+            // ... continue loop from above ...
             // loop over all channels
-            for(int channel = 0; channel < number1DHists; ++ channel)
-            {
-                if(debuglevel >= 4)
-                {
-                    std::cout << "channel=" << channel << std::endl;
-                }
+            //for(int channel = 0; channel < number1DHists; ++ channel)
+            //{
+            //    if(debuglevel >= 4)
+            //    {
+            //        std::cout << "channel=" << channel << std::endl;
+            //    }
 
                 /*
                 Double_t *tmpTotalMC1D_P1 = new Double_t[tmpDataHist1D_P1->GetNbinsX()];
@@ -569,6 +1099,8 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                     tmpTotalMC1D_P2[bin_x] = 0.0;
                 }
                 */
+
+
 
                 // loop over all the parameters
                 std::map<int, file_parameter>::iterator it{g_pg.file_params.begin()};
@@ -760,11 +1292,12 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
 
                             for(Int_t bin_x{0}; bin_x < tmpHist1D_P1->GetNbinsX(); ++ bin_x)
                             {
-                                Int_t super_index = channel * 2 * 50 + bin_x;
-                                Double_t content_input = M->GetBinContent(super_index + 1, 1);
+                                //Int_t super_index = channel * 2 * 50 + bin_x;
+                                Int_t super_index = bin_x;
+                                Double_t content_input = M_1D_P1[channel]->GetBinContent(super_index + 1, 1);
                                 Double_t content_add = scale_factor_P1 * tmpHist1D_P1->GetBinContent(bin_x + 1);
                                 Double_t content_output = content_input + content_add;
-                                M->SetBinContent(super_index + 1, 1, content_output);
+                                M_1D_P1[channel]->SetBinContent(super_index + 1, 1, content_output);
                                 //std::cout << "content_input=" << content_input << " content_output=" << content_output << " content_add=" << content_add << std::endl;
                             }
                         }
@@ -796,11 +1329,12 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                             //std::cout << "super_index (start) : " << channel * 2 * 50 + 50 + 0 << std::endl;
                             for(Int_t bin_x{0}; bin_x < tmpHist1D_P2->GetNbinsX(); ++ bin_x)
                             {
-                                Int_t super_index = channel * 2 * 50 + 50 + bin_x;
-                                Double_t content_input = M->GetBinContent(super_index + 1, 1);
+                                //Int_t super_index = channel * 2 * 50 + 50 + bin_x;
+                                Int_t super_index = bin_x;
+                                Double_t content_input = M_1D_P2[channel]->GetBinContent(super_index + 1, 1);
                                 Double_t content_add = scale_factor_P2 * tmpHist1D_P2->GetBinContent(bin_x + 1);
                                 Double_t content_output = content_input + content_add;
-                                M->SetBinContent(super_index + 1, 1, content_output);
+                                M_1D_P2[channel]->SetBinContent(super_index + 1, 1, content_output);
                                 //std::cout << "debug: " << "super_index=" << super_index << " content_input=" << content_input << " content_add=" << content_add << " content_output=" << content_output << " M:" << M->GetBinContent(super_index + 1, 1) << std::endl;
 
                                 /*
@@ -836,6 +1370,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
 
                 //std::cout << "LIST OF P2 DATA (construting M here) channel=" << channel << std::endl;
                 //std::cout << "super_index (start, below) : " << channel * 2 * 50 + 50 + 0 << std::endl;
+                /*
                 for(Int_t bin_x{0}; bin_x < 50; ++ bin_x)
                 {
                     //tmpData1D_P2[bin_x] = tmpDataHist1D_P2->GetBinContent(bin_x);
@@ -843,9 +1378,12 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                     Double_t content_add = M->GetBinContent(super_index + 1, 1);
                     //std::cout << "channel=" << channel << " super_index=" << super_index << " bin_x=" << bin_x + 1 << " content=" << content_add << std::endl;
                 }
+                */
+                // don't remember wtf this was for
                 //std::cin.get();
 
-            } // channel
+            //} // channel
+            //moved below
 
             // draw
             /*
@@ -857,22 +1395,39 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             c_M->SaveAs("debug_c_M.png");
             */
 
-            // M is set, D is set
+                // M is set, D is set
 
-            // set D_minus_M
-            for(Int_t binx{1}; binx <= D->GetNbinsX(); ++ binx)
-            {
-                Double_t content_D = D->GetBinContent(binx, 1);
-                Double_t content_M = M->GetBinContent(binx, 1);
-                /*
-                if(content_D != 0.0)
+                // set D_minus_M
+                for(Int_t binx{1}; binx <= D_1D_P1[channel]->GetNbinsX(); ++ binx)
                 {
-                    std::cout << "binx=" << binx << " ~> " << content_D << " " << content_M << std::endl;
+                    // P1
+                    {
+                        Double_t content_D = D_1D_P1[channel]->GetBinContent(binx, 1);
+                        Double_t content_M = M_1D_P1[channel]->GetBinContent(binx, 1);
+                        /*
+                        if(content_D != 0.0)
+                        {
+                            std::cout << "binx=" << binx << " ~> " << content_D << " " << content_M << std::endl;
+                        }
+                        */
+                        Double_t content_D_minus_M = content_D - content_M;
+                        D_minus_M_1D_P1[channel]->SetBinContent(binx, 1, content_D_minus_M);
+                    }
+
+                    // P2
+                    {
+                        Double_t content_D = D_1D_P2[channel]->GetBinContent(binx, 1);
+                        Double_t content_M = M_1D_P2[channel]->GetBinContent(binx, 1);
+                        /*
+                        if(content_D != 0.0)
+                        {
+                            std::cout << "binx=" << binx << " ~> " << content_D << " " << content_M << std::endl;
+                        }
+                        */
+                        Double_t content_D_minus_M = content_D - content_M;
+                        D_minus_M_1D_P2[channel]->SetBinContent(binx, 1, content_D_minus_M);
+                    }
                 }
-                */
-                Double_t content_D_minus_M = content_D - content_M;
-                D_minus_M->SetBinContent(binx, 1, content_D_minus_M);
-            }
 
             // draw
             
@@ -883,64 +1438,333 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             */
             
 
-            // set V_PHYS_STAT
-            for(Int_t binx{1}; binx <= M->GetNbinsX(); ++ binx)
-            {
-                Double_t content = M->GetBinContent(binx);
-                //if(content == 0.0) continue;
-                //if(content < 0.0) continue;
-                if(content <= 0.0)
+                if(recalculate_V_PHYS_xD_Px_MATHMORE == true)
                 {
-                    V_PHYS_STAT->SetBinContent(binx, binx, 1.0);
-                }
-                else
+                // set V_PHYS_STAT
+                int counter_P1 = 0;
+                int counter_P2 = 0;
+                for(Int_t binx{1}; binx <= M_1D_P1[channel]->GetNbinsX(); ++ binx)
                 {
-                    Double_t sigma = std::sqrt(content);
-                    //Double stat = 1.0 / (sigma * sigma);
-                    Double_t stat = 1.0 / std::abs(content);
-                    V_PHYS_STAT->SetBinContent(binx, binx, stat);
-                }
-            }
-
-            // calculate (M - D) x V_PHYS x Transpose(M - D)
-            std::cout << "starting matrix calculations" << std::endl;
-            double chi2 = 0.0;
-            for(Int_t k{1}; k <= V_CHEN->GetNbinsY(); ++ k)
-            {
-                for(Int_t l{1}; l <= V_PHYS_STAT->GetNbinsY(); ++ l)
-                {
-                    for(Int_t m{1}; m <= V_PHYS_STAT->GetNbinsX(); ++ m)
-                    // transpose, should be applied to (M-D)->GetNbinsY() but this object does not exist
+                    // P1
                     {
-                        double D_content_1 = D->GetBinContent(k, 1);
-                        double M_content_1 = M->GetBinContent(k, 1);
-                        double delta_1 = D_content_1 - M_content_1;
-                        double V_CHEN_content = V_CHEN->GetBinContent(k, l);
-                        double V_PHYS_STAT_content = V_PHYS_STAT->GetBinContent(l, m);
-                        double D_content_2 = D->GetBinContent(m, 1);
-                        double M_content_2 = M->GetBinContent(m, 1);
-                        double delta_2 = D_content_2 - M_content_2;
-                        double next = delta_1 * V_CHEN_content * V_PHYS_STAT_content * delta_2;
-                        if(std::isnan(next))
-                        {
-                            std::cout << "NAN: next=" << next << " k=" << k << " l=" << l << " m=" << m << std::endl;
-                            std::cout << V_CHEN_content << std::endl;
-                            std::cout << V_PHYS_STAT_content << std::endl;
-                            std::cin.get();
-                        }
-                        else if(std::isinf(next))
-                        {
-                            std::cout << "INF: next=" << next << " k=" << k << " l=" << l << " m=" << m << std::endl;
-                            std::cout << V_CHEN_content << std::endl;
-                            std::cout << V_PHYS_STAT_content << std::endl;
-                            std::cin.get();
-                        }
-                        chi2 += next;
+                        Double_t content_M = M_1D_P1[channel]->GetBinContent(binx, 1);
+                        Double_t content_D = D_1D_P1[channel]->GetBinContent(binx, 1);
+                        //if(content == 0.0) continue;
+                        //if(content < 0.0) continue;
+                        //if(content <= 0.0)
+                        //{
+                            //V_PHYS_STAT_1D_P1->SetBinContent(binx, binx, 1.0);
+                        //}
+                        //else
+                        //{
+                            Double_t sigma_M = std::sqrt(content_M);
+                            Double_t sigma_D = std::sqrt(content_D);
+                            //Double stat = 1.0 / (sigma * sigma);
+                            //Double_t stat = 1.0 / std::abs(content);
+                            // TODO; re-enable
+                            ////Double_t stat = sigma_M * sigma_M; // + sigma_D * sigma_D;
+                            //V_PHYS_STAT_1D_P1->SetBinContent(binx, binx, stat);
+                            ////if(stat != 0.0) stat = 1.0 / stat;
+                            ////else stat = 1.0;
+                            Double_t stat = sigma_M * sigma_M;
+                            if(stat == 0.0)
+                            {
+                                stat = 1.0;
+                            //    V_ENABLE_BIN_1D_P1[channel]->push_back(false);
+                            }
+                            else
+                            {
+                            //    V_ENABLE_BIN_1D_P1[channel]->push_back(true);
+                                ++ counter_P1;
+                            }
+                            V_PHYS_STAT_1D_P1[channel]->SetBinContent(binx, binx, stat);
+                        //}
+                    }
+
+                    // P2
+                    {
+                        Double_t content_M = M_1D_P2[channel]->GetBinContent(binx, 1);
+                        Double_t content_D = D_1D_P2[channel]->GetBinContent(binx, 1);
+                        //if(content == 0.0) continue;
+                        //if(content < 0.0) continue;
+                        //if(content <= 0.0)
+                        //{
+                            //V_PHYS_STAT_1D_P2->SetBinContent(binx, binx, 1.0);
+                        //}
+                        //else
+                        //{
+                            Double_t sigma_M = std::sqrt(content_M);
+                            Double_t sigma_D = std::sqrt(content_D);
+                            //Double stat = 1.0 / (sigma * sigma);
+                            //Double_t stat = 1.0 / std::abs(content);
+                            // TODO: re-enable
+                            ////Double_t stat = sigma_M * sigma_M; // + sigma_D * sigma_D;
+                            //V_PHYS_STAT_1D_P2->SetBinContent(binx, binx, stat);
+                            ////if(stat != 0.0) stat = 1.0 / stat;
+                            ////else stat = 1.0;
+                            Double_t stat = sigma_M * sigma_M;
+                            // TODO: this might not be the best way to detect signularity
+                            // may be more sensible to use if D==0 or M==0, and then or sigmaM==0
+                            if(stat == 0.0)
+                            {
+                                stat = 1.0;
+                            //    V_ENABLE_BIN_1D_P2[channel]->push_back(false);
+                            }
+                            else
+                            {
+                            //    V_ENABLE_BIN_1D_P2[channel]->push_back(true);
+                                ++ counter_P2;
+                            }
+                            V_PHYS_STAT_1D_P2[channel]->SetBinContent(binx, binx, stat);
+                        //}
                     }
                 }
-            }
-            std::cout << "finished matrix calculations" << std::endl;
+                }
+                //std::cout << "P1: number of enabled bins = " << counter_P1 << std::endl;
+                //std::cout << "P2: number of enabled bins = " << counter_P2 << std::endl;
 
+                //std::cout << "channel=" << channel << std::endl;
+                if(recalculate_V_PHYS_xD_Px_MATHMORE == true)
+                {
+                int j_counter = 0;
+                for(Int_t j = 0; j < V_PHYS_STAT_1D_P1[channel]->GetNbinsY(); ++ j)
+                {
+                    int i_counter = 0;
+                    for(Int_t i = 0; i < V_PHYS_STAT_1D_P1[channel]->GetNbinsX(); ++ i)
+                    {
+                        //if(
+                        //    (V_ENABLE_BIN_1D_P1[channel]->at(j) == true) &&
+                        //    (V_ENABLE_BIN_1D_P1[channel]->at(i) == true)
+                        //    )
+                        {
+                            Double_t content = V_PHYS_STAT_1D_P1[channel]->GetBinContent(i + 1, j + 1);
+                            V_PHYS_1D_P1_MATHMORE[channel]->operator[](j_counter).operator[](i_counter) = content;
+                        }
+                        //else
+                        //{
+                        //    continue;
+                        //}
+                        //std::cout << "j=" << j << " i=" << i << " " << content << std::endl;
+
+                        ++ i_counter;
+                    }
+
+                    ++ j_counter;
+                }
+                //std::cin.get();
+
+                j_counter = 0;
+                for(Int_t j = 0; j < V_PHYS_STAT_1D_P2[channel]->GetNbinsY(); ++ j)
+                {
+                    int i_counter = 0;
+                    for(Int_t i = 0; i < V_PHYS_STAT_1D_P2[channel]->GetNbinsX(); ++ i)
+                    {
+                        //if(
+                        //    (V_ENABLE_BIN_1D_P1[channel]->at(j) == true) &&
+                        //    (V_ENABLE_BIN_1D_P1[channel]->at(i) == true)
+                        //    )
+                        {
+                            Double_t content = V_PHYS_STAT_1D_P2[channel]->GetBinContent(i + 1, j + 1);
+                            V_PHYS_1D_P2_MATHMORE[channel]->operator[](j_counter).operator[](i_counter) = content;
+                        }
+                        //else
+                        //{
+                        //    continue;
+                        //}
+
+                        ++ i_counter;
+                    }
+
+                    ++ j_counter;
+                }
+                }
+
+                if(recalculate_V_PHYS_xD_Px_MATHMORE == true)
+                {
+                    for(Int_t iy = 0; iy < V_PHYS_1D_P1_MATHMORE[channel]->GetNrows(); ++ iy)
+                    {
+                        for(Int_t ix = 0; ix < V_PHYS_1D_P1_MATHMORE[channel]->GetNcols(); ++ ix)
+                        {
+                            Double_t vP1 = V_PHYS_1D_P1_MATHMORE[channel]->operator[](iy).operator[](ix);
+                            Double_t vP2 = V_PHYS_1D_P2_MATHMORE[channel]->operator[](iy).operator[](ix);
+                            /*if(vP1 != 0.0)
+                            {
+                                std::cout << "P1 ix=" << ix << " iy=" << iy << " " << vP1 << std::endl;
+                            }
+                            if(vP2 != 0.0)
+                            {
+                                std::cout << "P2 ix=" << ix << " iy=" << iy << " " << vP2 << std::endl;
+                            }*/
+                        }
+                    }
+                    std::cout << "Start Invert" << std::endl;
+                    V_PHYS_1D_P1_MATHMORE[channel]->Invert();
+                    std::cout << "Next Invert" << std::endl;
+                    V_PHYS_1D_P2_MATHMORE[channel]->Invert();
+                    std::cout << "Done Invert" << std::endl;
+                    
+                    // disable this to recalculate the V MATRIX each loop
+                    // if the number of singular elements changes it may crash
+                    // not sure at the moment
+                    //recalculate_V_PHYS_xD_Px_MATHMORE = false;
+                }
+
+                // calculate (M - D) x V_PHYS x Transpose(M - D)
+                //std::cout << "starting matrix calculations" << std::endl;
+                double chi2_1D_P1 = 0.0;
+                //for(Int_t k{1}; k <= V_CHEN->GetNbinsY(); ++ k)
+                //{
+                // P1
+                {
+                    int l_counter = 1;
+                    for(Int_t l{1}; l <= V_PHYS_STAT_1D_P1[channel]->GetNbinsY(); ++ l)
+                    {
+                        int m_counter = 1;
+                        for(Int_t m{1}; m <= V_PHYS_STAT_1D_P1[channel]->GetNbinsX(); ++ m)
+                        // transpose, should be applied to (M-D)->GetNbinsY() but this object does not exist
+                        {
+                            double D_content_1 = D_1D_P1[channel]->GetBinContent(l, 1);
+                            double M_content_1 = M_1D_P1[channel]->GetBinContent(l, 1);
+                            double delta_1 = D_content_1 - M_content_1;
+                            //double V_CHEN_content = V_CHEN->GetBinContent(k, l);
+                            //double V_PHYS_STAT_content = V_PHYS_STAT_1D_P1[channel]->GetBinContent(l, m);
+                            double V_PHYS_STAT_content = 0.0;
+                            //if(
+                            //    (V_ENABLE_BIN_1D_P1[channel]->at(l - 1) == true) &&
+                            //    (V_ENABLE_BIN_1D_P1[channel]->at(m - 1) == true)
+                            //    )
+                            {
+                                V_PHYS_STAT_content = V_PHYS_1D_P1_MATHMORE[channel]->operator[](m_counter - 1).operator[](l_counter - 1);
+                            }
+                            //else
+                            //{
+                            //    continue;
+                            //}
+                            double D_content_2 = D_1D_P1[channel]->GetBinContent(m, 1);
+                            double M_content_2 = M_1D_P1[channel]->GetBinContent(m, 1);
+                            double delta_2 = D_content_2 - M_content_2;
+                            //double next = delta_1 * V_CHEN_content * V_PHYS_STAT_content * delta_2;
+                            double next = delta_1 * V_PHYS_STAT_content * delta_2;
+                            
+                            /*
+                            if(l == 15)
+                            {
+                            if(m == 15)
+                            {
+                            std::cout << "M1=" << M_content_1
+                                      << " D1=" << D_content_1
+                                      << " V=" << V_PHYS_STAT_content
+                                      << " M2=" << M_content_2
+                                      << " D2=" << D_content_2 
+                                      << " next=" << next << std::endl;
+                            }
+                            }
+                            */
+
+                            if(std::isnan(next))
+                            {
+                                //std::cout << "NAN: next=" << next << " k=" << k << " l=" << l << " m=" << m << std::endl;
+                                std::cout << "NAN: next=" << next << " l=" << l << " m=" << m << std::endl;
+                                //std::cout << V_CHEN_content << std::endl;
+                                std::cout << V_PHYS_STAT_content << std::endl;
+                                std::cin.get();
+                            }
+                            else if(std::isinf(next))
+                            {
+                                //std::cout << "INF: next=" << next << " k=" << k << " l=" << l << " m=" << m << std::endl;
+                                std::cout << "INF: next=" << next << " l=" << l << " m=" << m << std::endl;
+                                //std::cout << V_CHEN_content << std::endl;
+                                std::cout << V_PHYS_STAT_content << std::endl;
+                                std::cin.get();
+                            }
+                            chi2_1D_P1 += next;
+                            
+                            ++ m_counter;
+                        }
+
+                        ++ l_counter;
+                    }
+                }
+                //std::cout << "channel=" << channel << " P1 chi2=" << chi2_1D_P1 << std::endl;
+                double chi2_1D_P2 = 0.0;
+                //}
+                // P2
+                {
+                    int l_counter = 1;
+                    for(Int_t l{1}; l <= V_PHYS_STAT_1D_P2[channel]->GetNbinsY(); ++ l)
+                    {
+                        int m_counter = 1;
+                        for(Int_t m{1}; m <= V_PHYS_STAT_1D_P2[channel]->GetNbinsX(); ++ m)
+                        // transpose, should be applied to (M-D)->GetNbinsY() but this object does not exist
+                        {
+                            double D_content_1 = D_1D_P2[channel]->GetBinContent(l, 1);
+                            double M_content_1 = M_1D_P2[channel]->GetBinContent(l, 1);
+                            double delta_1 = D_content_1 - M_content_1;
+                            //double V_CHEN_content = V_CHEN->GetBinContent(k, l);
+                            //double V_PHYS_STAT_content = V_PHYS_STAT_1D_P2[channel]->GetBinContent(l, m);
+                            double V_PHYS_STAT_content = 0.0;
+                            //if(
+                            //    (V_ENABLE_BIN_1D_P1[channel]->at(l - 1) == true) &&
+                            //    (V_ENABLE_BIN_1D_P1[channel]->at(m - 1) == true)
+                            //    )
+                            {
+                                V_PHYS_STAT_content = V_PHYS_1D_P2_MATHMORE[channel]->operator[](m - 1).operator[](l - 1);
+                            }
+                            //else
+                            //{
+                            //    continue;
+                            //}
+                            double D_content_2 = D_1D_P2[channel]->GetBinContent(m, 1);
+                            double M_content_2 = M_1D_P2[channel]->GetBinContent(m, 1);
+                            double delta_2 = D_content_2 - M_content_2;
+                            //double next = delta_1 * V_CHEN_content * V_PHYS_STAT_content * delta_2;
+                            double next = delta_1 * V_PHYS_STAT_content * delta_2;
+
+                            /*
+                            if(l == 15)
+                            {
+                            if(m == 15)
+                            {
+                            std::cout << "M1=" << M_content_1
+                                      << " D1=" << D_content_1
+                                      << " V=" << V_PHYS_STAT_content
+                                      << " M2=" << M_content_2
+                                      << " D2=" << D_content_2 
+                                      << " next=" << next << std::endl;
+                            }
+                            }
+                            */
+
+                            if(std::isnan(next))
+                            {
+                                //std::cout << "NAN: next=" << next << " k=" << k << " l=" << l << " m=" << m << std::endl;
+                                std::cout << "NAN: next=" << next << " l=" << l << " m=" << m << std::endl;
+                                //std::cout << V_CHEN_content << std::endl;
+                                std::cout << V_PHYS_STAT_content << std::endl;
+                                std::cin.get();
+                            }
+                            else if(std::isinf(next))
+                            {
+                                //std::cout << "INF: next=" << next << " k=" << k << " l=" << l << " m=" << m << std::endl;
+                                std::cout << "INF: next=" << next << " l=" << l << " m=" << m << std::endl;
+                                //std::cout << V_CHEN_content << std::endl;
+                                std::cout << V_PHYS_STAT_content << std::endl;
+                                std::cin.get();
+                            }
+                            chi2_1D_P2 += next;
+                            
+                            ++ m_counter;
+                        }
+
+                        ++ l_counter;
+                    }
+                }
+                //std::cout << "channel=" << channel << " P2 chi2=" << chi2_1D_P2 << std::endl;
+                //std::cout << "finished matrix calculations" << std::endl;
+
+                chi2_total += chi2_1D_P1 + chi2_1D_P2;
+            }
+            // moved from above loop over channel
 
             // at this point have done 1D, 2D hists, but not the penalty terms
 
@@ -1075,9 +1899,13 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
 
                 penalty_term += penalty;
             }
+            //std::cout << "penalty_term=" << penalty_term << std::endl;
 
+            chi2_total += penalty_term;
 
-            return chi2;
+            //std::cout << "chi2_total=" << chi2_total << std::endl;
+            //std::cin.get();
+            return chi2_total;
 
         }
         else // if not new_method
@@ -1393,9 +2221,16 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                             }
                             //tmpHist1D_P2->Scale(scale_factor_P2);
 
+                            //std::cout << "tmpHist1D_P2->GetName()=" << tmpHist1D_P2->GetName() << " scale_factor_P2=" << scale_factor_P2 << std::endl;
                             for(Int_t bin_x{1}; bin_x <= tmpHist1D_P2->GetNbinsX(); ++ bin_x)
                             {
                                 tmpTotalMC1D_P2[bin_x] += scale_factor_P2 * tmpHist1D_P2->GetBinContent(bin_x);
+                                /*
+                                if(scale_factor_P2 * tmpHist1D_P2->GetBinContent(bin_x) != 0.0)
+                                {
+                                    std::cout << "adding to total MC: bin_x=" << bin_x << " -> " << scale_factor_P2 * tmpHist1D_P2->GetBinContent(bin_x) << std::endl;
+                                }
+                                */
                             }
                             
                             // found the mc samples, they are stored in tmpHist1D_P1 and tmpHist1D_P2
@@ -1427,6 +2262,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
 
                 } // file_param iterator
 
+                //std::cin.get();
 
                 ///////////////////////////////////////////////////////////////////
                 // loop over all bins and calculate LL (Phase 1 & 2)
@@ -1476,7 +2312,17 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                             //double chi2_P1 = std::pow(nData_P1 - nMC_P1, 2.0) / std::pow(std::sqrt(nData_P1), 2.0);
                             if(nMC_P1 == 0.0) continue;
                             double chi2_P1 = std::pow(nData_P1 - nMC_P1, 2.0) / std::pow(std::sqrt(nMC_P1), 2.0);
-                            
+
+                            /*
+                            if(bin_x == 15)
+                            {
+                            std::cout << "nData=" << nData_P1
+                                      << " nMC=" << nMC_P1
+                                      << " next=" << chi2_P1
+                                      << std::endl;
+                            }
+                            */
+
                             //double chi2_P1 = std::pow((nData_P1 - nMC_P1) / nData_P1, 2.0);
                             // TODO: presumably I need the if(nMC_P1 == 0.0) rejection
                             lp_P1 = chi2_P1;
@@ -1575,10 +2421,22 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                             if(nMC_P2 == 0.0) continue;
                             double chi2_P2 = std::pow(nData_P2 - nMC_P2, 2.0) / std::pow(std::sqrt(nMC_P2), 2.0);
 
+                            /*
+                            if(bin_x == 15)
+                            {
+                            std::cout << "nData=" << nData_P2
+                                      << " nMC=" << nMC_P2
+                                      << " next=" << chi2_P2
+                                      << std::endl;
+                            }
+                            */
+
+                            /*
                             if(nData_P2 != nMC_P2)
                             {
-                                std::cout << "nData_P2=" << nData_P2 << " nMC_P2=" << nMC_P2 << std::endl;
+                                std::cout << "nData_P2=" << nData_P2 << " nMC_P2=" << nMC_P2 << " diff: " << nData_P2 - nMC_P2 << std::endl;
                             }
+                            */
                             
                             // TODO: presumably I need the if(nMC_P1 == 0.0) rejection
                             lp_P2 = chi2_P2;
@@ -1641,7 +2499,9 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                     std::cout << "1D: channel " << channel << " enabled, ll_chanel_P1=" << ll_channel_P1 << " ll_channel_P2=" << ll_channel_P2 << std::endl;
                 }
                 loglik += ll_channel_P1;
+                //std::cout << "channel = " << channel << " chi2 P1 = " << ll_channel_P1 << std::endl;
                 loglik += ll_channel_P2;
+                //std::cout << "channel = " << channel << " chi2 P2 = " << ll_channel_P2 << std::endl;
 
             } // channel
 
@@ -2095,6 +2955,8 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                 loglik += ll_channel_P1;
                 loglik += ll_channel_P2;
 
+                std::cout << "2D: " << ll_channel_P1 << " " << ll_channel_P2 << std::endl;
+
             } // channel
             
             ndf += ndf_P1 + ndf_P2;
@@ -2505,6 +3367,8 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                 std::cout << "waiting" << std::endl;
                 std::cin.get();
             }
+            //std::cout << "fval=" << fval << std::endl;
+            //std::cin.get();
             return fval;
 
         } // old method

@@ -1071,7 +1071,7 @@ void loadFiles(int i)
     std::vector<TCanvas*> results_c_allparams;
 
     // do not do this in parallel mode
-    if(1) // || (MODE_PARALLEL == 0))
+    if(0) // || (MODE_PARALLEL == 0))
     {
 
         std::vector<double> results_x_xi_31;
@@ -1338,7 +1338,8 @@ void loadFiles(int i)
         gSystematics.systematic_energy_offset = 0.0;
         double systematic_energy_offset = gSystematics.systematic_energy_offset;
         std::cout << "seo=" << systematic_energy_offset << std::endl;
-        rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itsel
+        //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itsel
+        rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itsel
 
         // create minimizer
         //ROOT::Minuit2::MnUserParameterState theParameterState;
