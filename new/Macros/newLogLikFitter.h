@@ -369,16 +369,17 @@ TMatrixD *V_PHYS_1D_P1_MATHMORE[number1DHists] =
     nullptr
 };
 
-//std::vector<bool> *V_ENABLE_BIN_1D_P1[number1DHists] =
-//{
-//    nullptr,
-//    nullptr,
-//    nullptr,
-//    nullptr,
-//    nullptr,
-//    nullptr
-//};
+std::vector<bool> *V_ENABLE_BIN_1D_P1[number1DHists] =
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
 
+/*
 TH2D *V_PHYS_1D_P1[number1DHists] = 
 {
     nullptr,
@@ -387,9 +388,8 @@ TH2D *V_PHYS_1D_P1[number1DHists] =
     nullptr,
     nullptr,
     nullptr
-};
-
-TH2D *V_PHYS_STAT_1D_P1[number1DHists] = 
+};*/
+std::vector<double> *V_PHYS_1D_P1_data[number1DHists] = 
 {
     nullptr,
     nullptr,
@@ -399,7 +399,16 @@ TH2D *V_PHYS_STAT_1D_P1[number1DHists] =
     nullptr
 };
 
-TH2D *V_PHYS_SYS1_1D_P1[number1DHists] = 
+/*TH2D *V_PHYS_STAT_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};*/
+std::vector<double> *V_PHYS_STAT_1D_P1_data[number1DHists] = 
 {
     nullptr,
     nullptr,
@@ -409,7 +418,35 @@ TH2D *V_PHYS_SYS1_1D_P1[number1DHists] =
     nullptr
 };
 
-TH2D *V_PHYS_SYS2_1D_P1[number1DHists] = 
+/*TH2D *V_PHYS_SYS1_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};*/
+std::vector<double> *V_PHYS_SYS1_1D_P1_data[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+/*TH2D *V_PHYS_SYS2_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};*/
+std::vector<double> *V_PHYS_SYS2_1D_P1_data[number1DHists] = 
 {
     nullptr,
     nullptr,
@@ -420,7 +457,16 @@ TH2D *V_PHYS_SYS2_1D_P1[number1DHists] =
 };
 
 
-TH2D *D_1D_P1[number1DHists] = 
+/*TH2D *D_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};*/
+std::vector<double> *D_1D_P1_data[number1DHists] = 
 {
     nullptr,
     nullptr,
@@ -430,7 +476,16 @@ TH2D *D_1D_P1[number1DHists] =
     nullptr
 };
 
-TH2D *D_minus_M_1D_P1[number1DHists] = 
+/*TH2D *D_minus_M_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};*/
+std::vector<double> *D_minus_M_1D_P1_data[number1DHists] = 
 {
     nullptr,
     nullptr,
@@ -440,7 +495,16 @@ TH2D *D_minus_M_1D_P1[number1DHists] =
     nullptr
 };
 
-TH2D *M_1D_P1[number1DHists] = 
+/*TH2D *M_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};*/
+std::vector<double> *M_1D_P1_data[number1DHists] = 
 {
     nullptr,
     nullptr,
@@ -466,17 +530,7 @@ TMatrixD *V_PHYS_1D_P2_MATHMORE[number1DHists] =
 
 bool recalculate_V_PHYS_xD_Px_MATHMORE = true;
 
-//std::vector<bool> *V_ENABLE_BIN_1D_P2[number1DHists] =
-//{
-//    nullptr,
-//    nullptr,
-//    nullptr,
-//    nullptr,
-//    nullptr,
-//    nullptr
-//};
-
-TH2D *V_PHYS_1D_P2[number1DHists] = 
+std::vector<bool> *V_ENABLE_BIN_1D_P2[number1DHists] =
 {
     nullptr,
     nullptr,
@@ -486,7 +540,16 @@ TH2D *V_PHYS_1D_P2[number1DHists] =
     nullptr
 };
 
-TH2D *V_PHYS_STAT_1D_P2[number1DHists] = 
+/*TH2D *V_PHYS_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};*/
+std::vector<double> *V_PHYS_1D_P2_data[number1DHists] = 
 {
     nullptr,
     nullptr,
@@ -496,7 +559,16 @@ TH2D *V_PHYS_STAT_1D_P2[number1DHists] =
     nullptr
 };
 
-TH2D *V_PHYS_SYS1_1D_P2[number1DHists] = 
+/*TH2D *V_PHYS_STAT_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};*/
+std::vector<double> *V_PHYS_STAT_1D_P2_data[number1DHists] = 
 {
     nullptr,
     nullptr,
@@ -506,7 +578,35 @@ TH2D *V_PHYS_SYS1_1D_P2[number1DHists] =
     nullptr
 };
 
-TH2D *V_PHYS_SYS2_1D_P2[number1DHists] = 
+/*TH2D *V_PHYS_SYS1_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};*/
+std::vector<double> *V_PHYS_SYS1_1D_P2_data[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+/*TH2D *V_PHYS_SYS2_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};*/
+std::vector<double> *V_PHYS_SYS2_1D_P2_data[number1DHists] = 
 {
     nullptr,
     nullptr,
@@ -517,7 +617,16 @@ TH2D *V_PHYS_SYS2_1D_P2[number1DHists] =
 };
 
 
-TH2D *D_1D_P2[number1DHists] = 
+/*TH2D *D_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};*/
+std::vector<double> *D_1D_P2_data[number1DHists] = 
 {
     nullptr,
     nullptr,
@@ -527,7 +636,16 @@ TH2D *D_1D_P2[number1DHists] =
     nullptr
 };
 
-TH2D *D_minus_M_1D_P2[number1DHists] = 
+/*TH2D *D_minus_M_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};*/
+std::vector<double> *D_minus_M_1D_P2_data[number1DHists] = 
 {
     nullptr,
     nullptr,
@@ -537,7 +655,16 @@ TH2D *D_minus_M_1D_P2[number1DHists] =
     nullptr
 };
 
-TH2D *M_1D_P2[number1DHists] = 
+/*TH2D *M_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};*/
+std::vector<double> *M_1D_P2_data[number1DHists] = 
 {
     nullptr,
     nullptr,
