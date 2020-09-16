@@ -125,8 +125,8 @@ double AcceptedTime[3];
 // 2020-03-11: Think that Phase is "1" or "2", corresponding to value of
 // thePhase of 0 or 1 respectively
 Int_t nocutonphase = 0;
-Int_t thePhase = 1;
-TString Phase = "2";
+Int_t thePhase = 0;
+TString Phase = "1";
 //Phase.Form("%i", thePhase);
 
 
