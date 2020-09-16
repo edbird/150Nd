@@ -390,7 +390,7 @@ Int_t histogramDrawFlag[numHistograms] =
 
 // draw raw data histograms as well?
 Int_t histogramDrawFlag_rawdata = 1;
-#define RAWENABLE 1
+#define RAWENABLE 0
 
 // map for data structure for raw data
 //std::map<TString, TH1*> histogramPointers_rawdata;

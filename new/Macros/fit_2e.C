@@ -843,7 +843,8 @@ void makeHistograms(
        (sampleName.CompareTo("nd150_rot_2n2b_m4") == 0))
     {
         #if TRUTH_ENABLE
-        aFile = TFile::Open(filePath + thePath + sampleName + "/Nd150_2eNg_output_truth.root");
+        //aFile = TFile::Open(filePath + thePath + sampleName + "/Nd150_2eNg_output_truth.root");
+        aFile = TFile::Open(filePath + thePath + sampleName + "/Nd150_2eNg_output_truth_NEW_all.root");
         #else
         aFile = TFile::Open(filePath + thePath + sampleName + "/Nd150_2eNg_output.root");
         #endif
@@ -1238,13 +1239,6 @@ void makeHistograms(
     for(Long_t event_i = 0; event_i < events; event_i++)
     {
 
-        if((electronEnergy[0] < 0.3) || (electronEnergy[1] < 0.3))
-        {
-            ++ electron_cut_A;
-        }
-        
-        ++ total_event_count;
-
         bool cut = false;
         //if(event_i % 1000 == 0)
         //{
@@ -1252,6 +1246,13 @@ void makeHistograms(
         //}
         theTree->GetEvent(event_i);
 
+
+        if((electronEnergy[0] < 0.3) || (electronEnergy[1] < 0.3))
+        {
+            ++ electron_cut_A;
+        }
+        
+        ++ total_event_count;
 
 
 
@@ -3202,7 +3203,7 @@ void fitHistograms()
 
 
 
-#if dont_do_this
+#if 0
 
             std::cout << "DONT DO THIS" << std::endl;
             std::cin.get();

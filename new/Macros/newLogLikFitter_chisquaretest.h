@@ -258,6 +258,7 @@ void newloglikfitter_testmyphasespace_newversion(
     
     std::cout << "rendering: " << c_mps_name << std::endl;
 
+    // TODO: NOTE: have to change value of "stop_index" as well
     const int n_param_xy = 51;//301; // 1001
     int n_param_1 = n_param_xy; //300;
     int n_param_2 = n_param_xy; //300;

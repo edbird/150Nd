@@ -96,6 +96,11 @@ void reweight_apply_fakedata(
     const TString name_append = "";
     const TString sampleName = "fakedata";
 
+    if(debuglevel >= 6)
+    {
+        std::cout << "calling deleter_helper" << std::endl;
+    }
+
     // P1
     deleter_helper("hTotalE_" + sampleName + name_append + "_P1");
     deleter_helper("hSingleEnergy_" + sampleName + name_append + "_P1");
@@ -113,6 +118,17 @@ void reweight_apply_fakedata(
     deleter_helper("hEnergyDiff_" + sampleName + name_append + "_P2");
     deleter_helper("hHighLowEnergy_" + sampleName + name_append + "_P2");
 
+    if(debuglevel >= 6)
+    {
+        std::cout << "done calling deleter_helper" << std::endl;
+    }
+
+
+
+    if(debuglevel >= 6)
+    {
+        std::cout << "allocating new histograms" << std::endl;
+    }
 
     ///////////////////////////////////////////////////////////////////
     // phase 1 histograms (output)
@@ -191,7 +207,14 @@ void reweight_apply_fakedata(
                                 TString("Phase ") + "P2" + " " + sampleName + name_append + ";Low Energy Electron Energy (MeV);High Energy Electron Energy (MeV)",
                                 50, 0.0, 5.0, 50, 0.0, 5.0);
 
-    
+
+    if(debuglevel >= 6)
+    {
+        std::cout << "done allocating new histograms" << std::endl;
+    }
+
+
+
     hTotalE_output_P1->Sumw2();
     hSingleEnergy_output_P1->Sumw2();
     hHighEnergy_output_P1->Sumw2();
@@ -218,6 +241,7 @@ void reweight_apply_fakedata(
     std::map<int, file_parameter>::iterator it{g_pg.file_params.begin()};
     for(; it != g_pg.file_params.end(); ++ it)
     {
+
         
         int paramNumber = it->first;
         bool paramEnabled = it->second.paramEnabled;
@@ -229,6 +253,12 @@ void reweight_apply_fakedata(
         {
             std::cout << "paramNumber=" << paramNumber << std::endl;
         }
+        if(debuglevel >= 5)
+        {
+            std::cout << "paramEnabled=" << paramEnabled << std::endl;
+            std::cout << "paramEnabledP1=" << paramEnabledP1 << std::endl;
+            std::cout << "paramEnabledP2=" << paramEnabledP2 << std::endl;
+        }
 
         bool ok = false;
         if(paramEnabled == true)
@@ -237,6 +267,10 @@ void reweight_apply_fakedata(
             {
                 if(paramEnabledP1 == true)
                 {
+                    if(debuglevel >= 9)
+                    {
+                        std::cout << "set: ok=true" << std::endl;
+                    }
                     ok = true;
                 }
             }
@@ -245,13 +279,21 @@ void reweight_apply_fakedata(
             {
                 if(paramEnabledP2 == true)
                 {
+                    if(debuglevel >= 9)
+                    {
+                        std::cout << "set: ok=true" << std::endl;
+                    }
                     ok = true;
                 }
             }
         }
         else
         {
-            ok = true;
+            ok = false;
+            if(debuglevel >= 8)
+            {
+                std::cout << "ok=false, continue" << std::endl;
+            }
             continue;
         }
         if(ok == false)
@@ -261,9 +303,17 @@ void reweight_apply_fakedata(
                 std::cout << __func__ << " ok == false" << std::endl;
                 std::cin.get();
             }
+            if(debuglevel >= 8)
+            {
+                std::cout << "ok=false, continue" << std::endl;
+            }
             continue;
         }
 
+        if(debuglevel >= 7)
+        {
+            std::cout << "ok=true" << std::endl;
+        }
 
         // loop over all MC names
         std::vector<std::string>::iterator mc_name_it{it->second.MCNameList.begin()};
@@ -278,6 +328,15 @@ void reweight_apply_fakedata(
             // purposes
             const TString name_append = "_fakedata_tmp";
 
+            if(debuglevel >= 4)
+            {
+                std::cout << "sampleName=" << sampleName << std::endl;
+            }
+            if(debuglevel >= 5)
+            {
+                std::cout << "name_append=" << name_append << std::endl;
+            }
+
             // load from files applying systematics
 
             // normal procedure is to fill histograms with weight variable
@@ -287,6 +346,12 @@ void reweight_apply_fakedata(
             // and ->Add() to total to create fake data
 
             // P1
+            if(paramEnabledP1)
+            {
+            if(debuglevel >= 8)
+            {
+                std::cout << "P1 deleter helper" << std::endl;
+            }
             deleter_helper("hTotalE_" + sampleName + name_append + "_P1");
             deleter_helper("hSingleEnergy_" + sampleName + name_append + "_P1");
             deleter_helper("hHighEnergy_" + sampleName + name_append + "_P1");
@@ -294,7 +359,14 @@ void reweight_apply_fakedata(
             deleter_helper("hEnergySum_" + sampleName + name_append + "_P1");
             deleter_helper("hEnergyDiff_" + sampleName + name_append + "_P1");
             deleter_helper("hHighLowEnergy_" + sampleName + name_append + "_P1");
+            }
             // P2
+            if(paramEnabledP2)
+            {
+            if(debuglevel >= 8)
+            {
+                std::cout << "P2 deleter helper" << std::endl;
+            }
             deleter_helper("hTotalE_" + sampleName + name_append + "_P2");
             deleter_helper("hSingleEnergy_" + sampleName + name_append + "_P2");
             deleter_helper("hHighEnergy_" + sampleName + name_append + "_P2");
@@ -302,6 +374,7 @@ void reweight_apply_fakedata(
             deleter_helper("hEnergySum_" + sampleName + name_append + "_P2");
             deleter_helper("hEnergyDiff_" + sampleName + name_append + "_P2");
             deleter_helper("hHighLowEnergy_" + sampleName + name_append + "_P2");
+            }
 
             
             TH1D* hTotalE_P1_tmp = nullptr;
@@ -324,6 +397,12 @@ void reweight_apply_fakedata(
             // phase 1 histograms (tmp)
             ///////////////////////////////////////////////////////////////////
 
+            if(paramEnabledP1)
+            {
+            if(debuglevel >= 8)
+            {
+                std::cout << "P1 alloc" << std::endl;
+            }
             hTotalE_P1_tmp          = new TH1D("hTotalE_" + sampleName + name_append + "_P1",
                                         TString("Phase ") + "P1" + " " + sampleName + name_append + " total energy; Total Energy #SigmaE_{e} (MeV)",
                                         50, 0.0, 5.0);
@@ -356,12 +435,19 @@ void reweight_apply_fakedata(
             hHighLowEnergy_P1_tmp     = new TH2D("hHighLowEnergy_" + sampleName + name_append + "_P1",
                                         TString("Phase ") + "P1" + " " + sampleName + name_append + ";Low Energy Electron Energy (MeV);High Energy Electron Energy (MeV)",
                                         50, 0.0, 5.0, 50, 0.0, 5.0);
+            }
 
 
             ///////////////////////////////////////////////////////////////////
             // phase 2 histograms (tmp)
             ///////////////////////////////////////////////////////////////////
 
+            if(paramEnabledP2)
+            {
+            if(debuglevel >= 8)
+            {
+                std::cout << "P2 alloc" << std::endl;
+            }
             hTotalE_P2_tmp = new TH1D("hTotalE_" + sampleName + name_append + "_P2",
                                //"Phase " + Phase + " " + sampleName + name_append + " total energy; #SigmaE_{e} (MeV)",
                                TString("Phase ") + "P2" + " " + sampleName + name_append + " total energy; Total Energy #SigmaE_{e} (MeV)",
@@ -397,8 +483,11 @@ void reweight_apply_fakedata(
             hHighLowEnergy_P2_tmp     = new TH2D("hHighLowEnergy_" + sampleName + name_append + "_P2",
                                         TString("Phase ") + "P2" + " " + sampleName + name_append + ";Low Energy Electron Energy (MeV);High Energy Electron Energy (MeV)",
                                         50, 0.0, 5.0, 50, 0.0, 5.0);
+            }
 
             
+            if(paramEnabledP1)
+            {
             hTotalE_P1_tmp->Sumw2();
             hSingleEnergy_P1_tmp->Sumw2();
             hHighEnergy_P1_tmp->Sumw2();
@@ -406,8 +495,11 @@ void reweight_apply_fakedata(
             hHighLowEnergy_P1_tmp->Sumw2();
             hEnergySum_P1_tmp->Sumw2();
             hEnergyDiff_P1_tmp->Sumw2();
+            }
 
 
+            if(paramEnabledP2)
+            {
             hTotalE_P2_tmp->Sumw2();
             hSingleEnergy_P2_tmp->Sumw2();
             hHighEnergy_P2_tmp->Sumw2();
@@ -415,6 +507,7 @@ void reweight_apply_fakedata(
             hHighLowEnergy_P2_tmp->Sumw2();
             hEnergySum_P2_tmp->Sumw2();
             hEnergyDiff_P2_tmp->Sumw2();
+            }
 
 
             ///////////////////////////////////////////////////////////////////
@@ -430,6 +523,10 @@ void reweight_apply_fakedata(
                 std::cout << "failed to open" << std::endl;
             }
             TTree *inputTree = (TTree*)inputFile->Get("Nd150_2eNg/Nd150_2eNg");
+            if(debuglevel >= 8)
+            {
+                std::cout << "read tree, " << filePath + thePath + sampleName + "/Nd150_2eNg_output_postprocessed_small.root" << std::endl;
+            }
 
             int run;
             double eventTime;
@@ -610,6 +707,8 @@ void reweight_apply_fakedata(
 
                 if(thePhase == 0)
                 {
+            if(paramEnabledP1)
+            {
                     hTotalE_P1_tmp->Fill(el_energy_0 + el_energy_1, 1.0 * weight);
                     hSingleEnergy_P1_tmp->Fill(el_energy_1, 1.0 * weight);
                     hSingleEnergy_P1_tmp->Fill(el_energy_0, 1.0 * weight);
@@ -618,9 +717,12 @@ void reweight_apply_fakedata(
                     hHighLowEnergy_P1_tmp->Fill(el_energy_1, el_energy_0, 1.0 * weight);
                     hEnergySum_P1_tmp->Fill(el_energy_0 + el_energy_1, 1.0 * weight);
                     hEnergyDiff_P1_tmp->Fill(el_energy_0 - el_energy_1, 1.0 * weight);
+            }
                 }
                 else if(thePhase == 1)
                 {
+            if(paramEnabledP2)
+            {
                     hTotalE_P2_tmp->Fill(el_energy_0 + el_energy_1, 1.0 * weight);
                     hSingleEnergy_P2_tmp->Fill(el_energy_0, 1.0 * weight);
                     hSingleEnergy_P2_tmp->Fill(el_energy_1, 1.0 * weight);
@@ -629,6 +731,7 @@ void reweight_apply_fakedata(
                     hHighLowEnergy_P2_tmp->Fill(el_energy_1, el_energy_0, 1.0 * weight);
                     hEnergySum_P2_tmp->Fill(el_energy_0 + el_energy_1, 1.0 * weight);
                     hEnergyDiff_P2_tmp->Fill(el_energy_0 - el_energy_1, 1.0 * weight);
+            }
                 }
                 else
                 {
@@ -639,6 +742,10 @@ void reweight_apply_fakedata(
             }
 
             inputFile->Close();
+            if(debuglevel >= 8)
+            {
+                std::cout << "read tree done" << std::endl;
+            }
 
             //std::cout << hSingleEnergy_P2_tmp->GetName() << " -> " << hSingleEnergy_P2_tmp->GetBinContent(10) << std::endl;
 
@@ -665,7 +772,9 @@ void reweight_apply_fakedata(
             //std::cout << hSingleEnergy_P2_tmp->GetName() << " -> scale=" << TotalTime / sampleNGenMC << std::endl;
 
             // note: was below ->Scale
-            if(debuglevel >= 5) // 5
+            if(debuglevel >= 15) // 5
+            {
+            if(paramEnabledP2)
             {
                 std::cout << hTotalE_P2_tmp->GetName() << " : bin(7) -> " << hTotalE_P2_tmp->GetBinContent(7) << std::endl;
                 std::cout << hTotalE_P2_tmp->GetName() << " : bin(8) -> " << hTotalE_P2_tmp->GetBinContent(8) << std::endl;
@@ -674,7 +783,7 @@ void reweight_apply_fakedata(
                 std::cout << hTotalE_P2_tmp->GetName() << " : bin(11) -> " << hTotalE_P2_tmp->GetBinContent(11) << std::endl;
                 std::cout << hTotalE_P2_tmp->GetName() << " : bin(12) -> " << hTotalE_P2_tmp->GetBinContent(12) << std::endl;
                 std::cout << hTotalE_P2_tmp->GetName() << " : bin(13) -> " << hTotalE_P2_tmp->GetBinContent(13) << std::endl;
-
+            
                 /*
                 std::cout << hSingleEnergy_P2_tmp->GetName() << " : bin(7) -> " << hSingleEnergy_P2_tmp->GetBinContent(7) << std::endl;
                 std::cout << hSingleEnergy_P2_tmp->GetName() << " : bin(8) -> " << hSingleEnergy_P2_tmp->GetBinContent(8) << std::endl;
@@ -685,8 +794,11 @@ void reweight_apply_fakedata(
                 std::cout << hSingleEnergy_P2_tmp->GetName() << " : bin(13) -> " << hSingleEnergy_P2_tmp->GetBinContent(13) << std::endl;
                 */
             }
+            }
 
             // P1
+            if(paramEnabledP1)
+            {
             hTotalE_P1_tmp->Scale(TotalTime / sampleNGenMC);
             hSingleEnergy_P1_tmp->Scale(TotalTime / sampleNGenMC);
             hHighEnergy_P1_tmp->Scale(TotalTime / sampleNGenMC);
@@ -694,7 +806,10 @@ void reweight_apply_fakedata(
             hHighLowEnergy_P1_tmp->Scale(TotalTime / sampleNGenMC);
             hEnergySum_P1_tmp->Scale(TotalTime / sampleNGenMC);
             hEnergyDiff_P1_tmp->Scale(TotalTime / sampleNGenMC);
+            }
             // P2
+            if(paramEnabledP2)
+            {
             hTotalE_P2_tmp->Scale(TotalTime / sampleNGenMC);
             hSingleEnergy_P2_tmp->Scale(TotalTime / sampleNGenMC);
             hHighEnergy_P2_tmp->Scale(TotalTime / sampleNGenMC);
@@ -702,6 +817,7 @@ void reweight_apply_fakedata(
             hHighLowEnergy_P2_tmp->Scale(TotalTime / sampleNGenMC);
             hEnergySum_P2_tmp->Scale(TotalTime / sampleNGenMC);
             hEnergyDiff_P2_tmp->Scale(TotalTime / sampleNGenMC);
+            }
 
 
             //std::cout << "paramInitValue=" << paramInitValue << std::endl;
@@ -711,6 +827,8 @@ void reweight_apply_fakedata(
                 const double scale_factor = 0.36;
 
                 // P1
+            if(paramEnabledP1)
+            {
                 hTotalE_P1_tmp->Scale(scale_factor);
                 hSingleEnergy_P1_tmp->Scale(scale_factor);
                 hHighEnergy_P1_tmp->Scale(scale_factor);
@@ -718,7 +836,10 @@ void reweight_apply_fakedata(
                 hHighLowEnergy_P1_tmp->Scale(scale_factor);
                 hEnergySum_P1_tmp->Scale(scale_factor);
                 hEnergyDiff_P1_tmp->Scale(scale_factor);
+            }
                 // P2
+            if(paramEnabledP2)
+            {
                 hTotalE_P2_tmp->Scale(scale_factor);
                 hSingleEnergy_P2_tmp->Scale(scale_factor);
                 hHighEnergy_P2_tmp->Scale(scale_factor);
@@ -726,6 +847,7 @@ void reweight_apply_fakedata(
                 hHighLowEnergy_P2_tmp->Scale(scale_factor);
                 hEnergySum_P2_tmp->Scale(scale_factor);
                 hEnergyDiff_P2_tmp->Scale(scale_factor);
+            }
             }
 
             // realistic scaling for amplitude
@@ -756,6 +878,8 @@ void reweight_apply_fakedata(
             */
 
             // P1
+            if(paramEnabledP1)
+            {
             hTotalE_P1_tmp->Scale(paramInitValue);
             hSingleEnergy_P1_tmp->Scale(paramInitValue);
             hHighEnergy_P1_tmp->Scale(paramInitValue);
@@ -763,7 +887,10 @@ void reweight_apply_fakedata(
             hHighLowEnergy_P1_tmp->Scale(paramInitValue);
             hEnergySum_P1_tmp->Scale(paramInitValue);
             hEnergyDiff_P1_tmp->Scale(paramInitValue);
+            }
             // P2
+            if(paramEnabledP2)
+            {
             hTotalE_P2_tmp->Scale(paramInitValue);
             hSingleEnergy_P2_tmp->Scale(paramInitValue);
             hHighEnergy_P2_tmp->Scale(paramInitValue);
@@ -771,6 +898,19 @@ void reweight_apply_fakedata(
             hHighLowEnergy_P2_tmp->Scale(paramInitValue);
             hEnergySum_P2_tmp->Scale(paramInitValue);
             hEnergyDiff_P2_tmp->Scale(paramInitValue);
+            }
+
+            if(paramEnabledP2)
+            {
+            std::cout << "hSingleEnergy_P2->GetName()=" << hSingleEnergy_P2_tmp->GetName() << " scale_factor_P2=" << paramInitValue << std::endl;
+            for(Int_t i = 1; i < hSingleEnergy_P2_tmp->GetNbinsX(); ++ i)
+            {
+                if(hSingleEnergy_P2_tmp->GetBinContent(i) != 0.0)
+                {
+                    std::cout << "hSingleEnergy_P2->GetBinContents(" << i << ")=" << hSingleEnergy_P2_tmp->GetBinContent(i) << std::endl;
+                }
+            }
+            }
 
             
             //if(TString(hSingleEnergy_P2_tmp->GetName()).Contains("tl208"))

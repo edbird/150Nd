@@ -405,6 +405,10 @@ void newLogLikFitter(int i)
 
 void loadFiles(int i)
 {
+    
+    std::chrono::system_clock::time_point start_time = std::chrono::high_resolution_clock::now();
+        
+
 
     TH1::AddDirectory(false);
     TH2::AddDirectory(false);
@@ -1071,7 +1075,7 @@ void loadFiles(int i)
     std::vector<TCanvas*> results_c_allparams;
 
     // do not do this in parallel mode
-    if(1) // || (MODE_PARALLEL == 0))
+    if(0) // || (MODE_PARALLEL == 0))
     {
 
         std::vector<double> results_x_xi_31;
@@ -1338,7 +1342,8 @@ void loadFiles(int i)
         gSystematics.systematic_energy_offset = 0.0;
         double systematic_energy_offset = gSystematics.systematic_energy_offset;
         std::cout << "seo=" << systematic_energy_offset << std::endl;
-        rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itsel
+        //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itsel
+        rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itsel
 
         // create minimizer
         //ROOT::Minuit2::MnUserParameterState theParameterState;
@@ -1556,6 +1561,9 @@ void loadFiles(int i)
     // initial xi value is 0! because 0 * anything = 0
 //    draw(AdjustActs, AdjustActs_Err, "beforefit_hTotalE.*");
 
+    std::chrono::system_clock::time_point end_time = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> runtime_sec = end_time - start_time;
+    std::cout << "execution time: " <<  runtime_sec.count() / 3600.0 << " hours" << std::endl;
 }
 
 

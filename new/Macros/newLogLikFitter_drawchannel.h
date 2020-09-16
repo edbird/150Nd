@@ -432,7 +432,7 @@ void draw_channel_phase(
                         if(TString(tmpHist1D_P1->GetName()).Contains("hSingleEnergy_"))
                         {
                             std::cout << "P1: name=" << tmpHist1D_P1->GetName() << std::endl;
-                            std::cout << "scale_factor=" << scale_factor_P1 << std::endl;
+                            std::cout << "scale_factor_P1=" << scale_factor_P1 << std::endl;
                             std::cout << "bin 10: " << tmpHist1D_P1->GetBinContent(10) << std::endl;
                         }
                     }
@@ -487,7 +487,7 @@ void draw_channel_phase(
                         if(TString(tmpHist1D_P2->GetName()).Contains("hSingleEnergy_"))
                         {
                             std::cout << "P2: name=" << tmpHist1D_P2->GetName() << std::endl;
-                            std::cout << "scale_factor=" << scale_factor_P2 << std::endl;
+                            std::cout << "scale_factor_P2=" << scale_factor_P2 << std::endl;
                             std::cout << "bin 10: " << tmpHist1D_P2->GetBinContent(10) << std::endl;
                         }
                     }
