@@ -405,6 +405,10 @@ void newLogLikFitter(int i)
 
 void loadFiles(int i)
 {
+    
+    std::chrono::system_clock::time_point start_time = std::chrono::high_resolution_clock::now();
+        
+
 
     TH1::AddDirectory(false);
     TH2::AddDirectory(false);
@@ -1557,6 +1561,9 @@ void loadFiles(int i)
     // initial xi value is 0! because 0 * anything = 0
 //    draw(AdjustActs, AdjustActs_Err, "beforefit_hTotalE.*");
 
+    std::chrono::system_clock::time_point end_time = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> runtime_sec = end_time - start_time;
+    std::cout << "execution time: " <<  runtime_sec.count() / 3600.0 << " hours" << std::endl;
 }
 
 

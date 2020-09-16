@@ -52,8 +52,9 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
     {
 
 
+        #if MEASURE_FUNCTION_CALL_TIME
         std::chrono::system_clock::time_point start_time = std::chrono::high_resolution_clock::now();
-        
+        #endif
 
         const int MODE_LOGPOISSON = 0;
         const int MODE_CHI2 = 1;
