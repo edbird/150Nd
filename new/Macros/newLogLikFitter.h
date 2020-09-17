@@ -56,8 +56,8 @@ bool gEnablePhase2;
 
 parameter_group g_pg;
 
-bool g_mode_fake_data = false;
-//bool g_mode_fake_data = true;
+//bool g_mode_fake_data = false;
+bool g_mode_fake_data = true;
 //std::string g_datetimestamp_string;
 
 // globals required in logLikelihood function but cannot be passed as
