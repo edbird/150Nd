@@ -3,47 +3,6 @@
 
 
 
-// TODO: should this include the parameters?
-double calc_chi2_draw(TH1D *data1D, TH1D *hAllMC1D)
-{
-    double sum = 0.0;
-    for(Int_t i = 1; i < hAllMC1D->GetNbinsX(); ++ i)
-    {
-
-        double c_data = data1D->GetBinContent(i);
-        double c_MC = hAllMC1D->GetBinContent(i);
-        double lp = 0.0;
-
-        if(c_MC >= 0.0)
-        {
-            if(c_MC == 0.0)
-            {
-                continue;
-            }
-            lp = logpoisson(c_data, c_MC);
-        }
-
-        /*
-        double e_data = data1D->GetBinError(i);
-        double e_MC = hAllMC1D->GetBinError(i);
-
-        if(c_data == 0.0 && e_data == 0.0) continue;
-        if(c_MC == 0.0 && e_MC == 0.0) continue;
-
-        //e_MC = 0.0;
-
-        double num = (c_data - c_MC);
-        num = num * num;
-        double den = e_MC * e_MC + e_data * e_data;
-        sum += num / den;
-        */
-
-        //sum += logpoisson(c_data, c_MC);
-        sum += lp;
-    }
-    //return sum;
-    return -2.0 * sum;
-}
 
 
 
@@ -69,12 +28,12 @@ class draw_input_data
         chi2 = -1.0;
         chi2_P1 = -1.0;
         chi2_P2 = -1.0;
-        ndf = -1.0;
-        ndf_P1 = -1.0;
-        ndf_P2 = -1.0;
-        nfreeparam = 0.0;
-        nfreeparam_P1 = 0.0;
-        nfreeparam_P2 = 0.0;
+        nch = -1.0;
+        nch_P1 = -1.0;
+        nch_P2 = -1.0;
+        nfp = 0.0;
+        //nfreeparam_P1 = 0.0;
+        //nfreeparam_P2 = 0.0;
 
         mode_parallel = false;
         parallel_job_id = -1;
@@ -93,16 +52,22 @@ class draw_input_data
     bool draw_P2;
     bool draw_P1P2;
 
+    // chi2 (global)
     double chi2;
     double chi2_P1;
     double chi2_P2;
-    double ndf;
-    double ndf_P1;
-    double ndf_P2;
-    double nfreeparam;
-    double nfreeparam_P1;
-    double nfreeparam_P2;
-    
+    // ndf (global)
+    //double ndf;
+    //double ndf_P1;
+    //double ndf_P2;
+    int nch;
+    int nch_P1;
+    int nch_P2; // number of channel = number of bin
+    // number of free parameters (global)
+    int nfp;
+    //double nfreeparam_P1;
+    //double nfreeparam_P2;
+ 
     // obtain from global variable
     //bool g_mode_fake_data;
 
@@ -118,6 +83,7 @@ class draw_input_data
     bool saveas_C;
 
 };
+
 
 class draw_output_data
 {
@@ -165,6 +131,7 @@ class draw_output_data
     TH1D *fakeData1D;
 
 };
+
 
 // map channel to map phase to 
 // channel index: 0 to number1DHists
@@ -840,10 +807,10 @@ void draw_channel_phase(
         //data1D_Px->GetYaxis()->SetRangeUser(PAD_U_Y_MIN, PAD_U_Y_MAX); // TODO???
 
         //double chi2;
-        int ndf_Px = -1;
+        int nch_Px = -1;
         if(g_mode_fake_data == false)
         {
-            ndf_Px = get_ndf_1D(hAllMC1D_Px, data1D_Px);
+            nch_Px = get_nch_1D(hAllMC1D_Px, data1D_Px);
             /*
             if(phase_arg_str == "P1")
             {
@@ -861,11 +828,10 @@ void draw_channel_phase(
         }
         if(g_mode_fake_data == true)
         {
-            ndf_Px = get_ndf_1D(hAllMC1D_Px, fakeData1D_Px);
+            nch_Px = get_nch_1D(hAllMC1D_Px, fakeData1D_Px);
         }
-        ndf_Px -= 1;
+        //nch_Px -= drawinputdata.nfreeparam;
         //int igood;
-        TString ndf_Px_str;
 
         // TODO: should chisquare value include the constraints? because at
         // the moment it does not
@@ -920,14 +886,18 @@ void draw_channel_phase(
         */
         if(g_mode_fake_data == false)
         {
-            fval_Px = calc_chi2_draw(data1D_Px, hAllMC1D_Px);
+            //fval_Px = calc_chi2_draw(data1D_Px, hAllMC1D_Px);
+            fval_Px = calc_chi2_draw_metric_CHISQ_ERR_SQRT_MC(data1D_Px, hAllMC1D_Px);
         }
         if(g_mode_fake_data == true)
         {
-            fval_Px = calc_chi2_draw(fakeData1D_Px, hAllMC1D_Px);
+            //fval_Px = calc_chi2_draw(fakeData1D_Px, hAllMC1D_Px);
+            fval_Px = calc_chi2_draw_metric_CHISQ_ERR_SQRT_MC(fakeData1D_Px, hAllMC1D_Px);
         }
         TString fval_Px_str;
         fval_Px_str.Form("%.1f", fval_Px);
+        int ndf_Px = nch_Px - drawinputdata.nfp;
+        TString ndf_Px_str;
         ndf_Px_str.Form("%i", ndf_Px);
         /*
         mychi2_str.Form("%4.3f", mychi2);
@@ -1004,15 +974,17 @@ void draw_channel_phase(
         xilatex.SetTextSize(20);
         xilatex.DrawLatex(0.425, 0.70, xilatexstr);
 
-        double chi2_Px = drawinputdata.chi2;
-        int chi2_ndf_Px = drawinputdata.ndf;
-        TString chi2_Px_str;
-        chi2_Px_str.Form("%.1f", chi2_Px);
-        TString chi2_ndf_Px_str;
-        chi2_ndf_Px_str.Form("%i", chi2_ndf_Px);
+        double chi2_global = drawinputdata.chi2;
+        int nch_global = drawinputdata.nch;
+        int nfp_global = drawinputdata.nfp;
+        int ndf_global = nch_global - nfp_global;
+        TString chi2_global_str;
+        chi2_global_str.Form("%.1f", chi2_global);
+        TString ndf_global_str;
+        ndf_global_str.Form("%i", ndf_global);
 
         TString chilatexstr;
-        chilatexstr.Form("#frac{#chi^{2}_{global}}{ndf} = #frac{%s}{%s}", chi2_Px_str.Data(), chi2_ndf_Px_str.Data());
+        chilatexstr.Form("#frac{#chi^{2}_{global}}{ndf} = #frac{%s}{%s}", chi2_global_str.Data(), ndf_global_str.Data());
 
         TLatex chilatex;
         chilatex.SetNDC();

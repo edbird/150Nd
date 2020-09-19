@@ -582,7 +582,9 @@ void newloglikfitter_testmyphasespace_newversion(
                 std::vector<double> param_errs_before = theParameterStateBefore.Errors();
                 double fval_before = theFCN.operator()(params_before);
                 //int ndf = theFCN.ndf - theParameterStateBefore.VariableParameters();
-                int ndf = theFCN.ndf - g_pg.get_number_free_params();
+                int nch = theFCN.nch;
+                int nfp = g_pg.get_number_free_params();
+                int ndf = nch - nfp;
 
                 // do minuit2 fit
                 ROOT::Minuit2::FunctionMinimum FCN_min =
@@ -597,7 +599,9 @@ void newloglikfitter_testmyphasespace_newversion(
                 std::vector<double> param_errs_after = theParameterStateAfter.Errors();
                 double fval_after = theFCN.operator()(params_after);
                 //ndf = theFCN.ndf - theParameterStateAfter.VariableParameters();
-                ndf = theFCN.ndf - g_pg.get_number_free_params();
+                nch = theFCN.nch;
+                nfp = g_pg.get_number_free_params();
+                ndf = nch - nfp;
 
                 //print_adjustacts(os, params_after, param_errs_after);
 
