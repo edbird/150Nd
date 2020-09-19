@@ -200,16 +200,16 @@ MinimizeFCNAxialVector::set_D() const
         {
             //tmpData1D_P1[bin_x] = tmpDataHist1D_P1->GetBinContent(bin_x);
             //Int_t super_index = channel * 2 * 50 + bin_x;
-            Int_t super_index = bin_x;
+            //Int_t super_index = bin_x;
             Double_t content_input = 0.0;
             Double_t content_add = tmpDataHist1D_P1->GetBinContent(bin_x + 1);
             Double_t content_output = content_input + content_add;
             //D_1D_P1[channel]->SetBinContent(super_index + 1, 1, content_output);
-                #if VECTOR_RANGE_CHECK
+            #if VECTOR_RANGE_CHECK
             D_1D_P1_data[channel]->at(bin_x) = content_output;
-                #else
+            #else
             D_1D_P1_data[channel]->operator[](bin_x) =  content_output;
-                #endif
+            #endif
         }
         
         //std::cout << "LIST OF P2 DATA channel=" << channel << std::endl;
@@ -218,16 +218,16 @@ MinimizeFCNAxialVector::set_D() const
         {
             //tmpData1D_P2[bin_x] = tmpDataHist1D_P2->GetBinContent(bin_x);
             //Int_t super_index = channel * 2 * 50 + 50 + bin_x;
-            Int_t super_index = bin_x;
+            //Int_t super_index = bin_x;
             Double_t content_input = 0.0;
             Double_t content_add = tmpDataHist1D_P2->GetBinContent(bin_x + 1);
             Double_t content_output = content_input + content_add;
             //D_1D_P2[channel]->SetBinContent(super_index + 1, 1, content_output);
-                #if VECTOR_RANGE_CHECK
+            #if VECTOR_RANGE_CHECK
             D_1D_P2_data[channel]->at(bin_x) = content_output;
-                #else
+            #else
             D_1D_P2_data[channel]->operator[](bin_x) = content_output;
-                #endif
+            #endif
             //std::cout << "bin_x=" << bin_x + 1 << " content=" << content_output << std::endl;
         }
     }
@@ -586,7 +586,11 @@ MinimizeFCNAxialVector::set_D_minus_M() const
                     */
                     Double_t content_D_minus_M = content_D - content_M;
                     //D_minus_M_1D_P1[channel]->SetBinContent(binx, 1, content_D_minus_M);
+                    #if VECTOR_RANGE_CHECK
+                    D_minus_M_1D_P1_data[channel]->at(binx) = content_D_minus_M;
+                    #else
                     D_minus_M_1D_P1_data[channel]->operator[](binx) = content_D_minus_M;
+                    #endif
                 }
 
                 // P2
@@ -623,6 +627,17 @@ MinimizeFCNAxialVector::set_D_minus_M() const
 void
 MinimizeFCNAxialVector::set_V_MATRIX() const
 {
+
+    // TODO: speed up this code by only building one matrix object
+    // V_PHYS, and building it element by element, using symmetry
+    // optimizations if possible. this avoids copying several V_MATRIX
+    // objects into one final object
+    // 
+    // then further optimize by storing only D - M and computing the
+    // matrix multiplication in place
+    // this might not be possible because I need to invert the matrix
+    // unless the inversion can be done in place? (might be slower
+    // even if I can invent such an algorithm)
 
     for(int channel = 0; channel < number1DHists; ++ channel)
     {
@@ -752,10 +767,23 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
 
                 //for(int ch = 0; ch < number1DHists; ++ ch)
                 //{
-                delete V_PHYS_1D_P1_MATHMORE[channel];
-                delete V_PHYS_1D_P2_MATHMORE[channel];
-                V_PHYS_1D_P1_MATHMORE[channel] = new TMatrixD(counter_P1, counter_P1); // NUM_BINS_XY, NUM_BINS_XY);
-                V_PHYS_1D_P2_MATHMORE[channel] = new TMatrixD(counter_P2, counter_P2); //NUM_BINS_XY, NUM_BINS_XY);
+
+
+                #if MEASURE_FUNCTION_CALL_TIME
+                std::chrono::system_clock::time_point start_time = std::chrono::high_resolution_clock::now();
+                #endif
+                {
+                    delete V_PHYS_1D_P1_MATHMORE[channel];
+                    delete V_PHYS_1D_P2_MATHMORE[channel];
+                    V_PHYS_1D_P1_MATHMORE[channel] = new TMatrixD(counter_P1, counter_P1); // NUM_BINS_XY, NUM_BINS_XY);
+                    V_PHYS_1D_P2_MATHMORE[channel] = new TMatrixD(counter_P2, counter_P2); //NUM_BINS_XY, NUM_BINS_XY);
+                    // TODO: must be able to optimize this
+                }
+                #if MEASURE_FUNCTION_CALL_TIME
+                std::chrono::system_clock::time_point end_time = std::chrono::high_resolution_clock::now();
+                std::chrono::duration<double> runtime_sec = end_time - start_time;
+                std::cout << "V_PHYS_1D_Px_MATHMORE allocation time: " << 1.0e+06 * runtime_sec.count() << " microsecond" << std::endl;
+                #endif
 
                 //std::cout << "size: " << V_PHYS_1D_P1_MATHMORE[channel]->GetNrows() << " " << V_PHYS_1D_P1_MATHMORE[channel]->GetNcols() << std::endl;
                 //std::cout << "size: " << V_PHYS_1D_P2_MATHMORE[channel]->GetNrows() << " " << V_PHYS_1D_P2_MATHMORE[channel]->GetNcols() << std::endl;
@@ -778,13 +806,15 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                 //}
 
 
-            // TODO: fix problems here
-            // if channel is disabled, ignore it
-            // should be done in a big output loop?
-            // there is a reference to channel here
-            // and yet there is a loop over ch above
-            // how can this make sense? is it a bug?
-            // TODO: ALL CHANNELS ARE CURRENTLY ENABLED?
+                // TODO: fix problems here
+                // if channel is disabled, ignore it
+                // should be done in a big output loop?
+                // DONE
+                // there is a reference to channel here
+                // and yet there is a loop over ch above
+                // how can this make sense? is it a bug?
+                // FIXED
+                // TODO: ALL CHANNELS ARE CURRENTLY ENABLED?
 
                 ///////////////////////////////////////////////////////////
                 // Phase 1
@@ -807,20 +837,22 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                     {
                         if(V_ENABLE_BIN_1D_P1[channel]->at(i) == true)
                         {
-                            //Double_t content = V_PHYS_STAT_1D_P1[channel]->GetBinContent(i + 1, j + 1);
-                            #if VECTOR_RANGE_CHECK
-                            Double_t content = V_PHYS_STAT_1D_P1_data[channel]->at(i + j * 50);
-                            #else
-                            Double_t content = V_PHYS_STAT_1D_P1_data[channel]->operator[](i + j * 50);
-                            #endif
-                            //std::cout << "i=" << i << " j=" << j << " i_counter=" << i_counter << " j_counter=" << j_counter << " content=" << content << std::endl;
-                            V_PHYS_1D_P1_MATHMORE[channel]->operator[](j_counter).operator[](i_counter) = content;
-                            //std::cout << "j=" << j << " i=" << i << " " << content << std::endl;
+                            // do nothing
                         }
                         else
                         {
                             continue;
                         }
+
+                        //Double_t content = V_PHYS_STAT_1D_P1[channel]->GetBinContent(i + 1, j + 1);
+                        #if VECTOR_RANGE_CHECK
+                        Double_t content = V_PHYS_STAT_1D_P1_data[channel]->at(i + j * 50);
+                        #else
+                        Double_t content = V_PHYS_STAT_1D_P1_data[channel]->operator[](i + j * 50);
+                        #endif
+                        //std::cout << "i=" << i << " j=" << j << " i_counter=" << i_counter << " j_counter=" << j_counter << " content=" << content << std::endl;
+                        V_PHYS_1D_P1_MATHMORE[channel]->operator[](j_counter).operator[](i_counter) = content;
+                        //std::cout << "j=" << j << " i=" << i << " " << content << std::endl;
 
                         ++ i_counter;
                     }
@@ -849,19 +881,21 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                     {
                         if(V_ENABLE_BIN_1D_P2[channel]->at(i) == true)
                         {
-                            //Double_t content = V_PHYS_STAT_1D_P2[channel]->GetBinContent(i + 1, j + 1);
-                            #if VECTOR_RANGE_CHECK
-                            Double_t content = V_PHYS_STAT_1D_P2_data[channel]->at(i + j * 50);
-                            #else
-                            Double_t content = V_PHYS_STAT_1D_P2_data[channel]->operator[](i + j * 50);
-                            #endif
-                            //std::cout << "i=" << i << " j=" << j << " i_counter=" << i_counter << " j_counter=" << j_counter << " content=" << content << std::endl;
-                            V_PHYS_1D_P2_MATHMORE[channel]->operator[](j_counter).operator[](i_counter) = content;
+                            // do nothing
                         }
                         else
                         {
                             continue;
                         }
+
+                        //Double_t content = V_PHYS_STAT_1D_P2[channel]->GetBinContent(i + 1, j + 1);
+                        #if VECTOR_RANGE_CHECK
+                        Double_t content = V_PHYS_STAT_1D_P2_data[channel]->at(i + j * 50);
+                        #else
+                        Double_t content = V_PHYS_STAT_1D_P2_data[channel]->operator[](i + j * 50);
+                        #endif
+                        //std::cout << "i=" << i << " j=" << j << " i_counter=" << i_counter << " j_counter=" << j_counter << " content=" << content << std::endl;
+                        V_PHYS_1D_P2_MATHMORE[channel]->operator[](j_counter).operator[](i_counter) = content;
 
                         ++ i_counter;
                     }
@@ -899,13 +933,15 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                 std::cout << "Start Invert" << std::endl;
                 std::chrono::system_clock::time_point start_time = std::chrono::high_resolution_clock::now();
                 #endif
+                std::cout << "P1 V_MATRIX size: " << V_PHYS_1D_P1_MATHMORE[channel]->GetNrows() << " " << V_PHYS_1D_P1_MATHMORE[channel]->GetNcols() << std::endl;
                 V_PHYS_1D_P1_MATHMORE[channel]->Invert();
                 //std::cout << "Next Invert" << std::endl;
+                std::cout << "P2 V_MATRIX size: " << V_PHYS_1D_P2_MATHMORE[channel]->GetNrows() << " " << V_PHYS_1D_P2_MATHMORE[channel]->GetNcols() << std::endl;
                 V_PHYS_1D_P2_MATHMORE[channel]->Invert();
                 #if MEASURE_FUNCTION_CALL_TIME
                 std::chrono::system_clock::time_point end_time = std::chrono::high_resolution_clock::now();
-                std::chrono::duration<double> runtime_microsec = end_time - start_time;
-                std::cout << "Done Invert, time=" << 1.0e+06 * runtime_microsec.count() << " microsecond" << std::endl;
+                std::chrono::duration<double> runtime_sec = end_time - start_time;
+                std::cout << "Done Invert, time=" << 1.0e+06 * runtime_sec.count() << " microsecond" << std::endl;
                 #endif
                 
                 // disable this to recalculate the V MATRIX each loop
@@ -920,9 +956,10 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
 
 
 void
-MinimizeFCNAxialVector::calculate_chi2_P1(double &chi2_P1) const
+MinimizeFCNAxialVector::calculate_chi2_P1(double &chi2_P1, int &nch_P1) const
 {
     chi2_P1 = 0.0;
+    nch_P1 = 0;
 
     for(int channel = 0; channel < number1DHists; ++ channel)
     {
@@ -964,13 +1001,16 @@ MinimizeFCNAxialVector::calculate_chi2_P1(double &chi2_P1) const
                     //double D_content_1 = D_1D_P1[channel]->GetBinContent(l, 1);
                     //double M_content_1 = M_1D_P1[channel]->GetBinContent(l, 1);
                     #if VECTOR_RANGE_CHECK
-                    double D_content_1 = D_1D_P1_data[channel]->at(l);
-                    double M_content_1 = M_1D_P1_data[channel]->at(l);
+                    //double D_content_1 = D_1D_P1_data[channel]->at(l);
+                    //double M_content_1 = M_1D_P1_data[channel]->at(l);
+                    double D_minus_M_content_1 = D_minus_M_1D_P1_data[channel]->at(l);
                     #else
-                    double D_content_1 = D_1D_P1_data[channel]->operator[](l);
-                    double M_content_1 = M_1D_P1_data[channel]->operator[](l);
+                    //double D_content_1 = D_1D_P1_data[channel]->operator[](l);
+                    //double M_content_1 = M_1D_P1_data[channel]->operator[](l);
+                    double D_minus_M_content_1 = D_minus_M_1D_P1_data[channel]->operator[](l);
                     #endif
-                    double delta_1 = D_content_1 - M_content_1;
+                    //double delta_1 = D_content_1 - M_content_1;
+                    double delta_1 = D_minus_M_content_1;
                     //double V_CHEN_content = V_CHEN->GetBinContent(k, l);
                     //double V_PHYS_STAT_content = V_PHYS_STAT_1D_P1[channel]->GetBinContent(l, m);
 
@@ -981,13 +1021,16 @@ MinimizeFCNAxialVector::calculate_chi2_P1(double &chi2_P1) const
                     //double D_content_2 = D_1D_P1[channel]->GetBinContent(m, 1);
                     //double M_content_2 = M_1D_P1[channel]->GetBinContent(m, 1); 
                     #if VECTOR_RANGE_CHECK
-                    double D_content_2 = D_1D_P1_data[channel]->at(m);
-                    double M_content_2 = M_1D_P1_data[channel]->at(m);
+                    //double D_content_2 = D_1D_P1_data[channel]->at(m);
+                    //double M_content_2 = M_1D_P1_data[channel]->at(m);
+                    double D_minus_M_content_2 = D_minus_M_1D_P1_data[channel]->at(l);
                     #else
-                    double D_content_2 = D_1D_P1_data[channel]->operator[](m);
-                    double M_content_2 = M_1D_P1_data[channel]->operator[](m);
+                    //double D_content_2 = D_1D_P1_data[channel]->operator[](m);
+                    //double M_content_2 = M_1D_P1_data[channel]->operator[](m);
+                    double D_minus_M_content_2 = D_minus_M_1D_P1_data[channel]->operator[](m);
                     #endif
-                    double delta_2 = D_content_2 - M_content_2;
+                    //double delta_2 = D_content_2 - M_content_2;
+                    double delta_2 = D_minus_M_content_2;
                     //double next = delta_1 * V_CHEN_content * V_PHYS_STAT_content * delta_2;
                     double next = delta_1 * V_PHYS_STAT_content * delta_2;
 
@@ -1013,6 +1056,7 @@ MinimizeFCNAxialVector::calculate_chi2_P1(double &chi2_P1) const
                 }
 
                 ++ l_counter;
+                ++ nch_P1;
             }
 
             chi2_P1 += chi2_1D_P1;
@@ -1025,9 +1069,10 @@ MinimizeFCNAxialVector::calculate_chi2_P1(double &chi2_P1) const
 
 
 void
-MinimizeFCNAxialVector::calculate_chi2_P2(double &chi2_P2) const
+MinimizeFCNAxialVector::calculate_chi2_P2(double &chi2_P2, int &nch_P2) const
 {
     chi2_P2 = 0.0;
+    nch_P2 = 0;
 
     for(int channel = 0; channel < number1DHists; ++ channel)
     {
@@ -1067,13 +1112,16 @@ MinimizeFCNAxialVector::calculate_chi2_P2(double &chi2_P2) const
                     //double D_content_1 = D_1D_P2[channel]->GetBinContent(l, 1);
                     //double M_content_1 = M_1D_P2[channel]->GetBinContent(l, 1);
                     #if VECTOR_RANGE_CHECK
-                    double D_content_1 = D_1D_P2_data[channel]->at(l);
-                    double M_content_1 = M_1D_P2_data[channel]->at(l);
+                    //double D_content_1 = D_1D_P2_data[channel]->at(l);
+                    //double M_content_1 = M_1D_P2_data[channel]->at(l);
+                    double D_minus_M_content_1 = D_minus_M_1D_P2_data[channel]->at(l);
                     #else
-                    double D_content_1 = D_1D_P2_data[channel]->operator[](l);
-                    double M_content_1 = M_1D_P2_data[channel]->operator[](l);
+                    //double D_content_1 = D_1D_P2_data[channel]->operator[](l);
+                    //double M_content_1 = M_1D_P2_data[channel]->operator[](l);
+                    double D_minus_M_content_1 = D_minus_M_1D_P2_data[channel]->operator[](l);
                     #endif
-                    double delta_1 = D_content_1 - M_content_1;
+                    //double delta_1 = D_content_1 - M_content_1;
+                    double delta_1 = D_minus_M_content_1;
                     //double V_CHEN_content = V_CHEN->GetBinContent(k, l);
                     //double V_PHYS_STAT_content = V_PHYS_STAT_1D_P2[channel]->GetBinContent(l, m);
                     double V_PHYS_STAT_content = 0.0;
@@ -1084,13 +1132,16 @@ MinimizeFCNAxialVector::calculate_chi2_P2(double &chi2_P2) const
                     //double D_content_2 = D_1D_P2[channel]->GetBinContent(m, 1);
                     //double M_content_2 = M_1D_P2[channel]->GetBinContent(m, 1);
                     #if VECTOR_RANGE_CHECK
-                    double D_content_2 = D_1D_P2_data[channel]->at(m);
-                    double M_content_2 = M_1D_P2_data[channel]->at(m);
+                    //double D_content_2 = D_1D_P2_data[channel]->at(m);
+                    //double M_content_2 = M_1D_P2_data[channel]->at(m);
+                    double D_minus_M_content_2 = D_minus_M_1D_P2_data[channel]->at(l);
                     #else
-                    double D_content_2 = D_1D_P2_data[channel]->operator[](m);
-                    double M_content_2 = M_1D_P2_data[channel]->operator[](m);
+                    //double D_content_2 = D_1D_P2_data[channel]->operator[](m);
+                    //double M_content_2 = M_1D_P2_data[channel]->operator[](m);
+                    double D_minus_M_content_2 = D_minus_M_1D_P2_data[channel]->operator[](m);
                     #endif
-                    double delta_2 = D_content_2 - M_content_2;
+                    //double delta_2 = D_content_2 - M_content_2;
+                    double delta_2 = D_minus_M_content_2;
                     //double next = delta_1 * V_CHEN_content * V_PHYS_STAT_content * delta_2;
                     double next = delta_1 * V_PHYS_STAT_content * delta_2;
 
@@ -1116,6 +1167,7 @@ MinimizeFCNAxialVector::calculate_chi2_P2(double &chi2_P2) const
                 }
 
                 ++ l_counter;
+                ++ nch_P2;
             }
 
             chi2_P2 += chi2_1D_P2;

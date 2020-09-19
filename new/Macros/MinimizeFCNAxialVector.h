@@ -66,9 +66,9 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
 
 
         // TODO: subtract numfreepars
-        ndf = 0;
-        int ndf_P1 = 0;
-        int ndf_P2 = 0;
+        nch = 0;
+        int nch_P1 = 0;
+        int nch_P2 = 0;
 
         /*
         std::cout << "operator()-> param: ";
@@ -407,16 +407,36 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
 
             if(recalculate_V_PHYS_xD_Px_MATHMORE == true)
             {
-            // realloc these each time
-            for(int ch = 0; ch < number1DHists; ++ ch)
-            {
-                const Int_t NUM_BINS_XY = 50;
-                delete V_ENABLE_BIN_1D_P1[ch];
-                delete V_ENABLE_BIN_1D_P2[ch];
-                V_ENABLE_BIN_1D_P1[ch] = new std::vector<bool>;
-                V_ENABLE_BIN_1D_P2[ch] = new std::vector<bool>;
-                V_ENABLE_BIN_1D_P1[ch]->reserve(NUM_BINS_XY);
-                V_ENABLE_BIN_1D_P2[ch]->reserve(NUM_BINS_XY);
+                if(V_ENABLE_BIN_1D_P1[0] == nullptr)
+                {
+                    for(int ch = 0; ch < number1DHists; ++ ch)
+                    {
+                        //delete V_ENABLE_BIN_1D_P1[ch];
+                        //delete V_ENABLE_BIN_1D_P2[ch];
+                        V_ENABLE_BIN_1D_P1[ch] = new std::vector<bool>;
+                        V_ENABLE_BIN_1D_P2[ch] = new std::vector<bool>;
+                        const Int_t NUM_BINS_XY = 50;
+                        V_ENABLE_BIN_1D_P1[ch]->reserve(NUM_BINS_XY);
+                        V_ENABLE_BIN_1D_P2[ch]->reserve(NUM_BINS_XY); 
+                    }
+                }
+                // realloc these each time
+                for(int ch = 0; ch < number1DHists; ++ ch)
+                {
+                    if(channel_enable_1D[ch] == 1)
+                    {
+                        V_ENABLE_BIN_1D_P1[ch]->clear();
+                        V_ENABLE_BIN_1D_P2[ch]->clear();
+                    }
+                    // elements are set using push_back(), so call clear
+                    // in initialization
+                    // if (ALL) elements are initialized using operator[]
+                    // then do not clear()
+                    // if only some elements are initilized using operator[]
+                    // and the rest should be assumed to be zero, then
+                    // initialize to zero, or ensure all elements are zeroed
+                    // when they are not set to any other value
+                }
             }
 
             // TODO: I have no idea if this is confusing row with cols
@@ -433,7 +453,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                     }
                 }
             }*/
-            }
+            //}
 
             //check_alloc_V_PHYS();
             check_alloc_V_PHYS_data();
@@ -646,6 +666,10 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                         V_PHYS_SYS1_1D_P2_data[ch]->operator[](i) = zero;
                         #endif
                     }
+                    // TODO: to optimize code, set values here instead of
+                    // setting to zero
+                    // to futher optimize, integrate these values into V_PHYS
+                    // without copying from seperate matrix
                 }
 
                 // Set to zero
@@ -728,9 +752,10 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                 */
             }
 
-            // Set to zero
             if(recalculate_V_PHYS_xD_Px_MATHMORE == true)
             {
+                // Set to zero
+                // not required because each element is set later
                 for(int ch = 0; ch < number1DHists; ++ ch)
                 {
                     /*
@@ -844,6 +869,8 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             if(recalculate_V_PHYS_xD_Px_MATHMORE == true)
             {
                 // Set to zero
+                // not required because each element is set later
+                #if 0
                 for(int ch = 0; ch < number1DHists; ++ ch)
                 {
                     /*
@@ -873,6 +900,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                     }
                     #endif
                 }
+                #endif
 
                 // Set to zero
                 /*
@@ -1039,6 +1067,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             // set the contents of D
             set_D();
             set_M(param);
+            //set_D_minus_M(param); // TODO: read from D_minus_M in later function calls
             // draw
             /*
             TCanvas *c_D = new TCanvas("c_D", "c_D", 10000, 10000);
@@ -1061,10 +1090,13 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
 
             double chi2_P1 = 0.0;
             double chi2_P2 = 0.0;
-            calculate_chi2_P1(chi2_P1);
-            calculate_chi2_P2(chi2_P2);
+            int nch_P1 = 0;
+            int nch_P2 = 0; // overshadows previous definitions
+            calculate_chi2_P1(chi2_P1, nch_P1);
+            calculate_chi2_P2(chi2_P2, nch_P2);
 
             chi2_total = chi2_P1 + chi2_P2;
+            nch = nch_P1 + nch_P2;
             //std::cout << "channel=" << channel << " P1 chi2=" << chi2_1D_P1 << std::endl;
             //std::cout << "channel=" << channel << " P2 chi2=" << chi2_1D_P2 << std::endl;
             
@@ -1084,10 +1116,10 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             //std::cout << "chi2_total=" << chi2_total << std::endl;
             //std::cin.get();
             #if MEASURE_FUNCTION_CALL_TIME
-        std::chrono::system_clock::time_point end_time = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> runtime_microsec = end_time - start_time;
-        std::cout << "operator() call time: " << 1.0e+06 * runtime_microsec.count() << " microsecond" << std::endl;
-        #endif
+            std::chrono::system_clock::time_point end_time = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> runtime_microsec = end_time - start_time;
+            std::cout << "operator() call time: " << 1.0e+06 * runtime_microsec.count() << " microsecond" << std::endl;
+            #endif
             return chi2_total;
 
         }
@@ -1514,7 +1546,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                         ll_channel_P1 += lp_P1;
                         if(nData_P1 != 0.0 && nMC_P1 != 0.0)
                         {
-                            ++ ndf_P1;
+                            ++ nch_P1;
                         }
 
                         if(debuglevel >= 6)
@@ -1556,7 +1588,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                         ll_channel_P1 += lp_P1;
                         if(nData_P1 != 0.0 && nMC_P1 != 0.0)
                         {
-                            ++ ndf_P1;
+                            ++ nch_P1;
                         }
 
                         if(debuglevel >= 3)
@@ -1629,7 +1661,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                         ll_channel_P2 += lp_P2;
                         if(nData_P1 != 0.0 && nMC_P1 != 0.0)
                         {
-                            ++ ndf_P2;
+                            ++ nch_P2;
                         }
 
                         if(debuglevel >= 6)
@@ -1654,7 +1686,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                         ll_channel_P2 += lp_P2;
                         if(nData_P1 != 0.0 && nMC_P1 != 0.0)
                         {
-                            ++ ndf_P2;
+                            ++ nch_P2;
                         }
 
                         if(debuglevel >= 3)
@@ -1688,13 +1720,13 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
 
             } // channel
 
-            ndf = ndf_P1 + ndf_P2;
+            nch = nch_P1 + nch_P2;
             if(debuglevel >= 4)
             {
-                std::cout << "ndf=" << ndf << " ndf_P1=" << ndf_P2 << " ndf_P2=" << ndf_P2 << std::endl;
+                std::cout << "nch=" << nch << " nch_P1=" << nch_P2 << " nch_P2=" << nch_P2 << std::endl;
             }
-            ndf_P1 = 0;
-            ndf_P2 = 0;
+            nch_P1 = 0;
+            nch_P2 = 0;
 
             
             ///////////////////////////////////////////////////////////////////////
@@ -2012,7 +2044,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                             ll_channel_P1 += lp_P1;
                             if(nData_P1 != 0.0 && nMC_P1 != 0.0)
                             {
-                                ++ ndf_P1;
+                                ++ nch_P1;
                             }
 
                             if(debuglevel >= 6)
@@ -2037,7 +2069,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                             ll_channel_P1 += lp_P1;
                             if(nData_P1 != 0.0 && nMC_P1 != 0.0)
                             {
-                                ++ ndf_P1;
+                                ++ nch_P1;
                             }
 
                             if(debuglevel >= 3)
@@ -2083,7 +2115,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                             ll_channel_P2 += lp_P2;
                             if(nData_P1 != 0.0 && nMC_P1 != 0.0)
                             {
-                                ++ ndf_P2;
+                                ++ nch_P2;
                             }
 
                             if(debuglevel >= 6)
@@ -2108,7 +2140,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                             ll_channel_P2 += lp_P2;
                             if(nData_P1 != 0.0 && nMC_P1 != 0.0)
                             {
-                                ++ ndf_P2;
+                                ++ nch_P2;
                             }
 
                             if(debuglevel >= 3)
@@ -2142,10 +2174,10 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
 
             } // channel
             
-            ndf += ndf_P1 + ndf_P2;
+            nch += nch_P1 + nch_P2;
             if(debuglevel >= 6)
             {
-                std::cout << "ndf=" << ndf << std::endl;
+                std::cout << "nch=" << nch << std::endl;
             }
 
 
@@ -2576,8 +2608,8 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
     void set_M(const std::vector<double> &param) const;
     void set_D_minus_M() const;
     void set_V_MATRIX() const;
-    void calculate_chi2_P1(double &chi2_P1) const;
-    void calculate_chi2_P2(double &chi2_P2) const;
+    void calculate_chi2_P1(double &chi2_P1, int &nch_P1) const;
+    void calculate_chi2_P2(double &chi2_P2, int &nch_P2) const;
     void calculate_penalty_term(double &penalty_term, const std::vector<double> &param) const;
 
     mutable int debuglevel;
@@ -2586,7 +2618,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
 
     public:
 
-    mutable int ndf;
+    mutable int nch;
 
 };
 

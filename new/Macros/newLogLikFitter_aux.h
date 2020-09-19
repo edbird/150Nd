@@ -10,10 +10,120 @@ void cin_wait()
 
 
 
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Chi-Square Metric Calculations for Drawing Code
+//
+// These are used in drawchannel code. Different metrics. Each calculates
+// the value of a metric for a data/MC pair. (Single Channel)
+///////////////////////////////////////////////////////////////////////////////
+
+
+// TODO: should this include the parameters?
+double calc_chi2_draw_metric_LOGPOISSON(TH1D *data1D, TH1D *hAllMC1D)
+{
+    double sum = 0.0;
+    for(Int_t i = 1; i < hAllMC1D->GetNbinsX(); ++ i)
+    {
+
+        double c_data = data1D->GetBinContent(i);
+        double c_MC = hAllMC1D->GetBinContent(i);
+        double lp = 0.0;
+
+        if(c_MC >= 0.0)
+        {
+            if(c_MC == 0.0)
+            {
+                continue;
+            }
+            lp = logpoisson(c_data, c_MC);
+        }
+
+        /*
+        double e_data = data1D->GetBinError(i);
+        double e_MC = hAllMC1D->GetBinError(i);
+
+        if(c_data == 0.0 && e_data == 0.0) continue;
+        if(c_MC == 0.0 && e_MC == 0.0) continue;
+
+        //e_MC = 0.0;
+
+        double num = (c_data - c_MC);
+        num = num * num;
+        double den = e_MC * e_MC + e_data * e_data;
+        sum += num / den;
+        */
+
+        //sum += logpoisson(c_data, c_MC);
+        sum += lp;
+    }
+    //return sum;
+    return -2.0 * sum;
+}
+
+
+double calc_chi2_draw_metric_CHISQ_ERR_SQRT_MC(TH1D *data1D, TH1D *hAllMC1D)
+{
+    double sum = 0.0;
+    for(Int_t i = 1; i < hAllMC1D->GetNbinsX(); ++ i)
+    {
+
+        double c_data = data1D->GetBinContent(i);
+        double c_MC = hAllMC1D->GetBinContent(i);
+        //double e_MC = std::sqrt(c_MC);
+        double lp = 0.0;
+
+        if(c_MC >= 0.0)
+        {
+            if(c_MC == 0.0)
+            {
+                continue;
+            }
+            lp = std::pow(c_data - c_MC, 2.0) / std::abs(c_MC);
+        }
+
+        sum += lp;
+    }
+    return sum;
+}
+
+
+
+double calc_chi2_draw_metric_CHISQ_ERR_SQRT_DATA(TH1D *data1D, TH1D *hAllMC1D)
+{
+    double sum = 0.0;
+    for(Int_t i = 1; i < hAllMC1D->GetNbinsX(); ++ i)
+    {
+
+        double c_data = data1D->GetBinContent(i);
+        double c_MC = hAllMC1D->GetBinContent(i);
+        //double e_MC = std::sqrt(c_MC);
+        double lp = 0.0;
+
+        if(c_MC >= 0.0)
+        {
+            if(c_MC == 0.0)
+            {
+                continue;
+            }
+            lp = std::pow(c_data - c_MC, 2.0) / std::abs(c_data);
+        }
+
+        sum += lp;
+    }
+    return sum;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // calculate number of degrees of freedom for chisquare calculation
 ///////////////////////////////////////////////////////////////////////////////
 
+// NOTE: this is not really number of degrees of freedom but number of channels
+// (channels = bins)
 int get_ndf_1D(const TH1D *const hist_MC, const TH1D *const hist_data)
 {
     if(hist_MC->GetNbinsX() != hist_data->GetNbinsX())
@@ -22,6 +132,8 @@ int get_ndf_1D(const TH1D *const hist_MC, const TH1D *const hist_data)
         return -1;
     }
 
+    //std::cout << __func__ << " " << hist_MC->GetName() << std::endl;
+
     int ndf = 0;
     for(Int_t bin_ix = 0; bin_ix <= hist_MC->GetNbinsX(); ++ bin_ix)
     {
@@ -29,6 +141,7 @@ int get_ndf_1D(const TH1D *const hist_MC, const TH1D *const hist_data)
         {
             //if(hist_data->GetBinContent(bin_ix) > 0.0)
             //{
+                //std::cout << "bin_ix: " << hist_MC->GetBinContent(bin_ix) << " " << hist_data->GetBinContent(bin_ix) << std::endl;
                 ++ ndf;
             //}
         }
@@ -36,6 +149,33 @@ int get_ndf_1D(const TH1D *const hist_MC, const TH1D *const hist_data)
     return ndf;
 }
 
+
+// calculate number of channels (1D)
+// channels = bins
+int get_nch_1D(const TH1D *const hist_MC, const TH1D *const hist_data)
+{
+    if(hist_MC->GetNbinsX() != hist_data->GetNbinsX())
+    {
+        std::cout << __func__ << " Error, incompatiable histograms" << std::endl;
+        return -1;
+    }
+
+    //std::cout << __func__ << " " << hist_MC->GetName() << std::endl;
+
+    int nch = 0;
+    for(Int_t bin_ix = 0; bin_ix <= hist_MC->GetNbinsX(); ++ bin_ix)
+    {
+        if(hist_MC->GetBinContent(bin_ix) > 0.0)
+        {
+            //if(hist_data->GetBinContent(bin_ix) > 0.0)
+            //{
+                //std::cout << "bin_ix: " << hist_MC->GetBinContent(bin_ix) << " " << hist_data->GetBinContent(bin_ix) << std::endl;
+            ++ nch;
+            //}
+        }
+    }
+    return nch;
+}
 
 
 
