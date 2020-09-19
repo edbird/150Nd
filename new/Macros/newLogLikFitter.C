@@ -1406,7 +1406,7 @@ void loadFiles(int i)
         draw(drawinputdata,
              params_before,
              param_errs_before);
-        std::cin.get();
+        //std::cin.get();
 
         // exec fit
         // do fit with all parameters free
