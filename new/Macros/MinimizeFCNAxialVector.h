@@ -2624,6 +2624,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
 
 
 #include "MinimizeFCNAxialVector_check_alloc.h"
+#include "MinimizeFCNAxialVector_set_D_minus_M.h"
 
 
 
