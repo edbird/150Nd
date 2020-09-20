@@ -84,9 +84,9 @@ void MinimizeFCNAxialVector::set_D_minus_M(const std::vector<double> &param) con
         {
             Double_t content = tmpDataHist1D_P1->GetBinContent(bin_x + 1);
             #if VECTOR_RANGE_CHECK
-            D_minus_M1D_P1_data[channel]->at(bin_x) = content;
+            D_minus_M_1D_P1_data[channel]->at(bin_x) = content;
             #else
-            D_minus_M_1D_P1_data[channel]->operator[](bin_x) =  content;
+            D_minus_M_1D_P1_data[channel]->operator[](bin_x) = content;
             #endif
         }
 
@@ -99,9 +99,9 @@ void MinimizeFCNAxialVector::set_D_minus_M(const std::vector<double> &param) con
         {
             Double_t content = tmpDataHist1D_P2->GetBinContent(bin_x + 1);
             #if VECTOR_RANGE_CHECK
-            D_minus_M_1D_P2_data[channel]->at(bin_x) = content_output;
+            D_minus_M_1D_P2_data[channel]->at(bin_x) = content;
             #else
-            D_minus_M_1D_P2_data[channel]->operator[](bin_x) = content_output;
+            D_minus_M_1D_P2_data[channel]->operator[](bin_x) = content;
             #endif
             //std::cout << "bin_x=" << bin_x + 1 << " content=" << content_output << std::endl;
         }

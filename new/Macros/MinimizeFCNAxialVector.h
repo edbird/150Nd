@@ -1065,8 +1065,8 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             // just assume it always changes for now
             
             // set the contents of D
-            set_D();
-            set_M(param);
+            //set_D();
+            //set_M(param);
             //set_D_minus_M(param); // TODO: read from D_minus_M in later function calls
             // draw
             /*
@@ -1078,7 +1078,8 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             c_M->SaveAs("debug_c_M.png");
             */
 
-            set_D_minus_M();
+            //set_D_minus_M();
+            set_D_minus_M(param);
             // draw
             /*
             TCanvas *c_D_minus_M = new TCanvas("c_D_minus_M", "c_D_minus_M", 10000, 10000);
@@ -2606,7 +2607,8 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
     void zero_V_PHYS_data() const;
     void set_D() const;
     void set_M(const std::vector<double> &param) const;
-    void set_D_minus_M() const;
+    //void set_D_minus_M() const;
+    void set_D_minus_M(const std::vector<double> &param) const;
     void set_V_MATRIX() const;
     void calculate_chi2_P1(double &chi2_P1, int &nch_P1) const;
     void calculate_chi2_P2(double &chi2_P2, int &nch_P2) const;
