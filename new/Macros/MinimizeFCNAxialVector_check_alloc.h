@@ -256,16 +256,6 @@ MinimizeFCNAxialVector::set_M(const std::vector<double> &param) const
             continue;
         }
 
-        // check channel enabled
-        if(channel_enable_1D[channel] == 0)
-        {
-            if(debuglevel >= 5)
-            {
-                std::cout << "1D: channel " << channel << " disabled, skip" << std::endl;
-            }
-            continue;
-        }
-
         // reset M
         //for(Int_t bin_x{1}; bin_x <= M_1D_P1[channel]->GetNbinsX(); ++ bin_x)
         for(Int_t bin_x{0}; bin_x < M_1D_P1_data[channel]->size(); ++ bin_x)
@@ -553,6 +543,7 @@ MinimizeFCNAxialVector::set_M(const std::vector<double> &param) const
 }
 
 
+#if 0
 void
 MinimizeFCNAxialVector::set_D_minus_M() const
 {
@@ -622,6 +613,7 @@ MinimizeFCNAxialVector::set_D_minus_M() const
         }
     }
 }
+#endif
 
 
 void
