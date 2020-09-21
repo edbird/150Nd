@@ -900,17 +900,19 @@ void reweight_apply_fakedata(
             hEnergyDiff_P2_tmp->Scale(paramInitValue);
             }
 
+            /*
             if(paramEnabledP2)
             {
-            std::cout << "hSingleEnergy_P2->GetName()=" << hSingleEnergy_P2_tmp->GetName() << " scale_factor_P2=" << paramInitValue << std::endl;
-            for(Int_t i = 1; i < hSingleEnergy_P2_tmp->GetNbinsX(); ++ i)
-            {
-                if(hSingleEnergy_P2_tmp->GetBinContent(i) != 0.0)
+                std::cout << "hSingleEnergy_P2->GetName()=" << hSingleEnergy_P2_tmp->GetName() << " scale_factor_P2=" << paramInitValue << std::endl;
+                for(Int_t i = 1; i < hSingleEnergy_P2_tmp->GetNbinsX(); ++ i)
                 {
-                    std::cout << "hSingleEnergy_P2->GetBinContents(" << i << ")=" << hSingleEnergy_P2_tmp->GetBinContent(i) << std::endl;
+                    if(hSingleEnergy_P2_tmp->GetBinContent(i) != 0.0)
+                    {
+                        std::cout << "hSingleEnergy_P2->GetBinContents(" << i << ")=" << hSingleEnergy_P2_tmp->GetBinContent(i) << std::endl;
+                    }
                 }
             }
-            }
+            */
 
             
             //if(TString(hSingleEnergy_P2_tmp->GetName()).Contains("tl208"))
