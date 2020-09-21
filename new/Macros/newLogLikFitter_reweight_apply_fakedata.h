@@ -488,25 +488,25 @@ void reweight_apply_fakedata(
             
             if(paramEnabledP1)
             {
-            hTotalE_P1_tmp->Sumw2();
-            hSingleEnergy_P1_tmp->Sumw2();
-            hHighEnergy_P1_tmp->Sumw2();
-            hLowEnergy_P1_tmp->Sumw2();
-            hHighLowEnergy_P1_tmp->Sumw2();
-            hEnergySum_P1_tmp->Sumw2();
-            hEnergyDiff_P1_tmp->Sumw2();
+                hTotalE_P1_tmp->Sumw2();
+                hSingleEnergy_P1_tmp->Sumw2();
+                hHighEnergy_P1_tmp->Sumw2();
+                hLowEnergy_P1_tmp->Sumw2();
+                hHighLowEnergy_P1_tmp->Sumw2();
+                hEnergySum_P1_tmp->Sumw2();
+                hEnergyDiff_P1_tmp->Sumw2();
             }
 
 
             if(paramEnabledP2)
             {
-            hTotalE_P2_tmp->Sumw2();
-            hSingleEnergy_P2_tmp->Sumw2();
-            hHighEnergy_P2_tmp->Sumw2();
-            hLowEnergy_P2_tmp->Sumw2();
-            hHighLowEnergy_P2_tmp->Sumw2();
-            hEnergySum_P2_tmp->Sumw2();
-            hEnergyDiff_P2_tmp->Sumw2();
+                hTotalE_P2_tmp->Sumw2();
+                hSingleEnergy_P2_tmp->Sumw2();
+                hHighEnergy_P2_tmp->Sumw2();
+                hLowEnergy_P2_tmp->Sumw2();
+                hHighLowEnergy_P2_tmp->Sumw2();
+                hEnergySum_P2_tmp->Sumw2();
+                hEnergyDiff_P2_tmp->Sumw2();
             }
 
 
@@ -707,31 +707,31 @@ void reweight_apply_fakedata(
 
                 if(thePhase == 0)
                 {
-            if(paramEnabledP1)
-            {
-                    hTotalE_P1_tmp->Fill(el_energy_0 + el_energy_1, 1.0 * weight);
-                    hSingleEnergy_P1_tmp->Fill(el_energy_1, 1.0 * weight);
-                    hSingleEnergy_P1_tmp->Fill(el_energy_0, 1.0 * weight);
-                    hHighEnergy_P1_tmp->Fill(el_energy_0, 1.0 * weight);
-                    hLowEnergy_P1_tmp->Fill(el_energy_1, 1.0 * weight);
-                    hHighLowEnergy_P1_tmp->Fill(el_energy_1, el_energy_0, 1.0 * weight);
-                    hEnergySum_P1_tmp->Fill(el_energy_0 + el_energy_1, 1.0 * weight);
-                    hEnergyDiff_P1_tmp->Fill(el_energy_0 - el_energy_1, 1.0 * weight);
-            }
+                    if(paramEnabledP1)
+                    {
+                        hTotalE_P1_tmp->Fill(el_energy_0 + el_energy_1, 1.0 * weight);
+                        hSingleEnergy_P1_tmp->Fill(el_energy_1, 1.0 * weight);
+                        hSingleEnergy_P1_tmp->Fill(el_energy_0, 1.0 * weight);
+                        hHighEnergy_P1_tmp->Fill(el_energy_0, 1.0 * weight);
+                        hLowEnergy_P1_tmp->Fill(el_energy_1, 1.0 * weight);
+                        hHighLowEnergy_P1_tmp->Fill(el_energy_1, el_energy_0, 1.0 * weight);
+                        hEnergySum_P1_tmp->Fill(el_energy_0 + el_energy_1, 1.0 * weight);
+                        hEnergyDiff_P1_tmp->Fill(el_energy_0 - el_energy_1, 1.0 * weight);
+                    }
                 }
                 else if(thePhase == 1)
                 {
-            if(paramEnabledP2)
-            {
-                    hTotalE_P2_tmp->Fill(el_energy_0 + el_energy_1, 1.0 * weight);
-                    hSingleEnergy_P2_tmp->Fill(el_energy_0, 1.0 * weight);
-                    hSingleEnergy_P2_tmp->Fill(el_energy_1, 1.0 * weight);
-                    hHighEnergy_P2_tmp->Fill(el_energy_0, 1.0 * weight);
-                    hLowEnergy_P2_tmp->Fill(el_energy_1, 1.0 * weight);
-                    hHighLowEnergy_P2_tmp->Fill(el_energy_1, el_energy_0, 1.0 * weight);
-                    hEnergySum_P2_tmp->Fill(el_energy_0 + el_energy_1, 1.0 * weight);
-                    hEnergyDiff_P2_tmp->Fill(el_energy_0 - el_energy_1, 1.0 * weight);
-            }
+                    if(paramEnabledP2)
+                    {
+                        hTotalE_P2_tmp->Fill(el_energy_0 + el_energy_1, 1.0 * weight);
+                        hSingleEnergy_P2_tmp->Fill(el_energy_0, 1.0 * weight);
+                        hSingleEnergy_P2_tmp->Fill(el_energy_1, 1.0 * weight);
+                        hHighEnergy_P2_tmp->Fill(el_energy_0, 1.0 * weight);
+                        hLowEnergy_P2_tmp->Fill(el_energy_1, 1.0 * weight);
+                        hHighLowEnergy_P2_tmp->Fill(el_energy_1, el_energy_0, 1.0 * weight);
+                        hEnergySum_P2_tmp->Fill(el_energy_0 + el_energy_1, 1.0 * weight);
+                        hEnergyDiff_P2_tmp->Fill(el_energy_0 - el_energy_1, 1.0 * weight);
+                    }
                 }
                 else
                 {
@@ -774,49 +774,49 @@ void reweight_apply_fakedata(
             // note: was below ->Scale
             if(debuglevel >= 15) // 5
             {
-            if(paramEnabledP2)
-            {
-                std::cout << hTotalE_P2_tmp->GetName() << " : bin(7) -> " << hTotalE_P2_tmp->GetBinContent(7) << std::endl;
-                std::cout << hTotalE_P2_tmp->GetName() << " : bin(8) -> " << hTotalE_P2_tmp->GetBinContent(8) << std::endl;
-                std::cout << hTotalE_P2_tmp->GetName() << " : bin(9) -> " << hTotalE_P2_tmp->GetBinContent(9) << std::endl;
-                std::cout << hTotalE_P2_tmp->GetName() << " : bin(10) -> " << hTotalE_P2_tmp->GetBinContent(10) << std::endl;
-                std::cout << hTotalE_P2_tmp->GetName() << " : bin(11) -> " << hTotalE_P2_tmp->GetBinContent(11) << std::endl;
-                std::cout << hTotalE_P2_tmp->GetName() << " : bin(12) -> " << hTotalE_P2_tmp->GetBinContent(12) << std::endl;
-                std::cout << hTotalE_P2_tmp->GetName() << " : bin(13) -> " << hTotalE_P2_tmp->GetBinContent(13) << std::endl;
-            
-                /*
-                std::cout << hSingleEnergy_P2_tmp->GetName() << " : bin(7) -> " << hSingleEnergy_P2_tmp->GetBinContent(7) << std::endl;
-                std::cout << hSingleEnergy_P2_tmp->GetName() << " : bin(8) -> " << hSingleEnergy_P2_tmp->GetBinContent(8) << std::endl;
-                std::cout << hSingleEnergy_P2_tmp->GetName() << " : bin(9) -> " << hSingleEnergy_P2_tmp->GetBinContent(9) << std::endl;
-                std::cout << hSingleEnergy_P2_tmp->GetName() << " : bin(10) -> " << hSingleEnergy_P2_tmp->GetBinContent(10) << std::endl;
-                std::cout << hSingleEnergy_P2_tmp->GetName() << " : bin(11) -> " << hSingleEnergy_P2_tmp->GetBinContent(11) << std::endl;
-                std::cout << hSingleEnergy_P2_tmp->GetName() << " : bin(12) -> " << hSingleEnergy_P2_tmp->GetBinContent(12) << std::endl;
-                std::cout << hSingleEnergy_P2_tmp->GetName() << " : bin(13) -> " << hSingleEnergy_P2_tmp->GetBinContent(13) << std::endl;
-                */
-            }
+                if(paramEnabledP2)
+                {
+                    std::cout << hTotalE_P2_tmp->GetName() << " : bin(7) -> " << hTotalE_P2_tmp->GetBinContent(7) << std::endl;
+                    std::cout << hTotalE_P2_tmp->GetName() << " : bin(8) -> " << hTotalE_P2_tmp->GetBinContent(8) << std::endl;
+                    std::cout << hTotalE_P2_tmp->GetName() << " : bin(9) -> " << hTotalE_P2_tmp->GetBinContent(9) << std::endl;
+                    std::cout << hTotalE_P2_tmp->GetName() << " : bin(10) -> " << hTotalE_P2_tmp->GetBinContent(10) << std::endl;
+                    std::cout << hTotalE_P2_tmp->GetName() << " : bin(11) -> " << hTotalE_P2_tmp->GetBinContent(11) << std::endl;
+                    std::cout << hTotalE_P2_tmp->GetName() << " : bin(12) -> " << hTotalE_P2_tmp->GetBinContent(12) << std::endl;
+                    std::cout << hTotalE_P2_tmp->GetName() << " : bin(13) -> " << hTotalE_P2_tmp->GetBinContent(13) << std::endl;
+                
+                    /*
+                    std::cout << hSingleEnergy_P2_tmp->GetName() << " : bin(7) -> " << hSingleEnergy_P2_tmp->GetBinContent(7) << std::endl;
+                    std::cout << hSingleEnergy_P2_tmp->GetName() << " : bin(8) -> " << hSingleEnergy_P2_tmp->GetBinContent(8) << std::endl;
+                    std::cout << hSingleEnergy_P2_tmp->GetName() << " : bin(9) -> " << hSingleEnergy_P2_tmp->GetBinContent(9) << std::endl;
+                    std::cout << hSingleEnergy_P2_tmp->GetName() << " : bin(10) -> " << hSingleEnergy_P2_tmp->GetBinContent(10) << std::endl;
+                    std::cout << hSingleEnergy_P2_tmp->GetName() << " : bin(11) -> " << hSingleEnergy_P2_tmp->GetBinContent(11) << std::endl;
+                    std::cout << hSingleEnergy_P2_tmp->GetName() << " : bin(12) -> " << hSingleEnergy_P2_tmp->GetBinContent(12) << std::endl;
+                    std::cout << hSingleEnergy_P2_tmp->GetName() << " : bin(13) -> " << hSingleEnergy_P2_tmp->GetBinContent(13) << std::endl;
+                    */
+                }
             }
 
             // P1
             if(paramEnabledP1)
             {
-            hTotalE_P1_tmp->Scale(TotalTime / sampleNGenMC);
-            hSingleEnergy_P1_tmp->Scale(TotalTime / sampleNGenMC);
-            hHighEnergy_P1_tmp->Scale(TotalTime / sampleNGenMC);
-            hLowEnergy_P1_tmp->Scale(TotalTime / sampleNGenMC);
-            hHighLowEnergy_P1_tmp->Scale(TotalTime / sampleNGenMC);
-            hEnergySum_P1_tmp->Scale(TotalTime / sampleNGenMC);
-            hEnergyDiff_P1_tmp->Scale(TotalTime / sampleNGenMC);
+                hTotalE_P1_tmp->Scale(TotalTime / sampleNGenMC);
+                hSingleEnergy_P1_tmp->Scale(TotalTime / sampleNGenMC);
+                hHighEnergy_P1_tmp->Scale(TotalTime / sampleNGenMC);
+                hLowEnergy_P1_tmp->Scale(TotalTime / sampleNGenMC);
+                hHighLowEnergy_P1_tmp->Scale(TotalTime / sampleNGenMC);
+                hEnergySum_P1_tmp->Scale(TotalTime / sampleNGenMC);
+                hEnergyDiff_P1_tmp->Scale(TotalTime / sampleNGenMC);
             }
             // P2
             if(paramEnabledP2)
             {
-            hTotalE_P2_tmp->Scale(TotalTime / sampleNGenMC);
-            hSingleEnergy_P2_tmp->Scale(TotalTime / sampleNGenMC);
-            hHighEnergy_P2_tmp->Scale(TotalTime / sampleNGenMC);
-            hLowEnergy_P2_tmp->Scale(TotalTime / sampleNGenMC);
-            hHighLowEnergy_P2_tmp->Scale(TotalTime / sampleNGenMC);
-            hEnergySum_P2_tmp->Scale(TotalTime / sampleNGenMC);
-            hEnergyDiff_P2_tmp->Scale(TotalTime / sampleNGenMC);
+                hTotalE_P2_tmp->Scale(TotalTime / sampleNGenMC);
+                hSingleEnergy_P2_tmp->Scale(TotalTime / sampleNGenMC);
+                hHighEnergy_P2_tmp->Scale(TotalTime / sampleNGenMC);
+                hLowEnergy_P2_tmp->Scale(TotalTime / sampleNGenMC);
+                hHighLowEnergy_P2_tmp->Scale(TotalTime / sampleNGenMC);
+                hEnergySum_P2_tmp->Scale(TotalTime / sampleNGenMC);
+                hEnergyDiff_P2_tmp->Scale(TotalTime / sampleNGenMC);
             }
 
 

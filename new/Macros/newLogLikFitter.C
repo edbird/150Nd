@@ -1354,6 +1354,243 @@ void loadFiles(int i)
 
 
     ///////////////////////////////////////////////////////////////////////////
+    // Construct Systematic Data Objects
+    ///////////////////////////////////////////////////////////////////////////
+    
+    gSystematics.systematic_energy_offset = 0.0;
+    rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline);
+
+    // loop over all channels
+    for(int channel = 0; channel < number1DHists; ++ channel)
+    {
+
+        if(systematic_offset_nominal_1D_P1[channel] == nullptr)
+        {
+            systematic_offset_nominal_1D_P1[channel] = new std::vector<double>;
+            systematic_offset_low_1D_P1[channel] = new std::vector<double>;
+            systematic_offset_high_1D_P1[channel] = new std::vector<double>;
+            systematic_offset_V_MATRIX_coeff_1D_P1[channel] = new std::vector<double>;
+
+            systematic_offset_nominal_1D_P2[channel] = new std::vector<double>;
+            systematic_offset_low_1D_P2[channel] = new std::vector<double>;
+            systematic_offset_high_1D_P2[channel] = new std::vector<double>;
+            systematic_offset_V_MATRIX_coeff_1D_P2[channel] = new std::vector<double>;
+        }
+        // check channel enabled
+        //if(channel_enable_1D[channel] == 0)
+        //{
+        //    continue;
+        //}
+
+        std::string histname = std::string(channel_histname_1D[channel]);
+        std::string search_object_P1;
+        std::string search_object_P2;
+        if(g_mode_fake_data == false)
+        {
+            // TODO: check what to do here - is this case valid?
+        }
+        else if(g_mode_fake_data == true)
+        {
+            // TODO: check what to do here - is this case valid?
+        }
+
+        search_object_P1 = histname + std::string("fakedata") + "_P1";
+        search_object_P2 = histname + std::string("fakedata") + "_P2";
+
+        TH1D *tmpDataHist1D_P1 = nullptr;
+        TH1D *tmpDataHist1D_P2 = nullptr;
+    
+        // another if g_mode_fake_data goes here
+
+        tmpDataHist1D_P1 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P1.c_str());
+        tmpDataHist1D_P2 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P2.c_str());
+
+        if(tmpDataHist1D_P1 == nullptr)
+        {
+            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
+            throw "problem";
+        }
+        if(tmpDataHist1D_P2 == nullptr)
+        {
+            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
+            throw "problem";
+        }
+        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P1->GetNbinsX(); ++ bin_ix)
+        {
+            Double_t content = tmpDataHist1D_P1->GetBinContent(bin_ix);
+            systematic_offset_nominal_1D_P1[channel]->push_back(content);
+        }
+        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P2->GetNbinsX(); ++ bin_ix)
+        {
+            Double_t content = tmpDataHist1D_P2->GetBinContent(bin_ix);
+            systematic_offset_nominal_1D_P2[channel]->push_back(content);
+        }
+
+    }
+
+    gSystematics.systematic_energy_offset = +0.1;
+    rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline);
+
+    // loop over all channels
+    for(int channel = 0; channel < number1DHists; ++ channel)
+    {
+
+        // check channel enabled
+        //if(channel_enable_1D[channel] == 0)
+        //{
+        //    continue;
+        //}
+
+        std::string histname = std::string(channel_histname_1D[channel]);
+        std::string search_object_P1;
+        std::string search_object_P2;
+        if(g_mode_fake_data == false)
+        {
+            // TODO: check what to do here - is this case valid?
+        }
+        else if(g_mode_fake_data == true)
+        {
+            // TODO: check what to do here - is this case valid?
+        }
+
+        search_object_P1 = histname + std::string("fakedata") + "_P1";
+        search_object_P2 = histname + std::string("fakedata") + "_P2";
+
+        TH1D *tmpDataHist1D_P1 = nullptr;
+        TH1D *tmpDataHist1D_P2 = nullptr;
+    
+        // another if g_mode_fake_data goes here
+
+        tmpDataHist1D_P1 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P1.c_str());
+        tmpDataHist1D_P2 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P2.c_str());
+
+        if(tmpDataHist1D_P1 == nullptr)
+        {
+            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
+            throw "problem";
+        }
+        if(tmpDataHist1D_P2 == nullptr)
+        {
+            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
+            throw "problem";
+        }
+
+        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P1->GetNbinsX(); ++ bin_ix)
+        {
+            Double_t content = tmpDataHist1D_P1->GetBinContent(bin_ix);
+            systematic_offset_high_1D_P1[channel]->push_back(content);
+        }
+        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P2->GetNbinsX(); ++ bin_ix)
+        {
+            Double_t content = tmpDataHist1D_P2->GetBinContent(bin_ix);
+            systematic_offset_high_1D_P2[channel]->push_back(content);
+        }
+
+    }
+
+
+    gSystematics.systematic_energy_offset = -0.1;
+    rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline);
+
+    // loop over all channels
+    for(int channel = 0; channel < number1DHists; ++ channel)
+    {
+
+        // check channel enabled
+        //if(channel_enable_1D[channel] == 0)
+        //{
+        //    continue;
+        //}
+
+        std::string histname = std::string(channel_histname_1D[channel]);
+        std::string search_object_P1;
+        std::string search_object_P2;
+        if(g_mode_fake_data == false)
+        {
+            // TODO: check what to do here - is this case valid?
+        }
+        else if(g_mode_fake_data == true)
+        {
+            // TODO: check what to do here - is this case valid?
+        }
+
+        search_object_P1 = histname + std::string("fakedata") + "_P1";
+        search_object_P2 = histname + std::string("fakedata") + "_P2";
+
+        TH1D *tmpDataHist1D_P1 = nullptr;
+        TH1D *tmpDataHist1D_P2 = nullptr;
+    
+        // another if g_mode_fake_data goes here
+
+        tmpDataHist1D_P1 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P1.c_str());
+        tmpDataHist1D_P2 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P2.c_str());
+
+        if(tmpDataHist1D_P1 == nullptr)
+        {
+            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
+            throw "problem";
+        }
+        if(tmpDataHist1D_P2 == nullptr)
+        {
+            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
+            throw "problem";
+        }
+
+        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P1->GetNbinsX(); ++ bin_ix)
+        {
+            Double_t content = tmpDataHist1D_P1->GetBinContent(bin_ix);
+            systematic_offset_low_1D_P1[channel]->push_back(content);
+        }
+        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P2->GetNbinsX(); ++ bin_ix)
+        {
+            Double_t content = tmpDataHist1D_P2->GetBinContent(bin_ix);
+            systematic_offset_low_1D_P2[channel]->push_back(content);
+        }
+
+    }
+
+    for(int channel = 0; channel < number1DHists; ++ channel)
+    {
+        for(std::size_t i = 0; i < systematic_offset_nominal_1D_P1[channel]->size(); ++ i)
+        {
+            double up = systematic_offset_high_1D_P1[channel]->at(i);
+            double nominal = systematic_offset_nominal_1D_P1[channel]->at(i);
+            double value_up = up - nominal;
+            double value = value_up;
+            //double value_down = down - nominal;
+            //double value = 0.5 * (value_up + value_down);
+            // TODO
+            //systematic_offset_V_MATRIX_coeff_1D_P1[channel]->operator[](i) = value;
+            systematic_offset_V_MATRIX_coeff_1D_P1[channel]->push_back(value);
+        }
+
+        for(std::size_t i = 0; i < systematic_offset_nominal_1D_P2[channel]->size(); ++ i)
+        {
+            double up = systematic_offset_high_1D_P2[channel]->at(i);
+            double nominal = systematic_offset_nominal_1D_P2[channel]->at(i);
+            double value_up = up - nominal;
+            double value = value_up;
+            //double value_down = down - nominal;
+            //double value = 0.5 * (value_up + value_down);
+            // TODO
+            //systematic_offset_V_MATRIX_coeff_1D_P2[channel]->operator[](i) = value;
+            systematic_offset_V_MATRIX_coeff_1D_P2[channel]->push_back(value);
+        }
+    }
+
+    // draw
+    TH1D *drawtmp = new TH1D("drawtmp", "drawtmp", 50, 0.0, 5.0);
+    for(int i = 0; i < systematic_offset_V_MATRIX_coeff_1D_P2[1]->size(); ++ i)
+    {
+        double content = systematic_offset_V_MATRIX_coeff_1D_P2[1]->operator[](i);
+        drawtmp->SetBinContent(i + 1, content);
+    }
+//    TCanvas *ctmp = new TCanvas("ctmp", "ctmp");
+//    drawtmp->Draw();
+//    ctmp->Show();
+
+
+    ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit - No Systematics
     ///////////////////////////////////////////////////////////////////////////
 
@@ -1453,13 +1690,314 @@ void loadFiles(int i)
 
 
     }
+    //std::cin.get();
+
+
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit - Low Systematic, Constant Energy Offset
     ///////////////////////////////////////////////////////////////////////////
-    
+
+    {
+
+        gSystematics.systematic_energy_offset = -0.1;
+        double systematic_energy_offset = gSystematics.systematic_energy_offset;
+        std::cout << "seo=" << systematic_energy_offset << std::endl;
+        //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itself
+        //rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itself
+        rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline); // want to check if the fitter can fit itself to itself
+        // just check the output looks sensible
+
+        std::string name_extra = "seo_" + std::to_string(systematic_energy_offset);
+
+        // create minimizer
+        ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
+        ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
+        MinimizeFCNAxialVector theFCN;
+
+        // initialize fit
+        //fitBackgrounds_init(theParameterState, theMinimizer, AdjustActs, AdjustActs_Err);
+        const int xi_31_param_number = g_pg.get_xi_31_ext_param_number();
+        const double xi_31_value = g_pg.file_params.at(xi_31_param_number).paramInitValue;
+        const double xi_31_error = g_pg.file_params.at(xi_31_param_number).paramInitError;
+        std::cout << "xi_31_param_number=" << xi_31_param_number
+                  << " xi_31=" << xi_31_value << " +- " << xi_31_error << std::endl;
+        fitBackgrounds_init(theParameterStateBefore, theMinimizer, xi_31_value, xi_31_error);
+
+        // get parameters and chi2 value before fit
+        std::vector<double> params_before = theParameterStateBefore.Params();
+        std::vector<double> param_errs_before = theParameterStateBefore.Errors();
+        double fval_before = theFCN.operator()(params_before);
+        //int ndf = theFCN.ndf - theParameterStateBefore.VariableParameters();
+        int nch = theFCN.nch;
+        int nfp = g_pg.get_number_free_params();
+        int ndf = nch - nfp;
+        std::cout << "nch=" << theFCN.nch << std::endl;
+        std::cout << "g_pg.get_number_free_params()=" << g_pg.get_number_free_params() << std::endl;
+
+        // draw before fit
+        draw_input_data drawinputdata;
+        drawinputdata.chi2 = fval_before;
+        drawinputdata.nch = nch;
+        drawinputdata.nfp = nfp;
+        drawinputdata.serial_dir = "xifree";
+        drawinputdata.saveas_filename = std::string("xifree_before") + "_" + name_extra;
+        drawinputdata.saveas_png = true;
+       
+        draw(drawinputdata,
+             params_before,
+             param_errs_before);
+        //std::cin.get();
+
+        // exec fit
+        // do fit with all parameters free
+        ROOT::Minuit2::FunctionMinimum FCN_min =
+            fitBackgrounds_exec(
+                theParameterStateBefore,
+                theMinimizer,
+                theFCN);
+
+        // get result
+        ROOT::Minuit2::MnUserParameterState theParameterStateAfter = FCN_min.UserParameters();
+        std::vector<double> params_after = theParameterStateAfter.Params();
+        std::vector<double> param_errs_after = theParameterStateAfter.Errors();
+
+        double fval_after = theFCN.operator()(params_after);
+        //ndf = theFCN.ndf - theParameterStateAfter.VariableParameters();
+        nch = theFCN.nch;
+        nfp = g_pg.get_number_free_params();
+
+        // draw result
+        drawinputdata.chi2 = fval_after;
+        //drawinputdata.nch = nch; // this could probably change in theory
+        //drawinputdata.nfp = nfp; // these probably do not change
+        drawinputdata.saveas_filename = std::string("xifree_after") + "_" + name_extra;
+       
+        draw(drawinputdata,
+             params_after,
+             param_errs_after);
+
+        
+        // minimize
+        //ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, init_par, init_err);
+        //ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, init_par, init_err);
+        /*
+        std::cout << "Minimization finished" << std::endl;
+        std::cout << "minimum: " << FCN_min << std::endl;
+        std::cout << "chi2: " << FCN_min.Fval() << std::endl;
+        std::cout << "edm: " << FCN_min.Edm() << std::endl;
+        */
+
+
+        std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
+        std::cout << "fval_before=" << fval_before << std::endl;
+
+
+    }
+    //std::cin.get();
+
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit - High Systematic, Constant Energy Offset
     ///////////////////////////////////////////////////////////////////////////
+
+    {
+
+        gSystematics.systematic_energy_offset = +0.1;
+        double systematic_energy_offset = gSystematics.systematic_energy_offset;
+        std::cout << "seo=" << systematic_energy_offset << std::endl;
+        //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itself
+        //rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itself
+        rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline); // want to check if the fitter can fit itself to itself
+        // just check the output looks sensible
+
+        std::string name_extra = "seo_" + std::to_string(systematic_energy_offset);
+
+        // create minimizer
+        ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
+        ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
+        MinimizeFCNAxialVector theFCN;
+
+        // initialize fit
+        //fitBackgrounds_init(theParameterState, theMinimizer, AdjustActs, AdjustActs_Err);
+        const int xi_31_param_number = g_pg.get_xi_31_ext_param_number();
+        const double xi_31_value = g_pg.file_params.at(xi_31_param_number).paramInitValue;
+        const double xi_31_error = g_pg.file_params.at(xi_31_param_number).paramInitError;
+        std::cout << "xi_31_param_number=" << xi_31_param_number
+                  << " xi_31=" << xi_31_value << " +- " << xi_31_error << std::endl;
+        fitBackgrounds_init(theParameterStateBefore, theMinimizer, xi_31_value, xi_31_error);
+
+        // get parameters and chi2 value before fit
+        std::vector<double> params_before = theParameterStateBefore.Params();
+        std::vector<double> param_errs_before = theParameterStateBefore.Errors();
+        double fval_before = theFCN.operator()(params_before);
+        //int ndf = theFCN.ndf - theParameterStateBefore.VariableParameters();
+        int nch = theFCN.nch;
+        int nfp = g_pg.get_number_free_params();
+        int ndf = nch - nfp;
+        std::cout << "nch=" << theFCN.nch << std::endl;
+        std::cout << "g_pg.get_number_free_params()=" << g_pg.get_number_free_params() << std::endl;
+
+        // draw before fit
+        draw_input_data drawinputdata;
+        drawinputdata.chi2 = fval_before;
+        drawinputdata.nch = nch;
+        drawinputdata.nfp = nfp;
+        drawinputdata.serial_dir = "xifree";
+        drawinputdata.saveas_filename = std::string("xifree_before") + "_" + name_extra;
+        drawinputdata.saveas_png = true;
+       
+        draw(drawinputdata,
+             params_before,
+             param_errs_before);
+        //std::cin.get();
+
+        // exec fit
+        // do fit with all parameters free
+        ROOT::Minuit2::FunctionMinimum FCN_min =
+            fitBackgrounds_exec(
+                theParameterStateBefore,
+                theMinimizer,
+                theFCN);
+
+        // get result
+        ROOT::Minuit2::MnUserParameterState theParameterStateAfter = FCN_min.UserParameters();
+        std::vector<double> params_after = theParameterStateAfter.Params();
+        std::vector<double> param_errs_after = theParameterStateAfter.Errors();
+
+        double fval_after = theFCN.operator()(params_after);
+        //ndf = theFCN.ndf - theParameterStateAfter.VariableParameters();
+        nch = theFCN.nch;
+        nfp = g_pg.get_number_free_params();
+
+        // draw result
+        drawinputdata.chi2 = fval_after;
+        //drawinputdata.nch = nch; // this could probably change in theory
+        //drawinputdata.nfp = nfp; // these probably do not change
+        drawinputdata.saveas_filename = std::string("xifree_after") + "_" + name_extra;
+       
+        draw(drawinputdata,
+             params_after,
+             param_errs_after);
+
+        
+        // minimize
+        //ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, init_par, init_err);
+        //ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, init_par, init_err);
+        /*
+        std::cout << "Minimization finished" << std::endl;
+        std::cout << "minimum: " << FCN_min << std::endl;
+        std::cout << "chi2: " << FCN_min.Fval() << std::endl;
+        std::cout << "edm: " << FCN_min.Edm() << std::endl;
+        */
+
+
+        std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
+        std::cout << "fval_before=" << fval_before << std::endl;
+
+
+    }
+    //std::cin.get();
+
+
+    // check repeating works
+    #if 0
+    {
+
+        gSystematics.systematic_energy_offset = 0.0;
+        double systematic_energy_offset = gSystematics.systematic_energy_offset;
+        std::cout << "seo=" << systematic_energy_offset << std::endl;
+        //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itself
+        //rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itself
+        rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline); // want to check if the fitter can fit itself to itself
+        // just check the output looks sensible
+
+        std::string name_extra = "seo_" + std::to_string(systematic_energy_offset);
+
+        // create minimizer
+        ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
+        ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
+        MinimizeFCNAxialVector theFCN;
+
+        // initialize fit
+        //fitBackgrounds_init(theParameterState, theMinimizer, AdjustActs, AdjustActs_Err);
+        const int xi_31_param_number = g_pg.get_xi_31_ext_param_number();
+        const double xi_31_value = g_pg.file_params.at(xi_31_param_number).paramInitValue;
+        const double xi_31_error = g_pg.file_params.at(xi_31_param_number).paramInitError;
+        std::cout << "xi_31_param_number=" << xi_31_param_number
+                  << " xi_31=" << xi_31_value << " +- " << xi_31_error << std::endl;
+        fitBackgrounds_init(theParameterStateBefore, theMinimizer, xi_31_value, xi_31_error);
+
+        // get parameters and chi2 value before fit
+        std::vector<double> params_before = theParameterStateBefore.Params();
+        std::vector<double> param_errs_before = theParameterStateBefore.Errors();
+        double fval_before = theFCN.operator()(params_before);
+        //int ndf = theFCN.ndf - theParameterStateBefore.VariableParameters();
+        int nch = theFCN.nch;
+        int nfp = g_pg.get_number_free_params();
+        int ndf = nch - nfp;
+        std::cout << "nch=" << theFCN.nch << std::endl;
+        std::cout << "g_pg.get_number_free_params()=" << g_pg.get_number_free_params() << std::endl;
+
+        // draw before fit
+        draw_input_data drawinputdata;
+        drawinputdata.chi2 = fval_before;
+        drawinputdata.nch = nch;
+        drawinputdata.nfp = nfp;
+        drawinputdata.serial_dir = "xifree";
+        drawinputdata.saveas_filename = std::string("xifree_before") + "_" + name_extra;
+        drawinputdata.saveas_png = true;
+       
+        draw(drawinputdata,
+             params_before,
+             param_errs_before);
+        //std::cin.get();
+
+        // exec fit
+        // do fit with all parameters free
+        ROOT::Minuit2::FunctionMinimum FCN_min =
+            fitBackgrounds_exec(
+                theParameterStateBefore,
+                theMinimizer,
+                theFCN);
+
+        // get result
+        ROOT::Minuit2::MnUserParameterState theParameterStateAfter = FCN_min.UserParameters();
+        std::vector<double> params_after = theParameterStateAfter.Params();
+        std::vector<double> param_errs_after = theParameterStateAfter.Errors();
+
+        double fval_after = theFCN.operator()(params_after);
+        //ndf = theFCN.ndf - theParameterStateAfter.VariableParameters();
+        nch = theFCN.nch;
+        nfp = g_pg.get_number_free_params();
+
+        // draw result
+        drawinputdata.chi2 = fval_after;
+        //drawinputdata.nch = nch; // this could probably change in theory
+        //drawinputdata.nfp = nfp; // these probably do not change
+        drawinputdata.saveas_filename = std::string("xifree_after") + "_" + name_extra;
+       
+        draw(drawinputdata,
+             params_after,
+             param_errs_after);
+
+        
+        // minimize
+        //ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, init_par, init_err);
+        //ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, init_par, init_err);
+        /*
+        std::cout << "Minimization finished" << std::endl;
+        std::cout << "minimum: " << FCN_min << std::endl;
+        std::cout << "chi2: " << FCN_min.Fval() << std::endl;
+        std::cout << "edm: " << FCN_min.Edm() << std::endl;
+        */
+
+
+        std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
+        std::cout << "fval_before=" << fval_before << std::endl;
+
+
+    }
+    #endif
+    //std::cin.get();
 
 
     // reenable this one

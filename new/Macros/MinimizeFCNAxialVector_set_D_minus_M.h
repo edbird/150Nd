@@ -1,7 +1,7 @@
 #ifndef MINIMIZEFCNAXIALVECTOR_SET_D_MINUS_M
 #define MINIMIZEFCNAXIALVECTOR_SET_D_MINUS_M
 
-
+#if 0
 void MinimizeFCNAxialVector::set_D_minus_M(const std::vector<double> &param) const
 {
 
@@ -347,6 +347,7 @@ void MinimizeFCNAxialVector::set_D_minus_M(const std::vector<double> &param) con
         } // file_param iterator
     }
 }
+#endif
 
 
 #endif // MINIMIZEFCNAXIALVECTOR_SET_D_MINUS_M

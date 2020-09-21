@@ -261,11 +261,11 @@ MinimizeFCNAxialVector::set_M(const std::vector<double> &param) const
         for(Int_t bin_x{0}; bin_x < M_1D_P1_data[channel]->size(); ++ bin_x)
         {
             //M_1D_P1[channel]->SetBinContent(bin_x, 1, 0.0);
-                #if VECTOR_RANGE_CHECK
+            #if VECTOR_RANGE_CHECK
             M_1D_P1_data[channel]->at(bin_x) = 0.0;
-                #else
+            #else
             M_1D_P1_data[channel]->operator[](bin_x) = 0.0;
-                #endif
+            #endif
         }
         
         // reset M
@@ -273,11 +273,11 @@ MinimizeFCNAxialVector::set_M(const std::vector<double> &param) const
         for(Int_t bin_x{0}; bin_x < M_1D_P2_data[channel]->size(); ++ bin_x)
         {
             //M_1D_P2[channel]->SetBinContent(bin_x, 1, 0.0);
-                #if VECTOR_RANGE_CHECK
+            #if VECTOR_RANGE_CHECK
             M_1D_P2_data[channel]->at(bin_x) = 0.0;
-                #else
+            #else
             M_1D_P2_data[channel]->operator[](bin_x) = 0.0;
-                #endif
+            #endif
         }
 
     // can M change?
@@ -460,19 +460,19 @@ MinimizeFCNAxialVector::set_M(const std::vector<double> &param) const
                     for(Int_t bin_x{0}; bin_x < tmpHist1D_P1->GetNbinsX(); ++ bin_x)
                     {
                         //Double_t content_input = M_1D_P1[channel]->GetBinContent(bin_x + 1, 1);
-                #if VECTOR_RANGE_CHECK
+                        #if VECTOR_RANGE_CHECK
                         Double_t content_input = M_1D_P1_data[channel]->at(bin_x);
-                #else
+                        #else
                         Double_t content_input = M_1D_P1_data[channel]->operator[](bin_x);
-                #endif
+                        #endif
                         Double_t content_add = scale_factor_P1 * tmpHist1D_P1->GetBinContent(bin_x + 1);
                         Double_t content_output = content_input + content_add;
                         //M_1D_P1[channel]->SetBinContent(bin_x + 1, 1, content_output);
-                #if VECTOR_RANGE_CHECK
+                        #if VECTOR_RANGE_CHECK
                         M_1D_P1_data[channel]->at(bin_x) = content_output;
-                #else
+                        #else
                         M_1D_P1_data[channel]->operator[](bin_x) = content_output;
-                #endif
+                        #endif
                         //std::cout << "content_input=" << content_input << " content_output=" << content_output << " content_add=" << content_add << std::endl;
                     }
                 }
@@ -506,19 +506,19 @@ MinimizeFCNAxialVector::set_M(const std::vector<double> &param) const
                     {
                         //Int_t super_index = channel * 2 * 50 + 50 + bin_x;
                         //Double_t content_input = M_1D_P2[channel]->GetBinContent(bin_x + 1, 1);
-                #if VECTOR_RANGE_CHECK
+                        #if VECTOR_RANGE_CHECK
                         Double_t content_input = M_1D_P2_data[channel]->at(bin_x);
-                #else
+                        #else
                         Double_t content_input = M_1D_P2_data[channel]->operator[](bin_x);
-                #endif
+                        #endif
                         Double_t content_add = scale_factor_P2 * tmpHist1D_P2->GetBinContent(bin_x + 1);
                         Double_t content_output = content_input + content_add;
                         //M_1D_P2[channel]->SetBinContent(bin_x + 1, 1, content_output);
-                #if VECTOR_RANGE_CHECK
+                        #if VECTOR_RANGE_CHECK
                         M_1D_P2_data[channel]->at(bin_x) = content_output;
-                #else
+                        #else
                         M_1D_P2_data[channel]->operator[](bin_x) = content_output;
-                #endif
+                        #endif
                         //std::cout << "debug: " << "super_index=" << super_index << " content_input=" << content_input << " content_add=" << content_add << " content_output=" << content_output << " M:" << M->GetBinContent(super_index + 1, 1) << std::endl;
 
                     }
@@ -543,7 +543,7 @@ MinimizeFCNAxialVector::set_M(const std::vector<double> &param) const
 }
 
 
-#if 0
+#if 1
 void
 MinimizeFCNAxialVector::set_D_minus_M() const
 {
@@ -631,6 +631,18 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
     // unless the inversion can be done in place? (might be slower
     // even if I can invent such an algorithm)
 
+
+    // A funny thing COULD happen here
+    // (but it is not very likely)
+    // If the MATHMORE matrix becomes singular due to adding the components
+    // of all the V_PHYS matricies
+    // But the STAT matrix is non-singular
+    // then the algorithm will blow up
+    //
+    // To fix this: Remove all V_PHYS matricies, and enter values
+    // straight into a single V_PHYS matrix, or MATHMORE matrix
+    // (need to do former to count number of required bins?)
+
     for(int channel = 0; channel < number1DHists; ++ channel)
     {
 
@@ -639,12 +651,61 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
 
             if(recalculate_V_PHYS_xD_Px_MATHMORE == true)
             {
+
+
+                // set V_PHYS_SYS1
+
+
+                // TODO: symmetry optimization
+                for(Int_t biny{0}; biny < M_1D_P1_data[channel]->size(); ++ biny)
+                {
+                    //for(Int_t binx{0}; binx < M_1D_P1_data[channel]->size(); ++ binx)
+                    for(Int_t binx{0}; binx < M_1D_P1_data[channel]->size(); ++ binx)
+                    {
+
+                        if(biny == binx)
+                        {
+                            continue;
+                        }
+                        
+                        // P1
+                        {
+                            #if VECTOR_RANGE_CHECK
+                            double coeff1 = systematic_offset_V_MATRIX_coeff_1D_P1[channel]->at(binx);
+                            double coeff2 = systematic_offset_V_MATRIX_coeff_1D_P1[channel]->at(biny);
+                            V_PHYS_SYS1_1D_P1_data[channel]->at(biny * 50 + binx) = coeff1 * coeff2;
+                            #else
+                            double coeff1 = systematic_offset_V_MATRIX_coeff_1D_P1[channel]->operator[](binx);
+                            double coeff2 = systematic_offset_V_MATRIX_coeff_1D_P1[channel]->operator[](biny);
+                            V_PHYS_SYS1_1D_P1_data[channel]->operator[](biny * 50 + binx) = coeff1 * coeff2;
+                            #endif
+                        }
+
+                        // P2
+                        {
+                            #if VECTOR_RANGE_CHECK
+                            double coeff1 = systematic_offset_V_MATRIX_coeff_1D_P2[channel]->at(binx);
+                            double coeff2 = systematic_offset_V_MATRIX_coeff_1D_P2[channel]->at(biny);
+                            V_PHYS_SYS1_1D_P2_data[channel]->at(biny * 50 + binx) = coeff1 * coeff2;
+                            #else
+                            double coeff1 = systematic_offset_V_MATRIX_coeff_1D_P2[channel]->operator[](binx);
+                            double coeff2 = systematic_offset_V_MATRIX_coeff_1D_P2[channel]->operator[](biny);
+                            V_PHYS_SYS1_1D_P2_data[channel]->operator[](biny * 50 + binx) = coeff1 * coeff2;
+                            #endif
+                        }
+
+
+                    }
+                }
+
+
                 // set V_PHYS_STAT
                 int counter_P1 = 0;
                 int counter_P2 = 0;
                 //for(Int_t binx{1}; binx <= M_1D_P1[channel]->GetNbinsX(); ++ binx)
                 for(Int_t binx{0}; binx < M_1D_P1_data[channel]->size(); ++ binx)
                 {
+
                     // P1
                     {
                         #if VECTOR_RANGE_CHECK
@@ -664,8 +725,31 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         //}
                         //else
                         //{
-                        Double_t sigma_M = std::sqrt(content_M);
-                        Double_t sigma_D = std::sqrt(content_D);
+
+                        Double_t stat = 1.0; // default value
+                        if(content_M <= 0.0)
+                        {
+                            V_ENABLE_BIN_1D_P1[channel]->push_back(false);
+                        }
+                        else
+                        {
+                            V_ENABLE_BIN_1D_P1[channel]->push_back(true);
+
+                            Double_t sigma_M = std::sqrt(content_M);
+                            Double_t sigma_D = std::sqrt(content_D);
+                            stat = sigma_M * sigma_M;
+
+                            ++ counter_P1;
+
+                        }
+                            #if VECTOR_RANGE_CHECK
+                            V_PHYS_STAT_1D_P1_data[channel]->at(binx * 50 + binx) = stat;
+                            #else
+                            V_PHYS_STAT_1D_P1_data[channel]->operator[](binx * 50 + binx) = stat;
+                            #endif
+
+                        //////Double_t sigma_M = std::sqrt(content_M);
+                        //////Double_t sigma_D = std::sqrt(content_D);
                         //Double stat = 1.0 / (sigma * sigma);
                         //Double_t stat = 1.0 / std::abs(content);
                         // TODO; re-enable
@@ -673,23 +757,31 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         //V_PHYS_STAT_1D_P1->SetBinContent(binx, binx, stat);
                         ////if(stat != 0.0) stat = 1.0 / stat;
                         ////else stat = 1.0;
-                        Double_t stat = sigma_M * sigma_M;
-                        if(stat == 0.0)
+                        //////Double_t stat = sigma_M * sigma_M;
+
+                        /*
+                        if(std::isnan(stat))
                         {
-                            stat = 1.0;
-                            V_ENABLE_BIN_1D_P1[channel]->push_back(false);
+                            std::cout << "binx=" << binx << " sigma_M=" << sigma_M << " content_M=" << content_M << std::endl;
                         }
-                        else
-                        {
-                            V_ENABLE_BIN_1D_P1[channel]->push_back(true);
-                            ++ counter_P1;
-                        }
+                        */
+
+                        //if(stat == 0.0)
+                        //{
+                        //    stat = 1.0;
+                        //    V_ENABLE_BIN_1D_P1[channel]->push_back(false);
+                        //}
+                        //else
+                        //{
+                        //    V_ENABLE_BIN_1D_P1[channel]->push_back(true);
+                        //    ++ counter_P1;
+                        //}
                         //V_PHYS_STAT_1D_P1[channel]->SetBinContent(binx, binx, stat);
-                        #if VECTOR_RANGE_CHECK
-                        V_PHYS_STAT_1D_P1_data[channel]->at(binx * 50 + binx) = stat;
-                        #else
-                        V_PHYS_STAT_1D_P1_data[channel]->operator[](binx * 50 + binx) = stat;
-                        #endif
+                        //#if VECTOR_RANGE_CHECK
+                        //V_PHYS_STAT_1D_P1_data[channel]->at(binx * 50 + binx) = stat;
+                        //#else
+                        //V_PHYS_STAT_1D_P1_data[channel]->operator[](binx * 50 + binx) = stat;
+                        //#endif
                         //}
                     }
 
@@ -704,6 +796,8 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         Double_t content_M = M_1D_P2_data[channel]->operator[](binx);
                         Double_t content_D = D_1D_P2_data[channel]->operator[](binx);
                         #endif
+
+                        #if 0
                         //if(content == 0.0) continue;
                         //if(content < 0.0) continue;
                         //if(content <= 0.0)
@@ -741,6 +835,31 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         V_PHYS_STAT_1D_P2_data[channel]->operator[](binx * 50 + binx) =  stat;
                         #endif
                         //}
+                        #endif
+
+                        Double_t stat = 1.0;
+                        // TODO: this might not be the best way to detect signularity
+                        // may be more sensible to use if D==0 or M==0, and then or sigmaM==0
+                        if(content_M <= 0.0)
+                        {
+                            V_ENABLE_BIN_1D_P2[channel]->push_back(false);
+                        }
+                        else
+                        {
+                            V_ENABLE_BIN_1D_P2[channel]->push_back(true);
+                        
+                            Double_t sigma_M = std::sqrt(content_M);
+                            Double_t sigma_D = std::sqrt(content_D);
+                            stat = sigma_M * sigma_M;
+
+                            ++ counter_P2;
+
+                        }
+                            #if VECTOR_RANGE_CHECK
+                            V_PHYS_STAT_1D_P2_data[channel]->at(binx * 50 + binx) =  stat;
+                            #else
+                            V_PHYS_STAT_1D_P2_data[channel]->operator[](binx * 50 + binx) =  stat;
+                            #endif
                     }
                 }
                 //std::cout << "P1: number of enabled bins = " << counter_P1 << std::endl;
@@ -807,6 +926,39 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                 // how can this make sense? is it a bug?
                 // FIXED
                 // TODO: ALL CHANNELS ARE CURRENTLY ENABLED?
+   
+                #define DRAWVPHYSMATRIX 0
+
+                #if DRAWVPHYSMATRIX
+                TH2D *draw_V_PHYS_STAT_P1 = nullptr;
+                TH2D *draw_V_PHYS_SYS1_P1 = nullptr;
+                TH2D *draw_V_PHYS_P1 = nullptr;
+                TH2D *draw_V_PHYS_STAT_P2 = nullptr;
+                TH2D *draw_V_PHYS_SYS1_P2 = nullptr;
+                TH2D *draw_V_PHYS_P2 = nullptr;
+                if(channel == 1)
+                {
+                    draw_V_PHYS_STAT_P1 = new TH2D("draw_V_PHYS_STAT_P1", "draw_V_PHYS_STAT_P1",
+                                                         50, 0.0, 5.0,
+                                                         50, 0.0, 5.0);
+                    draw_V_PHYS_SYS1_P1 = new TH2D("draw_V_PHYS_SYS1_P1", "draw_V_PHYS_SYS1_P1",
+                                                         50, 0.0, 5.0,
+                                                         50, 0.0, 5.0);
+                    draw_V_PHYS_P1 =      new TH2D("draw_V_PHYS_P1", "draw_V_PHYS_P1",
+                                                         50, 0.0, 5.0,
+                                                         50, 0.0, 5.0);
+                    draw_V_PHYS_STAT_P2 = new TH2D("draw_V_PHYS_STAT_P2", "draw_V_PHYS_STAT_P2",
+                                                         50, 0.0, 5.0,
+                                                         50, 0.0, 5.0);
+                    draw_V_PHYS_SYS1_P2 = new TH2D("draw_V_PHYS_SYS1_P2", "draw_V_PHYS_SYS1_P2",
+                                                         50, 0.0, 5.0,
+                                                         50, 0.0, 5.0);
+                    draw_V_PHYS_P2 =      new TH2D("draw_V_PHYS_P2", "draw_V_PHYS_P2",
+                                                         50, 0.0, 5.0,
+                                                         50, 0.0, 5.0);
+                }
+                #endif
+
 
                 ///////////////////////////////////////////////////////////
                 // Phase 1
@@ -838,13 +990,32 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
 
                         //Double_t content = V_PHYS_STAT_1D_P1[channel]->GetBinContent(i + 1, j + 1);
                         #if VECTOR_RANGE_CHECK
-                        Double_t content = V_PHYS_STAT_1D_P1_data[channel]->at(i + j * 50);
+                        //Double_t content = V_PHYS_STAT_1D_P1_data[channel]->at(i + j * 50);
+                        double c1 = V_PHYS_STAT_1D_P1_data[channel]->at(i + j * 50);
+                        double c2 = V_PHYS_SYS1_1D_P1_data[channel]->at(i + j * 50);
+                        Double_t content = c1 + c2;
                         #else
-                        Double_t content = V_PHYS_STAT_1D_P1_data[channel]->operator[](i + j * 50);
+                        //Double_t content = V_PHYS_STAT_1D_P1_data[channel]->operator[](i + j * 50);
+                        double c1 = V_PHYS_STAT_1D_P1_data[channel]->operator[](i + j * 50);
+                        double c2 = V_PHYS_SYS1_1D_P1_data[channel]->operator[](i + j * 50);
+                        Double_t content = c1 + c2;
                         #endif
                         //std::cout << "i=" << i << " j=" << j << " i_counter=" << i_counter << " j_counter=" << j_counter << " content=" << content << std::endl;
                         V_PHYS_1D_P1_MATHMORE[channel]->operator[](j_counter).operator[](i_counter) = content;
                         //std::cout << "j=" << j << " i=" << i << " " << content << std::endl;
+
+
+                        #if DRAWVPHYSMATRIX
+                        if(channel == 1)
+                        {
+                            draw_V_PHYS_STAT_P1->SetBinContent(i + 1, j + 1, c1);
+                            draw_V_PHYS_SYS1_P1->SetBinContent(i + 1, j + 1, c2);
+                            draw_V_PHYS_P1->SetBinContent(i + 1, j + 1, content);
+
+                            std::cout << "channel=" << channel << " i=" << i << " j=" << j << " content=" << content << std::endl;
+                        }
+                        #endif
+
 
                         ++ i_counter;
                     }
@@ -882,18 +1053,69 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
 
                         //Double_t content = V_PHYS_STAT_1D_P2[channel]->GetBinContent(i + 1, j + 1);
                         #if VECTOR_RANGE_CHECK
-                        Double_t content = V_PHYS_STAT_1D_P2_data[channel]->at(i + j * 50);
+                        //Double_t content = V_PHYS_STAT_1D_P2_data[channel]->at(i + j * 50);
+                        double c1 = V_PHYS_STAT_1D_P2_data[channel]->at(i + j * 50);
+                        double c2 = V_PHYS_SYS1_1D_P2_data[channel]->at(i + j * 50);
+                        double content = c1 + c2;
                         #else
-                        Double_t content = V_PHYS_STAT_1D_P2_data[channel]->operator[](i + j * 50);
+                        //Double_t content = V_PHYS_STAT_1D_P2_data[channel]->operator[](i + j * 50);
+                        double c1 = V_PHYS_STAT_1D_P2_data[channel]->operator[](i + j * 50);
+                        double c2 = V_PHYS_SYS1_1D_P2_data[channel]->operator[](i + j * 50);
+                        double content = c1 + c2;
                         #endif
                         //std::cout << "i=" << i << " j=" << j << " i_counter=" << i_counter << " j_counter=" << j_counter << " content=" << content << std::endl;
                         V_PHYS_1D_P2_MATHMORE[channel]->operator[](j_counter).operator[](i_counter) = content;
+
+
+                        #if DRAWVPHYSMATRIX
+                        if(channel == 1)
+                        {
+                            draw_V_PHYS_STAT_P2->SetBinContent(i + 1, j + 1, c1);
+                            draw_V_PHYS_SYS1_P2->SetBinContent(i + 1, j + 1, c2);
+                            draw_V_PHYS_P2->SetBinContent(i + 1, j + 1, content);
+
+                            std::cout << "channel=" << channel << " i=" << i << " j=" << j << " content=" << content << std::endl;
+                        }
+                        #endif
+
 
                         ++ i_counter;
                     }
 
                     ++ j_counter;
                 }
+
+                #if DRAWVPHYSMATRIX
+                if(channel == 1)
+                {
+                    TCanvas *canvas_V_PHYS_STAT_P1 = new TCanvas("canvas_V_PHYS_STAT_P1", "canvas_V_PHYS_STAT_P1");
+                    draw_V_PHYS_STAT_P1->Draw("colz");
+                    canvas_V_PHYS_STAT_P1->SaveAs("draw_V_PHYS_STAT_P1.png");
+
+                    TCanvas *canvas_V_PHYS_SYS1_P1 = new TCanvas("canvas_V_PHYS_SYS1_P1", "canvas_V_PHYS_SYS1_P1");
+                    draw_V_PHYS_SYS1_P1->Draw("colz");
+                    canvas_V_PHYS_SYS1_P1->SaveAs("draw_V_PHYS_SYS1_P1.png");
+
+                    TCanvas *canvas_V_PHYS_P1 = new TCanvas("canvas_V_PHYS_P1", "canvas_V_PHYS_P1");
+                    draw_V_PHYS_P1->Draw("colz");
+                    canvas_V_PHYS_P1->SaveAs("draw_V_PHYS_P1.png");
+
+                    TCanvas *canvas_V_PHYS_STAT_P2 = new TCanvas("canvas_V_PHYS_STAT_P2", "canvas_V_PHYS_STAT_P2");
+                    draw_V_PHYS_STAT_P2->Draw("colz");
+                    canvas_V_PHYS_STAT_P2->SaveAs("draw_V_PHYS_STAT_P2.png");
+
+                    TCanvas *canvas_V_PHYS_SYS1_P2 = new TCanvas("canvas_V_PHYS_SYS1_P2", "canvas_V_PHYS_SYS1_P2");
+                    draw_V_PHYS_SYS1_P2->Draw("colz");
+                    canvas_V_PHYS_SYS1_P2->SaveAs("draw_V_PHYS_SYS1_P2.png");
+
+                    TCanvas *canvas_V_PHYS_P2 = new TCanvas("canvas_V_PHYS_P2", "canvas_V_PHYS_P2");
+                    draw_V_PHYS_P2->Draw("colz");
+                    canvas_V_PHYS_P2->SaveAs("draw_V_PHYS_P2.png");
+
+                    std::cout << "printed all canvas" << std::endl;
+                    std::cin.get();
+                }
+                #endif
 
                 /*
                 for(Int_t iy = 0; iy < V_PHYS_1D_P1_MATHMORE[channel]->GetNrows(); ++ iy)
@@ -925,10 +1147,21 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                 std::cout << "Start Invert" << std::endl;
                 std::chrono::system_clock::time_point start_time = std::chrono::high_resolution_clock::now();
                 #endif
-                std::cout << "P1 V_MATRIX size: " << V_PHYS_1D_P1_MATHMORE[channel]->GetNrows() << " " << V_PHYS_1D_P1_MATHMORE[channel]->GetNcols() << std::endl;
+                //std::cout << "P1 V_MATRIX size: " << V_PHYS_1D_P1_MATHMORE[channel]->GetNrows() << " " << V_PHYS_1D_P1_MATHMORE[channel]->GetNcols() << std::endl;
+                if(V_PHYS_1D_P1_MATHMORE[channel]->Determinant() == 0.0)
+                {
+                    std::cout << "P1 V_MATRIX size: " << V_PHYS_1D_P1_MATHMORE[channel]->GetNrows() << " " << V_PHYS_1D_P1_MATHMORE[channel]->GetNcols() << std::endl;
+                    for(int j = 0; j < V_PHYS_1D_P1_MATHMORE[channel]->GetNcols(); ++ j)
+                    {
+                        for(int i = 0; i < V_PHYS_1D_P1_MATHMORE[channel]->GetNrows(); ++ i)
+                        {
+                            std::cout << "i=" << i << " j=" << j << " " << V_PHYS_1D_P1_MATHMORE[channel]->operator[](j).operator[](i) << std::endl;
+                        }
+                    }
+                }
                 V_PHYS_1D_P1_MATHMORE[channel]->Invert();
                 //std::cout << "Next Invert" << std::endl;
-                std::cout << "P2 V_MATRIX size: " << V_PHYS_1D_P2_MATHMORE[channel]->GetNrows() << " " << V_PHYS_1D_P2_MATHMORE[channel]->GetNcols() << std::endl;
+                //std::cout << "P2 V_MATRIX size: " << V_PHYS_1D_P2_MATHMORE[channel]->GetNrows() << " " << V_PHYS_1D_P2_MATHMORE[channel]->GetNcols() << std::endl;
                 V_PHYS_1D_P2_MATHMORE[channel]->Invert();
                 #if MEASURE_FUNCTION_CALL_TIME
                 std::chrono::system_clock::time_point end_time = std::chrono::high_resolution_clock::now();

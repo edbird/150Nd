@@ -52,9 +52,9 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
     {
 
 
-        #if MEASURE_FUNCTION_CALL_TIME
+        //#if MEASURE_FUNCTION_CALL_TIME
         std::chrono::system_clock::time_point start_time = std::chrono::high_resolution_clock::now();
-        #endif
+        //#endif
 
         const int MODE_LOGPOISSON = 0;
         const int MODE_CHI2 = 1;
@@ -402,8 +402,9 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             }
             #endif
         
-            
+            //#if MEASURE_FUNCTION_CALL_TIME 
             std::chrono::system_clock::time_point start_time_2 = std::chrono::high_resolution_clock::now();
+            //#endif
 
             if(recalculate_V_PHYS_xD_Px_MATHMORE == true)
             {
@@ -1042,11 +1043,11 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             }
 
 
-            #if MEASURE_FUNCTION_CALL_TIME
+            //#if MEASURE_FUNCTION_CALL_TIME
             std::chrono::system_clock::time_point end_time_2 = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> runtime_microsec_2 = end_time_2 - start_time_2;
             std::cout << "Done init, time=" << 1.0e+06 * runtime_microsec_2.count() << " microsecond" << std::endl;
-            #endif
+            //#endif
 
             //if(V_SUPER == nullptr)
             //{
@@ -1065,8 +1066,8 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             // just assume it always changes for now
             
             // set the contents of D
-            //set_D();
-            //set_M(param);
+            set_D();
+            set_M(param);
             //set_D_minus_M(param); // TODO: read from D_minus_M in later function calls
             // draw
             /*
@@ -1078,8 +1079,10 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             c_M->SaveAs("debug_c_M.png");
             */
 
-            //set_D_minus_M();
-            set_D_minus_M(param);
+            set_D_minus_M();
+            //set_D_minus_M(param); // note this method will be slower because
+                // need to iterate over all MC to construct M, so that V_MATRIX
+                // can be set using error=sqrt(M)
             // draw
             /*
             TCanvas *c_D_minus_M = new TCanvas("c_D_minus_M", "c_D_minus_M", 10000, 10000);
@@ -1116,11 +1119,11 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
 
             //std::cout << "chi2_total=" << chi2_total << std::endl;
             //std::cin.get();
-            #if MEASURE_FUNCTION_CALL_TIME
+            //#if MEASURE_FUNCTION_CALL_TIME
             std::chrono::system_clock::time_point end_time = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> runtime_microsec = end_time - start_time;
             std::cout << "operator() call time: " << 1.0e+06 * runtime_microsec.count() << " microsecond" << std::endl;
-            #endif
+            //#endif
             return chi2_total;
 
         }
@@ -2586,10 +2589,10 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             //std::cout << "fval=" << fval << std::endl;
             //std::cin.get();
             #if MEASURE_FUNCTION_CALL_TIME
-        std::chrono::system_clock::time_point end_time = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> runtime_microsec = end_time - start_time;
-        std::cout << "operator() call time: " << 1.0e+06 * runtime_microsec.count() << " microsecond" << std::endl;
-        #endif
+            std::chrono::system_clock::time_point end_time = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> runtime_microsec = end_time - start_time;
+            std::cout << "operator() call time: " << 1.0e+06 * runtime_microsec.count() << " microsecond" << std::endl;
+            #endif
             return fval;
 
         } // old method
@@ -2607,8 +2610,8 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
     void zero_V_PHYS_data() const;
     void set_D() const;
     void set_M(const std::vector<double> &param) const;
-    //void set_D_minus_M() const;
-    void set_D_minus_M(const std::vector<double> &param) const;
+    void set_D_minus_M() const;
+    //void set_D_minus_M(const std::vector<double> &param) const;
     void set_V_MATRIX() const;
     void calculate_chi2_P1(double &chi2_P1, int &nch_P1) const;
     void calculate_chi2_P2(double &chi2_P2, int &nch_P2) const;

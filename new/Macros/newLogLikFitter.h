@@ -56,8 +56,8 @@ bool gEnablePhase2;
 
 parameter_group g_pg;
 
-bool g_mode_fake_data = false;
-//bool g_mode_fake_data = true;
+//bool g_mode_fake_data = false;
+bool g_mode_fake_data = true;
 //std::string g_datetimestamp_string;
 
 // globals required in logLikelihood function but cannot be passed as
@@ -282,6 +282,10 @@ int paramLockedModeMap[numberParams];
 const int number1DHists = 6; //number1DHists_perphase * numberPhases;
 const int number2DHists = 1; //number2DHists_perphase * numberPhases;
 
+
+///////////////////////////////////////////////////////////////////////////////
+// channel enable flags
+
 const double channel_enable_1D[number1DHists] =
 {
 0, // ch  0 = hTotalE        (P1&2)
@@ -289,21 +293,17 @@ const double channel_enable_1D[number1DHists] =
 0, // ch  2 = hHighEnergy    (P1&2)
 0, // ch  3 = hLowEnergy     (P1&2)
 0, // ch  4 = hEnergySum     (P1&2)
-0//, // ch  5 = hEnergyDiff    (P1&2)
-
-//0, // ch  6 = hTotalE        (P2)
-//1, // ch  7 = hSingleEnergy  (P2)
-//0, // ch  8 = hHighEnergy    (P2)
-//0, // ch  9 = hLowEnergy     (P2)
-//0, // ch 10 = hEnergySum     (P2)
-//0  // ch 11 = hEnergyDiff    (P2)
+0  // ch  5 = hEnergyDiff    (P1&2)
 };
 
 const double channel_enable_2D[number2DHists] =
 {
-0//, // ch  0 = hHighLowEnergy    (P1)
-//0  // ch  1 = hHighLowEnergy    (P2)
+0  // ch  0 = hHighLowEnergy    (P1&2)
 };
+
+
+///////////////////////////////////////////////////////////////////////////////
+// histogram names
 
 const std::string channel_histname_1D[number1DHists] =
 {
@@ -319,6 +319,10 @@ const std::string channel_histname_2D[number2DHists] =
 {
     "hHighLowEnergy_"
 };
+
+
+///////////////////////////////////////////////////////////////////////////////
+// draw flags
 
 const bool channel_enable_draw_1D[number1DHists] =
 {
@@ -354,6 +358,97 @@ TObjArray *allFakeDataSamples2D;
 
 std::vector<std::pair<double,double>> ll_walk;
 std::vector<std::pair<double,double>> ll_walk_save;
+
+
+///////////////////////////////////////////////////////////////////////////////
+// systematic objects - Phase 1
+///////////////////////////////////////////////////////////////////////////////
+
+std::vector<double> *systematic_offset_nominal_1D_P1[number1DHists] =
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_offset_low_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_offset_high_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_offset_V_MATRIX_coeff_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+// systematic objects - Phase 2
+///////////////////////////////////////////////////////////////////////////////
+
+std::vector<double> *systematic_offset_nominal_1D_P2[number1DHists] =
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_offset_low_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_offset_high_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_offset_V_MATRIX_coeff_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // chi2 objects for V MATRIX method, Phase 1
