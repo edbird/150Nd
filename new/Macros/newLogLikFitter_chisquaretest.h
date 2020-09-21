@@ -521,6 +521,9 @@ void newloglikfitter_testmyphasespace_newversion(
             //for(int n_2 = 0; n_2 <= n_param_2; ++ n_2)
             for(int n_2 = 0; n_2 < n_param_2; ++ n_2)
             {
+
+                std::chrono::system_clock::time_point start_time = std::chrono::high_resolution_clock::now();
+
                 // TODO: try using GetBinCenter() and looping over bins
                 // in combination with Fill method
 
@@ -740,6 +743,10 @@ void newloglikfitter_testmyphasespace_newversion(
 
                 ++ c_param;
                 //std::cout << c_param << " / " << n_param_max << std::endl;
+
+                std::chrono::system_clock::time_point end_time = std::chrono::high_resolution_clock::now();
+                std::chrono::duration<double> runtime_sec = end_time - start_time;
+                std::cout << "Exec time: " << runtime_sec.count() << " s" << std::endl;
             }
             std::cout << c_param << " / " << n_param_max << std::endl;
             std::cout << "min_stripe=" << min_stripe << " min_stripe_x=" << t_param_1 << " min_stripe_y=" << min_stripe_y << std::endl;

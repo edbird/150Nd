@@ -52,9 +52,9 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
     {
 
 
-        //#if MEASURE_FUNCTION_CALL_TIME
+        #if MEASURE_FUNCTION_CALL_TIME
         std::chrono::system_clock::time_point start_time = std::chrono::high_resolution_clock::now();
-        //#endif
+        #endif
 
         const int MODE_LOGPOISSON = 0;
         const int MODE_CHI2 = 1;
@@ -402,9 +402,9 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             }
             #endif
         
-            //#if MEASURE_FUNCTION_CALL_TIME 
+            #if MEASURE_FUNCTION_CALL_TIME 
             std::chrono::system_clock::time_point start_time_2 = std::chrono::high_resolution_clock::now();
-            //#endif
+            #endif
 
             if(recalculate_V_PHYS_xD_Px_MATHMORE == true)
             {
@@ -464,57 +464,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                 zero_V_PHYS_data();
             }
 
-            ///////////////////////////////////////////////////////////////////
-            // V_PHYS_STAT
-            ///////////////////////////////////////////////////////////////////
-            //if(V_PHYS_STAT_1D_P1[0] == nullptr)
-            if(V_PHYS_STAT_1D_P1_data[0] == nullptr)
-            {
-                //std::cout << "Alloc V_PHYS_STAT" << std::endl;
-                //V_PHYS_STAT = new TH2D("V_PHYS_STAT", "V_PHYS_STAT",
-                //                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
-                //                  NUM_BINS_XY, 0.0, NUM_BINS_XY);
-                std::cout << "Alloc V_PHYS_STAT" << std::endl;
-                for(int ch = 0; ch < number1DHists; ++ ch)
-                {
-                    const Int_t NUM_BINS_XY = 50;
-                    TString hname;
-
-                    hname.Form("V_PHYS_STAT_1D_P1_CH%d", ch);
-                    //V_PHYS_STAT_1D_P1[ch] = new TH2D(hname, hname,
-                    //                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
-                    //                  NUM_BINS_XY, 0.0, NUM_BINS_XY);
-
-                    hname.Form("V_PHYS_STAT_1D_P2_CH%d", ch);
-                    //V_PHYS_STAT_1D_P2[ch] = new TH2D(hname, hname,
-                    //                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
-                    //                  NUM_BINS_XY, 0.0, NUM_BINS_XY);
-
-                    V_PHYS_STAT_1D_P1_data[ch] = new std::vector<double>(NUM_BINS_XY * NUM_BINS_XY, 0.0);
-                    V_PHYS_STAT_1D_P2_data[ch] = new std::vector<double>(NUM_BINS_XY * NUM_BINS_XY, 0.0);
-                }
-
-                /*
-                for(int ch = 0; ch < number2DHists; ++ ch)
-                {
-                    const Int_t NUM_BINS_XY = 50 * 50;
-                    TString hname;
-
-                    hname.Form("V_PHYS_STAT_2D_P1_CH%d", ch);
-                    //V_PHYS_STAT_2D_P1[ch] = new TH2D(hname, hname,
-                    //                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
-                    //                  NUM_BINS_XY, 0.0, NUM_BINS_XY);
-
-                    hname.Form("V_PHYS_STAT_2D_P2_CH%d", ch);
-                    //V_PHYS_STAT_2D_P2[ch] = new TH2D(hname, hname,
-                    //                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
-                    //                  NUM_BINS_XY, 0.0, NUM_BINS_XY);
-
-                    V_PHYS_STAT_1D_P2_data[ch] = new std::vector<double>(NUM_BINS_XY * NUM_BINS_XY, 0.0);
-                }
-                */
-            }
-
+            check_alloc_V_PHYS_STAT_data();
             if(recalculate_V_PHYS_xD_Px_MATHMORE == true)
             {
                 // Set to zero
@@ -579,65 +529,11 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                 */
             }
 
-            ///////////////////////////////////////////////////////////////////
-            // V_PHYS_SYS1
-            ///////////////////////////////////////////////////////////////////
-            //if(V_PHYS_SYS1_1D_P1[0] == nullptr)
-            if(V_PHYS_SYS1_1D_P1_data[0] == nullptr)
-            {
-                //std::cout << "Alloc V_PHYS_SYS" << std::endl;
-                //V_PHYS_SYS = new TH2D("V_PHYS_SYS", "V_PHYS_SYS",
-                //                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
-                //                  NUM_BINS_XY, 0.0, NUM_BINS_XY);
 
-                // clear the contents of V_PHYS_STAT
-                //for(Int_t bin_i{1}; bin_i <= V_PHYS_STAT->GetNbinsX(); ++ bin_i)
-                //{
-                //    for(Int_t bin_j{1}; bin_j <= V_PHYS_STAT->GetNbinsY(); ++ bin_j)
-                //    {
-                //        const Double_t zero = 0.0;
-                //        V_PHYS_STAT->SetBinContent(bin_i, bin_j, zero);
-                //    }
-                //}
-                std::cout << "Alloc V_PHYS_SYS1" << std::endl;
-                for(int ch = 0; ch < number1DHists; ++ ch)
-                {
-                    const Int_t NUM_BINS_XY = 50;
-                    TString hname;
+            check_alloc_V_PHYS_SYS1_data();
 
-                    hname.Form("V_PHYS_SYS1_1D_P1_CH%d", ch);
-                    //V_PHYS_SYS1_1D_P1[ch] = new TH2D(hname, hname,
-                    //                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
-                    //                  NUM_BINS_XY, 0.0, NUM_BINS_XY);
-
-                    hname.Form("V_PHYS_SYS1_1D_P2_CH%d", ch);
-                    //V_PHYS_SYS1_1D_P2[ch] = new TH2D(hname, hname,
-                    //                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
-                    //                  NUM_BINS_XY, 0.0, NUM_BINS_XY);
-
-                    V_PHYS_SYS1_1D_P1_data[ch] = new std::vector<double>(NUM_BINS_XY * NUM_BINS_XY, 0.0);
-                    V_PHYS_SYS1_1D_P2_data[ch] = new std::vector<double>(NUM_BINS_XY * NUM_BINS_XY, 0.0);
-                }
-
-                /*
-                for(int ch = 0; ch < number2DHists; ++ ch)
-                {
-                    const Int_t NUM_BINS_XY = 50 * 50;
-                    TString hname;
-
-                    hname.Form("V_PHYS_SYS1_2D_P1_CH%d", ch);
-                    V_PHYS_SYS1_2D_P1[ch] = new TH2D(hname, hname,
-                                      NUM_BINS_XY, 0.0, NUM_BINS_XY,
-                                      NUM_BINS_XY, 0.0, NUM_BINS_XY);
-
-                    hname.Form("V_PHYS_SYS1_2D_P2_CH%d", ch);
-                    V_PHYS_SYS1_2D_P2[ch] = new TH2D(hname, hname,
-                                      NUM_BINS_XY, 0.0, NUM_BINS_XY,
-                                      NUM_BINS_XY, 0.0, NUM_BINS_XY);
-                }
-                */
-            }
-
+            #if 0
+            // systematics do not change, so leave alone!
             if(recalculate_V_PHYS_xD_Px_MATHMORE == true)
             {
                 // Set to zero
@@ -696,63 +592,14 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                 }
                 */
             }
+            #endif
 
-            ///////////////////////////////////////////////////////////////////
-            // V_MATRIX D (data)
-            ///////////////////////////////////////////////////////////////////
-            //if(D_1D_P1[0] == nullptr)
-            if(D_1D_P1_data[0] == nullptr)
-            {
-                //std::cout << "Alloc D" << std::endl;
-                //D = new TH2D("D", "D",
-                //                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
-                //                  1, 0.0, 1.0);
 
-                // clear the contents of D
-                //for(Int_t bin_i{1}; bin_i <= D->GetNbinsX(); ++ bin_i)
-                //{
-                //    const Double_t zero = 0.0;
-                //    D->SetBinContent(bin_i, 1, zero);
-                //}
-                std::cout << "Alloc V_D" << std::endl;
-                for(int ch = 0; ch < number1DHists; ++ ch)
-                {
-                    const Int_t NUM_BINS_XY = 50;
-                    TString hname;
 
-                    hname.Form("D_1D_P1_CH%d", ch);
-                    //D_1D_P1[ch] = new TH2D(hname, hname,
-                    //                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
-                    //                  1, 0.0, 1.0);
+            check_alloc_D();
 
-                    hname.Form("D_1D_P2_CH%d", ch);
-                    //D_1D_P2[ch] = new TH2D(hname, hname,
-                    //                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
-                    //                  1, 0.0, 1.0);
 
-                    D_1D_P1_data[ch] = new std::vector<double>(NUM_BINS_XY, 0.0);
-                    D_1D_P2_data[ch] = new std::vector<double>(NUM_BINS_XY, 0.0);
-                }
-
-                /*
-                for(int ch = 0; ch < number2DHists; ++ ch)
-                {
-                    const Int_t NUM_BINS_XY = 50 * 50;
-                    TString hname;
-
-                    hname.Form("D_2D_P1_CH%d", ch);
-                    D_2D_P1[ch] = new TH2D(hname, hname,
-                                      NUM_BINS_XY, 0.0, NUM_BINS_XY,
-                                      NUM_BINS_XY, 0.0, NUM_BINS_XY);
-
-                    hname.Form("D_2D_P2_CH%d", ch);
-                    D_2D_P2[ch] = new TH2D(hname, hname,
-                                      NUM_BINS_XY, 0.0, NUM_BINS_XY,
-                                      NUM_BINS_XY, 0.0, NUM_BINS_XY);
-                }
-                */
-            }
-
+            #if 0
             if(recalculate_V_PHYS_xD_Px_MATHMORE == true)
             {
                 // Set to zero
@@ -810,62 +657,10 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                 }
                 */
             }
+            #endif
 
-            //if(M_1D_P1[0] == nullptr)
-            if(M_1D_P1_data[0] == nullptr)
-            {
-                //std::cout << "Alloc M" << std::endl;
-                //M = new TH2D("M", "M",
-                //                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
-                //                  1, 0.0, 1.0);
 
-                // clear the contents of M
-                //for(Int_t bin_i{1}; bin_i <= M->GetNbinsX(); ++ bin_i)
-                //{
-                //    const Double_t zero = 0.0;
-                //    M->SetBinContent(bin_i, 1, zero);
-                //}
-
-                // 1D
-                std::cout << "Alloc V_M" << std::endl;
-                for(int ch = 0; ch < number1DHists; ++ ch)
-                {
-                    const Int_t NUM_BINS_XY = 50;
-                    TString hname;
-
-                    hname.Form("M_1D_P1_CH%d", ch);
-                    //M_1D_P1[ch] = new TH2D(hname, hname,
-                    //                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
-                    //                  1, 0.0, 1.0);
-
-                    hname.Form("M_1D_P2_CH%d", ch);
-                    //M_1D_P2[ch] = new TH2D(hname, hname,
-                    //                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
-                    //                  1, 0.0, 1.0);
-
-                    M_1D_P1_data[ch] = new std::vector<double>(NUM_BINS_XY, 0.0);
-                    M_1D_P2_data[ch] = new std::vector<double>(NUM_BINS_XY, 0.0);
-                }
-
-                // 2D
-                /*
-                for(int ch = 0; ch < number2DHists; ++ ch)
-                {
-                    const Int_t NUM_BINS_XY = 50 * 50;
-                    TString hname;
-
-                    hname.Form("M_2D_P1_CH%d", ch);
-                    M_2D_P1[ch] = new TH2D(hname, hname,
-                                      NUM_BINS_XY, 0.0, NUM_BINS_XY,
-                                      NUM_BINS_XY, 0.0, NUM_BINS_XY);
-
-                    hname.Form("M_2D_P2_CH%d", ch);
-                    M_2D_P2[ch] = new TH2D(hname, hname,
-                                      NUM_BINS_XY, 0.0, NUM_BINS_XY,
-                                      NUM_BINS_XY, 0.0, NUM_BINS_XY);
-                }
-                */
-            }
+            check_alloc_M();
 
             if(recalculate_V_PHYS_xD_Px_MATHMORE == true)
             {
@@ -927,63 +722,10 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                 */
             }
 
-            //if(D_minus_M_1D_P1[0] == nullptr)
-            if(D_minus_M_1D_P1_data[0] == nullptr)
-            {
-                //std::cout << "Alloc D_minus_M" << std::endl;
-                //D_minus_M = new TH2D("D_minus_M", "D_minus_M",
-                //                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
-                //                  1, 0.0, 1.0);
 
-                // clear the contents of M
-                //for(Int_t bin_i{1}; bin_i <= D_minus_M->GetNbinsX(); ++ bin_i)
-                //{
-                //    const Double_t zero = 0.0;
-                //    D_minus_M->SetBinContent(bin_i, 1, zero);
-                //}
-
-                // 1D
-                std::cout << "Alloc D_minus_M" << std::endl;
-                for(int ch = 0; ch < number1DHists; ++ ch)
-                {
-                    const Int_t NUM_BINS_XY = 50;
-                    TString hname;
-
-                    hname.Form("D_minus_M_1D_P1_CH%d", ch);
-                    //D_minus_M_1D_P1[ch] = new TH2D(hname, hname,
-                    //                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
-                    //                  1, 0.0, 1.0);
-
-                    hname.Form("D_minus_M_1D_P2_CH%d", ch);
-                    //D_minus_M_1D_P2[ch] = new TH2D(hname, hname,
-                    //                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
-                    //                  1, 0.0, 1.0);
-
-                    D_minus_M_1D_P1_data[ch] = new std::vector<double>(NUM_BINS_XY, 0.0);
-                    D_minus_M_1D_P2_data[ch] = new std::vector<double>(NUM_BINS_XY, 0.0);
-                }
+            check_alloc_D_minus_M();
 
 
-                // 2D
-                /*
-                for(int ch = 0; ch < number2DHists; ++ ch)
-                {
-                    const Int_t NUM_BINS_XY = 50 * 50;
-                    TString hname;
-
-                    hname.Form("D_minus_M_2D_P1_CH%d", ch);
-                    D_minus_M_2D_P1[ch] = new TH2D(hname, hname,
-                                      NUM_BINS_XY, 0.0, NUM_BINS_XY,
-                                      NUM_BINS_XY, 0.0, NUM_BINS_XY);
-
-                    hname.Form("D_minus_M_2D_P2_CH%d", ch);
-                    D_minus_M_2D_P2[ch] = new TH2D(hname, hname,
-                                      NUM_BINS_XY, 0.0, NUM_BINS_XY,
-                                      NUM_BINS_XY, 0.0, NUM_BINS_XY);
-                }
-                */
-
-            }
 
             if(recalculate_V_PHYS_xD_Px_MATHMORE == true)
             {
@@ -1043,11 +785,11 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             }
 
 
-            //#if MEASURE_FUNCTION_CALL_TIME
+            #if MEASURE_FUNCTION_CALL_TIME
             std::chrono::system_clock::time_point end_time_2 = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> runtime_microsec_2 = end_time_2 - start_time_2;
             std::cout << "Done init, time=" << 1.0e+06 * runtime_microsec_2.count() << " microsecond" << std::endl;
-            //#endif
+            #endif
 
             //if(V_SUPER == nullptr)
             //{
@@ -1119,11 +861,11 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
 
             //std::cout << "chi2_total=" << chi2_total << std::endl;
             //std::cin.get();
-            //#if MEASURE_FUNCTION_CALL_TIME
+            #if MEASURE_FUNCTION_CALL_TIME
             std::chrono::system_clock::time_point end_time = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> runtime_microsec = end_time - start_time;
             std::cout << "operator() call time: " << 1.0e+06 * runtime_microsec.count() << " microsecond" << std::endl;
-            //#endif
+            #endif
             return chi2_total;
 
         }
@@ -2604,15 +2346,25 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
     protected:
 
     
-    void check_alloc_V_PHYS() const;
-    void zero_V_PHYS() const;
+    //void check_alloc_V_PHYS() const;
+    //void zero_V_PHYS() const;
+    
     void check_alloc_V_PHYS_data() const;
+    void check_alloc_V_PHYS_STAT_data() const;
+    void check_alloc_V_PHYS_SYS1_data() const;
+    void check_alloc_D() const;
+    void check_alloc_M() const;
+    void check_alloc_D_minus_M() const;
+
     void zero_V_PHYS_data() const;
+    
     void set_D() const;
     void set_M(const std::vector<double> &param) const;
     void set_D_minus_M() const;
     //void set_D_minus_M(const std::vector<double> &param) const;
+    
     void set_V_MATRIX() const;
+    
     void calculate_chi2_P1(double &chi2_P1, int &nch_P1) const;
     void calculate_chi2_P2(double &chi2_P2, int &nch_P2) const;
     void calculate_penalty_term(double &penalty_term, const std::vector<double> &param) const;

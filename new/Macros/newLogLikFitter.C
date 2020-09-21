@@ -1579,12 +1579,12 @@ void loadFiles(int i)
     }
 
     // draw
-    TH1D *drawtmp = new TH1D("drawtmp", "drawtmp", 50, 0.0, 5.0);
-    for(int i = 0; i < systematic_offset_V_MATRIX_coeff_1D_P2[1]->size(); ++ i)
-    {
-        double content = systematic_offset_V_MATRIX_coeff_1D_P2[1]->operator[](i);
-        drawtmp->SetBinContent(i + 1, content);
-    }
+//    TH1D *drawtmp = new TH1D("drawtmp", "drawtmp", 50, 0.0, 5.0);
+//    for(int i = 0; i < systematic_offset_V_MATRIX_coeff_1D_P2[1]->size(); ++ i)
+//    {
+//        double content = systematic_offset_V_MATRIX_coeff_1D_P2[1]->operator[](i);
+//        drawtmp->SetBinContent(i + 1, content);
+//    }
 //    TCanvas *ctmp = new TCanvas("ctmp", "ctmp");
 //    drawtmp->Draw();
 //    ctmp->Show();
@@ -1644,6 +1644,8 @@ void loadFiles(int i)
              params_before,
              param_errs_before);
         //std::cin.get();
+//    std::cout << "check global chi2" << std::endl;
+//    std::cin.get();
 
         // exec fit
         // do fit with all parameters free
@@ -1672,6 +1674,8 @@ void loadFiles(int i)
         draw(drawinputdata,
              params_after,
              param_errs_after);
+//    std::cout << "check global chi2" << std::endl;
+//    std::cin.get();
 
         
         // minimize
@@ -1747,6 +1751,8 @@ void loadFiles(int i)
              params_before,
              param_errs_before);
         //std::cin.get();
+//    std::cout << "check global chi2" << std::endl;
+//    std::cin.get();
 
         // exec fit
         // do fit with all parameters free
@@ -1775,6 +1781,8 @@ void loadFiles(int i)
         draw(drawinputdata,
              params_after,
              param_errs_after);
+//    std::cout << "check global chi2" << std::endl;
+//    std::cin.get();
 
         
         // minimize
@@ -1849,6 +1857,8 @@ void loadFiles(int i)
              params_before,
              param_errs_before);
         //std::cin.get();
+//    std::cout << "check global chi2" << std::endl;
+//    std::cin.get();
 
         // exec fit
         // do fit with all parameters free
@@ -1877,6 +1887,8 @@ void loadFiles(int i)
         draw(drawinputdata,
              params_after,
              param_errs_after);
+//    std::cout << "check global chi2" << std::endl;
+//    std::cin.get();
 
         
         // minimize
