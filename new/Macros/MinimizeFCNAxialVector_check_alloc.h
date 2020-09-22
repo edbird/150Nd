@@ -31,6 +31,7 @@ MinimizeFCNAxialVector::check_alloc_V_PHYS_data() const
 
             V_PHYS_1D_P1_data[ch] = new std::vector<double>(NUM_BINS_XY * NUM_BINS_XY, 0.0);
             V_PHYS_1D_P2_data[ch] = new std::vector<double>(NUM_BINS_XY * NUM_BINS_XY, 0.0);
+            std::cout << "ALLOC " << __func__ << std::endl;
         }
 
         // 2D
@@ -89,6 +90,7 @@ MinimizeFCNAxialVector::check_alloc_V_PHYS_STAT_data() const
 
             V_PHYS_STAT_1D_P1_data[ch] = new std::vector<double>(NUM_BINS_XY * NUM_BINS_XY, 0.0);
             V_PHYS_STAT_1D_P2_data[ch] = new std::vector<double>(NUM_BINS_XY * NUM_BINS_XY, 0.0);
+            std::cout << "ALLOC " << __func__ << std::endl;
         }
 
         /*
@@ -158,6 +160,7 @@ MinimizeFCNAxialVector::check_alloc_V_PHYS_SYS1_data() const
 
             V_PHYS_SYS1_1D_P1_data[ch] = new std::vector<double>(NUM_BINS_XY * NUM_BINS_XY, 0.0);
             V_PHYS_SYS1_1D_P2_data[ch] = new std::vector<double>(NUM_BINS_XY * NUM_BINS_XY, 0.0);
+            std::cout << "ALLOC " << __func__ << std::endl;
         
 
             // initialize elements of V_PHYS_SYS1_*
@@ -269,6 +272,7 @@ void MinimizeFCNAxialVector::check_alloc_D() const
 
             D_1D_P1_data[ch] = new std::vector<double>(NUM_BINS_XY, 0.0);
             D_1D_P2_data[ch] = new std::vector<double>(NUM_BINS_XY, 0.0);
+            std::cout << "ALLOC " << __func__ << std::endl;
         }
 
         /*
@@ -335,6 +339,7 @@ void MinimizeFCNAxialVector::check_alloc_M() const
 
             M_1D_P1_data[ch] = new std::vector<double>(NUM_BINS_XY, 0.0);
             M_1D_P2_data[ch] = new std::vector<double>(NUM_BINS_XY, 0.0);
+            std::cout << "ALLOC " << __func__ << std::endl;
         }
 
         // 2D
@@ -402,6 +407,7 @@ void MinimizeFCNAxialVector::check_alloc_D_minus_M() const
 
             D_minus_M_1D_P1_data[ch] = new std::vector<double>(NUM_BINS_XY, 0.0);
             D_minus_M_1D_P2_data[ch] = new std::vector<double>(NUM_BINS_XY, 0.0);
+            std::cout << "ALLOC " << __func__ << std::endl;
         }
 
 
@@ -1254,7 +1260,7 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                 std::chrono::system_clock::time_point start_time = std::chrono::high_resolution_clock::now();
                 #endif
                 {
-                    if(V_PHYS_1D_P1_MATHMORE[0] != nullptr)
+                    if(V_PHYS_1D_P1_MATHMORE[channel] != nullptr)
                     {
                         if(counter_P1 != V_PHYS_1D_P1_MATHMORE[channel]->GetNrows())
                         {
@@ -1265,10 +1271,12 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                     }
                     else
                     {
+                    std::cout << "MATHMORE: P1: " << V_PHYS_1D_P1_MATHMORE[0] << std::endl;
                         V_PHYS_1D_P1_MATHMORE[channel] = new TMatrixD(counter_P1, counter_P1); // NUM_BINS_XY, NUM_BINS_XY);
+                        std::cout << "ALLOC " << __func__ << std::endl;
                     }
 
-                    if(V_PHYS_1D_P2_MATHMORE[0] != nullptr)
+                    if(V_PHYS_1D_P2_MATHMORE[channel] != nullptr)
                     {
                         if(counter_P2 != V_PHYS_1D_P2_MATHMORE[channel]->GetNrows())
                         {
@@ -1278,7 +1286,9 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                     }
                     else
                     {
+                    std::cout << "MATHMORE: P2: " << V_PHYS_1D_P2_MATHMORE[0] << std::endl;
                         V_PHYS_1D_P2_MATHMORE[channel] = new TMatrixD(counter_P2, counter_P2); //NUM_BINS_XY, NUM_BINS_XY);
+                        std::cout << "ALLOC " << __func__ << std::endl;
                     }
                     // TODO: must be able to optimize this
                 }
@@ -1356,6 +1366,7 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                     draw_V_PHYSINV_P2 =   new TH2D("draw_V_PHYSINV_P2", "draw_V_PHYSINV_P2",
                                                          50, 0.0, 5.0,
                                                          50, 0.0, 5.0);
+                    std::cout << "ALLOC " << __func__ << std::endl;
                 }
                 #endif
 
@@ -1511,6 +1522,7 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                     TCanvas *canvas_V_PHYS_P2 = new TCanvas("canvas_V_PHYS_P2", "canvas_V_PHYS_P2");
                     draw_V_PHYS_P2->Draw("colz");
                     canvas_V_PHYS_P2->SaveAs("draw_V_PHYS_P2.png");
+                    std::cout << "ALLOC " << __func__ << std::endl;
 
                     std::cout << "printed all canvas" << std::endl;
                     //std::cin.get();
@@ -1674,6 +1686,7 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                 #if DRAWVPHYSMATRIX
                 if(channel == 1)
                 {
+                    std::cout << "ALLOC " << __func__ << std::endl;
                     TCanvas *canvas_V_PHYSINV_P1 = new TCanvas("canvas_V_PHYSINV_P1", "canvas_V_PHYSINV_P1");
                     draw_V_PHYSINV_P1->Draw("colz");
                     canvas_V_PHYSINV_P1->SaveAs("draw_V_PHYSINV_P1.png");
