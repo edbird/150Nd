@@ -205,7 +205,7 @@ void book1DHistograms_helper(
             }
             else
             {
-                std::cout << "WARNING: param_number_P2=" << param_number_P2 << std::endl;
+                std::cout << "WARNING: param_number_P1=" << param_number_P1 << std::endl;
                 std::cout << "mc_name=" << mc_name << std::endl;
                 // this is typically things such as bi214_air, which is ZERO for P2
             }

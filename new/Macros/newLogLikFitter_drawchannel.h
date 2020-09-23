@@ -964,8 +964,12 @@ void draw_channel_phase(
         //latexlabel.DrawLatex(0.63, 0.23, "#frac{#chi^{2}}{ndf} = #frac{" + chi2_str + "}{" + ndf_str + "}");
         
 
-        int xi_31_ext_param_number = g_pg.get_xi_31_ext_param_number();
-        double xi_31_Px = params.at(xi_31_ext_param_number);
+        double xi_31_Px = 0.0;
+        if(g_pg.get_xi_31_int_param_number() != -1)
+        {
+            int xi_31_ext_param_number = g_pg.get_xi_31_ext_param_number();
+            /*double*/ xi_31_Px = params.at(xi_31_ext_param_number);
+        }
         TString xilatexstr;
         xilatexstr.Form("#xi_{31}^{2#nu#beta#beta} = %.3f", xi_31_Px);
         TLatex xilatex;

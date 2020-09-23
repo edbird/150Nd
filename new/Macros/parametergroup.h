@@ -240,7 +240,25 @@ class parameter_group
             std::string param_name = "xi_31";
 
             xi_31_ext_param_number = ParamNameToExtParamNumberMap.at(param_name);
-            xi_31_int_param_number = ExtToIntParamNumberMap.at(xi_31_ext_param_number);
+            std::map<std::string, int>::iterator it = ParamNameToExtParamNumberMap.find(param_name);
+            if(it != ParamNameToExtParamNumberMap.end())
+            {
+                std::map<int, int>::iterator it = ExtToIntParamNumberMap.find(xi_31_ext_param_number);
+                if(it != ExtToIntParamNumberMap.end())
+                {
+                    xi_31_int_param_number = ExtToIntParamNumberMap.at(xi_31_ext_param_number);
+                }
+                else
+                {
+                    xi_31_int_param_number = -1;
+                }
+                //xi_31_int_param_number = ExtToIntParamNumberMap.at(xi_31_ext_param_number);
+            }
+            else
+            {
+                xi_31_int_param_number = -1;
+            }
+            //xi_31_int_param_number = ExtToIntParamNumberMap.at(xi_31_ext_param_number);
             xi_31_int_ext_param_number_set = true;
 
             return xi_31_int_param_number;
@@ -259,7 +277,24 @@ class parameter_group
             std::string param_name = "xi_31";
 
             xi_31_ext_param_number = ParamNameToExtParamNumberMap.at(param_name);
-            xi_31_int_param_number = ExtToIntParamNumberMap.at(xi_31_ext_param_number);
+
+            std::map<std::string, int>::iterator it = ParamNameToExtParamNumberMap.find(param_name);
+            if(it != ParamNameToExtParamNumberMap.end())
+            {
+                std::map<int, int>::iterator it = ExtToIntParamNumberMap.find(xi_31_ext_param_number);
+                if(it != ExtToIntParamNumberMap.end())
+                {
+                    xi_31_int_param_number = ExtToIntParamNumberMap.at(xi_31_ext_param_number);
+                }
+                else
+                {
+                    xi_31_int_param_number = -1;
+                }
+            }
+            else
+            {
+                xi_31_int_param_number = -1;
+            }
             xi_31_int_ext_param_number_set = true;
 
             return xi_31_ext_param_number;

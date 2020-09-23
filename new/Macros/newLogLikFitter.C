@@ -598,10 +598,18 @@ void loadFiles(int i)
 
 
     gSystematics.systematic_energy_offset = 0.0; //-0.1;
-    const int xi_31_ext_param_number = g_pg.get_xi_31_ext_param_number();
+    /*const*/ int xi_31_ext_param_number = g_pg.get_xi_31_ext_param_number();
         //if(param[xi_31_ext_param_number] != g_pg.file_params.at(xi_31_ext_param_number).paramLastValue)
     //const double xi_31{param[xi_31_ext_param_number]};
-    const double xi_31{g_pg.file_params.at(xi_31_ext_param_number).paramInitValue};
+    double xi_31 = 0.0;
+            if(g_pg.get_xi_31_int_param_number() != -1)
+            {
+                xi_31_ext_param_number = g_pg.get_xi_31_ext_param_number();
+            }
+            else
+            {
+    /*const double*/ xi_31 = g_pg.file_params.at(xi_31_ext_param_number).paramInitValue;
+            }
     std::cout << "xi_31=" << xi_31 << std::endl;
 //    std::cin.get();
     // NOTE: you put whatever value of xi_31 you like in here
@@ -659,6 +667,244 @@ void loadFiles(int i)
 #endif
 
     std::cout << "All histograms loaded" << std::endl;
+
+
+
+
+
+
+
+
+
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Construct Systematic Data Objects
+    ///////////////////////////////////////////////////////////////////////////
+    
+    gSystematics.systematic_energy_offset = 0.0;
+    rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline);
+
+    // loop over all channels
+    for(int channel = 0; channel < number1DHists; ++ channel)
+    {
+
+        if(systematic_offset_nominal_1D_P1[channel] == nullptr)
+        {
+            systematic_offset_nominal_1D_P1[channel] = new std::vector<double>;
+            systematic_offset_low_1D_P1[channel] = new std::vector<double>;
+            systematic_offset_high_1D_P1[channel] = new std::vector<double>;
+            systematic_offset_V_MATRIX_coeff_1D_P1[channel] = new std::vector<double>;
+
+            systematic_offset_nominal_1D_P2[channel] = new std::vector<double>;
+            systematic_offset_low_1D_P2[channel] = new std::vector<double>;
+            systematic_offset_high_1D_P2[channel] = new std::vector<double>;
+            systematic_offset_V_MATRIX_coeff_1D_P2[channel] = new std::vector<double>;
+        }
+        // check channel enabled
+        //if(channel_enable_1D[channel] == 0)
+        //{
+        //    continue;
+        //}
+
+        std::string histname = std::string(channel_histname_1D[channel]);
+        std::string search_object_P1;
+        std::string search_object_P2;
+        if(g_mode_fake_data == false)
+        {
+            // TODO: check what to do here - is this case valid?
+        }
+        else if(g_mode_fake_data == true)
+        {
+            // TODO: check what to do here - is this case valid?
+        }
+
+        search_object_P1 = histname + std::string("fakedata") + "_P1";
+        search_object_P2 = histname + std::string("fakedata") + "_P2";
+
+        TH1D *tmpDataHist1D_P1 = nullptr;
+        TH1D *tmpDataHist1D_P2 = nullptr;
+    
+        // another if g_mode_fake_data goes here
+
+        tmpDataHist1D_P1 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P1.c_str());
+        tmpDataHist1D_P2 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P2.c_str());
+
+        if(tmpDataHist1D_P1 == nullptr)
+        {
+            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
+            throw "problem";
+        }
+        if(tmpDataHist1D_P2 == nullptr)
+        {
+            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
+            throw "problem";
+        }
+        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P1->GetNbinsX(); ++ bin_ix)
+        {
+            Double_t content = tmpDataHist1D_P1->GetBinContent(bin_ix);
+            systematic_offset_nominal_1D_P1[channel]->push_back(content);
+        }
+        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P2->GetNbinsX(); ++ bin_ix)
+        {
+            Double_t content = tmpDataHist1D_P2->GetBinContent(bin_ix);
+            systematic_offset_nominal_1D_P2[channel]->push_back(content);
+        }
+
+    }
+
+    gSystematics.systematic_energy_offset = +0.1;
+    rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline);
+
+    // loop over all channels
+    for(int channel = 0; channel < number1DHists; ++ channel)
+    {
+
+        // check channel enabled
+        //if(channel_enable_1D[channel] == 0)
+        //{
+        //    continue;
+        //}
+
+        std::string histname = std::string(channel_histname_1D[channel]);
+        std::string search_object_P1;
+        std::string search_object_P2;
+        if(g_mode_fake_data == false)
+        {
+            // TODO: check what to do here - is this case valid?
+        }
+        else if(g_mode_fake_data == true)
+        {
+            // TODO: check what to do here - is this case valid?
+        }
+
+        search_object_P1 = histname + std::string("fakedata") + "_P1";
+        search_object_P2 = histname + std::string("fakedata") + "_P2";
+
+        TH1D *tmpDataHist1D_P1 = nullptr;
+        TH1D *tmpDataHist1D_P2 = nullptr;
+    
+        // another if g_mode_fake_data goes here
+
+        tmpDataHist1D_P1 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P1.c_str());
+        tmpDataHist1D_P2 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P2.c_str());
+
+        if(tmpDataHist1D_P1 == nullptr)
+        {
+            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
+            throw "problem";
+        }
+        if(tmpDataHist1D_P2 == nullptr)
+        {
+            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
+            throw "problem";
+        }
+
+        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P1->GetNbinsX(); ++ bin_ix)
+        {
+            Double_t content = tmpDataHist1D_P1->GetBinContent(bin_ix);
+            systematic_offset_high_1D_P1[channel]->push_back(content);
+        }
+        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P2->GetNbinsX(); ++ bin_ix)
+        {
+            Double_t content = tmpDataHist1D_P2->GetBinContent(bin_ix);
+            systematic_offset_high_1D_P2[channel]->push_back(content);
+        }
+
+    }
+
+
+    gSystematics.systematic_energy_offset = -0.1;
+    rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline);
+
+    // loop over all channels
+    for(int channel = 0; channel < number1DHists; ++ channel)
+    {
+
+        // check channel enabled
+        //if(channel_enable_1D[channel] == 0)
+        //{
+        //    continue;
+        //}
+
+        std::string histname = std::string(channel_histname_1D[channel]);
+        std::string search_object_P1;
+        std::string search_object_P2;
+        if(g_mode_fake_data == false)
+        {
+            // TODO: check what to do here - is this case valid?
+        }
+        else if(g_mode_fake_data == true)
+        {
+            // TODO: check what to do here - is this case valid?
+        }
+
+        search_object_P1 = histname + std::string("fakedata") + "_P1";
+        search_object_P2 = histname + std::string("fakedata") + "_P2";
+
+        TH1D *tmpDataHist1D_P1 = nullptr;
+        TH1D *tmpDataHist1D_P2 = nullptr;
+    
+        // another if g_mode_fake_data goes here
+
+        tmpDataHist1D_P1 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P1.c_str());
+        tmpDataHist1D_P2 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P2.c_str());
+
+        if(tmpDataHist1D_P1 == nullptr)
+        {
+            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
+            throw "problem";
+        }
+        if(tmpDataHist1D_P2 == nullptr)
+        {
+            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
+            throw "problem";
+        }
+
+        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P1->GetNbinsX(); ++ bin_ix)
+        {
+            Double_t content = tmpDataHist1D_P1->GetBinContent(bin_ix);
+            systematic_offset_low_1D_P1[channel]->push_back(content);
+        }
+        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P2->GetNbinsX(); ++ bin_ix)
+        {
+            Double_t content = tmpDataHist1D_P2->GetBinContent(bin_ix);
+            systematic_offset_low_1D_P2[channel]->push_back(content);
+        }
+
+    }
+
+    for(int channel = 0; channel < number1DHists; ++ channel)
+    {
+        for(std::size_t i = 0; i < systematic_offset_nominal_1D_P1[channel]->size(); ++ i)
+        {
+            double up = systematic_offset_high_1D_P1[channel]->at(i);
+            double nominal = systematic_offset_nominal_1D_P1[channel]->at(i);
+            double value_up = up - nominal;
+            double value = value_up;
+            //double value_down = down - nominal;
+            //double value = 0.5 * (value_up + value_down);
+            // TODO
+            //systematic_offset_V_MATRIX_coeff_1D_P1[channel]->operator[](i) = value;
+            systematic_offset_V_MATRIX_coeff_1D_P1[channel]->push_back(value);
+        }
+
+        for(std::size_t i = 0; i < systematic_offset_nominal_1D_P2[channel]->size(); ++ i)
+        {
+            double up = systematic_offset_high_1D_P2[channel]->at(i);
+            double nominal = systematic_offset_nominal_1D_P2[channel]->at(i);
+            double value_up = up - nominal;
+            double value = value_up;
+            //double value_down = down - nominal;
+            //double value = 0.5 * (value_up + value_down);
+            // TODO
+            //systematic_offset_V_MATRIX_coeff_1D_P2[channel]->operator[](i) = value;
+            systematic_offset_V_MATRIX_coeff_1D_P2[channel]->push_back(value);
+        }
+    }
+
+
+
 
 
 
@@ -757,6 +1003,157 @@ void loadFiles(int i)
 //    TMinuit *minuit = fitBackgrounds(AdjustActs, AdjustActs_Err, CovMatrix, number_free_params, thePhase);
 //    fitBackgrounds_exec(minuit, AdjustActs, AdjustActs_Err);
 
+
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Reproduce Summers Fit (only when xi_31 parameter is disabled)
+    ///////////////////////////////////////////////////////////////////////////
+
+    // do not do this in parallel mode
+    if(1)// || (MODE_PARALLEL == 0))
+    {
+
+        std::cout << "Reproduction of Summers 150 Nd fit" << std::endl;
+
+        TH1D *mps1D = new TH1D("mps1D", "mps1D", 50, 0.84, 1.02);
+        TH1D *mps1D_before = new TH1D("mps1D", "mps1D", 50, 0.84, 1.02);
+        double min_found = std::numeric_limits<double>::infinity();
+        for(Int_t index = 0; index < mps1D->GetNbinsX(); ++ index)
+        {
+
+            Double_t amplitude = mps1D->GetBinCenter(index);
+
+            // create minimizer
+            ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
+            ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
+            MinimizeFCNAxialVector theFCN;
+
+            // initialize fit
+            //fitBackgrounds_init(theParameterState, theMinimizer, AdjustActs, AdjustActs_Err);
+            //const double xi_31_value = xi_31_init_value;
+            //const double xi_31_error = xi_31_init_error;
+            const int xi_31_param_number = g_pg.get_xi_31_ext_param_number(); // don't know what this will do when this param is disabled
+            const double xi_31_value = g_pg.file_params.at(xi_31_param_number).paramInitValue;
+            const double xi_31_error = g_pg.file_params.at(xi_31_param_number).paramInitError;
+            std::cout << "xi_31_param_number=" << xi_31_param_number
+                      << " xi_31=" << xi_31_value << " +- " << xi_31_error << std::endl;
+            fitBackgrounds_init(theParameterStateBefore, theMinimizer, xi_31_value, xi_31_error);
+
+            TString i_str;
+            i_str.Form("%i", 0);
+            TString minuit_param_number_str;
+            minuit_param_number_str.Form("%i", 0);
+            TString minuit_param_name = "_" + i_str + "_" + minuit_param_number_str + "_";
+            theParameterStateBefore.Fix(std::string(minuit_param_name));
+            theParameterStateBefore.SetValue(std::string(minuit_param_name), amplitude);
+
+            // fix xi_31 parameter
+            // NOTE: do not do this, should be zero
+            /*
+            TString i_str;
+            i_str.Form("%i", 1);
+            TString minuit_param_number_str;
+            minuit_param_number_str.Form("%i", 1);
+            TString minuit_param_name = "_" + i_str + "_" + minuit_param_number_str + "_";
+            theParameterStateBefore.Fix(std::string(minuit_param_name));
+            theParameterStateBefore.SetValue(std::string(minuit_param_name), 0.0); // HSD
+            */
+
+            // get parameters and chi2 value before fit
+            std::vector<double> params_before = theParameterStateBefore.Params();
+            std::vector<double> param_errs_before = theParameterStateBefore.Errors();
+
+            for(int i = 0; i < params_before.size(); ++ i)
+            {
+                std::cout << "i=" << i << " param[i]=" << params_before.at(i) << " +- " << param_errs_before.at(i) << std::endl;
+            }
+            
+            double fval_before = theFCN.operator()(params_before);
+            //int ndf = theFCN.ndf - theParameterStateBefore.VariableParameters();
+            int nch = theFCN.nch;
+            int nfp = g_pg.get_number_free_params();
+            int ndf = nch - nfp;
+
+            mps1D_before->SetBinContent(index, fval_before);
+
+            // draw before fit
+            draw_input_data drawinputdata;
+            drawinputdata.chi2 = fval_before;
+            drawinputdata.nch = nch;
+            drawinputdata.nfp = nfp;
+            drawinputdata.serial_dir = "ND150fit";
+            drawinputdata.saveas_filename = "ND150_before";
+            drawinputdata.saveas_png = true;
+           
+            draw(drawinputdata,
+                 params_before,
+                 param_errs_before);
+
+            // exec fit
+            // this will fit backgrounds and the 150Nd amplitude parameter
+            // but xi_31 is fixed
+            ROOT::Minuit2::FunctionMinimum FCN_min =
+                fitBackgrounds_exec(
+                    theParameterStateBefore,
+                    theMinimizer,
+                    theFCN);
+
+            // get result
+            ROOT::Minuit2::MnUserParameterState theParameterStateAfter = FCN_min.UserParameters();
+            std::vector<double> params_after = theParameterStateAfter.Params();
+            std::vector<double> param_errs_after = theParameterStateAfter.Errors();
+
+            for(int i = 0; i < params_after.size(); ++ i)
+            {
+                std::cout << "i=" << i << " param[i]=" << params_after.at(i) << " +- " << param_errs_after.at(i) << std::endl;
+            }
+
+            double fval_after = theFCN.operator()(params_after);
+            //ndf = theFCN.ndf - theParameterStateAfter.VariableParameters();
+            nch = theFCN.nch;
+            nfp = g_pg.get_number_free_params();
+            ndf = nch - nfp;
+
+            mps1D->SetBinContent(index, fval_after);
+
+            // draw after fit
+            drawinputdata.chi2 = fval_after;
+            drawinputdata.nch = nch;
+            drawinputdata.nfp = nfp;
+            drawinputdata.saveas_filename = "ND150_after";
+           
+            draw(drawinputdata,
+                 params_after,
+                 param_errs_after);
+
+            if(fval_before < min_found)
+            {
+                min_found = fval_before;
+            }
+            if(fval_after < min_found)
+            {
+                min_found = fval_after;
+            }
+
+            //theParameterStateBefore.Release(std::string(minuit_param_name));
+        
+        }
+
+        TCanvas *c_mps1D = new TCanvas("c_mps1D", "c_mps1D");
+        //TCanvas *c_mps1D_before = new TCanvas("c_mps1D_before", "c_mps1D_before");
+        mps1D_before->SetLineColor(kBlue);
+        mps1D_before->GetYaxis()->SetRangeUser(min_found - 0.2, min_found + 1.5);
+        mps1D_before->Draw("hist");
+        mps1D->SetLineColor(kRed);
+        mps1D->Draw("histsame");
+        c_mps1D->SaveAs("c_mps1D.png");
+        c_mps1D->SaveAs("c_mps1D.pdf");
+
+
+        // rest of analysis does not make sense
+        return 0;
+    }
 
 
 
@@ -1353,230 +1750,6 @@ void loadFiles(int i)
 
 
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Construct Systematic Data Objects
-    ///////////////////////////////////////////////////////////////////////////
-    
-    gSystematics.systematic_energy_offset = 0.0;
-    rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline);
-
-    // loop over all channels
-    for(int channel = 0; channel < number1DHists; ++ channel)
-    {
-
-        if(systematic_offset_nominal_1D_P1[channel] == nullptr)
-        {
-            systematic_offset_nominal_1D_P1[channel] = new std::vector<double>;
-            systematic_offset_low_1D_P1[channel] = new std::vector<double>;
-            systematic_offset_high_1D_P1[channel] = new std::vector<double>;
-            systematic_offset_V_MATRIX_coeff_1D_P1[channel] = new std::vector<double>;
-
-            systematic_offset_nominal_1D_P2[channel] = new std::vector<double>;
-            systematic_offset_low_1D_P2[channel] = new std::vector<double>;
-            systematic_offset_high_1D_P2[channel] = new std::vector<double>;
-            systematic_offset_V_MATRIX_coeff_1D_P2[channel] = new std::vector<double>;
-        }
-        // check channel enabled
-        //if(channel_enable_1D[channel] == 0)
-        //{
-        //    continue;
-        //}
-
-        std::string histname = std::string(channel_histname_1D[channel]);
-        std::string search_object_P1;
-        std::string search_object_P2;
-        if(g_mode_fake_data == false)
-        {
-            // TODO: check what to do here - is this case valid?
-        }
-        else if(g_mode_fake_data == true)
-        {
-            // TODO: check what to do here - is this case valid?
-        }
-
-        search_object_P1 = histname + std::string("fakedata") + "_P1";
-        search_object_P2 = histname + std::string("fakedata") + "_P2";
-
-        TH1D *tmpDataHist1D_P1 = nullptr;
-        TH1D *tmpDataHist1D_P2 = nullptr;
-    
-        // another if g_mode_fake_data goes here
-
-        tmpDataHist1D_P1 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P1.c_str());
-        tmpDataHist1D_P2 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P2.c_str());
-
-        if(tmpDataHist1D_P1 == nullptr)
-        {
-            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
-            throw "problem";
-        }
-        if(tmpDataHist1D_P2 == nullptr)
-        {
-            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
-            throw "problem";
-        }
-        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P1->GetNbinsX(); ++ bin_ix)
-        {
-            Double_t content = tmpDataHist1D_P1->GetBinContent(bin_ix);
-            systematic_offset_nominal_1D_P1[channel]->push_back(content);
-        }
-        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P2->GetNbinsX(); ++ bin_ix)
-        {
-            Double_t content = tmpDataHist1D_P2->GetBinContent(bin_ix);
-            systematic_offset_nominal_1D_P2[channel]->push_back(content);
-        }
-
-    }
-
-    gSystematics.systematic_energy_offset = +0.1;
-    rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline);
-
-    // loop over all channels
-    for(int channel = 0; channel < number1DHists; ++ channel)
-    {
-
-        // check channel enabled
-        //if(channel_enable_1D[channel] == 0)
-        //{
-        //    continue;
-        //}
-
-        std::string histname = std::string(channel_histname_1D[channel]);
-        std::string search_object_P1;
-        std::string search_object_P2;
-        if(g_mode_fake_data == false)
-        {
-            // TODO: check what to do here - is this case valid?
-        }
-        else if(g_mode_fake_data == true)
-        {
-            // TODO: check what to do here - is this case valid?
-        }
-
-        search_object_P1 = histname + std::string("fakedata") + "_P1";
-        search_object_P2 = histname + std::string("fakedata") + "_P2";
-
-        TH1D *tmpDataHist1D_P1 = nullptr;
-        TH1D *tmpDataHist1D_P2 = nullptr;
-    
-        // another if g_mode_fake_data goes here
-
-        tmpDataHist1D_P1 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P1.c_str());
-        tmpDataHist1D_P2 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P2.c_str());
-
-        if(tmpDataHist1D_P1 == nullptr)
-        {
-            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
-            throw "problem";
-        }
-        if(tmpDataHist1D_P2 == nullptr)
-        {
-            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
-            throw "problem";
-        }
-
-        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P1->GetNbinsX(); ++ bin_ix)
-        {
-            Double_t content = tmpDataHist1D_P1->GetBinContent(bin_ix);
-            systematic_offset_high_1D_P1[channel]->push_back(content);
-        }
-        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P2->GetNbinsX(); ++ bin_ix)
-        {
-            Double_t content = tmpDataHist1D_P2->GetBinContent(bin_ix);
-            systematic_offset_high_1D_P2[channel]->push_back(content);
-        }
-
-    }
-
-
-    gSystematics.systematic_energy_offset = -0.1;
-    rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline);
-
-    // loop over all channels
-    for(int channel = 0; channel < number1DHists; ++ channel)
-    {
-
-        // check channel enabled
-        //if(channel_enable_1D[channel] == 0)
-        //{
-        //    continue;
-        //}
-
-        std::string histname = std::string(channel_histname_1D[channel]);
-        std::string search_object_P1;
-        std::string search_object_P2;
-        if(g_mode_fake_data == false)
-        {
-            // TODO: check what to do here - is this case valid?
-        }
-        else if(g_mode_fake_data == true)
-        {
-            // TODO: check what to do here - is this case valid?
-        }
-
-        search_object_P1 = histname + std::string("fakedata") + "_P1";
-        search_object_P2 = histname + std::string("fakedata") + "_P2";
-
-        TH1D *tmpDataHist1D_P1 = nullptr;
-        TH1D *tmpDataHist1D_P2 = nullptr;
-    
-        // another if g_mode_fake_data goes here
-
-        tmpDataHist1D_P1 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P1.c_str());
-        tmpDataHist1D_P2 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P2.c_str());
-
-        if(tmpDataHist1D_P1 == nullptr)
-        {
-            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
-            throw "problem";
-        }
-        if(tmpDataHist1D_P2 == nullptr)
-        {
-            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
-            throw "problem";
-        }
-
-        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P1->GetNbinsX(); ++ bin_ix)
-        {
-            Double_t content = tmpDataHist1D_P1->GetBinContent(bin_ix);
-            systematic_offset_low_1D_P1[channel]->push_back(content);
-        }
-        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P2->GetNbinsX(); ++ bin_ix)
-        {
-            Double_t content = tmpDataHist1D_P2->GetBinContent(bin_ix);
-            systematic_offset_low_1D_P2[channel]->push_back(content);
-        }
-
-    }
-
-    for(int channel = 0; channel < number1DHists; ++ channel)
-    {
-        for(std::size_t i = 0; i < systematic_offset_nominal_1D_P1[channel]->size(); ++ i)
-        {
-            double up = systematic_offset_high_1D_P1[channel]->at(i);
-            double nominal = systematic_offset_nominal_1D_P1[channel]->at(i);
-            double value_up = up - nominal;
-            double value = value_up;
-            //double value_down = down - nominal;
-            //double value = 0.5 * (value_up + value_down);
-            // TODO
-            //systematic_offset_V_MATRIX_coeff_1D_P1[channel]->operator[](i) = value;
-            systematic_offset_V_MATRIX_coeff_1D_P1[channel]->push_back(value);
-        }
-
-        for(std::size_t i = 0; i < systematic_offset_nominal_1D_P2[channel]->size(); ++ i)
-        {
-            double up = systematic_offset_high_1D_P2[channel]->at(i);
-            double nominal = systematic_offset_nominal_1D_P2[channel]->at(i);
-            double value_up = up - nominal;
-            double value = value_up;
-            //double value_down = down - nominal;
-            //double value = 0.5 * (value_up + value_down);
-            // TODO
-            //systematic_offset_V_MATRIX_coeff_1D_P2[channel]->operator[](i) = value;
-            systematic_offset_V_MATRIX_coeff_1D_P2[channel]->push_back(value);
-        }
-    }
 
     // draw
 //    TH1D *drawtmp = new TH1D("drawtmp", "drawtmp", 50, 0.0, 5.0);
@@ -1800,6 +1973,10 @@ void loadFiles(int i)
         std::cout << "fval_before=" << fval_before << std::endl;
 
 
+        min_point_sys1_l[0] = params_after.at(1);
+        min_point_sys1_l[1] = params_after.at(0);
+
+
     }
     //std::cin.get();
 
@@ -1904,6 +2081,10 @@ void loadFiles(int i)
 
         std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
         std::cout << "fval_before=" << fval_before << std::endl;
+
+
+        min_point_sys1_h[0] = params_after.at(1);
+        min_point_sys1_h[1] = params_after.at(0);
 
 
     }

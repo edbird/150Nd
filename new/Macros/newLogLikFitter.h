@@ -288,8 +288,8 @@ const int number2DHists = 1; //number2DHists_perphase * numberPhases;
 
 const double channel_enable_1D[number1DHists] =
 {
-0, // ch  0 = hTotalE        (P1&2)
-1, // ch  1 = hSingleEnergy  (P1&2)
+1, // ch  0 = hTotalE        (P1&2)
+0, // ch  1 = hSingleEnergy  (P1&2)
 0, // ch  2 = hHighEnergy    (P1&2)
 0, // ch  3 = hLowEnergy     (P1&2)
 0, // ch  4 = hEnergySum     (P1&2)
@@ -359,6 +359,16 @@ TObjArray *allFakeDataSamples2D;
 std::vector<std::pair<double,double>> ll_walk;
 std::vector<std::pair<double,double>> ll_walk_save;
 
+
+///////////////////////////////////////////////////////////////////////////////
+// minimization points
+///////////////////////////////////////////////////////////////////////////////
+
+// systematic: SYS1
+// h = high
+// l = low
+double min_point_sys1_h[2] = {0.0, 0.0};
+double min_point_sys1_l[2] = {0.0, 0.0};
 
 ///////////////////////////////////////////////////////////////////////////////
 // systematic objects - Phase 1
@@ -453,6 +463,10 @@ std::vector<double> *systematic_offset_V_MATRIX_coeff_1D_P2[number1DHists] =
 ///////////////////////////////////////////////////////////////////////////////
 // chi2 objects for V MATRIX method, Phase 1
 ///////////////////////////////////////////////////////////////////////////////
+
+
+const bool V_ENABLE_SYS1 = true;
+const bool V_ENABLE_STAT = true; // leave on
 
 TMatrixD *V_PHYS_1D_P1_MATHMORE[number1DHists] =
 {
@@ -773,6 +787,7 @@ std::vector<double> *M_1D_P2_data[number1DHists] =
 // chi2 objects for V MATRIX method, Phase 1
 ///////////////////////////////////////////////////////////////////////////////
 
+/*
 TH2D *V_PHYS_2D_P1[number2DHists] = 
 {
     nullptr
@@ -808,11 +823,13 @@ TH2D *M_2D_P1[number2DHists] =
 {
     nullptr
 };
+*/
 
 ///////////////////////////////////////////////////////////////////////////////
 // chi2 objects for V MATRIX method, Phase 2
 ///////////////////////////////////////////////////////////////////////////////
 
+/*
 TH2D *V_PHYS_2D_P2[number2DHists] = 
 {
     nullptr
@@ -848,6 +865,7 @@ TH2D *M_2D_P2[number2DHists] =
 {
     nullptr
 };
+*/
 
 // chisquare objects
 /*

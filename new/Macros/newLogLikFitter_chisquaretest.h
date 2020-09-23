@@ -276,7 +276,7 @@ void newloglikfitter_testmyphasespace_newversion(
     param_1_max = 1.7; //0.6; //1.6; //0.5; //2.5; //5.0; //2.5;
     // after changing the psiN0, psiN2 values...
     param_1_min = -0.3;
-    param_1_max = 1.5;
+    param_1_max = 1.7; // adjusted for SYS1 energy offset was 1.5
     //param_1_min = -0.4;
     //param_1_max = 1.6; TODO
     // fake data values
@@ -284,6 +284,8 @@ void newloglikfitter_testmyphasespace_newversion(
     {
 //        param_1_min = -0.4;
 //        param_1_max = 0.6;
+        param_1_min = -0.7;
+        param_1_max = 0.7;
     }
     // hack to get HSD
     //param_1_min = -0.1;
@@ -307,7 +309,9 @@ void newloglikfitter_testmyphasespace_newversion(
     if(g_mode_fake_data == true)
     {
 //        param_2_min = 0.2;
-//        param_2_max = 1.8;
+//        param_2_max = 1.8
+        param_2_max = 1.15;
+        param_2_min = 0.85;
     }
     // hack to get HSD
     //param_1_min = 0.9999;
@@ -867,6 +871,31 @@ void newloglikfitter_testmyphasespace_newversion(
         //bestfitpoint->SetMarkerColorAlpha(kBlack, 0.5);
         //bestfitpoint->SetMarkerSize(2.0);
         //bestfitpoint->Draw();
+
+        if((min_point_sys1_l[0] != 0.0) &&
+           (min_point_sys1_l[1] != 0.0))
+        {
+        std::cout << "DRAW MARK SYS1L" << std::endl;
+            TMarker *mark_min_point_sys1_l = new TMarker(min_point_sys1_l[0],
+                                                        min_point_sys1_l[1],
+                                                        106);
+            mark_min_point_sys1_l->SetMarkerColorAlpha(kWhite, 0.0);
+            mark_min_point_sys1_l->SetMarkerSize(2.0);
+            mark_min_point_sys1_l->Draw();
+        }
+
+        if((min_point_sys1_h[0] != 0.0) &&
+           (min_point_sys1_h[1] != 0.0))
+        {
+        std::cout << "DRAW MARK SYS1H" << std::endl;
+            TMarker *mark_min_point_sys1_h = new TMarker(min_point_sys1_h[0],
+                                                        min_point_sys1_h[1],
+                                                        106);
+            mark_min_point_sys1_h->SetMarkerColorAlpha(kWhite, 0.0);
+            mark_min_point_sys1_h->SetMarkerSize(2.0);
+            mark_min_point_sys1_h->Draw();
+        }
+
 
         if(ll_walk_save.size() > 0)
         {

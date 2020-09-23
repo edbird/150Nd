@@ -728,8 +728,8 @@ MinimizeFCNAxialVector::set_M(const std::vector<double> &param) const
             {
                 if(debuglevel > 0)
                 {
-                    std::cout << __func__ << " channel [channel TODO] is disabled (overall) skip" << std::endl;
-                    std::cin.get();
+                    //std::cout << __func__ << " param " << paramNumber <<  " is disabled (overall) skip" << std::endl;
+                    //std::cin.get();
                 }
                 continue;
             }
@@ -738,7 +738,7 @@ MinimizeFCNAxialVector::set_M(const std::vector<double> &param) const
                 // if both are false
                 if(debuglevel > 0)
                 {
-                    std::cout << __func__ << " channel [channel TODO] is disabled for P1 and P2, skip" << std::endl;
+                    std::cout << __func__ << " param " << paramNumber << " is disabled for P1 and P2, skip" << std::endl;
                     std::cin.get();
                 }
                 continue;
@@ -1403,12 +1403,20 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         #if VECTOR_RANGE_CHECK
                         //Double_t content = V_PHYS_STAT_1D_P1_data[channel]->at(i + j * 50);
                         double c1 = V_PHYS_STAT_1D_P1_data[channel]->at(i + j * 50);
-                        double c2 = V_PHYS_SYS1_1D_P1_data[channel]->at(i + j * 50);
+                        double c2 = 0.0;
+                        if(V_ENABLE_SYS1 == true)
+                        {
+                            c2 = V_PHYS_SYS1_1D_P1_data[channel]->at(i + j * 50);
+                        }
                         Double_t content = c1 + c2;
                         #else
                         //Double_t content = V_PHYS_STAT_1D_P1_data[channel]->operator[](i + j * 50);
                         double c1 = V_PHYS_STAT_1D_P1_data[channel]->operator[](i + j * 50);
-                        double c2 = V_PHYS_SYS1_1D_P1_data[channel]->operator[](i + j * 50);
+                        double c2 = 0.0;
+                        if(V_ENABLE_SYS1 == true)
+                        {
+                            c2 = V_PHYS_SYS1_1D_P1_data[channel]->operator[](i + j * 50);
+                        }
                         Double_t content = c1 + c2;
                         #endif
                         //std::cout << "i=" << i << " j=" << j << " i_counter=" << i_counter << " j_counter=" << j_counter << " content=" << content << std::endl;
@@ -1466,12 +1474,20 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         #if VECTOR_RANGE_CHECK
                         //Double_t content = V_PHYS_STAT_1D_P2_data[channel]->at(i + j * 50);
                         double c1 = V_PHYS_STAT_1D_P2_data[channel]->at(i + j * 50);
-                        double c2 = V_PHYS_SYS1_1D_P2_data[channel]->at(i + j * 50);
+                        double c2 = 0.0;
+                        if(V_ENABLE_SYS1 == true)
+                        {
+                            c2 = V_PHYS_SYS1_1D_P2_data[channel]->at(i + j * 50);
+                        }
                         double content = c1 + c2;
                         #else
                         //Double_t content = V_PHYS_STAT_1D_P2_data[channel]->operator[](i + j * 50);
                         double c1 = V_PHYS_STAT_1D_P2_data[channel]->operator[](i + j * 50);
-                        double c2 = V_PHYS_SYS1_1D_P2_data[channel]->operator[](i + j * 50);
+                        double c2 = 0.0;
+                        if(V_ENABLE_SYS1 == true)
+                        {
+                            c2 = V_PHYS_SYS1_1D_P2_data[channel]->operator[](i + j * 50);
+                        }
                         double content = c1 + c2;
                         #endif
                         //std::cout << "i=" << i << " j=" << j << " i_counter=" << i_counter << " j_counter=" << j_counter << " content=" << content << std::endl;
