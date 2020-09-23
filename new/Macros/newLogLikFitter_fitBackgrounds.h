@@ -19,7 +19,7 @@ void fitBackgrounds_init(
 //    std::cout << " 1 " << AdjustActs[1] << std::endl;
 //    std::cin.get();
 
-    bool debugprint = false;
+    bool debugprint = true;
     if(debugprint)
     {
         std::cout << ">>>>> fitBackgrounds_init()" << std::endl;
@@ -179,17 +179,28 @@ void fitBackgrounds_init(
 
             TString minuit_param_name = "_" + paramNumber_str + "_" + minuit_param_number_str + "_";
 
-            if(paramNumber == g_pg.get_xi_31_ext_param_number())
+            if(g_pg.get_xi_31_int_param_number() != -1)
             {
-                // xi_31 parameter
-                theParameterState.Add(std::string(minuit_param_name), xi_31_value, xi_31_error); // instead of _Err was 0.5
-                theParameterState.SetLowerLimit(minuit_param_number, -1.0); // was -0.4
+                // TODO: this does not work if xi_31 param is disabled
+                // 2020-09-23: FIXED
+                if(paramNumber == g_pg.get_xi_31_ext_param_number())
+                {
+                    // xi_31 parameter
+                    theParameterState.Add(std::string(minuit_param_name), xi_31_value, xi_31_error); // instead of _Err was 0.5
+                    theParameterState.SetLowerLimit(minuit_param_number, -1.0); // was -0.4
+                }
+                else
+                {
+                    // MC sample amplitude parameter
+                    theParameterState.Add(std::string(minuit_param_name), 1.0, 0.5);
+                    theParameterState.SetLowerLimit(minuit_param_number, 0.0);
+                }
             }
             else
             {
-                // MC sample amplitude parameter
-                theParameterState.Add(std::string(minuit_param_name), 1.0, 0.5);
-                theParameterState.SetLowerLimit(minuit_param_number, 0.0);
+                    // MC sample amplitude parameter
+                    theParameterState.Add(std::string(minuit_param_name), 1.0, 0.5);
+                    theParameterState.SetLowerLimit(minuit_param_number, 0.0);
             }
 
             // TODO: set initial error using initError/initValue
