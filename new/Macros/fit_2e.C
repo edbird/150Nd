@@ -844,7 +844,7 @@ void makeHistograms(
     {
         #if TRUTH_ENABLE
         //aFile = TFile::Open(filePath + thePath + sampleName + "/Nd150_2eNg_output_truth.root");
-        aFile = TFile::Open(filePath + thePath + sampleName + "/Nd150_2eNg_output_truth_NEW_all.root");
+        aFile = TFile::Open(filePath + thePath + sampleName + "/Nd150_2eNg_output_truth_NEW_all_3.root");
         #else
         aFile = TFile::Open(filePath + thePath + sampleName + "/Nd150_2eNg_output.root");
         #endif
@@ -1784,8 +1784,22 @@ void makeHistograms(
         {
             if(mode_flag_2 == 1)
             {
-                if( (electronBlockType[0] == 4) || (electronBlockType[0] == 5) ) continue; // not in petals
-                if( (electronBlockType[1] == 4) || (electronBlockType[1] == 5) ) continue; // not in petals
+                
+                //if( (electronBlockType[0] == 4) || (electronBlockType[1] == 4) ) continue; // not in petals
+                //if( (electronBlockType[0] == 5) || (electronBlockType[1] == 5) ) continue; // not in petals
+                //if( (electronBlockType[0] < 0) || (electronBlockType[1] < 0) ) continue; // does not do anything (makes no difference to cut count)
+                //if( (electronBlockType[0] > 5) || (electronBlockType[1] > 5) ) continue; // cuts way to many events
+                                                                                         // disabling cut on 4 doesn't give enough events back (cuts too many events in total)
+                                                                                         // disabling cut on 5 gives too many events back (doesn't cut enough events in total)
+
+                if( (electronBlockType[0] == 4) || (electronBlockType[1] == 4) ) continue; // not in petals
+                if( (electronBlockType[0] == 5) || (electronBlockType[1] == 5) ) continue; // not in petals
+
+                //if( (electronBlockType[0] > 2) || (electronBlockType[1] > 2) ) continue;
+                
+                //if( (electronBlockType[0] == 3) || (electronBlockType[1] == 3) ) continue;
+                //if( (electronBlockType[0] == 4) || (electronBlockType[1] == 4) ) continue; // nope.
+
             }
         }
         ++ cut_counter[cc]; // cut 3 - block type

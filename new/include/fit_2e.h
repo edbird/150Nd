@@ -72,6 +72,7 @@ double AcceptedTime[3];
 // the path of my nd150 MC with truth information
 // /unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2e/nd150/nd150_rot_2b2n_m4/Nd150_2eNg_output_truth.root
 
+#if 0
 // enable/disable filepath changing for external disk at home
 // default 0 is path at UCL server
 #define MODE_AT_HOME 1
@@ -119,6 +120,10 @@ double AcceptedTime[3];
     // TODO email summer and ask which she thinks should we be using
     // TODO: really don't remember if it should be 2e or 2eNg_29Sep2015
 #endif
+#endif
+
+TString filePath = "/mnt/ecb/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2e/";
+//TString filePath = "/mnt/ecb/unix/nemo3/users/ebirdsall/Nd150Analysis/newAnalysis/2eNg_29Sep2015/";
 
 // 2020-01-16 I changed the to phase 1
 // 2020-01-22: Phase can be either 0 for "Phase 1" or 1 for "Phase 2"
