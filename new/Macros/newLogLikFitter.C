@@ -1011,7 +1011,7 @@ void loadFiles(int i)
     ///////////////////////////////////////////////////////////////////////////
 
     // do not do this in parallel mode
-    if(1)// || (MODE_PARALLEL == 0))
+    if(0)// || (MODE_PARALLEL == 0))
     {
 
         std::cout << "Reproduction of Summers 150 Nd fit" << std::endl;

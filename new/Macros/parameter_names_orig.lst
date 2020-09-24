@@ -114,7 +114,7 @@ BREAK
 # TODO: check these
 0	enabled     P1_enabled  P2_enabled  3.45e-04    3.45e-05    useinit     useinit     free    ND150       nd150                       nd150_rot_2n2b_m4                               END # 470215
 #1   enabled     P1_enabled  P2_enabled  0.296       0.1         useinit     useinit     free    NA          xi_31                       NOMC                                            END
-1   disabled    P1_enabled  P2_enabled  0.000       0.1         useinit     useinit     free    NA          xi_31                       NOMC                                            END
+1   enabled    P1_enabled  P2_enabled  0.000       0.1         useinit     useinit     free    NA          xi_31                       NOMC                                            END
 BREAK
 # TODO: bug: line with whitespace crashes
 BREAK
