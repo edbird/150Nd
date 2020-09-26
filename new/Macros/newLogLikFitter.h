@@ -288,8 +288,8 @@ const int number2DHists = 1; //number2DHists_perphase * numberPhases;
 
 const double channel_enable_1D[number1DHists] =
 {
-1, // ch  0 = hTotalE        (P1&2)
-0, // ch  1 = hSingleEnergy  (P1&2)
+0, // ch  0 = hTotalE        (P1&2)
+1, // ch  1 = hSingleEnergy  (P1&2)
 0, // ch  2 = hHighEnergy    (P1&2)
 0, // ch  3 = hLowEnergy     (P1&2)
 0, // ch  4 = hEnergySum     (P1&2)
