@@ -210,7 +210,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
         // TODO: add check here to see if any disabled parameters are accessed
 
 
-        bool new_method = false;
+        bool new_method = true;
         //bool new_method = false;
         double chi2_total = 0.0;
         if(new_method)
