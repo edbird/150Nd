@@ -289,7 +289,7 @@ void newloglikfitter_testmyphasespace_newversion(
     }
     
     // with systematics
-    param_1_max = 2.1;
+////    param_1_max = 2.1;
 
     // hack to get HSD
     //param_1_min = -0.1;
@@ -319,8 +319,8 @@ void newloglikfitter_testmyphasespace_newversion(
     }
     
     // with systematics
-    param_2_min = 0.75;
-    param_2_max = 1.5;
+////    param_2_min = 0.75;
+////    param_2_max = 1.5;
 
     // hack to get HSD
     //param_1_min = 0.9999;
@@ -458,13 +458,15 @@ void newloglikfitter_testmyphasespace_newversion(
 
 
 
-
+// 2020-09-26: does not appear to be used?
+/*
     // get minimum
     double fval_min = 0.0;
     // TODO: remove all calls to logLikelihood
     //logLikelihood(n_params, nullptr, fval_min, params, 0);
     //fval_min = theFCN.operator()(params);
     fval_min = std::numeric_limits<double>::infinity();
+*/
 
     std::string os_fname = std::string("mps_")
                          + std::string("JID") + std::to_string(number_job_id)
@@ -647,17 +649,17 @@ void newloglikfitter_testmyphasespace_newversion(
                 std::cin.get();
                 */
 
+                if(fval_after < min_stripe)
+                {
+                    min_stripe = fval_after;
+                    min_stripe_y = t_param_2;
+                }
+
                 if(fval_after < min)
                 {
                     min = fval_after;
                     min_x = t_param_1;
                     min_y = t_param_2;
-                }
-
-                if(fval_after < min_stripe)
-                {
-                    min_stripe = fval_after;
-                    min_stripe_y = t_param_2;
                 }
 
                 if(fval_before < min_before)
