@@ -885,6 +885,7 @@ void newloglikfitter_testmyphasespace_newversion(
            (min_point_sys1_l[1] != 0.0))
         {
         std::cout << "DRAW MARK SYS1L" << std::endl;
+            std::cout << "SYS1L: " << min_point_sys1_l[0] << " " << min_point_sys1_l[1] << std::endl;
             TMarker *mark_min_point_sys1_l = new TMarker(min_point_sys1_l[0],
                                                         min_point_sys1_l[1],
                                                         106);
@@ -897,6 +898,7 @@ void newloglikfitter_testmyphasespace_newversion(
            (min_point_sys1_h[1] != 0.0))
         {
         std::cout << "DRAW MARK SYS1H" << std::endl;
+            std::cout << "SYS1H: " << min_point_sys1_h[0] << " " << min_point_sys1_h[1] << std::endl;
             TMarker *mark_min_point_sys1_h = new TMarker(min_point_sys1_h[0],
                                                         min_point_sys1_h[1],
                                                         106);
