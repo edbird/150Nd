@@ -19,8 +19,8 @@ void fitBackgrounds_init(
 //    std::cout << " 1 " << AdjustActs[1] << std::endl;
 //    std::cin.get();
 
-    bool debugprint = true;
-    if(debugprint)
+    bool debuglevel = 1;
+    if(debuglevel >= 3)
     {
         std::cout << ">>>>> fitBackgrounds_init()" << std::endl;
     }
@@ -51,13 +51,13 @@ void fitBackgrounds_init(
     // calls
   
     // TODO: printing sample_names array, what does this do, is it still used?
-    if(debugprint)
+    if(debuglevel >= 4)
     {
         //print_paramNameMap();
         //g_pg.print();
     }
 
-    if(debugprint)
+    if(debuglevel >= 5)
     {
         std::cout << "set errors" << std::endl;
     }
@@ -86,7 +86,7 @@ void fitBackgrounds_init(
         double paramInitError = it->second.paramInitError;
         int paramConstraintMode = it->second.paramConstraintMode;
 
-        if(debugprint)
+        if(debuglevel >= 5)
         {
             std::cout << "paramNumber=" << paramNumber << std::endl;
         }
@@ -148,7 +148,7 @@ void fitBackgrounds_init(
         {
             // this is a fixed parameter
             // define parameter using constrained value if hard constrained
-            if(debugprint)
+            if(debuglevel >= 6)
             {
                 std::cout << "HARD" << std::endl;
             }
@@ -172,7 +172,7 @@ void fitBackgrounds_init(
         else
         {
             // param is either free or soft constrained
-            if(debugprint)
+            if(debuglevel >= 6)
             {
                 std::cout << "SOFT / FREE" << std::endl;
             }
@@ -224,7 +224,7 @@ void fitBackgrounds_init(
     }
 
 
-    if(debugprint)
+    if(debuglevel >= 5)
     {
         std::cout << "all parameters fixed" << std::endl;
     }
@@ -278,10 +278,12 @@ void fitBackgrounds_init(
 
 
 
-    if(debugprint)
+    /*
+    if(debuglevel >= 5)
     {
         std::cout << "Ready to exec fix" << std::endl;
     }
+    */
 
 
     //minuit->SetErrorDef(0.5);
@@ -370,10 +372,6 @@ void fitBackgrounds_init(
     }
     #endif
 
-    if(debugprint)
-    {
-        std::cout << "return" << std::endl;
-    }
 
     //return minuit;
 }

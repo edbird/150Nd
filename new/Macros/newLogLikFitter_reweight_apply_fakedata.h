@@ -79,7 +79,7 @@ void reweight_apply_fakedata(
     // start
     ///////////////////////////////////////////////////////////////////////////
 
-    int debuglevel = 3;
+    int debuglevel = 1;
 
     if(debuglevel >= 3)
     {

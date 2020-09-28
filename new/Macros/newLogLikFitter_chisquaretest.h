@@ -856,8 +856,10 @@ void newloglikfitter_testmyphasespace_newversion(
         TLine *lineHSD = new TLine(0.0, param_2_min, 0.0, param_2_max);
         TLine *lineSSD = new TLine(0.296, param_2_min, 0.296, param_2_max);
         TLine *lineY = new TLine(param_1_min, 1.0, param_1_max, 1.0);
-        TLine *lineXc = new TLine(param_1_min, min_y, param_1_max, min_y);
-        TLine *lineYc = new TLine(min_x, param_2_min, min_x, param_2_max);
+        //TLine *lineXc = new TLine(param_1_min, min_y, param_1_max, min_y);
+        //TLine *lineYc = new TLine(min_x, param_2_min, min_x, param_2_max);
+        TLine *lineXc = new TLine(param_1_min, min_point[1], param_1_max, min_point[1]);
+        TLine *lineYc = new TLine(min_point[0], param_2_min, min_point[0], param_2_max);
         //lineHSD->SetLineColor(kWhite);
         //lineSSD->SetLineColor(kWhite);
         //lineY->SetLineColor(kWhite);

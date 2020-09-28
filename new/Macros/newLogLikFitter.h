@@ -56,8 +56,20 @@ bool gEnablePhase2;
 
 parameter_group g_pg;
 
-bool g_mode_fake_data = false;
+//bool g_mode_fake_data = false;
 //bool g_mode_fake_data = true;
+
+// true = fit to fake data
+// false = fit to real data
+// fit is done using MinimizeFCNAxialVector
+// the exact fit mode / choice of algorithm is set elsewhere
+//bool g_mode_fit_fake_data = false;
+bool g_mode_fake_data = false;
+// this might change during program execution
+// for example, it is necessary to set this to true to fit the fake data
+// to measure systematic effects, before switching back to false to fit
+// real data for the rest of the algorithm
+
 //std::string g_datetimestamp_string;
 
 // globals required in logLikelihood function but cannot be passed as
@@ -328,8 +340,8 @@ const bool channel_enable_draw_1D[number1DHists] =
 {
     true,
     true,
-    true,
-    true,
+    false,
+    false,
     false,
     false
 };
@@ -351,6 +363,9 @@ TObjArray *allDataSamples2D;
 TObjArray *allFakeDataSamples1D;
 TObjArray *allFakeDataSamples2D;
 
+// stop printing unneccessary debug statements
+bool rebuild_fake_data_first_run = true;
+
 // select between data / fake data in transparent way
 //TObjArray *allDataOrFakeDataSamples1D;
 //TObjArray *allDataOrFakeDataSamples2D;
@@ -367,6 +382,7 @@ std::vector<std::pair<double,double>> ll_walk_save;
 // systematic: SYS1
 // h = high
 // l = low
+double min_point[2] = {0.0, 0.0}; // minimum point found, all parameter fit
 double min_point_sys1_h[2] = {0.0, 0.0};
 double min_point_sys1_l[2] = {0.0, 0.0};
 

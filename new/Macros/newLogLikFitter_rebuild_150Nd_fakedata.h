@@ -12,14 +12,20 @@
 void rebuild_fake_data_systematics(const double xi_31, const double xi_31_baseline)
 {
 
-    std::cout << "calling " << __func__ << std::endl;
-    std::cout << "--- systematics ---" << std::endl;
-    std::cout << gSystematics.systematic_energy_offset << std::endl;
-    std::cout << "xi_31=" << xi_31 << " xi_31_baseline=" << xi_31_baseline << std::endl;
+    //std::cout << "calling " << __func__ << std::endl;
+    //std::cout << "--- systematics ---" << std::endl;
+    //std::cout << gSystematics.systematic_energy_offset << std::endl;
+    //std::cout << "xi_31=" << xi_31 << " xi_31_baseline=" << xi_31_baseline << std::endl;
     //std::cin.get();
 
+    std::cout << __func__ << std::endl;
+    std::cout << "Rebuilding fake data with systematics. Parameters:" << std::endl;
+    std::cout << "xi_31=" << xi_31 << std::endl;
+    std::cout << "xi_31_baseline=" << xi_31_baseline << std::endl;
+    std::cout << "systematic_energy_offset=" << gSystematics.systematic_energy_offset << std::endl;
 
-    int debuglevel = 9;
+
+    int debuglevel = 1;
 
     ///////////////////////////////////////////////////////////////////////////
     // remove existing fake data from memory
@@ -70,13 +76,19 @@ void rebuild_fake_data_systematics(const double xi_31, const double xi_31_baseli
         TObject *tmpobj_P2 = allFakeDataSamples1D->FindObject(search_object_P2.c_str());
         if(tmpobj_P1 == nullptr)
         {
-            std::cout << "could not find object: " << search_object_P1 << std::endl;
+            if(rebuild_fake_data_first_run == false)
+            {
+                std::cout << "could not find object: " << search_object_P1 << std::endl;
+            }
             //throw "problem";
             // TODO: disabled, as this will always trigger on first iteration
         }
         if(tmpobj_P2 == nullptr)
         {
-            std::cout << "could not find object: " << search_object_P2 << std::endl;
+            if(rebuild_fake_data_first_run == false)
+            {
+                std::cout << "could not find object: " << search_object_P2 << std::endl;
+            }
             //throw "problem";
             // TODO: disabled, as this will always trigger on first iteration
         }
@@ -85,7 +97,10 @@ void rebuild_fake_data_systematics(const double xi_31, const double xi_31_baseli
         // it does not delete the object from gROOT memory
         if(allFakeDataSamples1D->Remove(tmpobj_P1) == nullptr)
         {
-            std::cout << "FAILED TO REMOVE" << std::endl;
+            if(rebuild_fake_data_first_run == false)
+            {
+                std::cout << "FAILED TO REMOVE" << std::endl;
+            }
             //throw "failed to remove";
             // TODO: disabled, as this will always trigger on first iteration
         }
@@ -93,7 +108,10 @@ void rebuild_fake_data_systematics(const double xi_31, const double xi_31_baseli
 
         if(allFakeDataSamples1D->Remove(tmpobj_P2) == nullptr)
         {
-            std::cout << "FAILED TO REMOVE" << std::endl;
+            if(rebuild_fake_data_first_run == false)
+            {
+                std::cout << "FAILED TO REMOVE" << std::endl;
+            }
             //throw "failed to remove";
             // TODO: disabled, as this will always trigger on first iteration
         }
@@ -124,13 +142,19 @@ void rebuild_fake_data_systematics(const double xi_31, const double xi_31_baseli
         TObject *tmpobj_P2 = allFakeDataSamples2D->FindObject(search_object_P2.c_str());
         if(tmpobj_P1 == nullptr)
         {
-            std::cout << "could not find object: " << search_object_P1 << std::endl;
+            if(rebuild_fake_data_first_run == false)
+            {
+                std::cout << "could not find object: " << search_object_P1 << std::endl;
+            }
             //throw "problem";
             // TODO: disabled, as this will always trigger on first iteration
         }
         if(tmpobj_P2 == nullptr)
         {
-            std::cout << "could not find object: " << search_object_P2 << std::endl;
+            if(rebuild_fake_data_first_run == false)
+            {
+                std::cout << "could not find object: " << search_object_P2 << std::endl;
+            }
             //throw "problem";
             // TODO: disabled, as this will always trigger on first iteration
         }
@@ -139,7 +163,10 @@ void rebuild_fake_data_systematics(const double xi_31, const double xi_31_baseli
         // it does not delete the object from gROOT memory
         if(allFakeDataSamples2D->Remove(tmpobj_P1) == nullptr)
         {
-            std::cout << "FAILED TO REMOVE" << std::endl;
+            if(rebuild_fake_data_first_run == false)
+            {
+                std::cout << "FAILED TO REMOVE" << std::endl;
+            }
             //throw "failed to remove";
             // TODO: disabled, as this will always trigger on first iteration
         }
@@ -147,7 +174,10 @@ void rebuild_fake_data_systematics(const double xi_31, const double xi_31_baseli
         
         if(allFakeDataSamples2D->Remove(tmpobj_P2) == nullptr)
         {
-            std::cout << "FAILED TO REMOVE" << std::endl;
+            if(rebuild_fake_data_first_run == false)
+            {
+                std::cout << "FAILED TO REMOVE" << std::endl;
+            }
             //throw "failed to remove";
             // TODO: disabled, as this will always trigger on first iteration
         }
@@ -225,6 +255,10 @@ void rebuild_fake_data_systematics(const double xi_31, const double xi_31_baseli
 
     allFakeDataSamples2D->Add(hHighLowEnergy_P2);
 
+    if(rebuild_fake_data_first_run == true)
+    {
+        rebuild_fake_data_first_run = false;
+    }
 }
 
 

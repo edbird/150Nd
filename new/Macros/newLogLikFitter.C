@@ -566,7 +566,6 @@ void loadFiles(int i)
     gEnablePhase2 = true;
     //parameter_group pg;
     //g_pg = pg;
-    // working here
 
     
 
@@ -597,6 +596,30 @@ void loadFiles(int i)
     //book1DHistograms(0, "2e_", "P2", "hTotalE_");
 
 
+
+
+    // 1d: Phase 1 & 2
+    for(int channel = 0; channel < number1DHists; ++ channel)
+    {
+        //book1DHistograms(0, "2e_", "hTotalE_");
+        std::cout << "book1DHistograms(" << channel << ", 2e_, " << channel_histname_1D[channel] << ")" << std::endl;
+        book1DHistograms(channel, "2e_", channel_histname_1D[channel]);
+    }
+
+    // 2d: Phase 1 & 2
+    // TODO?
+    for(int channel = 0; channel < number2DHists; ++ channel)
+    {
+        std::cout << "book2DHistograms(" << channel << ", 2e_, " << channel_histname_2D[channel] << ")" << std::endl;
+        book2DHistograms(channel, "2e_", channel_histname_2D[channel]);
+    }
+
+    std::cout << "All histograms loaded" << std::endl;
+
+
+
+
+
     gSystematics.systematic_energy_offset = 0.0; //-0.1;
     /*const*/ int xi_31_ext_param_number = g_pg.get_xi_31_ext_param_number();
         //if(param[xi_31_ext_param_number] != g_pg.file_params.at(xi_31_ext_param_number).paramLastValue)
@@ -616,59 +639,8 @@ void loadFiles(int i)
     // to construct fakedata with that xi_31 value
     const double xi_31_SSD = 0.296;
     //rebuild_fake_data_systematics(xi_31, xi_31_baseline);
-    rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itsel
+    //rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itsel
     //rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline); // want to check if the fitter can fit itself to itsel
-
-    // testing bin numbers
-    /*gSystematics.systematic_energy_offset = 0.0;
-    rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itself
-    gSystematics.systematic_energy_offset = -0.1;
-    rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itself
-    */
-
-    // 1d: Phase 1 & 2
-    for(int channel = 0; channel < number1DHists; ++ channel)
-    {
-        //book1DHistograms(0, "2e_", "hTotalE_");
-        std::cout << "book1DHistograms(" << channel << ", 2e_, " << channel_histname_1D[channel] << ")" << std::endl;
-        book1DHistograms(channel, "2e_", channel_histname_1D[channel]);
-    }
-    //book1DHistograms(1, "2e_", "hSingleEnergy_");
-    //book1DHistograms(2, "2e_", "hHighEnergy_");
-    //book1DHistograms(3, "2e_", "hLowEnergy_");
-    //book1DHistograms(4, "2e_", "hEnergySum_");
-    //book1DHistograms(5, "2e_", "hEnergyDiff_");
-    //map_1d_channel_to_phase[0] = 0;
-    //map_1d_channel_to_phase[1] = 0;
-    //map_1d_channel_to_phase[2] = 0;
-    //map_1d_channel_to_phase[3] = 0;
-    //map_1d_channel_to_phase[4] = 0;
-    //map_1d_channel_to_phase[5] = 0;
-
-    // 2d: Phase 1 & 2
-    for(int channel = 0; channel < number2DHists; ++ channel)
-    {
-        std::cout << "book2DHistograms(" << channel << ", 2e_, " << channel_histname_2D[channel] << ")" << std::endl;
-        book2DHistograms(channel, "2e_", channel_histname_2D[channel]);
-    }
-#if 0
-    book1DHistograms( 6, "2e_", "hTotalE_");
-    book1DHistograms( 7, "2e_", "hSingleEnergy_");
-    book1DHistograms( 8, "2e_", "hHighEnergy_");
-    book1DHistograms( 9, "2e_", "hLowEnergy_");
-    book1DHistograms(10, "2e_", "hEnergySum_");
-    book1DHistograms(11, "2e_", "hEnergyDiff_");
-    map_1d_channel_to_phase[6] = 1;
-    map_1d_channel_to_phase[7] = 1;
-    map_1d_channel_to_phase[8] = 1;
-    map_1d_channel_to_phase[9] = 1;
-    map_1d_channel_to_phase[10] = 1;
-    map_1d_channel_to_phase[11] = 1;
-#endif
-
-    std::cout << "All histograms loaded" << std::endl;
-
-
 
 
 
@@ -680,6 +652,7 @@ void loadFiles(int i)
 
     ///////////////////////////////////////////////////////////////////////////
     // Construct Systematic Data Objects
+    // All Systematics OFF
     ///////////////////////////////////////////////////////////////////////////
     
     gSystematics.systematic_energy_offset = 0.0;
@@ -753,6 +726,13 @@ void loadFiles(int i)
 
     }
 
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Construct Systematic Data Objects
+    // Systematic: Linear Energy Shift
+    // Systematic Value: +0.1 MeV
+    ///////////////////////////////////////////////////////////////////////////
+
     gSystematics.systematic_energy_offset = +0.1;
     rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline);
 
@@ -814,6 +794,12 @@ void loadFiles(int i)
     }
 
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Construct Systematic Data Objects
+    // Systematic: Linear Energy Shift
+    // Systematic Value: -0.1 MeV
+    ///////////////////////////////////////////////////////////////////////////
+
     gSystematics.systematic_energy_offset = -0.1;
     rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline);
 
@@ -874,6 +860,12 @@ void loadFiles(int i)
 
     }
 
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Construct Systematic Data Objects
+    // Calculate Covariance Matrix Parameters
+    ///////////////////////////////////////////////////////////////////////////
+
     for(int channel = 0; channel < number1DHists; ++ channel)
     {
         for(std::size_t i = 0; i < systematic_offset_nominal_1D_P1[channel]->size(); ++ i)
@@ -903,6 +895,8 @@ void loadFiles(int i)
         }
     }
 
+    // reset systematics
+    gSystematics.systematic_energy_offset = 0.0;
 
 
 
@@ -961,27 +955,6 @@ void loadFiles(int i)
     */
     
 
-    #if 0
-    if(0)
-    {
-
-        // TODO: somewhere I copy using numberParams instead of numberEnabledParams
-        // if I remember correctly, need to find and fix this
-
-        Double_t AdjustActs_copy[numberEnabledParams];
-        Double_t AdjustActs_Err_copy[numberEnabledParams];
-
-        for(int i = 0; i < numberEnabledParams; ++ i)
-        {
-            AdjustActs_copy[i] = AdjustActs[i];
-            AdjustActs_Err_copy[i] = AdjustActs_Err[i];
-        }
-        
-
-        //do_test_xi_31_test1(AdjustActs_copy, AdjustActs_Err_copy);
-        return 0;
-    }
-    #endif
 
 
 
@@ -993,28 +966,21 @@ void loadFiles(int i)
 
 
 
-    //fitBackgrounds(AdjustActs, AdjustActs_Err, CovMatrix, number_free_params, thePhase);
-    // fit of backgrounds disabled.
-    // need to fit Nd150 parameter only
-    // disabled in fitBackgrounds function
-    
-    // needs to remain enabled to define parameters in minuit
-//    TMinuit *minuit = nullptr;
-//    TMinuit *minuit = fitBackgrounds(AdjustActs, AdjustActs_Err, CovMatrix, number_free_params, thePhase);
-//    fitBackgrounds_exec(minuit, AdjustActs, AdjustActs_Err);
-
-
-
-
     ///////////////////////////////////////////////////////////////////////////
     // Reproduce Summers Fit (only when xi_31 parameter is disabled)
     ///////////////////////////////////////////////////////////////////////////
+
+    // Difference between this and HSD fit:
+    // HSD fit is Summers Fit
+    // This section scans the phase space of 150Nd amplitude parameter
+    // (used to check the Minuit2 error reporting)
 
     // do not do this in parallel mode
     if(0)// || (MODE_PARALLEL == 0))
     {
 
         std::cout << "Reproduction of Summers 150 Nd fit" << std::endl;
+        std::cout << "Note that this only works if the xi_31 parameter is disabled in the parameter_names.lst file" << std::endl;
 
         TH1D *mps1D = new TH1D("mps1D", "mps1D", 50, 0.84, 1.02);
         TH1D *mps1D_before = new TH1D("mps1D", "mps1D", 50, 0.84, 1.02);
@@ -1255,11 +1221,15 @@ void loadFiles(int i)
              param_errs_after);
 
         theParameterStateBefore.Release(std::string(minuit_param_name));
+
+        std::cout << "HSD Fit: NEMO3 Data (same as Summers fit)" << std::endl;
+        std::cout << "SYSTEMATICS: CONSTANT OFFSET DISABLED: " << gSystematics.systematic_energy_offset << " MeV" << std::endl;
+        std::cout << "Result: " << std::endl;
+        std::cout << "fval_before=" << fval_before << std::endl;
+        std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
     }
 
 
-
-#if 1
     ///////////////////////////////////////////////////////////////////////////
     // SSD fixed xi_31 = SSD fit
     ///////////////////////////////////////////////////////////////////////////
@@ -1346,47 +1316,20 @@ void loadFiles(int i)
              param_errs_after);
 
         theParameterStateBefore.Release(std::string(minuit_param_name));
+
+        std::cout << "SSD Fit: NEMO3 Data" << std::endl;
+        std::cout << "SYSTEMATICS: CONSTANT OFFSET DISABLED: " << gSystematics.systematic_energy_offset << " MeV" << std::endl;
+        std::cout << "Result: " << std::endl;
+        std::cout << "fval_before=" << fval_before << std::endl;
+        std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
     }
-#endif
 
-    #if 0
-    std::cout << "AdjustActs: ";
-    for(int i = 0; i < numberEnabledParams; ++ i)
-    {
-        std::cout << AdjustActs[i] << " ";
-    }
-    std::cout << std::endl;
-    #endif 
 
-    /*
-    std::cout << "params_before: ";
-    for(int i = 0; i < params_before.size(); ++ i)
-    {
-        std::cout << params_before.at(i) << " ";
-    }
-    std::cout << "fval_before=" << fval_before << std::endl;
-    std::cout << std::endl;
-    cin_wait();
-    */
 
-/*
-    ROOT::Minuit2::FunctionMinimum FCN_min =
-        fitBackgrounds(
-            theParameterState,
-            theMinimizer,
-            theFCN,
-            //AdjustActs,
-            //AdjustActs_Err,
-            //CovMatrix,
-            //number_free_params);
-*/
-
-#if 0
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit
     ///////////////////////////////////////////////////////////////////////////
 
-#if 1
     // do not do this in parallel mode
     if(1) // || (MODE_PARALLEL == 0))
     {
@@ -1409,12 +1352,16 @@ void loadFiles(int i)
         std::vector<double> param_errs_before = theParameterStateBefore.Errors();
         double fval_before = theFCN.operator()(params_before);
         //int ndf = theFCN.ndf - theParameterStateBefore.VariableParameters();
-        int ndf = theFCN.ndf - g_pg.get_number_free_params();
+        //int ndf = theFCN.nch - g_pg.get_number_free_params();
+        int nch = theFCN.nch;
+        int nfp = g_pg.get_number_free_params();
+        int ndf = nch - nfp;
 
         // draw before fit
         draw_input_data drawinputdata;
         drawinputdata.chi2 = fval_before;
-        drawinputdata.ndf = ndf;
+        drawinputdata.nch = nch;
+        drawinputdata.nfp = nfp;
         drawinputdata.serial_dir = "xifree";
         drawinputdata.saveas_filename = "xifree_before";
         drawinputdata.saveas_png = true;
@@ -1438,11 +1385,14 @@ void loadFiles(int i)
 
         double fval_after = theFCN.operator()(params_after);
         //ndf = theFCN.ndf - theParameterStateAfter.VariableParameters();
-        ndf = theFCN.ndf - g_pg.get_number_free_params();
+        //ndf = theFCN.ndf - g_pg.get_number_free_params();
+        nch = theFCN.nch;
+        nfp = g_pg.get_number_free_params();
+        ndf = nch - nfp;
 
         // draw result
         drawinputdata.chi2 = fval_after;
-        drawinputdata.ndf = ndf;
+        drawinputdata.nfp = nfp;
         drawinputdata.saveas_filename = "xifree_after";
        
         draw(drawinputdata,
@@ -1461,19 +1411,32 @@ void loadFiles(int i)
         */
 
 
-        std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
+        //std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
+        //std::cout << "fval_before=" << fval_before << std::endl;
+
+        min_point[0] = params_after.at(1);
+        min_point[1] = params_after.at(0);
+
+        std::cout << "All Parameter Fit: NEMO3 Data" << std::endl;
+        std::cout << "SYSTEMATICS: CONSTANT OFFSET DISABLED: " << gSystematics.systematic_energy_offset << " MeV" << std::endl;
+        std::cout << "Result: " << std::endl;
         std::cout << "fval_before=" << fval_before << std::endl;
+        std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
     }
-#endif
-#endif
 
 
 
     ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit - Variable Systematic Parameter
+    // All Parameter Fit
+    // Fake Data
+    // Variable Systematic Parameter
     ///////////////////////////////////////////////////////////////////////////
 
 #if 1
+    
+    bool g_mode_fake_data_restore_value = g_mode_fake_data;
+    g_mode_fake_data = true;
+    
     TCanvas *results_c_xi_31 = nullptr;
     TCanvas *results_c_A = nullptr;
     TCanvas *results_c_chi2_before = nullptr;
@@ -1656,118 +1619,21 @@ void loadFiles(int i)
         results_c_chi2_after = new TCanvas("results_chi2_after", "results_chi2_after");
         results_g_chi2_after->Draw();
     }
-#endif
 
-//    draw_channel(1, params, fval, "test_channel_1.png");
-//    TH1D *j1, *j2, *j3, *j4;
-// TODO: re-enable
-//    draw(params, param_errs, fval, j1, j2, j3, j4, "minuit_output_fake_data.*", ".", false);
-    //draw(params, nullptr, "NOSAVE", fval, j1, j2, j3, j4, true);
-
-//    std::cin.get();
-
-/*
-//    params[0] = 1.0;
-    params[1] = 0.0 + 0.001;
-    std::cout << params[0] << " " << params[1] << std::endl;
-    logLikelihood(n_params, nullptr, fval, params, 0);
-    std::cout << "fval=" << fval << " for params[0]=" << params[0] << " params[1]=" << params[1] << std::endl;
-//    draw_channel(1, params, fval, "test_channel_2.png");
-    draw(params, nullptr, "NOSAVE", fval, j1, j2, j3, j4, false);
-    //draw(params, nullptr, "NOSAVE", fval, j1, j2, j3, j4, true);
-
-    std::cin.get();
-
-    //params[0] = 1.0;
-    params[1] = 0.296;
-    std::cout << params[0] << " " << params[1] << std::endl;
-    logLikelihood(n_params, nullptr, fval, params, 0);
-    std::cout << "fval=" << fval << " for params[0]=" << params[0] << " params[1]=" << params[1] << std::endl;
-//    draw_channel(1, params, fval, "test_channel_3.png");
-    draw(params, nullptr, "NOSAVE", fval, j1, j2, j3, j4, false);
-    //draw(params, nullptr, "NOSAVE", fval, j1, j2, j3, j4, true);
-
-    std::cin.get();
-
-//    params[0] = 0.8;
-    params[1] = 0.0;
-    std::cout << params[0] << " " << params[1] << std::endl;
-    logLikelihood(n_params, nullptr, fval, params, 0);
-    std::cout << "fval=" << fval << " for params[0]=" << params[0] << " params[1]=" << params[1] << std::endl;
-//    draw_channel(1, params, fval, "test_channel_4.png");
-    draw(params, nullptr, "NOSAVE", fval, j1, j2, j3, j4, false);
-    //draw(params, nullptr, "NOSAVE", fval, j1, j2, j3, j4, true);
-
-    std::cin.get();
-    //return 0;
-*/
-
-
-
-#if 0
-    std::ofstream os("parab.csv");
-    const double gA_param_min = -0.5;
-    const double gA_param_max = 3.0;
-    const int nsteps = 20;
-    for(int i = 0; i <= nsteps; ++ i)
-    {
-        int number_free_params = -1;
-        double *CovMatrix = nullptr;
-
-        double gA_param = gA_param_min + (gA_param_max - gA_param_min) * ((double)i / (double)(nsteps));
-        AdjustActs[1] = gA_param;
-//        std::cout << "gA=" << gA_param << std::endl;
-//        std::cin.get();
-        //fitBackgrounds_setparams(minuit, AdjustActs, AdjustActs_Err);
-        TMinuit *new_minuit = fitBackgrounds(AdjustActs, AdjustActs_Err, CovMatrix, number_free_params, thePhase);
-
-
-        const double width = 0.1;
-        const double nnsteps = 20;
-        int n_params = new_minuit->GetNumPars();
-        double *params = new double[n_params];
-        double *params_err = new double[n_params];
-        for(int jx = 0; jx < n_params; ++ jx)
-        {
-            new_minuit->GetParameter(jx, params[jx], params_err[jx]);
-        }
-//        std::cout << "params[1]=" << params[1] << std::endl;
-//        std::cin.get();
-        const double min = params[0] - width;
-        const double max = params[0] + width;
-        os << "i=" << i << std::endl;
-        for(int i = 0; i <= nnsteps; ++ i)
-        {
-            double fval = 0.0;
-            double a = (double)i / (double)nnsteps;
-            params[0] = min + (max - min) * a;
-            logLikelihood(n_params, nullptr, fval, params, 0);
-            os << params[0] << "," << params[1] << "," << fval << std::endl;
-        }
-    }
-    return 0;
+    g_mode_fake_data = g_mode_fake_data_restore_value;
 #endif
 
 
 
-
-    // draw
-//    TH1D *drawtmp = new TH1D("drawtmp", "drawtmp", 50, 0.0, 5.0);
-//    for(int i = 0; i < systematic_offset_V_MATRIX_coeff_1D_P2[1]->size(); ++ i)
-//    {
-//        double content = systematic_offset_V_MATRIX_coeff_1D_P2[1]->operator[](i);
-//        drawtmp->SetBinContent(i + 1, content);
-//    }
-//    TCanvas *ctmp = new TCanvas("ctmp", "ctmp");
-//    drawtmp->Draw();
-//    ctmp->Show();
-
-
     ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit - No Systematics
+    // All Parameter Fit
+    // Fake Data
+    // No Systematics
     ///////////////////////////////////////////////////////////////////////////
 
     {
+        bool g_mode_fake_data_restore_value = g_mode_fake_data;
+        g_mode_fake_data = true;
 
         gSystematics.systematic_energy_offset = 0.0;
         double systematic_energy_offset = gSystematics.systematic_energy_offset;
@@ -1862,19 +1728,31 @@ void loadFiles(int i)
         */
 
 
-        std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
+        //std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
+        //std::cout << "fval_before=" << fval_before << std::endl;
+
+
+        g_mode_fake_data = g_mode_fake_data_restore_value;
+
+        std::cout << "Systematics Fit: Fake Data" << std::endl;
+        std::cout << "SYSTEMATICS: DISABLED" << std::endl;
+        std::cout << "SYSTEMATICS: CONSTANT OFFSET (DISABLED) : " << gSystematics.systematic_energy_offset << " MeV" << std::endl;
+        std::cout << "Result: " << std::endl;
         std::cout << "fval_before=" << fval_before << std::endl;
-
-
+        std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
     }
-    //std::cin.get();
 
 
     ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit - Low Systematic, Constant Energy Offset
+    // All Parameter Fit
+    // Fake Data
+    // Constant Energy Offset
+    // Low Systematic
     ///////////////////////////////////////////////////////////////////////////
 
     {
+        bool g_mode_fake_data_restore_value = g_mode_fake_data;
+        g_mode_fake_data = true;
 
         gSystematics.systematic_energy_offset = -0.1;
         double systematic_energy_offset = gSystematics.systematic_energy_offset;
@@ -1969,22 +1847,35 @@ void loadFiles(int i)
         */
 
 
-        std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
-        std::cout << "fval_before=" << fval_before << std::endl;
+        //std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
+        //std::cout << "fval_before=" << fval_before << std::endl;
 
 
         min_point_sys1_l[0] = params_after.at(1);
         min_point_sys1_l[1] = params_after.at(0);
 
 
+        g_mode_fake_data = g_mode_fake_data_restore_value;
+
+        std::cout << "Systematics Fit: Fake Data" << std::endl;
+        std::cout << "SYSTEMATICS ENABLED" << std::endl;
+        std::cout << "SYSTEMATICS: CONSTANT OFFSET (ENABLED) : " << gSystematics.systematic_energy_offset << " MeV" << std::endl;
+        std::cout << "Result: " << std::endl;
+        std::cout << "fval_before=" << fval_before << std::endl;
+        std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
     }
-    //std::cin.get();
+
 
     ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit - High Systematic, Constant Energy Offset
+    // All Parameter Fit
+    // Fake Data
+    // Constant Energy Offset
+    // High Systematic
     ///////////////////////////////////////////////////////////////////////////
 
     {
+        bool g_mode_fake_data_restore_value = g_mode_fake_data;
+        g_mode_fake_data = true;
 
         gSystematics.systematic_energy_offset = +0.1;
         double systematic_energy_offset = gSystematics.systematic_energy_offset;
@@ -2079,14 +1970,22 @@ void loadFiles(int i)
         */
 
 
-        std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
-        std::cout << "fval_before=" << fval_before << std::endl;
+        //std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
+        //std::cout << "fval_before=" << fval_before << std::endl;
 
 
         min_point_sys1_h[0] = params_after.at(1);
         min_point_sys1_h[1] = params_after.at(0);
 
 
+        g_mode_fake_data = g_mode_fake_data_restore_value;
+
+        std::cout << "Systematics Fit: Fake Data" << std::endl;
+        std::cout << "SYSTEMATICS ENABLED" << std::endl;
+        std::cout << "SYSTEMATICS: CONSTANT OFFSET (ENABLED) : " << gSystematics.systematic_energy_offset << " MeV" << std::endl;
+        std::cout << "Result: " << std::endl;
+        std::cout << "fval_before=" << fval_before << std::endl;
+        std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
     }
     //std::cin.get();
 
@@ -2094,6 +1993,8 @@ void loadFiles(int i)
     // check repeating works
     #if 0
     {
+        bool g_mode_fake_data_restore_value = g_mode_fake_data;
+        g_mode_fake_data = true;
 
         gSystematics.systematic_energy_offset = 0.0;
         double systematic_energy_offset = gSystematics.systematic_energy_offset;
@@ -2188,6 +2089,7 @@ void loadFiles(int i)
         std::cout << "fval_before=" << fval_before << std::endl;
 
 
+        g_mode_fake_ata = g_mode_fake_data_restore_value;
     }
     #endif
     //std::cin.get();

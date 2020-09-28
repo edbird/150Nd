@@ -205,8 +205,16 @@ void book1DHistograms_helper(
             }
             else
             {
-                std::cout << "WARNING: param_number_P1=" << param_number_P1 << std::endl;
-                std::cout << "mc_name=" << mc_name << std::endl;
+                if(mc_name.find("air") == std::string::npos)
+                {
+                    std::cout << "WARNING: param_number_P1=" << param_number_P1 << std::endl;
+                    std::cout << "mc_name=" << mc_name << std::endl;
+                }
+                else
+                {
+                    // ignore anything which contains "air"
+                    // these things are only for P1
+                }
                 // this is typically things such as bi214_air, which is ZERO for P2
             }
             if(param_number_P2 != -1)
@@ -215,8 +223,16 @@ void book1DHistograms_helper(
             }
             else
             {
-                std::cout << "WARNING: param_number_P2=" << param_number_P2 << std::endl;
-                std::cout << "mc_name=" << mc_name << std::endl;
+                if(mc_name.find("air") == std::string::npos)
+                {
+                    std::cout << "WARNING: param_number_P2=" << param_number_P2 << std::endl;
+                    std::cout << "mc_name=" << mc_name << std::endl;
+                }
+                else
+                {
+                    // ignore anything which contains "air"
+                    // these things are only for P1
+                }
                 // this is typically things such as bi214_air, which is ZERO for P2
             }
             //std::cout << "mc_name=" << mc_name << " scale_factor_P1=" << scale_factor_P1 << " scale_factor_P2=" << scale_factor_P2 << std::endl;
@@ -227,7 +243,10 @@ void book1DHistograms_helper(
                (mc_name.find("tl208_pmt") != std::string::npos))
                // TODO: do not apply to tl208_air ?
             {
-                std::cout << "mc_name=" << mc_name << " applying additional scaling factor of 0.36" << std::endl;
+                if(debuglevel >= 5)
+                {
+                    std::cout << "mc_name=" << mc_name << " applying additional scaling factor of 0.36" << std::endl;
+                }
                 //std::cin.get();
                 scale_factor_P1 *= 0.36;
                 scale_factor_P2 *= 0.36;
@@ -411,10 +430,13 @@ void book1DHistograms_helper(
 void book1DHistograms(Int_t channel_counter, TString theChannel, TString theHistogram)
 {
 
-    int debuglevel = 2;
+    int debuglevel = 1;
 
     //std::cout << "booking 1D hists for " << theChannel << " " << thePhase_arg << std::endl;
-    std::cout << "booking 1D hists for " << theChannel << " " << "P1 and P2" << std::endl;
+    if(debuglevel >= 2)
+    {
+        std::cout << "booking 1D hists for " << theChannel << " " << "P1 and P2" << std::endl;
+    }
     allMCSamples1D[channel_counter] = new TObjArray();
 
     //TFile *aFile = TFile::Open("/home/ebirdsall/NEMO3/Nd150_analysis/MeasureStuff/new/Macros/Nd150_" + theChannel + thePhase_arg + ".root");
@@ -517,7 +539,10 @@ void book1DHistograms(Int_t channel_counter, TString theChannel, TString theHist
         std::string name(theHistogram + DataFile);
         //std::string fake_data_name(theHistogram + "data_2e_fake");
         std::string fullname = directory + name;
-        std::cout << "fullname=" << fullname << std::endl;
+        if(debuglevel >= 5)
+        {
+            std::cout << "fullname=" << fullname << std::endl;
+        }
         //if(gDirectory->GetListOfKeys()->Contains(fullname.c_str()))
         //TH1D *tmpHist = (TH1D*)gDirectory->Get(fullname.c_str())->Clone();
         std::string new_name_P1(theHistogram + DataFile + "_P1"); // TODO: probably need a different new_name for P1 and P2
