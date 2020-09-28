@@ -19,7 +19,7 @@ void fitBackgrounds_init(
 //    std::cout << " 1 " << AdjustActs[1] << std::endl;
 //    std::cin.get();
 
-    bool debuglevel = 1;
+    int debuglevel = 1;
     if(debuglevel >= 3)
     {
         std::cout << ">>>>> fitBackgrounds_init()" << std::endl;
