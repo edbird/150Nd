@@ -289,7 +289,7 @@ void newloglikfitter_testmyphasespace_newversion(
     }
     
     // with systematics
-////    param_1_max = 2.1;
+    param_1_max = 2.1;
 
     // hack to get HSD
     //param_1_min = -0.1;
@@ -319,8 +319,8 @@ void newloglikfitter_testmyphasespace_newversion(
     }
     
     // with systematics
-////    param_2_min = 0.75;
-////    param_2_max = 1.5;
+    param_2_min = 0.75;
+    param_2_max = 1.5;
 
     // hack to get HSD
     //param_1_min = 0.9999;
