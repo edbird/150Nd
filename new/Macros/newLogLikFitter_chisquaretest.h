@@ -905,27 +905,53 @@ void newloglikfitter_testmyphasespace_newversion(
         if((min_point_sys1_l[0] != 0.0) &&
            (min_point_sys1_l[1] != 0.0))
         {
-        std::cout << "DRAW MARK SYS1L" << std::endl;
+            //std::cout << "DRAW MARK SYS1L" << std::endl;
             std::cout << "SYS1L: " << min_point_sys1_l[0] << " " << min_point_sys1_l[1] << std::endl;
             TMarker *mark_min_point_sys1_l = new TMarker(min_point_sys1_l[0],
                                                         min_point_sys1_l[1],
                                                         106);
             mark_min_point_sys1_l->SetMarkerColorAlpha(kWhite, 0.0);
-            mark_min_point_sys1_l->SetMarkerSize(2.0);
+            mark_min_point_sys1_l->SetMarkerSize(1.0);
             mark_min_point_sys1_l->Draw();
         }
 
         if((min_point_sys1_h[0] != 0.0) &&
            (min_point_sys1_h[1] != 0.0))
         {
-        std::cout << "DRAW MARK SYS1H" << std::endl;
+            //std::cout << "DRAW MARK SYS1H" << std::endl;
             std::cout << "SYS1H: " << min_point_sys1_h[0] << " " << min_point_sys1_h[1] << std::endl;
             TMarker *mark_min_point_sys1_h = new TMarker(min_point_sys1_h[0],
                                                         min_point_sys1_h[1],
                                                         106);
             mark_min_point_sys1_h->SetMarkerColorAlpha(kWhite, 0.0);
-            mark_min_point_sys1_h->SetMarkerSize(2.0);
+            mark_min_point_sys1_h->SetMarkerSize(1.0);
             mark_min_point_sys1_h->Draw();
+        }
+
+        if((min_point_sys2_l[0] != 0.0) &&
+           (min_point_sys2_l[1] != 0.0))
+        {
+            //std::cout << "DRAW MARK SYS2L" << std::endl;
+            std::cout << "SYS2L: " << min_point_sys2_l[0] << " " << min_point_sys2_l[1] << std::endl;
+            TMarker *mark_min_point_sys2_l = new TMarker(min_point_sys2_l[0],
+                                                        min_point_sys2_l[1],
+                                                        22);
+            mark_min_point_sys2_l->SetMarkerColorAlpha(kWhite, 0.0);
+            mark_min_point_sys2_l->SetMarkerSize(1.0);
+            mark_min_point_sys2_l->Draw();
+        }
+
+        if((min_point_sys2_h[0] != 0.0) &&
+           (min_point_sys2_h[1] != 0.0))
+        {
+            //std::cout << "DRAW MARK SYS2H" << std::endl;
+            std::cout << "SYS2H: " << min_point_sys2_h[0] << " " << min_point_sys2_h[1] << std::endl;
+            TMarker *mark_min_point_sys2_h = new TMarker(min_point_sys2_h[0],
+                                                        min_point_sys2_h[1],
+                                                        23);
+            mark_min_point_sys2_h->SetMarkerColorAlpha(kWhite, 0.0);
+            mark_min_point_sys2_h->SetMarkerSize(1.0);
+            mark_min_point_sys2_h->Draw();
         }
 
 
