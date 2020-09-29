@@ -1493,13 +1493,16 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         double c1 = V_PHYS_STAT_1D_P1_data[channel]->at(i + j * 50);
                         double c2 = 0.0;
                         double c3 = 0.0;
-                        if(V_ENABLE_SYS1 == true)
+                        if(V_ENABLE_SYSALL == true)
                         {
-                            c2 = V_PHYS_SYS1_1D_P1_data[channel]->at(i + j * 50);
-                        }
-                        if(V_ENABLE_SYS2 == true)
-                        {
-                            c3 = V_PHYS_SYS2_1D_P1_data[channel]->at(i + j * 50);
+                            if(V_ENABLE_SYS1 == true)
+                            {
+                                c2 = V_PHYS_SYS1_1D_P1_data[channel]->at(i + j * 50);
+                            }
+                            if(V_ENABLE_SYS2 == true)
+                            {
+                                c3 = V_PHYS_SYS2_1D_P1_data[channel]->at(i + j * 50);
+                            }
                         }
                         Double_t content = c1 + c2 + c3;
                         #else
@@ -1507,13 +1510,16 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         double c1 = V_PHYS_STAT_1D_P1_data[channel]->operator[](i + j * 50);
                         double c2 = 0.0;
                         double c3 = 0.0;
-                        if(V_ENABLE_SYS1 == true)
+                        if(V_ENABLE_SYSALL == true)
                         {
-                            c2 = V_PHYS_SYS1_1D_P1_data[channel]->operator[](i + j * 50);
-                        }
-                        if(V_ENABLE_SYS2 == true)
-                        {
-                            c3 = V_PHYS_SYS2_1D_P1_data[channel]->operator[](i + j * 50);
+                            if(V_ENABLE_SYS1 == true)
+                            {
+                                c2 = V_PHYS_SYS1_1D_P1_data[channel]->operator[](i + j * 50);
+                            }
+                            if(V_ENABLE_SYS2 == true)
+                            {
+                                c3 = V_PHYS_SYS2_1D_P1_data[channel]->operator[](i + j * 50);
+                            }
                         }
                         Double_t content = c1 + c2 + c3;
                         #endif
@@ -1574,13 +1580,16 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         double c1 = V_PHYS_STAT_1D_P2_data[channel]->at(i + j * 50);
                         double c2 = 0.0;
                         double c3 = 0.0;
-                        if(V_ENABLE_SYS1 == true)
+                        if(V_ENABLE_SYSALL == true)
                         {
-                            c2 = V_PHYS_SYS1_1D_P2_data[channel]->at(i + j * 50);
-                        }
-                        if(V_ENABLE_SYS2 == true)
-                        {
-                            c3 = V_PHYS_SYS2_1D_P2_data[channel]->at(i + j * 50);
+                            if(V_ENABLE_SYS1 == true)
+                            {
+                                c2 = V_PHYS_SYS1_1D_P2_data[channel]->at(i + j * 50);
+                            }
+                            if(V_ENABLE_SYS2 == true)
+                            {
+                                c3 = V_PHYS_SYS2_1D_P2_data[channel]->at(i + j * 50);
+                            }
                         }
                         double content = c1 + c2 + c3;
                         #else
@@ -1588,13 +1597,16 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         double c1 = V_PHYS_STAT_1D_P2_data[channel]->operator[](i + j * 50);
                         double c2 = 0.0;
                         double c3 = 0.0;
-                        if(V_ENABLE_SYS1 == true)
+                        if(V_ENABLE_SYSALL == true)
                         {
-                            c2 = V_PHYS_SYS1_1D_P2_data[channel]->operator[](i + j * 50);
-                        }
-                        if(V_ENABLE_SYS2 == true)
-                        {
-                            c3 = V_PHYS_SYS2_1D_P2_data[channel]->operator[](i + j * 50);
+                            if(V_ENABLE_SYS1 == true)
+                            {
+                                c2 = V_PHYS_SYS1_1D_P2_data[channel]->operator[](i + j * 50);
+                            }
+                            if(V_ENABLE_SYS2 == true)
+                            {
+                                c3 = V_PHYS_SYS2_1D_P2_data[channel]->operator[](i + j * 50);
+                            }
                         }
                         double content = c1 + c2 + c3;
                         #endif
