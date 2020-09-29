@@ -385,12 +385,14 @@ std::vector<std::pair<double,double>> ll_walk_save;
 double min_point[2] = {0.0, 0.0}; // minimum point found, all parameter fit
 double min_point_sys1_h[2] = {0.0, 0.0};
 double min_point_sys1_l[2] = {0.0, 0.0};
+double min_point_sys2_h[2] = {0.0, 0.0};
+double min_point_sys2_l[2] = {0.0, 0.0};
 
 ///////////////////////////////////////////////////////////////////////////////
 // systematic objects - Phase 1
 ///////////////////////////////////////////////////////////////////////////////
 
-std::vector<double> *systematic_offset_nominal_1D_P1[number1DHists] =
+std::vector<double> *systematic_nominal_1D_P1[number1DHists] =
 {
     nullptr,
     nullptr,
@@ -430,12 +432,42 @@ std::vector<double> *systematic_offset_V_MATRIX_coeff_1D_P1[number1DHists] =
     nullptr
 };
 
+std::vector<double> *systematic_scale_low_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_scale_high_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_scale_V_MATRIX_coeff_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // systematic objects - Phase 2
 ///////////////////////////////////////////////////////////////////////////////
 
-std::vector<double> *systematic_offset_nominal_1D_P2[number1DHists] =
+std::vector<double> *systematic_nominal_1D_P2[number1DHists] =
 {
     nullptr,
     nullptr,
@@ -475,14 +507,47 @@ std::vector<double> *systematic_offset_V_MATRIX_coeff_1D_P2[number1DHists] =
     nullptr
 };
 
+std::vector<double> *systematic_scale_low_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_scale_high_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_scale_V_MATRIX_coeff_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // chi2 objects for V MATRIX method, Phase 1
 ///////////////////////////////////////////////////////////////////////////////
 
-
-const bool V_ENABLE_SYS1 = false;
+const bool V_ENABLE_SYSALL = false;
+const bool V_ENABLE_SYS1 = false; // constant 1.0 MeV shift
+const bool V_ENABLE_SYS2 = true; // scale factor: m = 1 % + 0.2 %
 const bool V_ENABLE_STAT = true; // leave on
+
+bool recalculate_V_PHYS_xD_Px_MATHMORE = true;
 
 TMatrixD *V_PHYS_1D_P1_MATHMORE[number1DHists] =
 {
@@ -652,8 +717,6 @@ TMatrixD *V_PHYS_1D_P2_MATHMORE[number1DHists] =
     nullptr,
     nullptr
 };
-
-bool recalculate_V_PHYS_xD_Px_MATHMORE = true;
 
 std::vector<bool> *V_ENABLE_BIN_1D_P2[number1DHists] =
 {

@@ -473,15 +473,32 @@ void newloglikfitter_testmyphasespace_newversion(
                          + std::string(".log");
     std::ofstream os(os_fname, std::ios::out | std::ios::app);
 
+    std::string output_name_append;
+    if(V_ENABLE_SYSALL == false)
+    {
+        output_name_append += "_STAT";
+    }
+    else if(V_ENABLE_SYSALL == true)
+    {
+        output_name_append += "_STATSYS";
+    }
+    if(g_mode_fake_data == false)
+    {
+        output_name_append += "_data";
+    }
+    else if(g_mode_fake_data == true)
+    {
+        output_name_append += "_fake";
+    }
 
     std::string ofs_resultsmatrix_before_fname =
-        output_name + "_before" + "_"
+        output_name + output_name_append + "_before" + "_"
         + "JID" + std::to_string(number_job_id)
         + ".txt";
 
     //"mps_resultsmatrix_after"
     std::string ofs_resultsmatrix_after_fname =
-        output_name + "_after" + "_"
+        output_name + output_name_append + "_after" + "_"
         + "JID" + std::to_string(number_job_id)
         + ".txt";
 

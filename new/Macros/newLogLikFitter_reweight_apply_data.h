@@ -47,6 +47,12 @@ void reweight_apply_data(
             std::cin.get();
             gSystematics.systematic_energy_offset_last = gSystematics.systematic_energy_offset;
         }
+        if(gSystematics.systematic_energy_scale != gSystematics.systematic_energy_scale_last)
+        {
+            std::cout << "gSystematics.systematic_energy_scale=" << gSystematics.systematic_energy_scale << std::endl;
+            std::cin.get();
+            gSystematics.systematic_energy_scale_last = gSystematics.systematic_energy_scale;
+        }
     }
 
 

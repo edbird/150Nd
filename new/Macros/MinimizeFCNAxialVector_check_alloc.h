@@ -233,6 +233,94 @@ MinimizeFCNAxialVector::check_alloc_V_PHYS_SYS1_data() const
 }
 
 
+void
+MinimizeFCNAxialVector::check_alloc_V_PHYS_SYS2_data() const
+{
+
+    ///////////////////////////////////////////////////////////////////
+    // V_PHYS_SYS2
+    ///////////////////////////////////////////////////////////////////
+
+    if(V_PHYS_SYS2_1D_P1_data[0] == nullptr)
+    {
+        //std::cout << "Alloc V_PHYS_SYS" << std::endl;
+        //V_PHYS_SYS = new TH2D("V_PHYS_SYS", "V_PHYS_SYS",
+        //                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
+        //                  NUM_BINS_XY, 0.0, NUM_BINS_XY);
+
+        // clear the contents of V_PHYS_STAT
+        //for(Int_t bin_i{1}; bin_i <= V_PHYS_STAT->GetNbinsX(); ++ bin_i)
+        //{
+        //    for(Int_t bin_j{1}; bin_j <= V_PHYS_STAT->GetNbinsY(); ++ bin_j)
+        //    {
+        //        const Double_t zero = 0.0;
+        //        V_PHYS_STAT->SetBinContent(bin_i, bin_j, zero);
+        //    }
+        //}
+        std::cout << "Alloc V_PHYS_SYS2" << std::endl;
+        for(int ch = 0; ch < number1DHists; ++ ch)
+        {
+            const Int_t NUM_BINS_XY = 50;
+            TString hname;
+
+            hname.Form("V_PHYS_SYS2_1D_P1_CH%d", ch);
+
+            hname.Form("V_PHYS_SYS2_1D_P2_CH%d", ch);
+
+            V_PHYS_SYS2_1D_P1_data[ch] = new std::vector<double>(NUM_BINS_XY * NUM_BINS_XY, 0.0);
+            V_PHYS_SYS2_1D_P2_data[ch] = new std::vector<double>(NUM_BINS_XY * NUM_BINS_XY, 0.0);
+            std::cout << "ALLOC " << __func__ << std::endl;
+        
+
+            // initialize elements of V_PHYS_SYS2_*
+            int channel = ch;
+
+            // TODO: symmetry optimization
+            //for(Int_t biny{0}; biny < M_1D_P1_data[channel]->size(); ++ biny)
+            for(Int_t biny{0}; biny < NUM_BINS_XY; ++ biny)
+            {
+                //for(Int_t binx{0}; binx < M_1D_P1_data[channel]->size(); ++ binx)
+                //for(Int_t binx{0}; binx < M_1D_P1_data[channel]->size(); ++ binx)
+                for(Int_t binx{0}; binx < NUM_BINS_XY; ++ binx)
+                {
+
+                    // P1
+                    {
+                        #if VECTOR_RANGE_CHECK
+                        double coeff1 = systematic_scale_V_MATRIX_coeff_1D_P1[channel]->at(binx);
+                        double coeff2 = systematic_scale_V_MATRIX_coeff_1D_P1[channel]->at(biny);
+                        V_PHYS_SYS2_1D_P1_data[channel]->at(biny * 50 + binx) = coeff1 * coeff2;
+                        #else
+                        double coeff1 = systematic_scale_V_MATRIX_coeff_1D_P1[channel]->operator[](binx);
+                        double coeff2 = systematic_scale_V_MATRIX_coeff_1D_P1[channel]->operator[](biny);
+                        V_PHYS_SYS2_1D_P1_data[channel]->operator[](biny * 50 + binx) = coeff1 * coeff2;
+                        #endif
+                    }
+
+                    // P2
+                    {
+                        #if VECTOR_RANGE_CHECK
+                        double coeff1 = systematic_scale_V_MATRIX_coeff_1D_P2[channel]->at(binx);
+                        double coeff2 = systematic_scale_V_MATRIX_coeff_1D_P2[channel]->at(biny);
+                        V_PHYS_SYS2_1D_P2_data[channel]->at(biny * 50 + binx) = coeff1 * coeff2;
+                        #else
+                        double coeff1 = systematic_scale_V_MATRIX_coeff_1D_P2[channel]->operator[](binx);
+                        double coeff2 = systematic_scale_V_MATRIX_coeff_1D_P2[channel]->operator[](biny);
+                        V_PHYS_SYS2_1D_P2_data[channel]->operator[](biny * 50 + binx) = coeff1 * coeff2;
+                        #endif
+                    }
+
+
+                }
+            }
+        }
+
+       
+    }
+
+}
+
+
 void MinimizeFCNAxialVector::check_alloc_D() const
 {
 
@@ -1404,20 +1492,30 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         //Double_t content = V_PHYS_STAT_1D_P1_data[channel]->at(i + j * 50);
                         double c1 = V_PHYS_STAT_1D_P1_data[channel]->at(i + j * 50);
                         double c2 = 0.0;
+                        double c3 = 0.0;
                         if(V_ENABLE_SYS1 == true)
                         {
                             c2 = V_PHYS_SYS1_1D_P1_data[channel]->at(i + j * 50);
                         }
-                        Double_t content = c1 + c2;
+                        if(V_ENABLE_SYS2 == true)
+                        {
+                            c3 = V_PHYS_SYS2_1D_P1_data[channel]->at(i + j * 50);
+                        }
+                        Double_t content = c1 + c2 + c3;
                         #else
                         //Double_t content = V_PHYS_STAT_1D_P1_data[channel]->operator[](i + j * 50);
                         double c1 = V_PHYS_STAT_1D_P1_data[channel]->operator[](i + j * 50);
                         double c2 = 0.0;
+                        double c3 = 0.0;
                         if(V_ENABLE_SYS1 == true)
                         {
                             c2 = V_PHYS_SYS1_1D_P1_data[channel]->operator[](i + j * 50);
                         }
-                        Double_t content = c1 + c2;
+                        if(V_ENABLE_SYS2 == true)
+                        {
+                            c3 = V_PHYS_SYS2_1D_P1_data[channel]->operator[](i + j * 50);
+                        }
+                        Double_t content = c1 + c2 + c3;
                         #endif
                         //std::cout << "i=" << i << " j=" << j << " i_counter=" << i_counter << " j_counter=" << j_counter << " content=" << content << std::endl;
                         V_PHYS_1D_P1_MATHMORE[channel]->operator[](j_counter).operator[](i_counter) = content;
@@ -1475,20 +1573,30 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         //Double_t content = V_PHYS_STAT_1D_P2_data[channel]->at(i + j * 50);
                         double c1 = V_PHYS_STAT_1D_P2_data[channel]->at(i + j * 50);
                         double c2 = 0.0;
+                        double c3 = 0.0;
                         if(V_ENABLE_SYS1 == true)
                         {
                             c2 = V_PHYS_SYS1_1D_P2_data[channel]->at(i + j * 50);
                         }
-                        double content = c1 + c2;
+                        if(V_ENABLE_SYS2 == true)
+                        {
+                            c3 = V_PHYS_SYS2_1D_P2_data[channel]->at(i + j * 50);
+                        }
+                        double content = c1 + c2 + c3;
                         #else
                         //Double_t content = V_PHYS_STAT_1D_P2_data[channel]->operator[](i + j * 50);
                         double c1 = V_PHYS_STAT_1D_P2_data[channel]->operator[](i + j * 50);
                         double c2 = 0.0;
+                        double c3 = 0.0;
                         if(V_ENABLE_SYS1 == true)
                         {
                             c2 = V_PHYS_SYS1_1D_P2_data[channel]->operator[](i + j * 50);
                         }
-                        double content = c1 + c2;
+                        if(V_ENABLE_SYS2 == true)
+                        {
+                            c3 = V_PHYS_SYS2_1D_P2_data[channel]->operator[](i + j * 50);
+                        }
+                        double content = c1 + c2 + c3;
                         #endif
                         //std::cout << "i=" << i << " j=" << j << " i_counter=" << i_counter << " j_counter=" << j_counter << " content=" << content << std::endl;
                         V_PHYS_1D_P2_MATHMORE[channel]->operator[](j_counter).operator[](i_counter) = content;

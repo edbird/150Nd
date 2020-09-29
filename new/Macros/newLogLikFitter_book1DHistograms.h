@@ -435,6 +435,7 @@ void book1DHistograms(Int_t channel_counter, TString theChannel, TString theHist
     //std::cout << "booking 1D hists for " << theChannel << " " << thePhase_arg << std::endl;
     if(debuglevel >= 2)
     {
+        std::cout << "book1DHistograms(" << channel_counter << ", 2e_, " << channel_histname_1D[channel_counter] << ")" << std::endl;
         std::cout << "booking 1D hists for " << theChannel << " " << "P1 and P2" << std::endl;
     }
     allMCSamples1D[channel_counter] = new TObjArray();
