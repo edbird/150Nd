@@ -674,6 +674,10 @@ void reweight_apply_fakedata(
                 Double_t el_energy_0{electronEnergy[highE_index]};
                 Double_t el_energy_1{electronEnergy[lowE_index]};
 
+                // energy scale factor (multiply)
+                el_energy_0 = el_energy_0 * gSystematics.systematic_energy_scale;
+                el_energy_1 = el_energy_1 * gSystematics.systematic_energy_scale;
+
                 //std::cout << "gSystematics.systematic_energy_offset=" << gSystematics.systematic_energy_offset << std::endl;
                 //std::cout << "el_energy_0=" << el_energy_0 << std::endl;
                 //std::cout << "el_energy_1=" << el_energy_1 << std::endl;

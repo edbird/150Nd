@@ -17,7 +17,7 @@ void book2DHistograms_helper(
     //, TH1D *tmpHist)
 {
 
-    int debuglevel = 2;
+    int debuglevel = 1;
         
     TH2D *tmpHist_P1 = nullptr;
     TH2D *tmpHist_P2 = nullptr;
@@ -48,7 +48,10 @@ void book2DHistograms_helper(
                (mc_name.find("tl208_pmt") != std::string::npos))
                // TODO: do not apply to tl208_air ?
             {
-                std::cout << "mc_name=" << mc_name << " applying additional scaling factor of 0.36" << std::endl;
+                if(debuglevel >= 5)
+                {
+                    std::cout << "mc_name=" << mc_name << " applying additional scaling factor of 0.36" << std::endl;
+                }
                 //std::cin.get();
                 scale_factor_P1 *= 0.36;
                 scale_factor_P2 *= 0.36;
@@ -266,9 +269,13 @@ void book2DHistograms_helper(
 void book2DHistograms(Int_t channel_counter, TString theChannel, TString theHistogram)
 {
 
-    int debuglevel = 2;
+    int debuglevel = 1;
 
-    std::cout << "booking 2D hists for " << theChannel << " " << "P1 and P2" << std::endl;
+    if(debuglevel >= 2)
+    {
+        std::cout << "book2DHistograms(" << channel_counter << ", 2e_, " << channel_histname_2D[channel_counter] << ")" << std::endl;
+        std::cout << "booking 2D hists for " << theChannel << " " << "P1 and P2" << std::endl;
+    }
     allMCSamples2D[channel_counter] = new TObjArray();
 
     TString thePhase_arg_P1 = "P1";
@@ -352,7 +359,10 @@ void book2DHistograms(Int_t channel_counter, TString theChannel, TString theHist
         std::string name(theHistogram + DataFile);
         //std::string fake_data_name(theHistogram + "data_2e_fake");
         std::string fullname = directory + name;
-        std::cout << "fullname=" << fullname << std::endl;
+        if(debuglevel >= 5)
+        {
+            std::cout << "fullname=" << fullname << std::endl;
+        }
 
         // load histogram from file
         // TODO: try catch block
