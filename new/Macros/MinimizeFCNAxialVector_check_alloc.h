@@ -1490,9 +1490,13 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         //Double_t content = V_PHYS_STAT_1D_P1[channel]->GetBinContent(i + 1, j + 1);
                         #if VECTOR_RANGE_CHECK
                         //Double_t content = V_PHYS_STAT_1D_P1_data[channel]->at(i + j * 50);
-                        double c1 = V_PHYS_STAT_1D_P1_data[channel]->at(i + j * 50);
+                        double c1 = 0.0;
                         double c2 = 0.0;
                         double c3 = 0.0;
+                        if(V_ENABLE_STAT == true)
+                        {
+                            c1 = V_PHYS_STAT_1D_P1_data[channel]->at(i + j * 50);
+                        }
                         if(V_ENABLE_SYSALL == true)
                         {
                             if(V_ENABLE_SYS1 == true)
@@ -1507,9 +1511,13 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         Double_t content = c1 + c2 + c3;
                         #else
                         //Double_t content = V_PHYS_STAT_1D_P1_data[channel]->operator[](i + j * 50);
-                        double c1 = V_PHYS_STAT_1D_P1_data[channel]->operator[](i + j * 50);
+                        double c1 = 0.0;
                         double c2 = 0.0;
                         double c3 = 0.0;
+                        if(V_ENABLE_STAT == true)
+                        {
+                            c1 = V_PHYS_STAT_1D_P1_data[channel]->operator[](i + j * 50);
+                        }
                         if(V_ENABLE_SYSALL == true)
                         {
                             if(V_ENABLE_SYS1 == true)
@@ -1577,9 +1585,13 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         //Double_t content = V_PHYS_STAT_1D_P2[channel]->GetBinContent(i + 1, j + 1);
                         #if VECTOR_RANGE_CHECK
                         //Double_t content = V_PHYS_STAT_1D_P2_data[channel]->at(i + j * 50);
-                        double c1 = V_PHYS_STAT_1D_P2_data[channel]->at(i + j * 50);
+                        double c1 = 0.0;
                         double c2 = 0.0;
                         double c3 = 0.0;
+                        if(V_ENABLE_STAT == true)
+                        {
+                            c1 = V_PHYS_STAT_1D_P2_data[channel]->at(i + j * 50);
+                        }
                         if(V_ENABLE_SYSALL == true)
                         {
                             if(V_ENABLE_SYS1 == true)
@@ -1594,9 +1606,13 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         double content = c1 + c2 + c3;
                         #else
                         //Double_t content = V_PHYS_STAT_1D_P2_data[channel]->operator[](i + j * 50);
-                        double c1 = V_PHYS_STAT_1D_P2_data[channel]->operator[](i + j * 50);
+                        double c1 = 0.0;
                         double c2 = 0.0;
                         double c3 = 0.0;
+                        if(V_ENABLE_STAT == true)
+                        {
+                            c1 = V_PHYS_STAT_1D_P2_data[channel]->operator[](i + j * 50);
+                        }
                         if(V_ENABLE_SYSALL == true)
                         {
                             if(V_ENABLE_SYS1 == true)

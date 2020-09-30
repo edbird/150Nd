@@ -259,7 +259,7 @@ void newloglikfitter_testmyphasespace_newversion(
     std::cout << "rendering: " << c_mps_name << std::endl;
 
     // TODO: NOTE: have to change value of "stop_index" as well
-    const int n_param_xy = 51;//301; // 1001
+    const int n_param_xy = 31; // 51;//301; // 1001
     int n_param_1 = n_param_xy; //300;
     int n_param_2 = n_param_xy; //300;
     int n_param_max = n_param_1 * n_param_2;
@@ -902,6 +902,10 @@ void newloglikfitter_testmyphasespace_newversion(
         //bestfitpoint->SetMarkerSize(2.0);
         //bestfitpoint->Draw();
 
+        std::cout << "********************************************************************************" << std::endl;
+        std::cout << "                          PLOTTING MARKERS" << std::endl;
+        std::cout << "********************************************************************************" << std::endl;
+
         if((min_point_sys1_l[0] != 0.0) &&
            (min_point_sys1_l[1] != 0.0))
         {
@@ -913,6 +917,11 @@ void newloglikfitter_testmyphasespace_newversion(
             mark_min_point_sys1_l->SetMarkerColorAlpha(kWhite, 0.0);
             mark_min_point_sys1_l->SetMarkerSize(1.0);
             mark_min_point_sys1_l->Draw();
+
+            TLine *line_min_point_sys1_l = new TLine(min_point[0], min_point[1], min_point_sys1_l[0], min_point_sys1_l[1]);
+            line_min_point_sys1_l->SetLineColorAlpha(kRed, 0.5);
+            line_min_point_sys1_l->SetLineWidth(1);
+            line_min_point_sys1_l->Draw();
         }
 
         if((min_point_sys1_h[0] != 0.0) &&
@@ -926,6 +935,11 @@ void newloglikfitter_testmyphasespace_newversion(
             mark_min_point_sys1_h->SetMarkerColorAlpha(kWhite, 0.0);
             mark_min_point_sys1_h->SetMarkerSize(1.0);
             mark_min_point_sys1_h->Draw();
+
+            TLine *line_min_point_sys1_h = new TLine(min_point[0], min_point[1], min_point_sys1_h[0], min_point_sys1_h[1]);
+            line_min_point_sys1_h->SetLineColorAlpha(kOrange, 0.5);
+            line_min_point_sys1_h->SetLineWidth(1);
+            line_min_point_sys1_h->Draw();
         }
 
         if((min_point_sys2_l[0] != 0.0) &&
@@ -939,6 +953,11 @@ void newloglikfitter_testmyphasespace_newversion(
             mark_min_point_sys2_l->SetMarkerColorAlpha(kWhite, 0.0);
             mark_min_point_sys2_l->SetMarkerSize(1.0);
             mark_min_point_sys2_l->Draw();
+
+            TLine *line_min_point_sys2_l = new TLine(min_point[0], min_point[1], min_point_sys2_l[0], min_point_sys2_l[1]);
+            line_min_point_sys2_l->SetLineColorAlpha(kYellow, 0.5);
+            line_min_point_sys2_l->SetLineWidth(1);
+            line_min_point_sys2_l->Draw();
         }
 
         if((min_point_sys2_h[0] != 0.0) &&
@@ -952,6 +971,11 @@ void newloglikfitter_testmyphasespace_newversion(
             mark_min_point_sys2_h->SetMarkerColorAlpha(kWhite, 0.0);
             mark_min_point_sys2_h->SetMarkerSize(1.0);
             mark_min_point_sys2_h->Draw();
+            
+            TLine *line_min_point_sys2_h = new TLine(min_point[0], min_point[1], min_point_sys2_h[0], min_point_sys2_h[1]);
+            line_min_point_sys2_h->SetLineColorAlpha(kGreen, 0.5);
+            line_min_point_sys2_h->SetLineWidth(1);
+            line_min_point_sys2_h->Draw();
         }
 
 

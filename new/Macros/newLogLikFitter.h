@@ -542,10 +542,11 @@ std::vector<double> *systematic_scale_V_MATRIX_coeff_1D_P2[number1DHists] =
 // chi2 objects for V MATRIX method, Phase 1
 ///////////////////////////////////////////////////////////////////////////////
 
+const bool V_ENABLE_STAT = true; // leave on
+
 const bool V_ENABLE_SYSALL = false;
 const bool V_ENABLE_SYS1 = false; // constant 1.0 MeV shift
-const bool V_ENABLE_SYS2 = true; // scale factor: m = 1 % + 0.2 %
-const bool V_ENABLE_STAT = true; // leave on
+const bool V_ENABLE_SYS2 = false; // scale factor: m = 1 % + 0.2 %
 
 bool recalculate_V_PHYS_xD_Px_MATHMORE = true;
 
