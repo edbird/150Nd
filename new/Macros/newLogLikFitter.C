@@ -2577,6 +2577,8 @@ void loadFiles(int i)
     // reenable this one
     if(1)
     {
+        std::cout << "g_mode_fake_data=" << g_mode_fake_data << std::endl;
+
         gSystematics.systematic_energy_offset = 0.0;
         gSystematics.systematic_energy_scale = 0.0;
         double systematic_energy_offset = gSystematics.systematic_energy_offset;
