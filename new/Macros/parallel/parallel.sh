@@ -3,7 +3,7 @@
 evalcmd="eval $(~/snemo-sdk/bin/brew shellenv)"
 command="root"
 arguments="-b ../newLogLikFitter.C"
-numcores=8
+numcores=11
 for i in {0..301}
 do
 
