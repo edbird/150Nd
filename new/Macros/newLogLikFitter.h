@@ -543,8 +543,10 @@ std::vector<double> *systematic_scale_V_MATRIX_coeff_1D_P2[number1DHists] =
 ///////////////////////////////////////////////////////////////////////////////
 
 const bool V_ENABLE_STAT = true; // leave on
+// TODO: might need to update code which enables/disables bins
+// now that SYS are included
 
-const bool V_ENABLE_SYSALL = false;
+const bool V_ENABLE_SYSALL = true;
 const bool V_ENABLE_SYS1 = false; // constant 1.0 MeV shift
 const bool V_ENABLE_SYS2 = false; // scale factor: m = 1 % + 0.2 %
 
