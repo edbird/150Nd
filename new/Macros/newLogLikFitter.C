@@ -737,6 +737,8 @@ void loadFiles(int i)
         }
 
     }
+    gSystematics.systematic_energy_offset = 0.0;
+    gSystematics.systematic_energy_scale = 0.0;
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -1170,6 +1172,8 @@ void loadFiles(int i)
     // do not do this in parallel mode
     if(0)// || (MODE_PARALLEL == 0))
     {
+        bool restore_V_ENABLE_SYSALL = V_ENABLE_SYSALL;
+        V_ENABLE_SYSALL = false;
 
         std::cout << "Reproduction of Summers 150 Nd fit" << std::endl;
         std::cout << "Note that this only works if the xi_31 parameter is disabled in the parameter_names.lst file" << std::endl;
@@ -1309,6 +1313,8 @@ void loadFiles(int i)
         c_mps1D->SaveAs("c_mps1D.pdf");
 
 
+        V_ENABLE_SYSALL = restore_V_ENABLE_SYSALL;
+
         // rest of analysis does not make sense
         return 0;
     }
@@ -1322,6 +1328,9 @@ void loadFiles(int i)
     // do not do this in parallel mode
     if(0)// || (MODE_PARALLEL == 0))
     {
+        bool restore_V_ENABLE_SYSALL = V_ENABLE_SYSALL;
+        V_ENABLE_SYSALL = false;
+
         // create minimizer
         ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
         ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
@@ -1421,6 +1430,8 @@ void loadFiles(int i)
         std::cout << "fval_before=" << fval_before << std::endl;
         std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
         std::cout << std::endl;
+
+        V_ENABLE_SYSALL = restore_V_ENABLE_SYSALL;
     }
 
 
@@ -1434,6 +1445,9 @@ void loadFiles(int i)
     // do not do this in parallel mode
     if(0)// || (MODE_PARALLEL == 0))
     {
+        bool restore_V_ENABLE_SYSALL = V_ENABLE_SYSALL;
+        V_ENABLE_SYSALL = false;
+
         // create minimizer
         ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
         ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
@@ -1518,17 +1532,25 @@ void loadFiles(int i)
         std::cout << "fval_before=" << fval_before << std::endl;
         std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
         std::cout << std::endl;
+
+        V_ENABLE_SYSALL = restore_V_ENABLE_SYSALL;
     }
 
 
 
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit
+    // Systematics Enabled: Default
+    // (whatever is set in newLogLikFitter.h)
+    // UPDATE: SYSTEMATICS DISABLED
     ///////////////////////////////////////////////////////////////////////////
 
     // do not do this in parallel mode
     if(1) // || (MODE_PARALLEL == 0))
     {
+        bool restore_V_ENABLE_SYSALL = V_ENABLE_SYSALL;
+        V_ENABLE_SYSALL = false;
+
         // create minimizer
         ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
         ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
@@ -1620,6 +1642,8 @@ void loadFiles(int i)
         std::cout << "fval_before=" << fval_before << std::endl;
         std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
         std::cout << std::endl;
+
+        V_ENABLE_SYSALL = restore_V_ENABLE_SYSALL;
     }
 
 
@@ -1645,6 +1669,7 @@ void loadFiles(int i)
     // do not do this in parallel mode
     if(0) // || (MODE_PARALLEL == 0))
     {
+        // TODO: enable/disable SYSX?
 
         std::vector<double> results_x_xi_31;
         std::vector<double> results_y_xi_31;
@@ -1834,6 +1859,9 @@ void loadFiles(int i)
     ///////////////////////////////////////////////////////////////////////////
 
     {
+        bool restore_V_ENABLE_SYSALL = V_ENABLE_SYSALL;
+        V_ENABLE_SYSALL = false;
+
         bool g_mode_fake_data_restore_value = g_mode_fake_data;
         g_mode_fake_data = true;
 
@@ -1949,6 +1977,8 @@ void loadFiles(int i)
         std::cout << "fval_before=" << fval_before << std::endl;
         std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
         std::cout << std::endl;
+
+        V_ENABLE_SYSALL = restore_V_ENABLE_SYSALL;
     }
 
 
@@ -1960,6 +1990,9 @@ void loadFiles(int i)
     ///////////////////////////////////////////////////////////////////////////
 
     {
+        bool restore_V_ENABLE_SYS1 = V_ENABLE_SYS1;
+        V_ENABLE_SYS1 = false;
+
         bool g_mode_fake_data_restore_value = g_mode_fake_data;
         g_mode_fake_data = true;
 
@@ -2077,6 +2110,8 @@ void loadFiles(int i)
         std::cout << "fval_before=" << fval_before << std::endl;
         std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
         std::cout << std::endl;
+
+        V_ENABLE_SYS1 = restore_V_ENABLE_SYS1;
     }
 
 
@@ -2088,6 +2123,9 @@ void loadFiles(int i)
     ///////////////////////////////////////////////////////////////////////////
 
     {
+        bool restore_V_ENABLE_SYS1 = V_ENABLE_SYS1;
+        V_ENABLE_SYS1 = false;
+
         bool g_mode_fake_data_restore_value = g_mode_fake_data;
         g_mode_fake_data = true;
 
@@ -2205,6 +2243,8 @@ void loadFiles(int i)
         std::cout << "fval_before=" << fval_before << std::endl;
         std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
         std::cout << std::endl;
+
+        V_ENABLE_SYS1 = restore_V_ENABLE_SYS1;
     }
     //std::cin.get();
 
@@ -2217,6 +2257,9 @@ void loadFiles(int i)
     ///////////////////////////////////////////////////////////////////////////
 
     {
+        bool restore_V_ENABLE_SYS2 = V_ENABLE_SYS2;
+        V_ENABLE_SYS2 = false;
+
         bool g_mode_fake_data_restore_value = g_mode_fake_data;
         g_mode_fake_data = true;
 
@@ -2334,6 +2377,8 @@ void loadFiles(int i)
         std::cout << "fval_before=" << fval_before << std::endl;
         std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
         std::cout << std::endl;
+
+        V_ENABLE_SYS2 = restore_V_ENABLE_SYS2;
     }
 
 
@@ -2345,6 +2390,9 @@ void loadFiles(int i)
     ///////////////////////////////////////////////////////////////////////////
 
     {
+        bool restore_V_ENABLE_SYS2 = V_ENABLE_SYS2;
+        V_ENABLE_SYS2 = false;
+
         bool g_mode_fake_data_restore_value = g_mode_fake_data;
         g_mode_fake_data = true;
 
@@ -2462,6 +2510,8 @@ void loadFiles(int i)
         std::cout << "fval_before=" << fval_before << std::endl;
         std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
         std::cout << std::endl;
+
+        V_ENABLE_SYS2 = restore_V_ENABLE_SYS2;
     }
 
 
