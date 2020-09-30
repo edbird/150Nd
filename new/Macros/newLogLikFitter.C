@@ -746,6 +746,7 @@ void loadFiles(int i)
     ///////////////////////////////////////////////////////////////////////////
 
     gSystematics.systematic_energy_offset = +0.1;
+    gSystematics.systematic_energy_scale = 0.0;
     rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline);
 
     // loop over all channels
@@ -805,6 +806,7 @@ void loadFiles(int i)
 
     }
     gSystematics.systematic_energy_offset = 0.0;
+    gSystematics.systematic_energy_scale = 0.0;
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -814,6 +816,7 @@ void loadFiles(int i)
     ///////////////////////////////////////////////////////////////////////////
 
     gSystematics.systematic_energy_offset = -0.1;
+    gSystematics.systematic_energy_scale = 0.0;
     rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline);
 
     // loop over all channels
@@ -873,6 +876,7 @@ void loadFiles(int i)
 
     }
     gSystematics.systematic_energy_offset = 0.0;
+    gSystematics.systematic_energy_scale = 0.0;
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -881,6 +885,7 @@ void loadFiles(int i)
     // Systematic Value: +0.012 (1.0 % + 0.2 %)
     ///////////////////////////////////////////////////////////////////////////
 
+    gSystematics.systematic_energy_offset = 0.0;
     gSystematics.systematic_energy_scale = +0.012;
     rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline);
 
@@ -940,6 +945,7 @@ void loadFiles(int i)
         }
 
     }
+    gSystematics.systematic_energy_offset = 0.0;
     gSystematics.systematic_energy_scale = 0.0;
 
 
@@ -949,6 +955,7 @@ void loadFiles(int i)
     // Systematic Value: -0.012 (1.0% + 0.2%)
     ///////////////////////////////////////////////////////////////////////////
 
+    gSystematics.systematic_energy_offset = 0.0;
     gSystematics.systematic_energy_scale = -0.012;
     rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline);
 
@@ -1008,6 +1015,7 @@ void loadFiles(int i)
         }
 
     }
+    gSystematics.systematic_energy_offset = 0.0;
     gSystematics.systematic_energy_scale = 0.0;
 
 
@@ -1408,9 +1416,11 @@ void loadFiles(int i)
 
         std::cout << "HSD Fit: NEMO3 Data (same as Summers fit)" << std::endl;
         std::cout << "SYSTEMATICS: CONSTANT OFFSET DISABLED: " << gSystematics.systematic_energy_offset << " MeV" << std::endl;
+        std::cout << "SYSTEMATICS: CONSTANT SCALE DISABLED: " << gSystematics.systematic_energy_scale << " MeV" << std::endl;
         std::cout << "Result: " << std::endl;
         std::cout << "fval_before=" << fval_before << std::endl;
         std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
+        std::cout << std::endl;
     }
 
 
@@ -1503,9 +1513,11 @@ void loadFiles(int i)
 
         std::cout << "SSD Fit: NEMO3 Data" << std::endl;
         std::cout << "SYSTEMATICS: CONSTANT OFFSET DISABLED: " << gSystematics.systematic_energy_offset << " MeV" << std::endl;
+        std::cout << "SYSTEMATICS: CONSTANT SCALE DISABLED: " << gSystematics.systematic_energy_scale << " MeV" << std::endl;
         std::cout << "Result: " << std::endl;
         std::cout << "fval_before=" << fval_before << std::endl;
         std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
+        std::cout << std::endl;
     }
 
 
@@ -1603,9 +1615,11 @@ void loadFiles(int i)
 
         std::cout << "All Parameter Fit: NEMO3 Data" << std::endl;
         std::cout << "SYSTEMATICS: CONSTANT OFFSET DISABLED: " << gSystematics.systematic_energy_offset << " MeV" << std::endl;
+        std::cout << "SYSTEMATICS: CONSTANT SCALE DISABLED: " << gSystematics.systematic_energy_scale << " MeV" << std::endl;
         std::cout << "Result: " << std::endl;
         std::cout << "fval_before=" << fval_before << std::endl;
         std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
+        std::cout << std::endl;
     }
 
 
@@ -1653,13 +1667,16 @@ void loadFiles(int i)
             const double fr = (double)i / (double)i_max;
             //gSystematics.systematic_energy_offset = fr * diff + min;
             gSystematics.systematic_energy_offset = 0.0;
+            gSystematics.systematic_energy_scale = 0.0;
             double systematic_energy_offset = gSystematics.systematic_energy_offset;
             std::cout << "seo=" << systematic_energy_offset << std::endl;
+            std::cout << "sem=" << systematic_energy_scale << std::endl;
             //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itself
             rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itself
             // just check the output looks sensible
 
-            std::string name_extra = "seo_" + std::to_string(systematic_energy_offset);
+            std::string name_extra = "seo_" + std::to_string(systematic_energy_offset)
+                                   + "_sem_" + std::to_string(systematic_energy_scale);
 
             // create minimizer
             ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
@@ -1820,14 +1837,19 @@ void loadFiles(int i)
         g_mode_fake_data = true;
 
         gSystematics.systematic_energy_offset = 0.0;
+        gSystematics.systematic_energy_scale = 0.0;
+//        gSystematics.systematic_energy_scale = 0.0;
         double systematic_energy_offset = gSystematics.systematic_energy_offset;
+        double systematic_energy_scale = gSystematics.systematic_energy_scale;
         std::cout << "seo=" << systematic_energy_offset << std::endl;
+        std::cout << "sem=" << systematic_energy_scale << std::endl;
         //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itself
         //rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itself
         rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline); // want to check if the fitter can fit itself to itself
         // just check the output looks sensible
 
-        std::string name_extra = "seo_" + std::to_string(systematic_energy_offset);
+        std::string name_extra = "seo_" + std::to_string(systematic_energy_offset)
+                               + "_sem_" + std::to_string(systematic_energy_scale);
 
         // create minimizer
         ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
@@ -1921,9 +1943,11 @@ void loadFiles(int i)
         std::cout << "Systematics Fit: Fake Data" << std::endl;
         std::cout << "SYSTEMATICS: DISABLED" << std::endl;
         std::cout << "SYSTEMATICS: CONSTANT OFFSET (DISABLED) : " << gSystematics.systematic_energy_offset << " MeV" << std::endl;
+        std::cout << "SYSTEMATICS: CONSTANT SCALE (DISABLED) : " << gSystematics.systematic_energy_scale << " MeV" << std::endl;
         std::cout << "Result: " << std::endl;
         std::cout << "fval_before=" << fval_before << std::endl;
         std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
+        std::cout << std::endl;
     }
 
 
@@ -1939,14 +1963,18 @@ void loadFiles(int i)
         g_mode_fake_data = true;
 
         gSystematics.systematic_energy_offset = -0.1;
+        gSystematics.systematic_energy_scale = 0.0;
         double systematic_energy_offset = gSystematics.systematic_energy_offset;
+        double systematic_energy_scale = gSystematics.systematic_energy_scale;
         std::cout << "seo=" << systematic_energy_offset << std::endl;
+        std::cout << "sem=" << systematic_energy_scale << std::endl;
         //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itself
         //rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itself
         rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline); // want to check if the fitter can fit itself to itself
         // just check the output looks sensible
 
-        std::string name_extra = "seo_" + std::to_string(systematic_energy_offset);
+        std::string name_extra = "seo_" + std::to_string(systematic_energy_offset)
+                               + "_sem_" + std::to_string(systematic_energy_scale);
 
         // create minimizer
         ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
@@ -2047,6 +2075,7 @@ void loadFiles(int i)
         std::cout << "Result: " << std::endl;
         std::cout << "fval_before=" << fval_before << std::endl;
         std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
+        std::cout << std::endl;
     }
 
 
@@ -2062,14 +2091,18 @@ void loadFiles(int i)
         g_mode_fake_data = true;
 
         gSystematics.systematic_energy_offset = +0.1;
+        gSystematics.systematic_energy_scale = 0.0;
         double systematic_energy_offset = gSystematics.systematic_energy_offset;
+        double systematic_energy_scale = gSystematics.systematic_energy_scale;
         std::cout << "seo=" << systematic_energy_offset << std::endl;
+        std::cout << "sem=" << systematic_energy_scale << std::endl;
         //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itself
         //rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itself
         rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline); // want to check if the fitter can fit itself to itself
         // just check the output looks sensible
 
-        std::string name_extra = "seo_" + std::to_string(systematic_energy_offset);
+        std::string name_extra = "seo_" + std::to_string(systematic_energy_offset)
+                               + "_sem_" + std::to_string(systematic_energy_scale);
 
         // create minimizer
         ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
@@ -2170,6 +2203,7 @@ void loadFiles(int i)
         std::cout << "Result: " << std::endl;
         std::cout << "fval_before=" << fval_before << std::endl;
         std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
+        std::cout << std::endl;
     }
     //std::cin.get();
 
@@ -2186,14 +2220,18 @@ void loadFiles(int i)
         g_mode_fake_data = true;
 
         gSystematics.systematic_energy_scale = -0.012;
+        gSystematics.systematic_energy_offset = 0.0;
+        double systematic_energy_offset = gSystematics.systematic_energy_offset;
         double systematic_energy_scale = gSystematics.systematic_energy_scale;
+        std::cout << "seo=" << systematic_energy_offset << std::endl;
         std::cout << "sem=" << systematic_energy_scale << std::endl;
         //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itself
         //rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itself
         rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline); // want to check if the fitter can fit itself to itself
         // just check the output looks sensible
 
-        std::string name_extra = "sem_" + std::to_string(systematic_energy_scale);
+        std::string name_extra = "seo_" + std::to_string(systematic_energy_offset)
+                               + "_sem_" + std::to_string(systematic_energy_scale);
 
         // create minimizer
         ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
@@ -2294,6 +2332,7 @@ void loadFiles(int i)
         std::cout << "Result: " << std::endl;
         std::cout << "fval_before=" << fval_before << std::endl;
         std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
+        std::cout << std::endl;
     }
 
 
@@ -2308,15 +2347,19 @@ void loadFiles(int i)
         bool g_mode_fake_data_restore_value = g_mode_fake_data;
         g_mode_fake_data = true;
 
+        gSystematics.systematic_energy_offset = 0.0;
         gSystematics.systematic_energy_scale = +0.012;
+        double systematic_energy_offset = gSystematics.systematic_energy_offset;
         double systematic_energy_scale = gSystematics.systematic_energy_scale;
+        std::cout << "seo=" << systematic_energy_offset << std::endl;
         std::cout << "sem=" << systematic_energy_scale << std::endl;
         //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itself
         //rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itself
         rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline); // want to check if the fitter can fit itself to itself
         // just check the output looks sensible
 
-        std::string name_extra = "sem_" + std::to_string(systematic_energy_scale);
+        std::string name_extra = "seo_" + std::to_string(systematic_energy_offset)
+                               + "_sem_" + std::to_string(systematic_energy_scale);
 
         // create minimizer
         ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
@@ -2417,6 +2460,7 @@ void loadFiles(int i)
         std::cout << "Result: " << std::endl;
         std::cout << "fval_before=" << fval_before << std::endl;
         std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
+        std::cout << std::endl;
     }
 
 
