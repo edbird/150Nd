@@ -547,7 +547,7 @@ const bool V_ENABLE_STAT = true; // leave on
 // now that SYS are included
 
 const bool V_ENABLE_SYSALL = true;
-const bool V_ENABLE_SYS1 = false; // constant 1.0 MeV shift
+const bool V_ENABLE_SYS1 = true; // constant 1.0 MeV shift
 const bool V_ENABLE_SYS2 = false; // scale factor: m = 1 % + 0.2 %
 
 bool recalculate_V_PHYS_xD_Px_MATHMORE = true;
