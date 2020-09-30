@@ -2528,6 +2528,7 @@ void loadFiles(int i)
     #endif
     //std::cin.get();
 
+    ll_walk.clear();
 
     // reenable this one
     if(1)
