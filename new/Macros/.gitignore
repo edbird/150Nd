@@ -1,0 +1,8 @@
+*.png
+*.pdf
+*.eps
+*.root
+*.swp
+of_cutcount*.txt
+parallel/script*.txt
+parallel/*.log
