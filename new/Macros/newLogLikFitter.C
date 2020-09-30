@@ -1669,6 +1669,7 @@ void loadFiles(int i)
             gSystematics.systematic_energy_offset = 0.0;
             gSystematics.systematic_energy_scale = 0.0;
             double systematic_energy_offset = gSystematics.systematic_energy_offset;
+            double systematic_energy_scale = gSystematics.systematic_energy_scale;
             std::cout << "seo=" << systematic_energy_offset << std::endl;
             std::cout << "sem=" << systematic_energy_scale << std::endl;
             //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itself
