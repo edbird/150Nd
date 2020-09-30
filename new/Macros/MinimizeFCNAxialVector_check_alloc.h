@@ -1516,7 +1516,7 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         double c3 = 0.0;
                         if(V_ENABLE_STAT == true)
                         {
-                            V_PHYS_STAT_1D_P1_data[channel]->operator[](i + j * 50);
+                            c1 = V_PHYS_STAT_1D_P1_data[channel]->operator[](i + j * 50);
                         }
                         if(V_ENABLE_SYSALL == true)
                         {
@@ -1590,7 +1590,7 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         double c3 = 0.0;
                         if(V_ENABLE_STAT == true)
                         {
-                            V_PHYS_STAT_1D_P2_data[channel]->at(i + j * 50);
+                            c1 = V_PHYS_STAT_1D_P2_data[channel]->at(i + j * 50);
                         }
                         if(V_ENABLE_SYSALL == true)
                         {
@@ -1611,7 +1611,7 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         double c3 = 0.0;
                         if(V_ENABLE_STAT == true)
                         {
-                            V_PHYS_STAT_1D_P2_data[channel]->operator[](i + j * 50);
+                            c1 = V_PHYS_STAT_1D_P2_data[channel]->operator[](i + j * 50);
                         }
                         if(V_ENABLE_SYSALL == true)
                         {
