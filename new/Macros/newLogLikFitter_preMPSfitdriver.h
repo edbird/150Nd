@@ -2,7 +2,7 @@
 #define NEWLOGLIKFITTER_PREMPSFITDRIVER_H
 
 
-void newLogLikFitter_preMPSfitdriver(std:string &fit_description_string, double *set_min_point)
+void newLogLikFitter_preMPSfitdriver(const std::string &fit_description_string, double *set_min_point)
 {
 
     // initialize

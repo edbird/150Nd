@@ -383,6 +383,7 @@ std::vector<std::pair<double,double>> ll_walk_save;
 // h = high
 // l = low
 double min_point[2] = {0.0, 0.0}; // minimum point found, all parameter fit
+double min_point_fake_data[2] = {0.0, 0.0};
 double min_point_sys1_h[2] = {0.0, 0.0};
 double min_point_sys1_l[2] = {0.0, 0.0};
 double min_point_sys2_h[2] = {0.0, 0.0};

@@ -1494,7 +1494,7 @@ void loadFiles(int i)
         bool restore_g_mode_fake_data = g_mode_fake_data;
         g_mode_fake_data = false;
     
-        newLogLikFitter_preMPSfitdriver("All Parameter Fit: NEMO3 Data", min_point);
+        newLogLikFitter_preMPSfitdriver(std::string("All Parameter Fit: NEMO3 Data"), min_point);
 
         V_ENABLE_SYSALL = restore_V_ENABLE_SYSALL;
         V_ENABLE_SYS1 = restore_V_ENABLE_SYS1;
@@ -1739,8 +1739,8 @@ void loadFiles(int i)
         // just check the output looks sensible
 
         // call helper function
-        newLogLikFitter_preMPSfitdriver("Systematics Fit: Fake Data",
-                                        min_point);
+        newLogLikFitter_preMPSfitdriver(std::string("Systematics Fit: Fake Data"),
+                                        min_point_fake_data);
 
         V_ENABLE_SYSALL = restore_V_ENABLE_SYSALL;
         V_ENABLE_SYS1 = restore_V_ENABLE_SYS1;
@@ -1781,7 +1781,7 @@ void loadFiles(int i)
         // just check the output looks sensible
 
         // call helper function
-        newLogLikFitter_preMPSfitdriver("Systematics Fit: Fake Data",
+        newLogLikFitter_preMPSfitdriver(std::string("Systematics Fit: Fake Data"),
                                         min_point_sys1_l);
 
         V_ENABLE_SYSALL = restore_V_ENABLE_SYSALL;
@@ -1823,7 +1823,7 @@ void loadFiles(int i)
         // just check the output looks sensible
 
         // call helper function
-        newLogLikFitter_preMPSfitdriver("Systematics Fit: Fake Data",
+        newLogLikFitter_preMPSfitdriver(std::string("Systematics Fit: Fake Data"),
                                         min_point_sys1_h);
 
         V_ENABLE_SYSALL = restore_V_ENABLE_SYSALL;
@@ -1865,7 +1865,7 @@ void loadFiles(int i)
         // just check the output looks sensible
 
         // call helper function
-        newLogLikFitter_preMPSfitdriver("Systematics Fit: Fake Data",
+        newLogLikFitter_preMPSfitdriver(std::string("Systematics Fit: Fake Data"),
                                         min_point_sys2_l);
 
         V_ENABLE_SYSALL = restore_V_ENABLE_SYSALL;
@@ -1907,7 +1907,7 @@ void loadFiles(int i)
         // just check the output looks sensible
 
         // call helper function
-        newLogLikFitter_preMPSfitdriver("Systematics Fit: Fake Data",
+        newLogLikFitter_preMPSfitdriver(std::string("Systematics Fit: Fake Data"),
                                         min_point_sys2_h);
 
         V_ENABLE_SYSALL = restore_V_ENABLE_SYSALL;
