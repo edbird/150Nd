@@ -68,6 +68,7 @@
 #include "newLogLikFitter_fitBackgrounds.h"
 #include "newLogLikFitter_chisquaretest.h"
 #include "newLogLikFitter_test.h"
+#include "newLogLikFitter_preMPSfitdriver.h"
 
 
 
