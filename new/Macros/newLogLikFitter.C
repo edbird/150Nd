@@ -1549,101 +1549,22 @@ void loadFiles(int i)
     if(1) // || (MODE_PARALLEL == 0))
     {
         bool restore_V_ENABLE_SYSALL = V_ENABLE_SYSALL;
+        bool restore_V_ENABLE_SYS1 = V_ENABLE_SYS1;
+        bool restore_V_ENABLE_SYS2 = V_ENABLE_SYS2;
         V_ENABLE_SYSALL = false;
+        V_ENABLE_SYS1 = false;
+        V_ENABLE_SYS2 = false;
 
-        // create minimizer
-        ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
-        ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
-        MinimizeFCNAxialVector theFCN;
-
-        // initialize fit
-        //fitBackgrounds_init(theParameterState, theMinimizer, AdjustActs, AdjustActs_Err);
-        const int xi_31_param_number = g_pg.get_xi_31_ext_param_number();
-        const double xi_31_value = g_pg.file_params.at(xi_31_param_number).paramInitValue;
-        const double xi_31_error = g_pg.file_params.at(xi_31_param_number).paramInitError;
-        std::cout << "xi_31_param_number=" << xi_31_param_number
-                  << " xi_31=" << xi_31_value << " +- " << xi_31_error << std::endl;
-        fitBackgrounds_init(theParameterStateBefore, theMinimizer, xi_31_value, xi_31_error);
-
-        // get parameters and chi2 value before fit
-        std::vector<double> params_before = theParameterStateBefore.Params();
-        std::vector<double> param_errs_before = theParameterStateBefore.Errors();
-        double fval_before = theFCN.operator()(params_before);
-        //int ndf = theFCN.ndf - theParameterStateBefore.VariableParameters();
-        //int ndf = theFCN.nch - g_pg.get_number_free_params();
-        int nch = theFCN.nch;
-        int nfp = g_pg.get_number_free_params();
-        int ndf = nch - nfp;
-
-        // draw before fit
-        draw_input_data drawinputdata;
-        drawinputdata.chi2 = fval_before;
-        drawinputdata.nch = nch;
-        drawinputdata.nfp = nfp;
-        drawinputdata.serial_dir = "xifree";
-        drawinputdata.saveas_filename = "xifree_before";
-        drawinputdata.saveas_png = true;
-       
-        draw(drawinputdata,
-             params_before,
-             param_errs_before);
-
-        // exec fit
-        // do fit with all parameters free
-        ROOT::Minuit2::FunctionMinimum FCN_min =
-            fitBackgrounds_exec(
-                theParameterStateBefore,
-                theMinimizer,
-                theFCN);
-
-        // get result
-        ROOT::Minuit2::MnUserParameterState theParameterStateAfter = FCN_min.UserParameters();
-        std::vector<double> params_after = theParameterStateAfter.Params();
-        std::vector<double> param_errs_after = theParameterStateAfter.Errors();
-
-        double fval_after = theFCN.operator()(params_after);
-        //ndf = theFCN.ndf - theParameterStateAfter.VariableParameters();
-        //ndf = theFCN.ndf - g_pg.get_number_free_params();
-        nch = theFCN.nch;
-        nfp = g_pg.get_number_free_params();
-        ndf = nch - nfp;
-
-        // draw result
-        drawinputdata.chi2 = fval_after;
-        drawinputdata.nfp = nfp;
-        drawinputdata.saveas_filename = "xifree_after";
-       
-        draw(drawinputdata,
-             params_after,
-             param_errs_after);
-
-        
-        // minimize
-        //ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, init_par, init_err);
-        //ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, init_par, init_err);
-        /*
-        std::cout << "Minimization finished" << std::endl;
-        std::cout << "minimum: " << FCN_min << std::endl;
-        std::cout << "chi2: " << FCN_min.Fval() << std::endl;
-        std::cout << "edm: " << FCN_min.Edm() << std::endl;
-        */
-
-
-        //std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
-        //std::cout << "fval_before=" << fval_before << std::endl;
-
-        min_point[0] = params_after.at(1);
-        min_point[1] = params_after.at(0);
-
-        std::cout << "All Parameter Fit: NEMO3 Data" << std::endl;
-        std::cout << "SYSTEMATICS: CONSTANT OFFSET DISABLED: " << gSystematics.systematic_energy_offset << " MeV" << std::endl;
-        std::cout << "SYSTEMATICS: CONSTANT SCALE DISABLED: " << gSystematics.systematic_energy_scale << " MeV" << std::endl;
-        std::cout << "Result: " << std::endl;
-        std::cout << "fval_before=" << fval_before << std::endl;
-        std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
-        std::cout << std::endl;
+        bool restore_g_mode_fake_data = g_mode_fake_data;
+        g_mode_fake_data = false;
+    
+        newLogLikFitter_preMPSfitdriver("All Parameter Fit: NEMO3 Data", min_point);
 
         V_ENABLE_SYSALL = restore_V_ENABLE_SYSALL;
+        V_ENABLE_SYS1 = restore_V_ENABLE_SYS1;
+        V_ENABLE_SYS2 = restore_V_ENABLE_SYS2;
+
+        g_mode_fake_data = restore_g_mode_fake_data;
     }
 
 
@@ -1654,7 +1575,7 @@ void loadFiles(int i)
     // Variable Systematic Parameter
     ///////////////////////////////////////////////////////////////////////////
 
-#if 1
+#if 0
     
     bool g_mode_fake_data_restore_value = g_mode_fake_data;
     g_mode_fake_data = true;
@@ -1860,125 +1781,36 @@ void loadFiles(int i)
 
     {
         bool restore_V_ENABLE_SYSALL = V_ENABLE_SYSALL;
+        bool restore_V_ENABLE_SYS1 = V_ENABLE_SYS1;
+        bool restore_V_ENABLE_SYS2 = V_ENABLE_SYS2;
         V_ENABLE_SYSALL = false;
+        V_ENABLE_SYS1 = false;
+        V_ENABLE_SYS2 = false;
 
-        bool g_mode_fake_data_restore_value = g_mode_fake_data;
+        bool restore_g_mode_fake_data = g_mode_fake_data;
         g_mode_fake_data = true;
-
+    
+        // set gSystematic parameters
         gSystematics.systematic_energy_offset = 0.0;
         gSystematics.systematic_energy_scale = 0.0;
-//        gSystematics.systematic_energy_scale = 0.0;
-        double systematic_energy_offset = gSystematics.systematic_energy_offset;
-        double systematic_energy_scale = gSystematics.systematic_energy_scale;
-        std::cout << "seo=" << systematic_energy_offset << std::endl;
-        std::cout << "sem=" << systematic_energy_scale << std::endl;
+
+        // rebuild fake data if g_mode_fake_data == true
+        // only do this in relevant function blocks
+
         //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itself
         //rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itself
         rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline); // want to check if the fitter can fit itself to itself
         // just check the output looks sensible
 
-        std::string name_extra = "seo_" + std::to_string(systematic_energy_offset)
-                               + "_sem_" + std::to_string(systematic_energy_scale);
-
-        // create minimizer
-        ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
-        ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
-        MinimizeFCNAxialVector theFCN;
-
-        // initialize fit
-        //fitBackgrounds_init(theParameterState, theMinimizer, AdjustActs, AdjustActs_Err);
-        const int xi_31_param_number = g_pg.get_xi_31_ext_param_number();
-        const double xi_31_value = g_pg.file_params.at(xi_31_param_number).paramInitValue;
-        const double xi_31_error = g_pg.file_params.at(xi_31_param_number).paramInitError;
-        std::cout << "xi_31_param_number=" << xi_31_param_number
-                  << " xi_31=" << xi_31_value << " +- " << xi_31_error << std::endl;
-        fitBackgrounds_init(theParameterStateBefore, theMinimizer, xi_31_value, xi_31_error);
-
-        // get parameters and chi2 value before fit
-        std::vector<double> params_before = theParameterStateBefore.Params();
-        std::vector<double> param_errs_before = theParameterStateBefore.Errors();
-        double fval_before = theFCN.operator()(params_before);
-        //int ndf = theFCN.ndf - theParameterStateBefore.VariableParameters();
-        int nch = theFCN.nch;
-        int nfp = g_pg.get_number_free_params();
-        int ndf = nch - nfp;
-        std::cout << "nch=" << theFCN.nch << std::endl;
-        std::cout << "g_pg.get_number_free_params()=" << g_pg.get_number_free_params() << std::endl;
-
-        // draw before fit
-        draw_input_data drawinputdata;
-        drawinputdata.chi2 = fval_before;
-        drawinputdata.nch = nch;
-        drawinputdata.nfp = nfp;
-        drawinputdata.serial_dir = "xifree";
-        drawinputdata.saveas_filename = std::string("xifree_before") + "_" + name_extra;
-        drawinputdata.saveas_png = true;
-       
-        draw(drawinputdata,
-             params_before,
-             param_errs_before);
-        //std::cin.get();
-//    std::cout << "check global chi2" << std::endl;
-//    std::cin.get();
-
-        // exec fit
-        // do fit with all parameters free
-        ROOT::Minuit2::FunctionMinimum FCN_min =
-            fitBackgrounds_exec(
-                theParameterStateBefore,
-                theMinimizer,
-                theFCN);
-
-        // get result
-        ROOT::Minuit2::MnUserParameterState theParameterStateAfter = FCN_min.UserParameters();
-        std::vector<double> params_after = theParameterStateAfter.Params();
-        std::vector<double> param_errs_after = theParameterStateAfter.Errors();
-
-        double fval_after = theFCN.operator()(params_after);
-        //ndf = theFCN.ndf - theParameterStateAfter.VariableParameters();
-        nch = theFCN.nch;
-        nfp = g_pg.get_number_free_params();
-
-        // draw result
-        drawinputdata.chi2 = fval_after;
-        //drawinputdata.nch = nch; // this could probably change in theory
-        //drawinputdata.nfp = nfp; // these probably do not change
-        drawinputdata.saveas_filename = std::string("xifree_after") + "_" + name_extra;
-       
-        draw(drawinputdata,
-             params_after,
-             param_errs_after);
-//    std::cout << "check global chi2" << std::endl;
-//    std::cin.get();
-
-        
-        // minimize
-        //ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, init_par, init_err);
-        //ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, init_par, init_err);
-        /*
-        std::cout << "Minimization finished" << std::endl;
-        std::cout << "minimum: " << FCN_min << std::endl;
-        std::cout << "chi2: " << FCN_min.Fval() << std::endl;
-        std::cout << "edm: " << FCN_min.Edm() << std::endl;
-        */
-
-
-        //std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
-        //std::cout << "fval_before=" << fval_before << std::endl;
-
-
-        g_mode_fake_data = g_mode_fake_data_restore_value;
-
-        std::cout << "Systematics Fit: Fake Data" << std::endl;
-        std::cout << "SYSTEMATICS: DISABLED" << std::endl;
-        std::cout << "SYSTEMATICS: CONSTANT OFFSET (DISABLED) : " << gSystematics.systematic_energy_offset << " MeV" << std::endl;
-        std::cout << "SYSTEMATICS: CONSTANT SCALE (DISABLED) : " << gSystematics.systematic_energy_scale << " MeV" << std::endl;
-        std::cout << "Result: " << std::endl;
-        std::cout << "fval_before=" << fval_before << std::endl;
-        std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
-        std::cout << std::endl;
+        // call helper function
+        newLogLikFitter_preMPSfitdriver("Systematics Fit: Fake Data",
+                                        min_point);
 
         V_ENABLE_SYSALL = restore_V_ENABLE_SYSALL;
+        V_ENABLE_SYS1 = restore_V_ENABLE_SYS1;
+        V_ENABLE_SYS2 = restore_V_ENABLE_SYS2;
+
+        g_mode_fake_data = restore_g_mode_fake_data;
     }
 
 
@@ -1990,128 +1822,37 @@ void loadFiles(int i)
     ///////////////////////////////////////////////////////////////////////////
 
     {
+        bool restore_V_ENABLE_SYSALL = V_ENABLE_SYSALL;
         bool restore_V_ENABLE_SYS1 = V_ENABLE_SYS1;
+        bool restore_V_ENABLE_SYS2 = V_ENABLE_SYS2;
+        V_ENABLE_SYSALL = false;
         V_ENABLE_SYS1 = false;
+        V_ENABLE_SYS2 = false;
 
-        bool g_mode_fake_data_restore_value = g_mode_fake_data;
+        bool restore_g_mode_fake_data = g_mode_fake_data;
         g_mode_fake_data = true;
-
+    
+        // set gSystematic parameters
         gSystematics.systematic_energy_offset = -0.1;
         gSystematics.systematic_energy_scale = 0.0;
-        double systematic_energy_offset = gSystematics.systematic_energy_offset;
-        double systematic_energy_scale = gSystematics.systematic_energy_scale;
-        std::cout << "seo=" << systematic_energy_offset << std::endl;
-        std::cout << "sem=" << systematic_energy_scale << std::endl;
+
+        // rebuild fake data if g_mode_fake_data == true
+        // only do this in relevant function blocks
+
         //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itself
         //rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itself
         rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline); // want to check if the fitter can fit itself to itself
         // just check the output looks sensible
 
-        std::string name_extra = "seo_" + std::to_string(systematic_energy_offset)
-                               + "_sem_" + std::to_string(systematic_energy_scale);
+        // call helper function
+        newLogLikFitter_preMPSfitdriver("Systematics Fit: Fake Data",
+                                        min_point_sys1_l);
 
-        // create minimizer
-        ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
-        ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
-        MinimizeFCNAxialVector theFCN;
-
-        // initialize fit
-        //fitBackgrounds_init(theParameterState, theMinimizer, AdjustActs, AdjustActs_Err);
-        const int xi_31_param_number = g_pg.get_xi_31_ext_param_number();
-        const double xi_31_value = g_pg.file_params.at(xi_31_param_number).paramInitValue;
-        const double xi_31_error = g_pg.file_params.at(xi_31_param_number).paramInitError;
-        std::cout << "xi_31_param_number=" << xi_31_param_number
-                  << " xi_31=" << xi_31_value << " +- " << xi_31_error << std::endl;
-        fitBackgrounds_init(theParameterStateBefore, theMinimizer, xi_31_value, xi_31_error);
-
-        // get parameters and chi2 value before fit
-        std::vector<double> params_before = theParameterStateBefore.Params();
-        std::vector<double> param_errs_before = theParameterStateBefore.Errors();
-        double fval_before = theFCN.operator()(params_before);
-        //int ndf = theFCN.ndf - theParameterStateBefore.VariableParameters();
-        int nch = theFCN.nch;
-        int nfp = g_pg.get_number_free_params();
-        int ndf = nch - nfp;
-        std::cout << "nch=" << theFCN.nch << std::endl;
-        std::cout << "g_pg.get_number_free_params()=" << g_pg.get_number_free_params() << std::endl;
-
-        // draw before fit
-        draw_input_data drawinputdata;
-        drawinputdata.chi2 = fval_before;
-        drawinputdata.nch = nch;
-        drawinputdata.nfp = nfp;
-        drawinputdata.serial_dir = "xifree";
-        drawinputdata.saveas_filename = std::string("xifree_before") + "_" + name_extra;
-        drawinputdata.saveas_png = true;
-       
-        draw(drawinputdata,
-             params_before,
-             param_errs_before);
-        //std::cin.get();
-//    std::cout << "check global chi2" << std::endl;
-//    std::cin.get();
-
-        // exec fit
-        // do fit with all parameters free
-        ROOT::Minuit2::FunctionMinimum FCN_min =
-            fitBackgrounds_exec(
-                theParameterStateBefore,
-                theMinimizer,
-                theFCN);
-
-        // get result
-        ROOT::Minuit2::MnUserParameterState theParameterStateAfter = FCN_min.UserParameters();
-        std::vector<double> params_after = theParameterStateAfter.Params();
-        std::vector<double> param_errs_after = theParameterStateAfter.Errors();
-
-        double fval_after = theFCN.operator()(params_after);
-        //ndf = theFCN.ndf - theParameterStateAfter.VariableParameters();
-        nch = theFCN.nch;
-        nfp = g_pg.get_number_free_params();
-
-        // draw result
-        drawinputdata.chi2 = fval_after;
-        //drawinputdata.nch = nch; // this could probably change in theory
-        //drawinputdata.nfp = nfp; // these probably do not change
-        drawinputdata.saveas_filename = std::string("xifree_after") + "_" + name_extra;
-       
-        draw(drawinputdata,
-             params_after,
-             param_errs_after);
-//    std::cout << "check global chi2" << std::endl;
-//    std::cin.get();
-
-        
-        // minimize
-        //ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, init_par, init_err);
-        //ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, init_par, init_err);
-        /*
-        std::cout << "Minimization finished" << std::endl;
-        std::cout << "minimum: " << FCN_min << std::endl;
-        std::cout << "chi2: " << FCN_min.Fval() << std::endl;
-        std::cout << "edm: " << FCN_min.Edm() << std::endl;
-        */
-
-
-        //std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
-        //std::cout << "fval_before=" << fval_before << std::endl;
-
-
-        min_point_sys1_l[0] = params_after.at(1);
-        min_point_sys1_l[1] = params_after.at(0);
-
-
-        g_mode_fake_data = g_mode_fake_data_restore_value;
-
-        std::cout << "Systematics Fit: Fake Data" << std::endl;
-        std::cout << "SYSTEMATICS ENABLED" << std::endl;
-        std::cout << "SYSTEMATICS: CONSTANT OFFSET (ENABLED) : " << gSystematics.systematic_energy_offset << " MeV" << std::endl;
-        std::cout << "Result: " << std::endl;
-        std::cout << "fval_before=" << fval_before << std::endl;
-        std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
-        std::cout << std::endl;
-
+        V_ENABLE_SYSALL = restore_V_ENABLE_SYSALL;
         V_ENABLE_SYS1 = restore_V_ENABLE_SYS1;
+        V_ENABLE_SYS2 = restore_V_ENABLE_SYS2;
+
+        g_mode_fake_data = restore_g_mode_fake_data;
     }
 
 
@@ -2123,130 +1864,38 @@ void loadFiles(int i)
     ///////////////////////////////////////////////////////////////////////////
 
     {
+        bool restore_V_ENABLE_SYSALL = V_ENABLE_SYSALL;
         bool restore_V_ENABLE_SYS1 = V_ENABLE_SYS1;
+        bool restore_V_ENABLE_SYS2 = V_ENABLE_SYS2;
+        V_ENABLE_SYSALL = false;
         V_ENABLE_SYS1 = false;
+        V_ENABLE_SYS2 = false;
 
-        bool g_mode_fake_data_restore_value = g_mode_fake_data;
+        bool restore_g_mode_fake_data = g_mode_fake_data;
         g_mode_fake_data = true;
-
+    
+        // set gSystematic parameters
         gSystematics.systematic_energy_offset = +0.1;
         gSystematics.systematic_energy_scale = 0.0;
-        double systematic_energy_offset = gSystematics.systematic_energy_offset;
-        double systematic_energy_scale = gSystematics.systematic_energy_scale;
-        std::cout << "seo=" << systematic_energy_offset << std::endl;
-        std::cout << "sem=" << systematic_energy_scale << std::endl;
+
+        // rebuild fake data if g_mode_fake_data == true
+        // only do this in relevant function blocks
+
         //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itself
         //rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itself
         rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline); // want to check if the fitter can fit itself to itself
         // just check the output looks sensible
 
-        std::string name_extra = "seo_" + std::to_string(systematic_energy_offset)
-                               + "_sem_" + std::to_string(systematic_energy_scale);
+        // call helper function
+        newLogLikFitter_preMPSfitdriver("Systematics Fit: Fake Data",
+                                        min_point_sys1_h);
 
-        // create minimizer
-        ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
-        ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
-        MinimizeFCNAxialVector theFCN;
-
-        // initialize fit
-        //fitBackgrounds_init(theParameterState, theMinimizer, AdjustActs, AdjustActs_Err);
-        const int xi_31_param_number = g_pg.get_xi_31_ext_param_number();
-        const double xi_31_value = g_pg.file_params.at(xi_31_param_number).paramInitValue;
-        const double xi_31_error = g_pg.file_params.at(xi_31_param_number).paramInitError;
-        std::cout << "xi_31_param_number=" << xi_31_param_number
-                  << " xi_31=" << xi_31_value << " +- " << xi_31_error << std::endl;
-        fitBackgrounds_init(theParameterStateBefore, theMinimizer, xi_31_value, xi_31_error);
-
-        // get parameters and chi2 value before fit
-        std::vector<double> params_before = theParameterStateBefore.Params();
-        std::vector<double> param_errs_before = theParameterStateBefore.Errors();
-        double fval_before = theFCN.operator()(params_before);
-        //int ndf = theFCN.ndf - theParameterStateBefore.VariableParameters();
-        int nch = theFCN.nch;
-        int nfp = g_pg.get_number_free_params();
-        int ndf = nch - nfp;
-        std::cout << "nch=" << theFCN.nch << std::endl;
-        std::cout << "g_pg.get_number_free_params()=" << g_pg.get_number_free_params() << std::endl;
-
-        // draw before fit
-        draw_input_data drawinputdata;
-        drawinputdata.chi2 = fval_before;
-        drawinputdata.nch = nch;
-        drawinputdata.nfp = nfp;
-        drawinputdata.serial_dir = "xifree";
-        drawinputdata.saveas_filename = std::string("xifree_before") + "_" + name_extra;
-        drawinputdata.saveas_png = true;
-       
-        draw(drawinputdata,
-             params_before,
-             param_errs_before);
-        //std::cin.get();
-//    std::cout << "check global chi2" << std::endl;
-//    std::cin.get();
-
-        // exec fit
-        // do fit with all parameters free
-        ROOT::Minuit2::FunctionMinimum FCN_min =
-            fitBackgrounds_exec(
-                theParameterStateBefore,
-                theMinimizer,
-                theFCN);
-
-        // get result
-        ROOT::Minuit2::MnUserParameterState theParameterStateAfter = FCN_min.UserParameters();
-        std::vector<double> params_after = theParameterStateAfter.Params();
-        std::vector<double> param_errs_after = theParameterStateAfter.Errors();
-
-        double fval_after = theFCN.operator()(params_after);
-        //ndf = theFCN.ndf - theParameterStateAfter.VariableParameters();
-        nch = theFCN.nch;
-        nfp = g_pg.get_number_free_params();
-
-        // draw result
-        drawinputdata.chi2 = fval_after;
-        //drawinputdata.nch = nch; // this could probably change in theory
-        //drawinputdata.nfp = nfp; // these probably do not change
-        drawinputdata.saveas_filename = std::string("xifree_after") + "_" + name_extra;
-       
-        draw(drawinputdata,
-             params_after,
-             param_errs_after);
-//    std::cout << "check global chi2" << std::endl;
-//    std::cin.get();
-
-        
-        // minimize
-        //ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, init_par, init_err);
-        //ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, init_par, init_err);
-        /*
-        std::cout << "Minimization finished" << std::endl;
-        std::cout << "minimum: " << FCN_min << std::endl;
-        std::cout << "chi2: " << FCN_min.Fval() << std::endl;
-        std::cout << "edm: " << FCN_min.Edm() << std::endl;
-        */
-
-
-        //std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
-        //std::cout << "fval_before=" << fval_before << std::endl;
-
-
-        min_point_sys1_h[0] = params_after.at(1);
-        min_point_sys1_h[1] = params_after.at(0);
-
-
-        g_mode_fake_data = g_mode_fake_data_restore_value;
-
-        std::cout << "Systematics Fit: Fake Data" << std::endl;
-        std::cout << "SYSTEMATICS ENABLED" << std::endl;
-        std::cout << "SYSTEMATICS: CONSTANT OFFSET (ENABLED) : " << gSystematics.systematic_energy_offset << " MeV" << std::endl;
-        std::cout << "Result: " << std::endl;
-        std::cout << "fval_before=" << fval_before << std::endl;
-        std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
-        std::cout << std::endl;
-
+        V_ENABLE_SYSALL = restore_V_ENABLE_SYSALL;
         V_ENABLE_SYS1 = restore_V_ENABLE_SYS1;
+        V_ENABLE_SYS2 = restore_V_ENABLE_SYS2;
+
+        g_mode_fake_data = restore_g_mode_fake_data;
     }
-    //std::cin.get();
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -2257,128 +1906,37 @@ void loadFiles(int i)
     ///////////////////////////////////////////////////////////////////////////
 
     {
+        bool restore_V_ENABLE_SYSALL = V_ENABLE_SYSALL;
+        bool restore_V_ENABLE_SYS1 = V_ENABLE_SYS1;
         bool restore_V_ENABLE_SYS2 = V_ENABLE_SYS2;
+        V_ENABLE_SYSALL = false;
+        V_ENABLE_SYS1 = false;
         V_ENABLE_SYS2 = false;
 
-        bool g_mode_fake_data_restore_value = g_mode_fake_data;
+        bool restore_g_mode_fake_data = g_mode_fake_data;
         g_mode_fake_data = true;
-
-        gSystematics.systematic_energy_scale = -0.012;
+    
+        // set gSystematic parameters
         gSystematics.systematic_energy_offset = 0.0;
-        double systematic_energy_offset = gSystematics.systematic_energy_offset;
-        double systematic_energy_scale = gSystematics.systematic_energy_scale;
-        std::cout << "seo=" << systematic_energy_offset << std::endl;
-        std::cout << "sem=" << systematic_energy_scale << std::endl;
+        gSystematics.systematic_energy_scale = -0.012;
+
+        // rebuild fake data if g_mode_fake_data == true
+        // only do this in relevant function blocks
+
         //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itself
         //rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itself
         rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline); // want to check if the fitter can fit itself to itself
         // just check the output looks sensible
 
-        std::string name_extra = "seo_" + std::to_string(systematic_energy_offset)
-                               + "_sem_" + std::to_string(systematic_energy_scale);
+        // call helper function
+        newLogLikFitter_preMPSfitdriver("Systematics Fit: Fake Data",
+                                        min_point_sys2_l);
 
-        // create minimizer
-        ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
-        ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
-        MinimizeFCNAxialVector theFCN;
-
-        // initialize fit
-        //fitBackgrounds_init(theParameterState, theMinimizer, AdjustActs, AdjustActs_Err);
-        const int xi_31_param_number = g_pg.get_xi_31_ext_param_number();
-        const double xi_31_value = g_pg.file_params.at(xi_31_param_number).paramInitValue;
-        const double xi_31_error = g_pg.file_params.at(xi_31_param_number).paramInitError;
-        std::cout << "xi_31_param_number=" << xi_31_param_number
-                  << " xi_31=" << xi_31_value << " +- " << xi_31_error << std::endl;
-        fitBackgrounds_init(theParameterStateBefore, theMinimizer, xi_31_value, xi_31_error);
-
-        // get parameters and chi2 value before fit
-        std::vector<double> params_before = theParameterStateBefore.Params();
-        std::vector<double> param_errs_before = theParameterStateBefore.Errors();
-        double fval_before = theFCN.operator()(params_before);
-        //int ndf = theFCN.ndf - theParameterStateBefore.VariableParameters();
-        int nch = theFCN.nch;
-        int nfp = g_pg.get_number_free_params();
-        int ndf = nch - nfp;
-        std::cout << "nch=" << theFCN.nch << std::endl;
-        std::cout << "g_pg.get_number_free_params()=" << g_pg.get_number_free_params() << std::endl;
-
-        // draw before fit
-        draw_input_data drawinputdata;
-        drawinputdata.chi2 = fval_before;
-        drawinputdata.nch = nch;
-        drawinputdata.nfp = nfp;
-        drawinputdata.serial_dir = "xifree";
-        drawinputdata.saveas_filename = std::string("xifree_before") + "_" + name_extra;
-        drawinputdata.saveas_png = true;
-       
-        draw(drawinputdata,
-             params_before,
-             param_errs_before);
-        //std::cin.get();
-//    std::cout << "check global chi2" << std::endl;
-//    std::cin.get();
-
-        // exec fit
-        // do fit with all parameters free
-        ROOT::Minuit2::FunctionMinimum FCN_min =
-            fitBackgrounds_exec(
-                theParameterStateBefore,
-                theMinimizer,
-                theFCN);
-
-        // get result
-        ROOT::Minuit2::MnUserParameterState theParameterStateAfter = FCN_min.UserParameters();
-        std::vector<double> params_after = theParameterStateAfter.Params();
-        std::vector<double> param_errs_after = theParameterStateAfter.Errors();
-
-        double fval_after = theFCN.operator()(params_after);
-        //ndf = theFCN.ndf - theParameterStateAfter.VariableParameters();
-        nch = theFCN.nch;
-        nfp = g_pg.get_number_free_params();
-
-        // draw result
-        drawinputdata.chi2 = fval_after;
-        //drawinputdata.nch = nch; // this could probably change in theory
-        //drawinputdata.nfp = nfp; // these probably do not change
-        drawinputdata.saveas_filename = std::string("xifree_after") + "_" + name_extra;
-       
-        draw(drawinputdata,
-             params_after,
-             param_errs_after);
-//    std::cout << "check global chi2" << std::endl;
-//    std::cin.get();
-
-        
-        // minimize
-        //ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, init_par, init_err);
-        //ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, init_par, init_err);
-        /*
-        std::cout << "Minimization finished" << std::endl;
-        std::cout << "minimum: " << FCN_min << std::endl;
-        std::cout << "chi2: " << FCN_min.Fval() << std::endl;
-        std::cout << "edm: " << FCN_min.Edm() << std::endl;
-        */
-
-
-        //std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
-        //std::cout << "fval_before=" << fval_before << std::endl;
-
-
-        min_point_sys2_l[0] = params_after.at(1);
-        min_point_sys2_l[1] = params_after.at(0);
-
-
-        g_mode_fake_data = g_mode_fake_data_restore_value;
-
-        std::cout << "Systematics Fit: Fake Data" << std::endl;
-        std::cout << "SYSTEMATICS ENABLED" << std::endl;
-        std::cout << "SYSTEMATICS: CONSTANT MULTIPLIER (ENABLED) : " << gSystematics.systematic_energy_scale << "" << std::endl;
-        std::cout << "Result: " << std::endl;
-        std::cout << "fval_before=" << fval_before << std::endl;
-        std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
-        std::cout << std::endl;
-
+        V_ENABLE_SYSALL = restore_V_ENABLE_SYSALL;
+        V_ENABLE_SYS1 = restore_V_ENABLE_SYS1;
         V_ENABLE_SYS2 = restore_V_ENABLE_SYS2;
+
+        g_mode_fake_data = restore_g_mode_fake_data;
     }
 
 
@@ -2390,128 +1948,37 @@ void loadFiles(int i)
     ///////////////////////////////////////////////////////////////////////////
 
     {
+        bool restore_V_ENABLE_SYSALL = V_ENABLE_SYSALL;
+        bool restore_V_ENABLE_SYS1 = V_ENABLE_SYS1;
         bool restore_V_ENABLE_SYS2 = V_ENABLE_SYS2;
+        V_ENABLE_SYSALL = false;
+        V_ENABLE_SYS1 = false;
         V_ENABLE_SYS2 = false;
 
-        bool g_mode_fake_data_restore_value = g_mode_fake_data;
+        bool restore_g_mode_fake_data = g_mode_fake_data;
         g_mode_fake_data = true;
-
+    
+        // set gSystematic parameters
         gSystematics.systematic_energy_offset = 0.0;
         gSystematics.systematic_energy_scale = +0.012;
-        double systematic_energy_offset = gSystematics.systematic_energy_offset;
-        double systematic_energy_scale = gSystematics.systematic_energy_scale;
-        std::cout << "seo=" << systematic_energy_offset << std::endl;
-        std::cout << "sem=" << systematic_energy_scale << std::endl;
+
+        // rebuild fake data if g_mode_fake_data == true
+        // only do this in relevant function blocks
+
         //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itself
         //rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itself
         rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline); // want to check if the fitter can fit itself to itself
         // just check the output looks sensible
 
-        std::string name_extra = "seo_" + std::to_string(systematic_energy_offset)
-                               + "_sem_" + std::to_string(systematic_energy_scale);
+        // call helper function
+        newLogLikFitter_preMPSfitdriver("Systematics Fit: Fake Data",
+                                        min_point_sys2_h);
 
-        // create minimizer
-        ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
-        ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
-        MinimizeFCNAxialVector theFCN;
-
-        // initialize fit
-        //fitBackgrounds_init(theParameterState, theMinimizer, AdjustActs, AdjustActs_Err);
-        const int xi_31_param_number = g_pg.get_xi_31_ext_param_number();
-        const double xi_31_value = g_pg.file_params.at(xi_31_param_number).paramInitValue;
-        const double xi_31_error = g_pg.file_params.at(xi_31_param_number).paramInitError;
-        std::cout << "xi_31_param_number=" << xi_31_param_number
-                  << " xi_31=" << xi_31_value << " +- " << xi_31_error << std::endl;
-        fitBackgrounds_init(theParameterStateBefore, theMinimizer, xi_31_value, xi_31_error);
-
-        // get parameters and chi2 value before fit
-        std::vector<double> params_before = theParameterStateBefore.Params();
-        std::vector<double> param_errs_before = theParameterStateBefore.Errors();
-        double fval_before = theFCN.operator()(params_before);
-        //int ndf = theFCN.ndf - theParameterStateBefore.VariableParameters();
-        int nch = theFCN.nch;
-        int nfp = g_pg.get_number_free_params();
-        int ndf = nch - nfp;
-        std::cout << "nch=" << theFCN.nch << std::endl;
-        std::cout << "g_pg.get_number_free_params()=" << g_pg.get_number_free_params() << std::endl;
-
-        // draw before fit
-        draw_input_data drawinputdata;
-        drawinputdata.chi2 = fval_before;
-        drawinputdata.nch = nch;
-        drawinputdata.nfp = nfp;
-        drawinputdata.serial_dir = "xifree";
-        drawinputdata.saveas_filename = std::string("xifree_before") + "_" + name_extra;
-        drawinputdata.saveas_png = true;
-       
-        draw(drawinputdata,
-             params_before,
-             param_errs_before);
-        //std::cin.get();
-//    std::cout << "check global chi2" << std::endl;
-//    std::cin.get();
-
-        // exec fit
-        // do fit with all parameters free
-        ROOT::Minuit2::FunctionMinimum FCN_min =
-            fitBackgrounds_exec(
-                theParameterStateBefore,
-                theMinimizer,
-                theFCN);
-
-        // get result
-        ROOT::Minuit2::MnUserParameterState theParameterStateAfter = FCN_min.UserParameters();
-        std::vector<double> params_after = theParameterStateAfter.Params();
-        std::vector<double> param_errs_after = theParameterStateAfter.Errors();
-
-        double fval_after = theFCN.operator()(params_after);
-        //ndf = theFCN.ndf - theParameterStateAfter.VariableParameters();
-        nch = theFCN.nch;
-        nfp = g_pg.get_number_free_params();
-
-        // draw result
-        drawinputdata.chi2 = fval_after;
-        //drawinputdata.nch = nch; // this could probably change in theory
-        //drawinputdata.nfp = nfp; // these probably do not change
-        drawinputdata.saveas_filename = std::string("xifree_after") + "_" + name_extra;
-       
-        draw(drawinputdata,
-             params_after,
-             param_errs_after);
-//    std::cout << "check global chi2" << std::endl;
-//    std::cin.get();
-
-        
-        // minimize
-        //ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, init_par, init_err);
-        //ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, init_par, init_err);
-        /*
-        std::cout << "Minimization finished" << std::endl;
-        std::cout << "minimum: " << FCN_min << std::endl;
-        std::cout << "chi2: " << FCN_min.Fval() << std::endl;
-        std::cout << "edm: " << FCN_min.Edm() << std::endl;
-        */
-
-
-        //std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
-        //std::cout << "fval_before=" << fval_before << std::endl;
-
-
-        min_point_sys2_h[0] = params_after.at(1);
-        min_point_sys2_h[1] = params_after.at(0);
-
-
-        g_mode_fake_data = g_mode_fake_data_restore_value;
-
-        std::cout << "Systematics Fit: Fake Data" << std::endl;
-        std::cout << "SYSTEMATICS ENABLED" << std::endl;
-        std::cout << "SYSTEMATICS: CONSTANT MULTIPLIER (ENABLED) : " << gSystematics.systematic_energy_scale << "" << std::endl;
-        std::cout << "Result: " << std::endl;
-        std::cout << "fval_before=" << fval_before << std::endl;
-        std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
-        std::cout << std::endl;
-
+        V_ENABLE_SYSALL = restore_V_ENABLE_SYSALL;
+        V_ENABLE_SYS1 = restore_V_ENABLE_SYS1;
         V_ENABLE_SYS2 = restore_V_ENABLE_SYS2;
+
+        g_mode_fake_data = restore_g_mode_fake_data;
     }
 
 
