@@ -695,14 +695,6 @@ void loadFiles(int i)
         std::string histname = std::string(channel_histname_1D[channel]);
         std::string search_object_P1;
         std::string search_object_P2;
-        if(g_mode_fake_data == false)
-        {
-            // TODO: check what to do here - is this case valid?
-        }
-        else if(g_mode_fake_data == true)
-        {
-            // TODO: check what to do here - is this case valid?
-        }
 
         search_object_P1 = histname + std::string("fakedata") + "_P1";
         search_object_P2 = histname + std::string("fakedata") + "_P2";
@@ -710,8 +702,6 @@ void loadFiles(int i)
         TH1D *tmpDataHist1D_P1 = nullptr;
         TH1D *tmpDataHist1D_P2 = nullptr;
     
-        // another if g_mode_fake_data goes here
-
         tmpDataHist1D_P1 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P1.c_str());
         tmpDataHist1D_P2 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P2.c_str());
 
@@ -755,12 +745,6 @@ void loadFiles(int i)
     for(int channel = 0; channel < number1DHists; ++ channel)
     {
 
-        // check channel enabled
-        //if(channel_enable_1D[channel] == 0)
-        //{
-        //    continue;
-        //}
-
         std::string histname = std::string(channel_histname_1D[channel]);
         std::string search_object_P1;
         std::string search_object_P2;
@@ -779,8 +763,6 @@ void loadFiles(int i)
         TH1D *tmpDataHist1D_P1 = nullptr;
         TH1D *tmpDataHist1D_P2 = nullptr;
     
-        // another if g_mode_fake_data goes here
-
         tmpDataHist1D_P1 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P1.c_str());
         tmpDataHist1D_P2 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P2.c_str());
 
@@ -825,23 +807,9 @@ void loadFiles(int i)
     for(int channel = 0; channel < number1DHists; ++ channel)
     {
 
-        // check channel enabled
-        //if(channel_enable_1D[channel] == 0)
-        //{
-        //    continue;
-        //}
-
         std::string histname = std::string(channel_histname_1D[channel]);
         std::string search_object_P1;
         std::string search_object_P2;
-        if(g_mode_fake_data == false)
-        {
-            // TODO: check what to do here - is this case valid?
-        }
-        else if(g_mode_fake_data == true)
-        {
-            // TODO: check what to do here - is this case valid?
-        }
 
         search_object_P1 = histname + std::string("fakedata") + "_P1";
         search_object_P2 = histname + std::string("fakedata") + "_P2";
@@ -849,8 +817,6 @@ void loadFiles(int i)
         TH1D *tmpDataHist1D_P1 = nullptr;
         TH1D *tmpDataHist1D_P2 = nullptr;
     
-        // another if g_mode_fake_data goes here
-
         tmpDataHist1D_P1 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P1.c_str());
         tmpDataHist1D_P2 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P2.c_str());
 
@@ -884,77 +850,7 @@ void loadFiles(int i)
     ///////////////////////////////////////////////////////////////////////////
     // Construct Systematic Data Objects
     // Systematic: Energy Scale Multiplier
-    // Systematic Value: +0.012 (1.0 % + 0.2 %)
-    ///////////////////////////////////////////////////////////////////////////
-
-    gSystematics.systematic_energy_offset = 0.0;
-    gSystematics.systematic_energy_scale = +0.012;
-    rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline);
-
-    // loop over all channels
-    for(int channel = 0; channel < number1DHists; ++ channel)
-    {
-
-        // check channel enabled
-        //if(channel_enable_1D[channel] == 0)
-        //{
-        //    continue;
-        //}
-
-        std::string histname = std::string(channel_histname_1D[channel]);
-        std::string search_object_P1;
-        std::string search_object_P2;
-        if(g_mode_fake_data == false)
-        {
-            // TODO: check what to do here - is this case valid?
-        }
-        else if(g_mode_fake_data == true)
-        {
-            // TODO: check what to do here - is this case valid?
-        }
-
-        search_object_P1 = histname + std::string("fakedata") + "_P1";
-        search_object_P2 = histname + std::string("fakedata") + "_P2";
-
-        TH1D *tmpDataHist1D_P1 = nullptr;
-        TH1D *tmpDataHist1D_P2 = nullptr;
-    
-        // another if g_mode_fake_data goes here
-
-        tmpDataHist1D_P1 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P1.c_str());
-        tmpDataHist1D_P2 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P2.c_str());
-
-        if(tmpDataHist1D_P1 == nullptr)
-        {
-            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
-            throw "problem";
-        }
-        if(tmpDataHist1D_P2 == nullptr)
-        {
-            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
-            throw "problem";
-        }
-
-        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P1->GetNbinsX(); ++ bin_ix)
-        {
-            Double_t content = tmpDataHist1D_P1->GetBinContent(bin_ix);
-            systematic_scale_high_1D_P1[channel]->push_back(content);
-        }
-        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P2->GetNbinsX(); ++ bin_ix)
-        {
-            Double_t content = tmpDataHist1D_P2->GetBinContent(bin_ix);
-            systematic_scale_high_1D_P2[channel]->push_back(content);
-        }
-
-    }
-    gSystematics.systematic_energy_offset = 0.0;
-    gSystematics.systematic_energy_scale = 0.0;
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Construct Systematic Data Objects
-    // Systematic: Linear Energy Shift
-    // Systematic Value: -0.012 (1.0% + 0.2%)
+    // Systematic Value: -0.012 -(1.0 % + 0.2 %)
     ///////////////////////////////////////////////////////////////////////////
 
     gSystematics.systematic_energy_offset = 0.0;
@@ -965,23 +861,9 @@ void loadFiles(int i)
     for(int channel = 0; channel < number1DHists; ++ channel)
     {
 
-        // check channel enabled
-        //if(channel_enable_1D[channel] == 0)
-        //{
-        //    continue;
-        //}
-
         std::string histname = std::string(channel_histname_1D[channel]);
         std::string search_object_P1;
         std::string search_object_P2;
-        if(g_mode_fake_data == false)
-        {
-            // TODO: check what to do here - is this case valid?
-        }
-        else if(g_mode_fake_data == true)
-        {
-            // TODO: check what to do here - is this case valid?
-        }
 
         search_object_P1 = histname + std::string("fakedata") + "_P1";
         search_object_P2 = histname + std::string("fakedata") + "_P2";
@@ -989,8 +871,6 @@ void loadFiles(int i)
         TH1D *tmpDataHist1D_P1 = nullptr;
         TH1D *tmpDataHist1D_P2 = nullptr;
     
-        // another if g_mode_fake_data goes here
-
         tmpDataHist1D_P1 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P1.c_str());
         tmpDataHist1D_P2 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P2.c_str());
 
@@ -1019,6 +899,61 @@ void loadFiles(int i)
     }
     gSystematics.systematic_energy_offset = 0.0;
     gSystematics.systematic_energy_scale = 0.0;
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Construct Systematic Data Objects
+    // Systematic: Linear Energy Shift
+    // Systematic Value: +0.012 (1.0% + 0.2%)
+    ///////////////////////////////////////////////////////////////////////////
+
+    gSystematics.systematic_energy_offset = 0.0;
+    gSystematics.systematic_energy_scale = +0.012;
+    rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline);
+
+    // loop over all channels
+    for(int channel = 0; channel < number1DHists; ++ channel)
+    {
+
+        std::string histname = std::string(channel_histname_1D[channel]);
+        std::string search_object_P1;
+        std::string search_object_P2;
+
+        search_object_P1 = histname + std::string("fakedata") + "_P1";
+        search_object_P2 = histname + std::string("fakedata") + "_P2";
+
+        TH1D *tmpDataHist1D_P1 = nullptr;
+        TH1D *tmpDataHist1D_P2 = nullptr;
+    
+        tmpDataHist1D_P1 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P1.c_str());
+        tmpDataHist1D_P2 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P2.c_str());
+
+        if(tmpDataHist1D_P1 == nullptr)
+        {
+            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
+            throw "problem";
+        }
+        if(tmpDataHist1D_P2 == nullptr)
+        {
+            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
+            throw "problem";
+        }
+
+        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P1->GetNbinsX(); ++ bin_ix)
+        {
+            Double_t content = tmpDataHist1D_P1->GetBinContent(bin_ix);
+            systematic_scale_high_1D_P1[channel]->push_back(content);
+        }
+        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P2->GetNbinsX(); ++ bin_ix)
+        {
+            Double_t content = tmpDataHist1D_P2->GetBinContent(bin_ix);
+            systematic_scale_high_1D_P2[channel]->push_back(content);
+        }
+
+    }
+    gSystematics.systematic_energy_offset = 0.0;
+    gSystematics.systematic_energy_scale = 0.0;
+    rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline);
 
 
     ///////////////////////////////////////////////////////////////////////////
