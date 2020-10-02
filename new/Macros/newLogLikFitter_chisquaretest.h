@@ -911,7 +911,7 @@ void newloglikfitter_testmyphasespace_newversion(
            (min_point_sys1_l[1] != 0.0))
         {
             double x_orig = min_point[0];
-            double y orig = min_point[1];
+            double y_orig = min_point[1];
             double x_min_point = min_point_sys1_l[0] - min_point_fake_data[0] + min_point[0];
             double y_min_point = min_point_sys1_l[1] - min_point_fake_data[1] + min_point[1];
 
@@ -936,7 +936,7 @@ void newloglikfitter_testmyphasespace_newversion(
            (min_point_sys1_h[1] != 0.0))
         {
             double x_orig = min_point[0];
-            double y orig = min_point[1];
+            double y_orig = min_point[1];
             double x_min_point = min_point_sys1_h[0] - min_point_fake_data[0] + min_point[0];
             double y_min_point = min_point_sys1_h[1] - min_point_fake_data[1] + min_point[1];
 
@@ -960,7 +960,7 @@ void newloglikfitter_testmyphasespace_newversion(
            (min_point_sys2_l[1] != 0.0))
         {
             double x_orig = min_point[0];
-            double y orig = min_point[1];
+            double y_orig = min_point[1];
             double x_min_point = min_point_sys2_l[0] - min_point_fake_data[0] + min_point[0];
             double y_min_point = min_point_sys2_l[1] - min_point_fake_data[1] + min_point[1];
 
@@ -984,7 +984,7 @@ void newloglikfitter_testmyphasespace_newversion(
            (min_point_sys2_h[1] != 0.0))
         {
             double x_orig = min_point[0];
-            double y orig = min_point[1];
+            double y_orig = min_point[1];
             double x_min_point = min_point_sys2_h[0] - min_point_fake_data[0] + min_point[0];
             double y_min_point = min_point_sys2_h[1] - min_point_fake_data[1] + min_point[1];
 
