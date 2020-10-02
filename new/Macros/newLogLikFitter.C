@@ -1735,7 +1735,7 @@ void loadFiles(int i)
 
         //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itself
         //rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itself
-        rebuild_fake_data_systematics(xi_31_covariance_matrix_reweight_value, xi_31_baseline); // want to check if the fitter can fit itself to itself
+        rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // want to check if the fitter can fit itself to itself
         // just check the output looks sensible
 
         // call helper function
@@ -1777,7 +1777,7 @@ void loadFiles(int i)
 
         //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itself
         //rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itself
-        rebuild_fake_data_systematics(xi_31_covariance_matrix_reweight_value, xi_31_baseline); // want to check if the fitter can fit itself to itself
+        rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // want to check if the fitter can fit itself to itself
         // just check the output looks sensible
 
         // call helper function
@@ -1819,7 +1819,7 @@ void loadFiles(int i)
 
         //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itself
         //rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itself
-        rebuild_fake_data_systematics(xi_31_covariance_matrix_reweight_value, xi_31_baseline); // want to check if the fitter can fit itself to itself
+        rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // want to check if the fitter can fit itself to itself
         // just check the output looks sensible
 
         // call helper function
@@ -1861,7 +1861,7 @@ void loadFiles(int i)
 
         //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itself
         //rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itself
-        rebuild_fake_data_systematics(xi_31_covariance_matrix_reweight_value, xi_31_baseline); // want to check if the fitter can fit itself to itself
+        rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // want to check if the fitter can fit itself to itself
         // just check the output looks sensible
 
         // call helper function
@@ -1903,7 +1903,7 @@ void loadFiles(int i)
 
         //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itself
         //rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itself
-        rebuild_fake_data_systematics(xi_31_covariance_matrix_reweight_value, xi_31_baseline); // want to check if the fitter can fit itself to itself
+        rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // want to check if the fitter can fit itself to itself
         // just check the output looks sensible
 
         // call helper function
