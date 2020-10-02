@@ -23,6 +23,9 @@ void rebuild_fake_data_systematics(const double xi_31, const double xi_31_baseli
     std::cout << "xi_31=" << xi_31 << std::endl;
     std::cout << "xi_31_baseline=" << xi_31_baseline << std::endl;
     std::cout << "systematic_energy_offset=" << gSystematics.systematic_energy_offset << std::endl;
+    std::cout << "systematic_energy_scale=" << gSystematics.systematic_energy_scale << std::endl;
+    std::cout << "systematic_efficiency=" << gSystematics.systematic_efficiency << std::endl;
+    std::cout << "systematic_enrichment=" << gSystematics.systematic_enrichment << std::endl;
 
 
     int debuglevel = 1;

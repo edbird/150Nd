@@ -689,6 +689,8 @@ void reweight_apply_fakedata(
                 //std::cout << "-> el_energy_0=" << el_energy_0 << std::endl;
                 //std::cout << "-> el_energy_1=" << el_energy_1 << std::endl;
 
+                // efficiency and enrichment
+                weight = weight * (1.0 + gSystematics.systematic_efficiency + gSystematics.systematic_enrichment);
 
                 ///////////////////////////////////////////////////////////////
                 // standard cuts not implemented in preprocessing

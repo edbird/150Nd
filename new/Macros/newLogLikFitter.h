@@ -384,13 +384,19 @@ std::vector<std::pair<double,double>> ll_walk_save;
 // l = low
 double min_point[2] = {0.0, 0.0}; // minimum point found, all parameter fit
 double min_point_fake_data[2] = {0.0, 0.0};
-double min_point_sys1_h[2] = {0.0, 0.0};
+double min_point_sys1_h[2] = {0.0, 0.0}; // +- 0.1 MeV
 double min_point_sys1_l[2] = {0.0, 0.0};
-double min_point_sys2_h[2] = {0.0, 0.0};
+double min_point_sys2_h[2] = {0.0, 0.0}; // +- 1.2 % scale
 double min_point_sys2_l[2] = {0.0, 0.0};
+double min_point_sys3_h[2] = {0.0, 0.0}; // +- 5.55 % efficiency
+double min_point_sys4_l[2] = {0.0, 0.0};
+double min_point_sys4_h[2] = {0.0, 0.0}; // +- 0.50 % enrichment
+double min_point_sys3_l[2] = {0.0, 0.0};
 
-const bool ENABLE_MIN_POINT_SYS1 = true;
-const bool ENABLE_MIN_POINT_SYS2 = true;
+const bool ENABLE_MIN_POINT_SYS1 = false; // +- 0.1 MeV
+const bool ENABLE_MIN_POINT_SYS2 = true; // +- 1.2 % scale
+const bool ENABLE_MIN_POINT_SYS3 = true; // +- 5.55 % efficiency
+const bool ENABLE_MIN_POINT_SYS4 = true; // +- 0.50 % enrichment
 
 ///////////////////////////////////////////////////////////////////////////////
 // systematic objects - Phase 1
@@ -436,6 +442,8 @@ std::vector<double> *systematic_offset_V_MATRIX_coeff_1D_P1[number1DHists] =
     nullptr
 };
 
+///////////////////////////////////////////////////////////////////////////////
+
 std::vector<double> *systematic_scale_low_1D_P1[number1DHists] = 
 {
     nullptr,
@@ -465,6 +473,71 @@ std::vector<double> *systematic_scale_V_MATRIX_coeff_1D_P1[number1DHists] =
     nullptr,
     nullptr
 };
+
+///////////////////////////////////////////////////////////////////////////////
+
+std::vector<double> *systematic_efficiency_low_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_efficiency_high_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_efficiency_V_MATRIX_coeff_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+std::vector<double> *systematic_enrichment_low_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_enrichment_high_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_enrichment_V_MATRIX_coeff_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -511,6 +584,8 @@ std::vector<double> *systematic_offset_V_MATRIX_coeff_1D_P2[number1DHists] =
     nullptr
 };
 
+///////////////////////////////////////////////////////////////////////////////
+
 std::vector<double> *systematic_scale_low_1D_P2[number1DHists] = 
 {
     nullptr,
@@ -541,6 +616,71 @@ std::vector<double> *systematic_scale_V_MATRIX_coeff_1D_P2[number1DHists] =
     nullptr
 };
 
+///////////////////////////////////////////////////////////////////////////////
+
+std::vector<double> *systematic_efficiency_low_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_efficiency_high_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_efficiency_V_MATRIX_coeff_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+std::vector<double> *systematic_enrichment_low_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_enrichment_high_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_enrichment_V_MATRIX_coeff_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // chi2 objects for V MATRIX method, Phase 1
@@ -552,9 +692,48 @@ bool V_ENABLE_STAT = true; // leave on
 
 bool V_ENABLE_SYSALL = true;
 bool V_ENABLE_SYS1 = false; // constant 1.0 MeV shift
-bool V_ENABLE_SYS2 = false; // scale factor: m = 1 % + 0.2 %
+bool V_ENABLE_SYS2 = true; // scale factor: m = 1 % + 0.2 %
+bool V_ENABLE_SYS3 = true; // +- 5.55 % efficiency
+bool V_ENABLE_SYS4 = true; // +- 0.50 % enrichment
+
+std::vector<bool> V_ENABLE_SYSALL_stack;
+std::vector<bool> V_ENABLE_SYS1_stack;
+std::vector<bool> V_ENABLE_SYS2_stack;
+std::vector<bool> V_ENABLE_SYS3_stack;
+std::vector<bool> V_ENABLE_SYS4_stack;
+
+void V_ENABLE_SYS_stack_push()
+{
+    V_ENABLE_SYSALL_stack.push_back(V_ENABLE_SYS1);
+    V_ENABLE_SYS1_stack.push_back(V_ENABLE_SYS1);
+    V_ENABLE_SYS2_stack.push_back(V_ENABLE_SYS2);
+    V_ENABLE_SYS3_stack.push_back(V_ENABLE_SYS3);
+    V_ENABLE_SYS4_stack.push_back(V_ENABLE_SYS4);
+}
+
+void V_ENABLE_SYS_stack_pop()
+{
+    if(V_ENABLE_SYS1_stack.size() > 0)
+    {
+        V_ENABLE_SYSALL_stack.pop_back();
+        V_ENABLE_SYS1_stack.pop_back();
+        V_ENABLE_SYS2_stack.pop_back();
+        V_ENABLE_SYS3_stack.pop_back();
+        V_ENABLE_SYS4_stack.pop_back();
+    }
+    else
+    {
+        std::cout <<  "V_ENABLE_SYS_stack_pop ERROR" << std::endl;
+        throw "V_ENABLE_SYS_stack_pop ERROR";
+    }
+}
 
 bool recalculate_V_PHYS_xD_Px_MATHMORE = true;
+
+
+///////////////////////////////////////////////////////////////////////////////
+// chi2 objects for V MATRIX method, Phase 1
+///////////////////////////////////////////////////////////////////////////////
 
 TMatrixD *V_PHYS_1D_P1_MATHMORE[number1DHists] =
 {
@@ -576,16 +755,6 @@ std::vector<bool> *V_ENABLE_BIN_1D_P1[number1DHists] =
     nullptr
 };
 
-/*
-TH2D *V_PHYS_1D_P1[number1DHists] = 
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};*/
 std::vector<double> *V_PHYS_1D_P1_data[number1DHists] = 
 {
     nullptr,
@@ -596,15 +765,6 @@ std::vector<double> *V_PHYS_1D_P1_data[number1DHists] =
     nullptr
 };
 
-/*TH2D *V_PHYS_STAT_1D_P1[number1DHists] = 
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};*/
 std::vector<double> *V_PHYS_STAT_1D_P1_data[number1DHists] = 
 {
     nullptr,
@@ -615,15 +775,6 @@ std::vector<double> *V_PHYS_STAT_1D_P1_data[number1DHists] =
     nullptr
 };
 
-/*TH2D *V_PHYS_SYS1_1D_P1[number1DHists] = 
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};*/
 std::vector<double> *V_PHYS_SYS1_1D_P1_data[number1DHists] = 
 {
     nullptr,
@@ -634,15 +785,6 @@ std::vector<double> *V_PHYS_SYS1_1D_P1_data[number1DHists] =
     nullptr
 };
 
-/*TH2D *V_PHYS_SYS2_1D_P1[number1DHists] = 
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};*/
 std::vector<double> *V_PHYS_SYS2_1D_P1_data[number1DHists] = 
 {
     nullptr,
@@ -653,8 +795,7 @@ std::vector<double> *V_PHYS_SYS2_1D_P1_data[number1DHists] =
     nullptr
 };
 
-
-/*TH2D *D_1D_P1[number1DHists] = 
+std::vector<double> *V_PHYS_SYS3_1D_P1_data[number1DHists] = 
 {
     nullptr,
     nullptr,
@@ -662,7 +803,18 @@ std::vector<double> *V_PHYS_SYS2_1D_P1_data[number1DHists] =
     nullptr,
     nullptr,
     nullptr
-};*/
+};
+
+std::vector<double> *V_PHYS_SYS4_1D_P1_data[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
 std::vector<double> *D_1D_P1_data[number1DHists] = 
 {
     nullptr,
@@ -673,15 +825,6 @@ std::vector<double> *D_1D_P1_data[number1DHists] =
     nullptr
 };
 
-/*TH2D *D_minus_M_1D_P1[number1DHists] = 
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};*/
 std::vector<double> *D_minus_M_1D_P1_data[number1DHists] = 
 {
     nullptr,
@@ -692,15 +835,6 @@ std::vector<double> *D_minus_M_1D_P1_data[number1DHists] =
     nullptr
 };
 
-/*TH2D *M_1D_P1[number1DHists] = 
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};*/
 std::vector<double> *M_1D_P1_data[number1DHists] = 
 {
     nullptr,
@@ -735,15 +869,6 @@ std::vector<bool> *V_ENABLE_BIN_1D_P2[number1DHists] =
     nullptr
 };
 
-/*TH2D *V_PHYS_1D_P2[number1DHists] = 
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};*/
 std::vector<double> *V_PHYS_1D_P2_data[number1DHists] = 
 {
     nullptr,
@@ -754,15 +879,6 @@ std::vector<double> *V_PHYS_1D_P2_data[number1DHists] =
     nullptr
 };
 
-/*TH2D *V_PHYS_STAT_1D_P2[number1DHists] = 
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};*/
 std::vector<double> *V_PHYS_STAT_1D_P2_data[number1DHists] = 
 {
     nullptr,
@@ -773,15 +889,6 @@ std::vector<double> *V_PHYS_STAT_1D_P2_data[number1DHists] =
     nullptr
 };
 
-/*TH2D *V_PHYS_SYS1_1D_P2[number1DHists] = 
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};*/
 std::vector<double> *V_PHYS_SYS1_1D_P2_data[number1DHists] = 
 {
     nullptr,
@@ -792,15 +899,6 @@ std::vector<double> *V_PHYS_SYS1_1D_P2_data[number1DHists] =
     nullptr
 };
 
-/*TH2D *V_PHYS_SYS2_1D_P2[number1DHists] = 
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};*/
 std::vector<double> *V_PHYS_SYS2_1D_P2_data[number1DHists] = 
 {
     nullptr,
@@ -811,8 +909,7 @@ std::vector<double> *V_PHYS_SYS2_1D_P2_data[number1DHists] =
     nullptr
 };
 
-
-/*TH2D *D_1D_P2[number1DHists] = 
+std::vector<double> *V_PHYS_SYS3_1D_P2_data[number1DHists] = 
 {
     nullptr,
     nullptr,
@@ -820,7 +917,18 @@ std::vector<double> *V_PHYS_SYS2_1D_P2_data[number1DHists] =
     nullptr,
     nullptr,
     nullptr
-};*/
+};
+
+std::vector<double> *V_PHYS_SYS4_1D_P2_data[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
 std::vector<double> *D_1D_P2_data[number1DHists] = 
 {
     nullptr,
@@ -831,15 +939,6 @@ std::vector<double> *D_1D_P2_data[number1DHists] =
     nullptr
 };
 
-/*TH2D *D_minus_M_1D_P2[number1DHists] = 
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};*/
 std::vector<double> *D_minus_M_1D_P2_data[number1DHists] = 
 {
     nullptr,
@@ -850,15 +949,6 @@ std::vector<double> *D_minus_M_1D_P2_data[number1DHists] =
     nullptr
 };
 
-/*TH2D *M_1D_P2[number1DHists] = 
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};*/
 std::vector<double> *M_1D_P2_data[number1DHists] = 
 {
     nullptr,
@@ -868,275 +958,5 @@ std::vector<double> *M_1D_P2_data[number1DHists] =
     nullptr,
     nullptr
 };
-
-///////////////////////////////////////////////////////////////////////////////
-// chi2 objects for V MATRIX method, Phase 1
-///////////////////////////////////////////////////////////////////////////////
-
-/*
-TH2D *V_PHYS_2D_P1[number2DHists] = 
-{
-    nullptr
-};
-
-TH2D *V_PHYS_STAT_2D_P1[number2DHists] = 
-{
-    nullptr
-};
-
-TH2D *V_PHYS_SYS1_2D_P1[number2DHists] = 
-{
-    nullptr
-};
-
-TH2D *V_PHYS_SYS2_2D_P1[number2DHists] = 
-{
-    nullptr
-};
-
-
-TH2D *D_2D_P1[number2DHists] = 
-{
-    nullptr
-};
-
-TH2D *D_minus_M_2D_P1[number2DHists] = 
-{
-    nullptr
-};
-
-TH2D *M_2D_P1[number2DHists] = 
-{
-    nullptr
-};
-*/
-
-///////////////////////////////////////////////////////////////////////////////
-// chi2 objects for V MATRIX method, Phase 2
-///////////////////////////////////////////////////////////////////////////////
-
-/*
-TH2D *V_PHYS_2D_P2[number2DHists] = 
-{
-    nullptr
-};
-
-TH2D *V_PHYS_STAT_2D_P2[number2DHists] = 
-{
-    nullptr
-};
-
-TH2D *V_PHYS_SYS1_2D_P2[number2DHists] = 
-{
-    nullptr
-};
-
-TH2D *V_PHYS_SYS2_2D_P2[number2DHists] = 
-{
-    nullptr
-};
-
-
-TH2D *D_2D_P2[number2DHists] = 
-{
-    nullptr
-};
-
-TH2D *D_minus_M_2D_P2[number2DHists] = 
-{
-    nullptr
-};
-
-TH2D *M_2D_P2[number2DHists] = 
-{
-    nullptr
-};
-*/
-
-// chisquare objects
-/*
-TH2D *V_CHEN = nullptr; // V channel enable (bin enable)
-TH2D *V_PHYS = nullptr; // V physics
-TH2D *V_PHYS_STAT = nullptr; // V physics, statistical
-TH2D *V_PHYS_SYS = nullptr; // V physics, systematic
-TH2D *D = nullptr; // data
-TH2D *M = nullptr; // MC (model)
-TH2D *D_minus_M = nullptr; // D - M
-TH2D *V_SUPER = nullptr; // containing all information from V matricies
-*/
-
-
-#if 0
-
-static const int nRn222Bkgs = 6;
-//static const int nRn222Bkgs = 8;
-
-
-// TODO: break out file/name/color definitions to a new header file which
-// can be included by both programs
-TString Rn222BkgFiles[nRn222Bkgs] =
-{
-"bi214_sfoil_rot",
-"pb214_sfoil", // Note: no rot version
-"bi210_sfoil",
-"bi214_swire",
-"pb214_swire",
-"bi210_swire"
-//,
-// NOTE: re-enabled?
-//"bi214_sscin", // no events, disabled
-//"pb214_sscin" // no events, disabled
-};
-
-TString Rn222BkgNames[nRn222Bkgs] =
-{
-//"^{214}Bi air",
-//"^{214}Pb air",
-"^{214}Bi Foil Surface",
-"^{214}Pb Foil Surface",
-"^{210}Bi Foil Surface",
-
-"^{214}Bi Wire Surface",
-"^{214}Pb Wire Surface",
-"^{210}Bi Wire Surface"//,
-//,
-// NOTE: re-enabled?
-//"^{214}Bi Scintillator Surface",
-//"^{214}Pb Scintillator Surface"//,
-//"^{210}Bi Scintillator Surface"
-//""
-};
-
-static const int nRn220Bkgs = 1;
-TString Rn220BkgFiles[nRn220Bkgs] =
-{
-"tl208_swire"
-};
-TString Rn220BkgNames[nRn220Bkgs] =
-{
-"^{208}Tl SWire"
-};
-
-static const int nExternalBkgs = 11;
-TString ExternalBkgFiles[nExternalBkgs] =
-{
-"bi214_feShield",
-"ac228_feShield",
-"tl208_feShield",
-"bi214_pmt",
-"ac228_pmt",
-"tl208_pmt",
-"k40_pmt",
-"k40_scintIN",
-"pa234m_sscin",
-//"bi210_sfoil", // Note: no rot version // moved
-//"bi210_swire", // moved
-//"bi210_sscin", // no events, disabled
-"bi214_air",
-//"pb214_air", // disabled, no events in P2
-//"tl208_air",
-"co60_cuTower"
-};
-// Note: mylar moved to interal
-TString ExternalBkgNames[nExternalBkgs] =
-{
-"^{214}Bi Fe shield",
-"^{228}Ac Fe shield",
-"^{208}Tl Fe shield",
-"^{214}Bi PMT",
-"^{228}Ac PMT",
-"^{208}Tl PMT",
-"^{40}K PMT",
-"^{40}K sscintIN",
-"^{234m}Pa sscin",
-//"^{210}Bi Foil Surface",
-//"^{210}Bi Wire Surface",
-//"^{210}Bi Scintillator Surface",
-"^{214}Bi Air",
-//"^{214}Pb Air",
-//"^{208}Tl Air",
-"^{60}Co Cu Tower"
-};
-
-
-static const int nInternalBkgs = 12;
-TString InternalBkgFiles[nInternalBkgs] =
-{
-"bi214_int_rot",
-"pb214_int_rot",
-"ac228_int_rot",
-"tl208_int_rot",
-"bi212_int_rot",
-"bi207_int_rot",
-"eu152_int_rot",
-"eu154_int_rot",
-"k40_int_rot",
-"pa234m_int_rot",
-"bi214_mylar",
-"pb214_mylar"
-};
-TString InternalBkgNames[nInternalBkgs] =
-{
-"^{214}Bi Internal",
-"^{214}Pb Internal",
-"^{228}Ac Internal",
-"^{208}Tl Internal",
-"^{212}Bi Internal",
-"^{207}Bi Internal",
-"^{152}Eu Internal",
-"^{154}Eu Internal",
-"^{40}K Internal",
-"^{234m}Pa Internal",
-"^{214}Bi Mylar",
-"^{214}Pb Mylar"
-};
-
-static const int nNd150Samples = 1;
-TString Nd150Files[nNd150Samples] =
-{
-//"nd150_rot_2b2n_m4"
-"nd150_rot_2n2b_m4"
-// changed from nd150_2n2b_rot_m4
-};
-TString Nd150Names[nNd150Samples] =
-{
-"^{150}Nd 2#nu#beta#beta"
-};
-
-
-
-static const int nNeighbours = 12;
-TString NeighbourFiles[nNeighbours] =
-{
-"mo100_99_rot_2n2b_m14",
-"mo100_99_rot_bi214",
-"mo100_99_rot_pa234m",
-"mo100_99_rot_k40",
-"ca48_63_rot_2n2b_m4",
-"ca48_63_rot_bi214",
-"ca48_63_rot_pa234m",
-"ca48_63_rot_y90",
-"zr96_rot_2n2b_m4",
-"zr96_rot_bi214",
-"zr96_rot_pa234m",
-"zr96_rot_k40"
-};
-TString NeighbourNames[nNeighbours] =
-{
-"^{100}Mo 2#nu#beta#beta",
-"^{100}Mo int ^{214}Bi",
-"^{100}Mo int ^{234m}Pa",
-"^{100}Mo int ^{40}K",
-"^{48}Ca 2#nu#beta#beta",
-"^{48}Ca int ^{214}Bi",
-"^{48}Ca int ^{234m}Pa",
-"^{48}Ca int ^{90}Y",
-"^{96}Zr 2#nu#beta#beta",
-"^{96}Zr int ^{214}Bi",
-"^{96}Zr int ^{234m}Pa",
-"^{96}Zr int ^{40}K"
-};
-
-#endif
 
 #endif

@@ -618,8 +618,9 @@ void loadFiles(int i)
 
 
 
-    gSystematics.systematic_energy_offset = 0.0; //-0.1;
-    gSystematics.systematic_energy_scale = 0.0; //-0.1;
+    //gSystematics.systematic_energy_offset = 0.0; //-0.1;
+    //gSystematics.systematic_energy_scale = 0.0; //-0.1;
+    gSystematics.reset();
     /*const*/ int xi_31_ext_param_number = g_pg.get_xi_31_ext_param_number();
         //if(param[xi_31_ext_param_number] != g_pg.file_params.at(xi_31_ext_param_number).paramLastValue)
     //const double xi_31{param[xi_31_ext_param_number]};
@@ -654,8 +655,9 @@ void loadFiles(int i)
     // All Systematics OFF
     ///////////////////////////////////////////////////////////////////////////
     
-    gSystematics.systematic_energy_offset = 0.0;
-    gSystematics.systematic_energy_scale = 0.0;
+    //gSystematics.systematic_energy_offset = 0.0;
+    //gSystematics.systematic_energy_scale = 0.0;
+    gSystematics.reset();
     rebuild_fake_data_systematics(xi_31_covariance_matrix_reweight_value, xi_31_baseline);
 
     // loop over all channels
@@ -686,6 +688,26 @@ void loadFiles(int i)
             systematic_scale_low_1D_P2[channel] = new std::vector<double>;
             systematic_scale_high_1D_P2[channel] = new std::vector<double>;
             systematic_scale_V_MATRIX_coeff_1D_P2[channel] = new std::vector<double>;
+
+            // efficiency P1
+            systematic_efficiency_low_1D_P1[channel] = new std::vector<double>;
+            systematic_efficiency_high_1D_P1[channel] = new std::vector<double>;
+            systematic_efficiency_V_MATRIX_coeff_1D_P1[channel] = new std::vector<double>;
+
+            // efficiency P2
+            systematic_efficiency_low_1D_P2[channel] = new std::vector<double>;
+            systematic_efficiency_high_1D_P2[channel] = new std::vector<double>;
+            systematic_efficiency_V_MATRIX_coeff_1D_P2[channel] = new std::vector<double>;
+
+            // enrichment P1
+            systematic_enrichment_low_1D_P1[channel] = new std::vector<double>;
+            systematic_enrichment_high_1D_P1[channel] = new std::vector<double>;
+            systematic_enrichment_V_MATRIX_coeff_1D_P1[channel] = new std::vector<double>;
+
+            // enrichment P2
+            systematic_enrichment_low_1D_P2[channel] = new std::vector<double>;
+            systematic_enrichment_high_1D_P2[channel] = new std::vector<double>;
+            systematic_enrichment_V_MATRIX_coeff_1D_P2[channel] = new std::vector<double>;
         }
         // check channel enabled
         //if(channel_enable_1D[channel] == 0)
@@ -728,8 +750,9 @@ void loadFiles(int i)
         }
 
     }
-    gSystematics.systematic_energy_offset = 0.0;
-    gSystematics.systematic_energy_scale = 0.0;
+    //gSystematics.systematic_energy_offset = 0.0;
+    //gSystematics.systematic_energy_scale = 0.0;
+    gSystematics.reset();
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -738,8 +761,9 @@ void loadFiles(int i)
     // Systematic Value: +0.1 MeV
     ///////////////////////////////////////////////////////////////////////////
 
+    gSystematics.reset();
     gSystematics.systematic_energy_offset = +0.1;
-    gSystematics.systematic_energy_scale = 0.0;
+    //gSystematics.systematic_energy_scale = 0.0;
     rebuild_fake_data_systematics(xi_31_covariance_matrix_reweight_value, xi_31_baseline);
 
     // loop over all channels
@@ -749,14 +773,6 @@ void loadFiles(int i)
         std::string histname = std::string(channel_histname_1D[channel]);
         std::string search_object_P1;
         std::string search_object_P2;
-        if(g_mode_fake_data == false)
-        {
-            // TODO: check what to do here - is this case valid?
-        }
-        else if(g_mode_fake_data == true)
-        {
-            // TODO: check what to do here - is this case valid?
-        }
 
         search_object_P1 = histname + std::string("fakedata") + "_P1";
         search_object_P2 = histname + std::string("fakedata") + "_P2";
@@ -790,8 +806,7 @@ void loadFiles(int i)
         }
 
     }
-    gSystematics.systematic_energy_offset = 0.0;
-    gSystematics.systematic_energy_scale = 0.0;
+    gSystematics.reset();
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -800,8 +815,8 @@ void loadFiles(int i)
     // Systematic Value: -0.1 MeV
     ///////////////////////////////////////////////////////////////////////////
 
+    gSystematics.reset();
     gSystematics.systematic_energy_offset = -0.1;
-    gSystematics.systematic_energy_scale = 0.0;
     rebuild_fake_data_systematics(xi_31_covariance_matrix_reweight_value, xi_31_baseline);
 
     // loop over all channels
@@ -844,8 +859,7 @@ void loadFiles(int i)
         }
 
     }
-    gSystematics.systematic_energy_offset = 0.0;
-    gSystematics.systematic_energy_scale = 0.0;
+    gSystematics.reset();
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -854,7 +868,7 @@ void loadFiles(int i)
     // Systematic Value: -0.012 -(1.0 % + 0.2 %)
     ///////////////////////////////////////////////////////////////////////////
 
-    gSystematics.systematic_energy_offset = 0.0;
+    gSystematics.reset();
     gSystematics.systematic_energy_scale = -0.012;
     rebuild_fake_data_systematics(xi_31_covariance_matrix_reweight_value, xi_31_baseline);
 
@@ -898,8 +912,7 @@ void loadFiles(int i)
         }
 
     }
-    gSystematics.systematic_energy_offset = 0.0;
-    gSystematics.systematic_energy_scale = 0.0;
+    gSystematics.reset();
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -908,7 +921,7 @@ void loadFiles(int i)
     // Systematic Value: +0.012 (1.0% + 0.2%)
     ///////////////////////////////////////////////////////////////////////////
 
-    gSystematics.systematic_energy_offset = 0.0;
+    gSystematics.reset();
     gSystematics.systematic_energy_scale = +0.012;
     rebuild_fake_data_systematics(xi_31_covariance_matrix_reweight_value, xi_31_baseline);
 
@@ -952,8 +965,224 @@ void loadFiles(int i)
         }
 
     }
-    gSystematics.systematic_energy_offset = 0.0;
-    gSystematics.systematic_energy_scale = 0.0;
+    gSystematics.reset();
+
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Construct Systematic Data Objects
+    // Systematic: Efficiency
+    // Systematic Value: -5.55 %
+    ///////////////////////////////////////////////////////////////////////////
+
+    gSystematics.reset();
+    gSystematics.systematic_efficiency = -5.55e-02;
+    rebuild_fake_data_systematics(xi_31_covariance_matrix_reweight_value, xi_31_baseline);
+
+    // loop over all channels
+    for(int channel = 0; channel < number1DHists; ++ channel)
+    {
+
+        std::string histname = std::string(channel_histname_1D[channel]);
+        std::string search_object_P1;
+        std::string search_object_P2;
+
+        search_object_P1 = histname + std::string("fakedata") + "_P1";
+        search_object_P2 = histname + std::string("fakedata") + "_P2";
+
+        TH1D *tmpDataHist1D_P1 = nullptr;
+        TH1D *tmpDataHist1D_P2 = nullptr;
+    
+        tmpDataHist1D_P1 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P1.c_str());
+        tmpDataHist1D_P2 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P2.c_str());
+
+        if(tmpDataHist1D_P1 == nullptr)
+        {
+            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
+            throw "problem";
+        }
+        if(tmpDataHist1D_P2 == nullptr)
+        {
+            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
+            throw "problem";
+        }
+
+        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P1->GetNbinsX(); ++ bin_ix)
+        {
+            Double_t content = tmpDataHist1D_P1->GetBinContent(bin_ix);
+            systematic_efficiency_low_1D_P1[channel]->push_back(content);
+        }
+        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P2->GetNbinsX(); ++ bin_ix)
+        {
+            Double_t content = tmpDataHist1D_P2->GetBinContent(bin_ix);
+            systematic_efficiency_low_1D_P2[channel]->push_back(content);
+        }
+
+    }
+    gSystematics.reset();
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Construct Systematic Data Objects
+    // Systematic: Efficiency
+    // Systematic Value: +5.55 %
+    ///////////////////////////////////////////////////////////////////////////
+
+    gSystematics.reset();
+    gSystematics.systematic_efficiency = +5.55e-02;
+    rebuild_fake_data_systematics(xi_31_covariance_matrix_reweight_value, xi_31_baseline);
+
+    // loop over all channels
+    for(int channel = 0; channel < number1DHists; ++ channel)
+    {
+
+        std::string histname = std::string(channel_histname_1D[channel]);
+        std::string search_object_P1;
+        std::string search_object_P2;
+
+        search_object_P1 = histname + std::string("fakedata") + "_P1";
+        search_object_P2 = histname + std::string("fakedata") + "_P2";
+
+        TH1D *tmpDataHist1D_P1 = nullptr;
+        TH1D *tmpDataHist1D_P2 = nullptr;
+    
+        tmpDataHist1D_P1 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P1.c_str());
+        tmpDataHist1D_P2 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P2.c_str());
+
+        if(tmpDataHist1D_P1 == nullptr)
+        {
+            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
+            throw "problem";
+        }
+        if(tmpDataHist1D_P2 == nullptr)
+        {
+            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
+            throw "problem";
+        }
+
+        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P1->GetNbinsX(); ++ bin_ix)
+        {
+            Double_t content = tmpDataHist1D_P1->GetBinContent(bin_ix);
+            systematic_efficiency_high_1D_P1[channel]->push_back(content);
+        }
+        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P2->GetNbinsX(); ++ bin_ix)
+        {
+            Double_t content = tmpDataHist1D_P2->GetBinContent(bin_ix);
+            systematic_efficiency_high_1D_P2[channel]->push_back(content);
+        }
+
+    }
+    gSystematics.reset();
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Construct Systematic Data Objects
+    // Systematic: Efficiency
+    // Systematic Value: -0.5 %
+    ///////////////////////////////////////////////////////////////////////////
+
+    gSystematics.reset();
+    gSystematics.systematic_efficiency = -0.5e-02;
+    rebuild_fake_data_systematics(xi_31_covariance_matrix_reweight_value, xi_31_baseline);
+
+    // loop over all channels
+    for(int channel = 0; channel < number1DHists; ++ channel)
+    {
+
+        std::string histname = std::string(channel_histname_1D[channel]);
+        std::string search_object_P1;
+        std::string search_object_P2;
+
+        search_object_P1 = histname + std::string("fakedata") + "_P1";
+        search_object_P2 = histname + std::string("fakedata") + "_P2";
+
+        TH1D *tmpDataHist1D_P1 = nullptr;
+        TH1D *tmpDataHist1D_P2 = nullptr;
+    
+        tmpDataHist1D_P1 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P1.c_str());
+        tmpDataHist1D_P2 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P2.c_str());
+
+        if(tmpDataHist1D_P1 == nullptr)
+        {
+            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
+            throw "problem";
+        }
+        if(tmpDataHist1D_P2 == nullptr)
+        {
+            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
+            throw "problem";
+        }
+
+        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P1->GetNbinsX(); ++ bin_ix)
+        {
+            Double_t content = tmpDataHist1D_P1->GetBinContent(bin_ix);
+            systematic_enrichment_low_1D_P1[channel]->push_back(content);
+        }
+        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P2->GetNbinsX(); ++ bin_ix)
+        {
+            Double_t content = tmpDataHist1D_P2->GetBinContent(bin_ix);
+            systematic_enrichment_low_1D_P2[channel]->push_back(content);
+        }
+
+    }
+    gSystematics.reset();
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Construct Systematic Data Objects
+    // Systematic: Efficiency
+    // Systematic Value: +0.5 %
+    ///////////////////////////////////////////////////////////////////////////
+
+    gSystematics.reset();
+    gSystematics.systematic_efficiency = +0.5e-02;
+    rebuild_fake_data_systematics(xi_31_covariance_matrix_reweight_value, xi_31_baseline);
+
+    // loop over all channels
+    for(int channel = 0; channel < number1DHists; ++ channel)
+    {
+
+        std::string histname = std::string(channel_histname_1D[channel]);
+        std::string search_object_P1;
+        std::string search_object_P2;
+
+        search_object_P1 = histname + std::string("fakedata") + "_P1";
+        search_object_P2 = histname + std::string("fakedata") + "_P2";
+
+        TH1D *tmpDataHist1D_P1 = nullptr;
+        TH1D *tmpDataHist1D_P2 = nullptr;
+    
+        tmpDataHist1D_P1 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P1.c_str());
+        tmpDataHist1D_P2 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P2.c_str());
+
+        if(tmpDataHist1D_P1 == nullptr)
+        {
+            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
+            throw "problem";
+        }
+        if(tmpDataHist1D_P2 == nullptr)
+        {
+            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
+            throw "problem";
+        }
+
+        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P1->GetNbinsX(); ++ bin_ix)
+        {
+            Double_t content = tmpDataHist1D_P1->GetBinContent(bin_ix);
+            systematic_enrichment_high_1D_P1[channel]->push_back(content);
+        }
+        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P2->GetNbinsX(); ++ bin_ix)
+        {
+            Double_t content = tmpDataHist1D_P2->GetBinContent(bin_ix);
+            systematic_enrichment_high_1D_P2[channel]->push_back(content);
+        }
+
+    }
+    gSystematics.reset();
+
+
+
+
     rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline);
 
 
@@ -1022,11 +1251,70 @@ void loadFiles(int i)
             //systematic_scale_V_MATRIX_coeff_1D_P2[channel]->operator[](i) = value;
             systematic_scale_V_MATRIX_coeff_1D_P2[channel]->push_back(value);
         }
+
+
+        ///////////////////////////////////////////////////////////////////////
+        // energy efficiency
+
+        for(std::size_t i = 0; i < systematic_nominal_1D_P1[channel]->size(); ++ i)
+        {
+            double up = systematic_efficiency_high_1D_P1[channel]->at(i);
+            double nominal = systematic_nominal_1D_P1[channel]->at(i);
+            double value_up = up - nominal;
+            double value = value_up;
+            //double value_down = down - nominal;
+            //double value = 0.5 * (value_up + value_down);
+            // TODO
+            //systematic_efficiency_V_MATRIX_coeff_1D_P1[channel]->operator[](i) = value;
+            systematic_efficiency_V_MATRIX_coeff_1D_P1[channel]->push_back(value);
+        }
+
+        for(std::size_t i = 0; i < systematic_nominal_1D_P2[channel]->size(); ++ i)
+        {
+            double up = systematic_efficiency_high_1D_P2[channel]->at(i);
+            double nominal = systematic_nominal_1D_P2[channel]->at(i);
+            double value_up = up - nominal;
+            double value = value_up;
+            //double value_down = down - nominal;
+            //double value = 0.5 * (value_up + value_down);
+            // TODO
+            //systematic_efficiency_V_MATRIX_coeff_1D_P2[channel]->operator[](i) = value;
+            systematic_efficiency_V_MATRIX_coeff_1D_P2[channel]->push_back(value);
+        }
+
+
+        ///////////////////////////////////////////////////////////////////////
+        // energy enrichment
+
+        for(std::size_t i = 0; i < systematic_nominal_1D_P1[channel]->size(); ++ i)
+        {
+            double up = systematic_enrichment_high_1D_P1[channel]->at(i);
+            double nominal = systematic_nominal_1D_P1[channel]->at(i);
+            double value_up = up - nominal;
+            double value = value_up;
+            //double value_down = down - nominal;
+            //double value = 0.5 * (value_up + value_down);
+            // TODO
+            //systematic_enrichment_V_MATRIX_coeff_1D_P1[channel]->operator[](i) = value;
+            systematic_enrichment_V_MATRIX_coeff_1D_P1[channel]->push_back(value);
+        }
+
+        for(std::size_t i = 0; i < systematic_nominal_1D_P2[channel]->size(); ++ i)
+        {
+            double up = systematic_enrichment_high_1D_P2[channel]->at(i);
+            double nominal = systematic_nominal_1D_P2[channel]->at(i);
+            double value_up = up - nominal;
+            double value = value_up;
+            //double value_down = down - nominal;
+            //double value = 0.5 * (value_up + value_down);
+            // TODO
+            //systematic_enrichment_V_MATRIX_coeff_1D_P2[channel]->operator[](i) = value;
+            systematic_enrichment_V_MATRIX_coeff_1D_P2[channel]->push_back(value);
+        }
     }
 
     // reset systematics
-    gSystematics.systematic_energy_offset = 0.0;
-    gSystematics.systematic_energy_scale = 0.0;
+    gSystematics.reset();
 
 
 
@@ -1716,19 +2004,18 @@ void loadFiles(int i)
     ///////////////////////////////////////////////////////////////////////////
 
     {
-        bool restore_V_ENABLE_SYSALL = V_ENABLE_SYSALL;
-        bool restore_V_ENABLE_SYS1 = V_ENABLE_SYS1;
-        bool restore_V_ENABLE_SYS2 = V_ENABLE_SYS2;
+        V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
         V_ENABLE_SYS1 = false;
         V_ENABLE_SYS2 = false;
+        V_ENABLE_SYS3 = false;
+        V_ENABLE_SYS4 = false;
 
         bool restore_g_mode_fake_data = g_mode_fake_data;
         g_mode_fake_data = true;
     
         // set gSystematic parameters
-        gSystematics.systematic_energy_offset = 0.0;
-        gSystematics.systematic_energy_scale = 0.0;
+        gSystematics.reset();
 
         // rebuild fake data if g_mode_fake_data == true
         // only do this in relevant function blocks
@@ -1742,9 +2029,7 @@ void loadFiles(int i)
         newLogLikFitter_preMPSfitdriver(std::string("Systematics Fit: Fake Data"),
                                         min_point_fake_data);
 
-        V_ENABLE_SYSALL = restore_V_ENABLE_SYSALL;
-        V_ENABLE_SYS1 = restore_V_ENABLE_SYS1;
-        V_ENABLE_SYS2 = restore_V_ENABLE_SYS2;
+        V_ENABLE_SYS_stack_pop();
 
         g_mode_fake_data = restore_g_mode_fake_data;
     }
@@ -1758,35 +2043,26 @@ void loadFiles(int i)
     ///////////////////////////////////////////////////////////////////////////
 
     {
-        bool restore_V_ENABLE_SYSALL = V_ENABLE_SYSALL;
-        bool restore_V_ENABLE_SYS1 = V_ENABLE_SYS1;
-        bool restore_V_ENABLE_SYS2 = V_ENABLE_SYS2;
+        V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
         V_ENABLE_SYS1 = false;
         V_ENABLE_SYS2 = false;
+        V_ENABLE_SYS3 = false;
+        V_ENABLE_SYS4 = false;
 
         bool restore_g_mode_fake_data = g_mode_fake_data;
         g_mode_fake_data = true;
     
         // set gSystematic parameters
+        gSystematics.reset();
         gSystematics.systematic_energy_offset = -0.1;
-        gSystematics.systematic_energy_scale = 0.0;
-
-        // rebuild fake data if g_mode_fake_data == true
-        // only do this in relevant function blocks
-
-        //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itself
-        //rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itself
-        rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // want to check if the fitter can fit itself to itself
-        // just check the output looks sensible
+        rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
 
         // call helper function
         newLogLikFitter_preMPSfitdriver(std::string("Systematics Fit: Fake Data"),
                                         min_point_sys1_l);
 
-        V_ENABLE_SYSALL = restore_V_ENABLE_SYSALL;
-        V_ENABLE_SYS1 = restore_V_ENABLE_SYS1;
-        V_ENABLE_SYS2 = restore_V_ENABLE_SYS2;
+        V_ENABLE_SYS_stack_pop();
 
         g_mode_fake_data = restore_g_mode_fake_data;
     }
@@ -1800,35 +2076,26 @@ void loadFiles(int i)
     ///////////////////////////////////////////////////////////////////////////
 
     {
-        bool restore_V_ENABLE_SYSALL = V_ENABLE_SYSALL;
-        bool restore_V_ENABLE_SYS1 = V_ENABLE_SYS1;
-        bool restore_V_ENABLE_SYS2 = V_ENABLE_SYS2;
+        V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
         V_ENABLE_SYS1 = false;
         V_ENABLE_SYS2 = false;
+        V_ENABLE_SYS3 = false;
+        V_ENABLE_SYS4 = false;
 
         bool restore_g_mode_fake_data = g_mode_fake_data;
         g_mode_fake_data = true;
     
         // set gSystematic parameters
+        gSystematics.reset();
         gSystematics.systematic_energy_offset = +0.1;
-        gSystematics.systematic_energy_scale = 0.0;
-
-        // rebuild fake data if g_mode_fake_data == true
-        // only do this in relevant function blocks
-
-        //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itself
-        //rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itself
-        rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // want to check if the fitter can fit itself to itself
-        // just check the output looks sensible
+        rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
 
         // call helper function
         newLogLikFitter_preMPSfitdriver(std::string("Systematics Fit: Fake Data"),
                                         min_point_sys1_h);
 
-        V_ENABLE_SYSALL = restore_V_ENABLE_SYSALL;
-        V_ENABLE_SYS1 = restore_V_ENABLE_SYS1;
-        V_ENABLE_SYS2 = restore_V_ENABLE_SYS2;
+        V_ENABLE_SYS_stack_pop();
 
         g_mode_fake_data = restore_g_mode_fake_data;
     }
@@ -1842,35 +2109,26 @@ void loadFiles(int i)
     ///////////////////////////////////////////////////////////////////////////
 
     {
-        bool restore_V_ENABLE_SYSALL = V_ENABLE_SYSALL;
-        bool restore_V_ENABLE_SYS1 = V_ENABLE_SYS1;
-        bool restore_V_ENABLE_SYS2 = V_ENABLE_SYS2;
+        V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
         V_ENABLE_SYS1 = false;
         V_ENABLE_SYS2 = false;
+        V_ENABLE_SYS3 = false;
+        V_ENABLE_SYS4 = false;
 
         bool restore_g_mode_fake_data = g_mode_fake_data;
         g_mode_fake_data = true;
     
         // set gSystematic parameters
-        gSystematics.systematic_energy_offset = 0.0;
+        gSystematics.reset();
         gSystematics.systematic_energy_scale = -0.012;
-
-        // rebuild fake data if g_mode_fake_data == true
-        // only do this in relevant function blocks
-
-        //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itself
-        //rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itself
-        rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // want to check if the fitter can fit itself to itself
-        // just check the output looks sensible
+        rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
 
         // call helper function
         newLogLikFitter_preMPSfitdriver(std::string("Systematics Fit: Fake Data"),
                                         min_point_sys2_l);
 
-        V_ENABLE_SYSALL = restore_V_ENABLE_SYSALL;
-        V_ENABLE_SYS1 = restore_V_ENABLE_SYS1;
-        V_ENABLE_SYS2 = restore_V_ENABLE_SYS2;
+        V_ENABLE_SYS_stack_pop();
 
         g_mode_fake_data = restore_g_mode_fake_data;
     }
@@ -1884,35 +2142,158 @@ void loadFiles(int i)
     ///////////////////////////////////////////////////////////////////////////
 
     {
-        bool restore_V_ENABLE_SYSALL = V_ENABLE_SYSALL;
-        bool restore_V_ENABLE_SYS1 = V_ENABLE_SYS1;
-        bool restore_V_ENABLE_SYS2 = V_ENABLE_SYS2;
+        V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
         V_ENABLE_SYS1 = false;
         V_ENABLE_SYS2 = false;
+        V_ENABLE_SYS3 = false;
+        V_ENABLE_SYS4 = false;
 
         bool restore_g_mode_fake_data = g_mode_fake_data;
         g_mode_fake_data = true;
     
         // set gSystematic parameters
-        gSystematics.systematic_energy_offset = 0.0;
+        gSystematics.reset();
         gSystematics.systematic_energy_scale = +0.012;
-
-        // rebuild fake data if g_mode_fake_data == true
-        // only do this in relevant function blocks
-
-        //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itself
-        //rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itself
-        rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // want to check if the fitter can fit itself to itself
-        // just check the output looks sensible
+        rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
 
         // call helper function
         newLogLikFitter_preMPSfitdriver(std::string("Systematics Fit: Fake Data"),
                                         min_point_sys2_h);
 
-        V_ENABLE_SYSALL = restore_V_ENABLE_SYSALL;
-        V_ENABLE_SYS1 = restore_V_ENABLE_SYS1;
-        V_ENABLE_SYS2 = restore_V_ENABLE_SYS2;
+        V_ENABLE_SYS_stack_pop();
+
+        g_mode_fake_data = restore_g_mode_fake_data;
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Efficiency
+    // Low Systematic
+    ///////////////////////////////////////////////////////////////////////////
+
+    {
+        V_ENABLE_SYS_stack_push();
+        V_ENABLE_SYSALL = false;
+        V_ENABLE_SYS1 = false;
+        V_ENABLE_SYS2 = false;
+        V_ENABLE_SYS3 = false;
+        V_ENABLE_SYS4 = false;
+
+        bool restore_g_mode_fake_data = g_mode_fake_data;
+        g_mode_fake_data = true;
+    
+        // set gSystematic parameters
+        gSystematics.reset();
+        gSystematics.systematic_efficiency = -5.55e-02;
+        rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+
+        // call helper function
+        newLogLikFitter_preMPSfitdriver(std::string("Systematics Fit: Fake Data"),
+                                        min_point_sys3_l);
+
+        V_ENABLE_SYS_stack_pop();
+
+        g_mode_fake_data = restore_g_mode_fake_data;
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Efficiency
+    // High Systematic
+    ///////////////////////////////////////////////////////////////////////////
+
+    {
+        V_ENABLE_SYS_stack_push();
+        V_ENABLE_SYSALL = false;
+        V_ENABLE_SYS1 = false;
+        V_ENABLE_SYS2 = false;
+        V_ENABLE_SYS3 = false;
+        V_ENABLE_SYS4 = false;
+
+        bool restore_g_mode_fake_data = g_mode_fake_data;
+        g_mode_fake_data = true;
+    
+        // set gSystematic parameters
+        gSystematics.reset();
+        gSystematics.systematic_efficiency = +5.55e-02;
+        rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+
+        // call helper function
+        newLogLikFitter_preMPSfitdriver(std::string("Systematics Fit: Fake Data"),
+                                        min_point_sys3_h);
+
+        V_ENABLE_SYS_stack_pop();
+
+        g_mode_fake_data = restore_g_mode_fake_data;
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Enrichment
+    // Low Systematic
+    ///////////////////////////////////////////////////////////////////////////
+
+    {
+        V_ENABLE_SYS_stack_push();
+        V_ENABLE_SYSALL = false;
+        V_ENABLE_SYS1 = false;
+        V_ENABLE_SYS2 = false;
+        V_ENABLE_SYS3 = false;
+        V_ENABLE_SYS4 = false;
+
+        bool restore_g_mode_fake_data = g_mode_fake_data;
+        g_mode_fake_data = true;
+    
+        // set gSystematic parameters
+        gSystematics.reset();
+        gSystematics.systematic_enrichment = -0.5e-02;
+        rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+
+        // call helper function
+        newLogLikFitter_preMPSfitdriver(std::string("Systematics Fit: Fake Data"),
+                                        min_point_sys4_l);
+
+        V_ENABLE_SYS_stack_pop();
+
+        g_mode_fake_data = restore_g_mode_fake_data;
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Enrichment
+    // High Systematic
+    ///////////////////////////////////////////////////////////////////////////
+
+    {
+        V_ENABLE_SYS_stack_push();
+        V_ENABLE_SYSALL = false;
+        V_ENABLE_SYS1 = false;
+        V_ENABLE_SYS2 = false;
+        V_ENABLE_SYS3 = false;
+        V_ENABLE_SYS4 = false;
+
+        bool restore_g_mode_fake_data = g_mode_fake_data;
+        g_mode_fake_data = true;
+    
+        // set gSystematic parameters
+        gSystematics.reset();
+        gSystematics.systematic_enrichment = +0.5e-02;
+        rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+
+        // call helper function
+        newLogLikFitter_preMPSfitdriver(std::string("Systematics Fit: Fake Data"),
+                                        min_point_sys4_h);
+
+        V_ENABLE_SYS_stack_pop();
 
         g_mode_fake_data = restore_g_mode_fake_data;
     }
@@ -2033,12 +2414,11 @@ void loadFiles(int i)
     {
         std::cout << "g_mode_fake_data=" << g_mode_fake_data << std::endl;
 
-        gSystematics.systematic_energy_offset = 0.0;
-        gSystematics.systematic_energy_scale = 0.0;
-        double systematic_energy_offset = gSystematics.systematic_energy_offset;
-        double systematic_energy_scale = gSystematics.systematic_energy_scale;
-        std::cout << "seo=" << systematic_energy_offset << std::endl;
-        std::cout << "sem=" << systematic_energy_scale << std::endl;
+        gSystematics.reset();
+        std::cout << "seo=" << gSystematics.systematic_energy_offset << std::endl;
+        std::cout << "sem=" << gSystematics.systematic_energy_scale << std::endl;
+        std::cout << "sef=" << gSystematics.systematic_efficiency << std::endl;
+        std::cout << "sen=" << gSystematics.systematic_enrichment << std::endl;
         //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itsel
         rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itsel
 
@@ -2239,7 +2619,7 @@ void loadFiles(int i)
     ///////////////////////////////////////////////////////////////////////////
 
     
-    std::cout << "ok to run chisquare test? [press enter to continue]" << std::endl;
+    //std::cout << "ok to run chisquare test? [press enter to continue]" << std::endl;
     //std::cin.get();
 
 //    newloglikfitter_gA_chisquaretest(minuit, AdjustActs, AdjustActs_Err);
