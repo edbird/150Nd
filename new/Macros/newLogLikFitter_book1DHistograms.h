@@ -526,8 +526,10 @@ void book1DHistograms(Int_t channel_counter, TString theChannel, TString theHist
     // TODO: need P1 and P2 data here
 
 
+    /*
     if(g_mode_fake_data == false)
     {
+    */
         if(debuglevel >= 2)
         {
             std::cout << "Data" << std::endl;
@@ -598,6 +600,7 @@ void book1DHistograms(Int_t channel_counter, TString theChannel, TString theHist
         }
         */
 
+    /*
     }
     else if(g_mode_fake_data == true)
     {
@@ -609,6 +612,7 @@ void book1DHistograms(Int_t channel_counter, TString theChannel, TString theHist
         //systematic_energy_offset = 0.0;
         //rebuild_fake_data_systematics();
     }
+    */
 
 
 

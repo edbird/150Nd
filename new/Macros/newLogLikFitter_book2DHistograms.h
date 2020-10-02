@@ -346,8 +346,10 @@ void book2DHistograms(Int_t channel_counter, TString theChannel, TString theHist
                             nNd150Samples,
                             Nd150Files);
 
+    /*
     if(g_mode_fake_data == false)
     {
+    */
         if(debuglevel >= 2)
         {
             std::cout << "Data" << std::endl;
@@ -392,6 +394,8 @@ void book2DHistograms(Int_t channel_counter, TString theChannel, TString theHist
         {
             std::cout << __func__ << " ERROR: could not find " << fullname << " in file" << std::endl;
         }
+
+    /*
     }
     else if(g_mode_fake_data == true)
     {
@@ -405,6 +409,7 @@ void book2DHistograms(Int_t channel_counter, TString theChannel, TString theHist
         // removed from here
         //rebuild_fake_data_systematics();
     }
+    */
 
     // aFile->Close();
     // aFile->Delete();
