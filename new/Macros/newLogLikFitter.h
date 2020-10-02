@@ -389,6 +389,9 @@ double min_point_sys1_l[2] = {0.0, 0.0};
 double min_point_sys2_h[2] = {0.0, 0.0};
 double min_point_sys2_l[2] = {0.0, 0.0};
 
+const bool ENABLE_MIN_POINT_SYS1 = true;
+const bool ENABLE_MIN_POINT_SYS2 = true;
+
 ///////////////////////////////////////////////////////////////////////////////
 // systematic objects - Phase 1
 ///////////////////////////////////////////////////////////////////////////////
