@@ -642,7 +642,7 @@ void loadFiles(int i)
     //rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline); // want to check if the fitter can fit itself to itsel
 
 
-    const double xi_31_systematics_reweight_value = xi_31_SSD;
+    const double xi_31_systematics_reweight_value = 0.0; //xi_31_SSD;
     const double xi_31_covariance_matrix_reweight_value = xi_31_SSD;
 
 
