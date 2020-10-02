@@ -289,6 +289,7 @@ void newloglikfitter_testmyphasespace_newversion(
     }
     
     // with systematics
+    param_1_min = -0.7
     param_1_max = 2.1;
 
     // hack to get HSD
@@ -910,13 +911,25 @@ void newloglikfitter_testmyphasespace_newversion(
            (min_point_sys1_l[0] != 0.0) &&
            (min_point_sys1_l[1] != 0.0))
         {
-            double x_orig = min_point[0];
-            double y_orig = min_point[1];
-            double x_min_point = min_point_sys1_l[0] - min_point_fake_data[0] + min_point[0];
-            double y_min_point = min_point_sys1_l[1] - min_point_fake_data[1] + min_point[1];
+            double x_orig = 0.0;
+            double y_orig = 0.0;
+            if(g_mode_fake_data == true)
+            {
+                x_orig = 0.0;
+                y_orig = 0.0;
+            }
+            else if(g_mode_fake_data == false)
+            {
+                x_orig = min_point[0];
+                y_orig = min_point[1];
+            }
+            double x_min_point = min_point_sys1_l[0] - min_point_fake_data[0] + x_orig;
+            double y_min_point = min_point_sys1_l[1] - min_point_fake_data[1] + y_orig;
 
             //std::cout << "DRAW MARK SYS1L" << std::endl;
             std::cout << "SYS1L: " << min_point_sys1_l[0] << " " << min_point_sys1_l[1] << std::endl;
+            std::cout << "MIN_POINT: " << min_point[0] << " " << min_point[1] << std::endl;
+            std::cout << "MIN_POINT FAKE DATA: " << min_point_fake_data[0] << " " << min_point_fake_data[1] << std::endl;
 
             TMarker *mark_min_point_sys1_l = new TMarker(
                 x_min_point, y_min_point, 106);
@@ -935,13 +948,25 @@ void newloglikfitter_testmyphasespace_newversion(
            (min_point_sys1_h[0] != 0.0) &&
            (min_point_sys1_h[1] != 0.0))
         {
-            double x_orig = min_point[0];
-            double y_orig = min_point[1];
-            double x_min_point = min_point_sys1_h[0] - min_point_fake_data[0] + min_point[0];
-            double y_min_point = min_point_sys1_h[1] - min_point_fake_data[1] + min_point[1];
+            double x_orig = 0.0;
+            double y_orig = 0.0;
+            if(g_mode_fake_data == true)
+            {
+                x_orig = 0.0;
+                y_orig = 0.0;
+            }
+            else if(g_mode_fake_data == false)
+            {
+                x_orig = min_point[0];
+                y_orig = min_point[1];
+            }
+            double x_min_point = min_point_sys1_h[0] - min_point_fake_data[0] + x_orig;
+            double y_min_point = min_point_sys1_h[1] - min_point_fake_data[1] + y_orig;
 
             //std::cout << "DRAW MARK SYS1H" << std::endl;
             std::cout << "SYS1H: " << min_point_sys1_h[0] << " " << min_point_sys1_h[1] << std::endl;
+            std::cout << "MIN_POINT: " << min_point[0] << " " << min_point[1] << std::endl;
+            std::cout << "MIN_POINT FAKE DATA: " << min_point_fake_data[0] << " " << min_point_fake_data[1] << std::endl;
             TMarker *mark_min_point_sys1_h = new TMarker(
                 x_min_point, y_min_point, 106);
 
@@ -959,13 +984,25 @@ void newloglikfitter_testmyphasespace_newversion(
            (min_point_sys2_l[0] != 0.0) &&
            (min_point_sys2_l[1] != 0.0))
         {
-            double x_orig = min_point[0];
-            double y_orig = min_point[1];
-            double x_min_point = min_point_sys2_l[0] - min_point_fake_data[0] + min_point[0];
-            double y_min_point = min_point_sys2_l[1] - min_point_fake_data[1] + min_point[1];
+            double x_orig = 0.0;
+            double y_orig = 0.0;
+            if(g_mode_fake_data == true)
+            {
+                x_orig = 0.0;
+                y_orig = 0.0;
+            }
+            else if(g_mode_fake_data == false)
+            {
+                x_orig = min_point[0];
+                y_orig = min_point[1];
+            }
+            double x_min_point = min_point_sys2_l[0] - min_point_fake_data[0] + x_orig;
+            double y_min_point = min_point_sys2_l[1] - min_point_fake_data[1] + y_orig;
 
             //std::cout << "DRAW MARK SYS2L" << std::endl;
             std::cout << "SYS2L: " << min_point_sys2_l[0] << " " << min_point_sys2_l[1] << std::endl;
+            std::cout << "MIN_POINT: " << min_point[0] << " " << min_point[1] << std::endl;
+            std::cout << "MIN_POINT FAKE DATA: " << min_point_fake_data[0] << " " << min_point_fake_data[1] << std::endl;
             TMarker *mark_min_point_sys2_l = new TMarker(
                 x_min_point, y_min_point, 22);
 
@@ -983,13 +1020,25 @@ void newloglikfitter_testmyphasespace_newversion(
            (min_point_sys2_h[0] != 0.0) &&
            (min_point_sys2_h[1] != 0.0))
         {
-            double x_orig = min_point[0];
-            double y_orig = min_point[1];
-            double x_min_point = min_point_sys2_h[0] - min_point_fake_data[0] + min_point[0];
-            double y_min_point = min_point_sys2_h[1] - min_point_fake_data[1] + min_point[1];
+            double x_orig = 0.0;
+            double y_orig = 0.0;
+            if(g_mode_fake_data == true)
+            {
+                x_orig = 0.0;
+                y_orig = 0.0;
+            }
+            else if(g_mode_fake_data == false)
+            {
+                x_orig = min_point[0];
+                y_orig = min_point[1];
+            }
+            double x_min_point = min_point_sys2_h[0] - min_point_fake_data[0] + x_orig;
+            double y_min_point = min_point_sys2_h[1] - min_point_fake_data[1] + y_orig;
 
             //std::cout << "DRAW MARK SYS2H" << std::endl;
             std::cout << "SYS2H: " << min_point_sys2_h[0] << " " << min_point_sys2_h[1] << std::endl;
+            std::cout << "MIN_POINT: " << min_point[0] << " " << min_point[1] << std::endl;
+            std::cout << "MIN_POINT FAKE DATA: " << min_point_fake_data[0] << " " << min_point_fake_data[1] << std::endl;
             TMarker *mark_min_point_sys2_h = new TMarker(
                 x_min_point, y_min_point, 23);
 
