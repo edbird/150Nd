@@ -289,8 +289,16 @@ void newloglikfitter_testmyphasespace_newversion(
     }
     
     // with systematics
-    param_1_min = -0.7;
-    param_1_max = 2.1;
+    if(g_mode_fake_data == false)
+    {
+        param_1_min = -0.7;
+        param_1_max = 2.1;
+    }
+    else if(g_mode_fake_data == true)
+    {
+        param_1_min = -0.5;
+        param_1_max = 0.7;
+    }
 
     // hack to get HSD
     //param_1_min = -0.1;
@@ -320,8 +328,16 @@ void newloglikfitter_testmyphasespace_newversion(
     }
     
     // with systematics
-    param_2_min = 0.75;
-    param_2_max = 1.5;
+    if(g_mode_fake_data == false)
+    {
+        param_2_min = 0.75;
+        param_2_max = 1.5;
+    }
+    else if(g_mode_fake_data == true)
+    {
+        param_2_min = 0.85;
+        param_2_max = 1.15;
+    }
 
     // hack to get HSD
     //param_1_min = 0.9999;
