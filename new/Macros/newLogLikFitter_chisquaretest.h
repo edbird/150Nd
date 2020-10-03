@@ -932,6 +932,7 @@ void newloglikfitter_testmyphasespace_newversion(
                 std::cout << "SYS1L: " << min_point_sys1_l[0] << " " << min_point_sys1_l[1] << std::endl;
                 std::cout << "MIN_POINT: " << min_point[0] << " " << min_point[1] << std::endl;
                 std::cout << "MIN_POINT FAKE DATA: " << min_point_fake_data[0] << " " << min_point_fake_data[1] << std::endl;
+                std::cout << "DRAWING: " << x_min_point << " " << y_min_point << std::endl;
 
                 TMarker *mark_min_point_sys1_l = new TMarker(
                     x_min_point, y_min_point, 106);
@@ -941,7 +942,7 @@ void newloglikfitter_testmyphasespace_newversion(
                 mark_min_point_sys1_l->Draw();
 
                 TLine *line_min_point_sys1_l = new TLine(x_orig, y_orig, x_min_point, y_min_point);
-                line_min_point_sys1_l->SetLineColorAlpha(kRed, 0.5);
+                line_min_point_sys1_l->SetLineColorAlpha(kOrange, 0.5);
                 line_min_point_sys1_l->SetLineWidth(1);
                 line_min_point_sys1_l->Draw();
             }
@@ -956,6 +957,7 @@ void newloglikfitter_testmyphasespace_newversion(
                 std::cout << "SYS1H: " << min_point_sys1_h[0] << " " << min_point_sys1_h[1] << std::endl;
                 std::cout << "MIN_POINT: " << min_point[0] << " " << min_point[1] << std::endl;
                 std::cout << "MIN_POINT FAKE DATA: " << min_point_fake_data[0] << " " << min_point_fake_data[1] << std::endl;
+                std::cout << "DRAWING: " << x_min_point << " " << y_min_point << std::endl;
                 TMarker *mark_min_point_sys1_h = new TMarker(
                     x_min_point, y_min_point, 106);
 
@@ -970,6 +972,7 @@ void newloglikfitter_testmyphasespace_newversion(
             }
         }
 
+        if(ENABLE_MIN_POINT_SYS2 == true)
         {
             double x_orig = 0.0;
             double y_orig = 0.0;
@@ -994,6 +997,7 @@ void newloglikfitter_testmyphasespace_newversion(
                 std::cout << "SYS2L: " << min_point_sys2_l[0] << " " << min_point_sys2_l[1] << std::endl;
                 std::cout << "MIN_POINT: " << min_point[0] << " " << min_point[1] << std::endl;
                 std::cout << "MIN_POINT FAKE DATA: " << min_point_fake_data[0] << " " << min_point_fake_data[1] << std::endl;
+                std::cout << "DRAWING: " << x_min_point << " " << y_min_point << std::endl;
                 TMarker *mark_min_point_sys2_l = new TMarker(
                     x_min_point, y_min_point, 22);
 
@@ -1017,6 +1021,7 @@ void newloglikfitter_testmyphasespace_newversion(
                 std::cout << "SYS2H: " << min_point_sys2_h[0] << " " << min_point_sys2_h[1] << std::endl;
                 std::cout << "MIN_POINT: " << min_point[0] << " " << min_point[1] << std::endl;
                 std::cout << "MIN_POINT FAKE DATA: " << min_point_fake_data[0] << " " << min_point_fake_data[1] << std::endl;
+                std::cout << "DRAWING: " << x_min_point << " " << y_min_point << std::endl;
                 TMarker *mark_min_point_sys2_h = new TMarker(
                     x_min_point, y_min_point, 23);
 
@@ -1025,7 +1030,7 @@ void newloglikfitter_testmyphasespace_newversion(
                 mark_min_point_sys2_h->Draw();
                 
                 TLine *line_min_point_sys2_h = new TLine(x_orig, y_orig, x_min_point, y_min_point);
-                line_min_point_sys2_h->SetLineColorAlpha(kGreen, 0.5);
+                line_min_point_sys2_h->SetLineColorAlpha(kYellow, 0.5);
                 line_min_point_sys2_h->SetLineWidth(1);
                 line_min_point_sys2_h->Draw();
             }
@@ -1056,6 +1061,7 @@ void newloglikfitter_testmyphasespace_newversion(
                 std::cout << "SYS3L: " << min_point_sys3_l[0] << " " << min_point_sys3_l[1] << std::endl;
                 std::cout << "MIN_POINT: " << min_point[0] << " " << min_point[1] << std::endl;
                 std::cout << "MIN_POINT FAKE DATA: " << min_point_fake_data[0] << " " << min_point_fake_data[1] << std::endl;
+                std::cout << "DRAWING: " << x_min_point << " " << y_min_point << std::endl;
                 TMarker *mark_min_point_sys3_l = new TMarker(
                     x_min_point, y_min_point, 20);
 
@@ -1064,7 +1070,7 @@ void newloglikfitter_testmyphasespace_newversion(
                 mark_min_point_sys3_l->Draw();
 
                 TLine *line_min_point_sys3_l = new TLine(x_orig, y_orig, x_min_point, y_min_point);
-                line_min_point_sys3_l->SetLineColorAlpha(kYellow, 0.5);
+                line_min_point_sys3_l->SetLineColorAlpha(kGreen, 0.5);
                 line_min_point_sys3_l->SetLineWidth(1);
                 line_min_point_sys3_l->Draw();
             }
@@ -1079,6 +1085,7 @@ void newloglikfitter_testmyphasespace_newversion(
                 std::cout << "SYS3H: " << min_point_sys3_h[0] << " " << min_point_sys3_h[1] << std::endl;
                 std::cout << "MIN_POINT: " << min_point[0] << " " << min_point[1] << std::endl;
                 std::cout << "MIN_POINT FAKE DATA: " << min_point_fake_data[0] << " " << min_point_fake_data[1] << std::endl;
+                std::cout << "DRAWING: " << x_min_point << " " << y_min_point << std::endl;
                 TMarker *mark_min_point_sys3_h = new TMarker(
                     x_min_point, y_min_point, 21);
 
@@ -1118,6 +1125,7 @@ void newloglikfitter_testmyphasespace_newversion(
                 std::cout << "SYS4L: " << min_point_sys4_l[0] << " " << min_point_sys4_l[1] << std::endl;
                 std::cout << "MIN_POINT: " << min_point[0] << " " << min_point[1] << std::endl;
                 std::cout << "MIN_POINT FAKE DATA: " << min_point_fake_data[0] << " " << min_point_fake_data[1] << std::endl;
+                std::cout << "DRAWING: " << x_min_point << " " << y_min_point << std::endl;
                 TMarker *mark_min_point_sys4_l = new TMarker(
                     x_min_point, y_min_point, 43);
 
@@ -1126,7 +1134,7 @@ void newloglikfitter_testmyphasespace_newversion(
                 mark_min_point_sys4_l->Draw();
 
                 TLine *line_min_point_sys4_l = new TLine(x_orig, y_orig, x_min_point, y_min_point);
-                line_min_point_sys4_l->SetLineColorAlpha(kYellow, 0.5);
+                line_min_point_sys4_l->SetLineColorAlpha(kWhite, 0.5);
                 line_min_point_sys4_l->SetLineWidth(1);
                 line_min_point_sys4_l->Draw();
             }
@@ -1141,6 +1149,7 @@ void newloglikfitter_testmyphasespace_newversion(
                 std::cout << "SYS4H: " << min_point_sys4_h[0] << " " << min_point_sys4_h[1] << std::endl;
                 std::cout << "MIN_POINT: " << min_point[0] << " " << min_point[1] << std::endl;
                 std::cout << "MIN_POINT FAKE DATA: " << min_point_fake_data[0] << " " << min_point_fake_data[1] << std::endl;
+                std::cout << "DRAWING: " << x_min_point << " " << y_min_point << std::endl;
                 TMarker *mark_min_point_sys4_h = new TMarker(
                     x_min_point, y_min_point, 45);
 
@@ -1149,7 +1158,7 @@ void newloglikfitter_testmyphasespace_newversion(
                 mark_min_point_sys4_h->Draw();
                 
                 TLine *line_min_point_sys4_h = new TLine(x_orig, y_orig, x_min_point, y_min_point);
-                line_min_point_sys4_h->SetLineColorAlpha(kGreen, 0.5);
+                line_min_point_sys4_h->SetLineColorAlpha(kWhite, 0.5);
                 line_min_point_sys4_h->SetLineWidth(1);
                 line_min_point_sys4_h->Draw();
             }

@@ -11,8 +11,8 @@ void newLogLikFitter_preMPSfitdriver(const std::string &fit_description_string, 
         std::cout << "sef=" << gSystematics.systematic_efficiency << std::endl;
         std::cout << "sen=" << gSystematics.systematic_enrichment << std::endl;
         std::string name_extra = "seo_" + std::to_string(gSystematics.systematic_energy_offset)
-                               + "_sem_" + std::to_string(gSystematics.systematic_energy_scale);
-                               + "_sef_" + std::to_string(gSystematics.systematic_efficiency);
+                               + "_sem_" + std::to_string(gSystematics.systematic_energy_scale)
+                               + "_sef_" + std::to_string(gSystematics.systematic_efficiency)
                                + "_sen_" + std::to_string(gSystematics.systematic_enrichment);
 
     // create minimizer

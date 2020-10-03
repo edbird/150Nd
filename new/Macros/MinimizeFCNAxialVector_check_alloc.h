@@ -2129,6 +2129,16 @@ MinimizeFCNAxialVector::calculate_penalty_term(double& penalty_term_ret, const s
             continue;
         }
 
+        // ignore parameter if it is of background type and FORCE_BKG_HARD
+        // is set
+        if(FORCE_BKG_HARD == true)
+        {
+            if(paramNumber > 1)
+            {
+                continue;
+            }
+        }
+
         paramNumberInt = g_pg.ExtToIntParamNumberMap.at(paramNumber);
 
         if(debuglevel >= 5)

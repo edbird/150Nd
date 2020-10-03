@@ -204,7 +204,18 @@ void fitBackgrounds_init(
             }
 
             // TODO: set initial error using initError/initValue
+
+
+            if(FORCE_BKG_HARD == true)
+            {
+                if(minuit_param_number > 1)
+                {
+                    std::cout << "Fixing parameter number: " << minuit_param_number << std::endl;
+                    theParameterState.Fix(std::string(minuit_param_name));
+                }
+            }
         }
+
 
         // note, only enabled parameters
         // get through to this execution block
@@ -535,7 +546,17 @@ void fitBackgrounds_phasespace_init(
                 theParameterState.SetLowerLimit(minuit_param_number, 0.0);
             }
 
-            // TODO: set initial error using initError/initValue
+           // TODO: set initial error using initError/initValue
+
+
+            if(FORCE_BKG_HARD == true)
+            {
+                if(minuit_param_number > 1)
+                {
+                    std::cout << "Fixing parameter number: " << minuit_param_number << std::endl;
+                    theParameterState.Fix(std::string(minuit_param_name));
+                }
+            }
         }
 
     }
