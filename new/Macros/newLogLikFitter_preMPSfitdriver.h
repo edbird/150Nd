@@ -41,11 +41,13 @@ void newLogLikFitter_preMPSfitdriver(const std::string &fit_description_string, 
         std::cout << "nch=" << theFCN.nch << std::endl;
         std::cout << "g_pg.get_number_free_params()=" << g_pg.get_number_free_params() << std::endl;
 
+/*
     std::cout << "fval=" << fval_before << std::endl;
     for(int i = 0; i < params_before.size(); ++ i)
     {
         std::cout << "i=" << i << " params_before[" << i << "]=" << params_before[i] << std::endl;
     }
+*/
 
     // draw before fit
     draw_input_data drawinputdata;
@@ -80,11 +82,13 @@ void newLogLikFitter_preMPSfitdriver(const std::string &fit_description_string, 
     nfp = g_pg.get_number_free_params();
     ndf = nch - nfp;
 
+/*
     std::cout << "fval=" << fval_after << std::endl;
     for(int i = 0; i < params_after.size(); ++ i)
     {
         std::cout << "i=" << i << " params_after[" << i << "]=" << params_after[i] << std::endl;
     }
+*/
 
     // draw result
     drawinputdata.chi2 = fval_after;

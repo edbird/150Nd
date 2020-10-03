@@ -49,7 +49,7 @@
 #include "newLogLikFitter_read_parameternames_lst.h"
 #include "Systematics.h"
 #include "newLogLikFitter_reweight.h"
-#include "newLogLikFitter_reweight_apply.h"
+#include "newLogLikFitter_reweight_apply_MC.h"
 #include "newLogLikFitter_reweight_apply_fakedata.h"
 #include "newLogLikFitter_reweight_apply_data.h"
 #include "newLogLikFitter_buildfakedata.h"
@@ -1772,21 +1772,19 @@ void loadFiles(int i)
     // do not do this in parallel mode
     if(1) // || (MODE_PARALLEL == 0))
     {
-        bool restore_V_ENABLE_SYSALL = V_ENABLE_SYSALL;
-        bool restore_V_ENABLE_SYS1 = V_ENABLE_SYS1;
-        bool restore_V_ENABLE_SYS2 = V_ENABLE_SYS2;
+        V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
         V_ENABLE_SYS1 = false;
         V_ENABLE_SYS2 = false;
+        V_ENABLE_SYS3 = false;
+        V_ENABLE_SYS4 = false;
 
         bool restore_g_mode_fake_data = g_mode_fake_data;
         g_mode_fake_data = false;
     
         newLogLikFitter_preMPSfitdriver(std::string("All Parameter Fit: NEMO3 Data"), min_point);
 
-        V_ENABLE_SYSALL = restore_V_ENABLE_SYSALL;
-        V_ENABLE_SYS1 = restore_V_ENABLE_SYS1;
-        V_ENABLE_SYS2 = restore_V_ENABLE_SYS2;
+        V_ENABLE_SYS_stack_pop();
 
         g_mode_fake_data = restore_g_mode_fake_data;
     }
@@ -2002,7 +2000,7 @@ void loadFiles(int i)
     // Fake Data
     // No Systematics
     ///////////////////////////////////////////////////////////////////////////
-    if(0)
+    if(1)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
@@ -2041,7 +2039,7 @@ void loadFiles(int i)
     // Constant Energy Offset
     // Low Systematic
     ///////////////////////////////////////////////////////////////////////////
-    if(0)
+    if(1)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
@@ -2074,7 +2072,7 @@ void loadFiles(int i)
     // Constant Energy Offset
     // High Systematic
     ///////////////////////////////////////////////////////////////////////////
-    if(0)
+    if(1)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
@@ -2107,7 +2105,7 @@ void loadFiles(int i)
     // Energy Scale Multiplier
     // Low Systematic
     ///////////////////////////////////////////////////////////////////////////
-    if(0)
+    if(1)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
@@ -2140,7 +2138,7 @@ void loadFiles(int i)
     // Energy Scale Multiplier
     // High Systematic
     ///////////////////////////////////////////////////////////////////////////
-    if(0)
+    if(1)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
@@ -2199,7 +2197,6 @@ void loadFiles(int i)
         g_mode_fake_data = restore_g_mode_fake_data;
     }
 
-    std::cin.get();
 
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit
