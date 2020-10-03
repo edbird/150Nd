@@ -2,6 +2,8 @@
 #define NEWLOGLIKFITTER_DRAW_OUTPUTDIFF_H
 
 
+// NOTE: obsolete function
+
 // h2 must be orig
 void ratioplotOld(TH1D* h1, TH1D* h2, const double xi_31, const std::string &saveas_filename, int flag)
 {
@@ -294,6 +296,9 @@ void ratioplotOld(TH1D* h1, TH1D* h2, const double xi_31, const std::string &sav
     }
 }
 
+
+
+// NOTE: obsolete function
 void draw_outputdiff(const double *const AdjustActs,
                      const double xi_31_orig,
                      const std::string &saveas_filename,

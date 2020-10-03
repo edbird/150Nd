@@ -79,6 +79,9 @@ void convert_data_to_histogram_format(const std::vector<std::vector<double>> &da
 
 // TODO: this is probably equivalent to my previous "manual"
 // reading code, but should check
+// 2020-10-03: NOTE: This function is not used for anything.
+// It gave different results to loading data manually and I did not
+// find out why.
 void read_data(TTree *tree, std::vector<std::vector<double>>& data)
 {
     

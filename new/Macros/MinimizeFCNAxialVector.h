@@ -176,6 +176,14 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                 std::cout << "rebuild 150Nd MC" << std::endl;
                 std::cout << "param[" << xi_31_ext_param_number << "]=" << param[xi_31_ext_param_number] << " != " << g_pg.file_params.at(xi_31_ext_param_number).paramLastValue << std::endl;
             }
+
+
+            // 2020-10-03:
+            // TODO: this function does not take into account any systematics
+            // is this correct?
+            // yes this is correct, because the systematics are applied ONLY
+            // when constructing the FAKE DATA from all the MC input samples
+            // (read from TTrees)
             rebuild_150Nd_MC(xi_31, xi_31_baseline);
 
 

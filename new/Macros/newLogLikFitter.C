@@ -2002,7 +2002,7 @@ void loadFiles(int i)
     // Fake Data
     // No Systematics
     ///////////////////////////////////////////////////////////////////////////
-
+    if(0)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
@@ -2041,7 +2041,7 @@ void loadFiles(int i)
     // Constant Energy Offset
     // Low Systematic
     ///////////////////////////////////////////////////////////////////////////
-
+    if(0)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
@@ -2074,7 +2074,7 @@ void loadFiles(int i)
     // Constant Energy Offset
     // High Systematic
     ///////////////////////////////////////////////////////////////////////////
-
+    if(0)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
@@ -2107,7 +2107,7 @@ void loadFiles(int i)
     // Energy Scale Multiplier
     // Low Systematic
     ///////////////////////////////////////////////////////////////////////////
-
+    if(0)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
@@ -2140,7 +2140,7 @@ void loadFiles(int i)
     // Energy Scale Multiplier
     // High Systematic
     ///////////////////////////////////////////////////////////////////////////
-
+    if(0)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
@@ -2199,6 +2199,7 @@ void loadFiles(int i)
         g_mode_fake_data = restore_g_mode_fake_data;
     }
 
+    std::cin.get();
 
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit

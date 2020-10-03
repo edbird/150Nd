@@ -325,6 +325,9 @@ void reweight_apply_data(
     std::cout << "finished building the data" << std::endl;
     std::cout << "P2 channel1 integral: " << hSingleEnergy_output_P2->Integral() << std::endl;
     std::cout << "seo=" << gSystematics.systematic_energy_offset << std::endl;
+    std::cout << "sem=" << gSystematics.systematic_energy_scale << std::endl;
+    std::cout << "sef=" << gSystematics.systematic_efficiency << std::endl;
+    std::cout << "sen=" << gSystematics.systematic_enrichment << std::endl;
     std::cin.get();
 
 

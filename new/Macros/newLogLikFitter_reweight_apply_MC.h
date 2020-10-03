@@ -32,7 +32,7 @@ void deleter_helper(TString hname)
 
 // xi31 reweighting function for 150Nd spectra
 //void reweight_apply(TH2D *output, const TH1D *const input,
-void reweight_apply(
+void reweight_apply_MC(
     TH1D *&hTotalE_output_P1,
     TH1D *&hSingleEnergy_output_P1,
     TH1D *&hHighEnergy_output_P1,

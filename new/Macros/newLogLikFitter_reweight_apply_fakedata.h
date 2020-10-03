@@ -690,7 +690,19 @@ void reweight_apply_fakedata(
                 //std::cout << "-> el_energy_1=" << el_energy_1 << std::endl;
 
                 // efficiency and enrichment
-                weight = weight * (1.0 + gSystematics.systematic_efficiency + gSystematics.systematic_enrichment);
+                // if sample is nd150, then apply both
+                if(sampleName.Contains("nd150"))
+                {
+                    weight = weight *
+                        (1.0 + gSystematics.systematic_efficiency
+                             + gSystematics.systematic_enrichment);
+                }
+                // if some other MC sample, then only apply efficiency effect
+                else
+                {
+                    weight = weight *
+                        (1.0 + gSystematics.systematic_efficiency);
+                }
 
                 ///////////////////////////////////////////////////////////////
                 // standard cuts not implemented in preprocessing

@@ -182,7 +182,7 @@ void rebuild_150Nd_MC(const double xi_31, const double xi_31_baseline)
     {
         std::cout << "before reweight_apply()" << std::endl;
     }
-    reweight_apply(
+    reweight_apply_MC(
         hTotalE_P1,
         hSingleEnergy_P1,
         hHighEnergy_P1,
