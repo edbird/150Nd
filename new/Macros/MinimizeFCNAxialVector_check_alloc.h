@@ -1638,6 +1638,12 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         V_PHYS_1D_P1_MATHMORE[channel]->operator[](j_counter).operator[](i_counter) = content;
                         //std::cout << "j=" << j << " i=" << i << " " << content << std::endl;
 
+                        std::cout << "P1" << std::endl;
+                        std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c1=" << c1 << std::endl;
+                        std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c2=" << c2 << std::endl;
+                        std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c3=" << c3 << std::endl;
+                        std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c4=" << c4 << std::endl;
+                        std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c5=" << c5 << std::endl;
 
                         #if DRAWVPHYSMATRIX
                         if(DRAW_V_PHYS_MATRIX == true)
@@ -1771,6 +1777,12 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         //std::cout << "i=" << i << " j=" << j << " i_counter=" << i_counter << " j_counter=" << j_counter << " content=" << content << std::endl;
                         V_PHYS_1D_P2_MATHMORE[channel]->operator[](j_counter).operator[](i_counter) = content;
 
+                        std::cout << "P2" << std::endl;
+                        std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c1=" << c1 << std::endl;
+                        std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c2=" << c2 << std::endl;
+                        std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c3=" << c3 << std::endl;
+                        std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c4=" << c4 << std::endl;
+                        std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c5=" << c5 << std::endl;
 
                         #if DRAWVPHYSMATRIX
                         if(DRAW_V_PHYS_MATRIX == true)
