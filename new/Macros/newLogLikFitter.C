@@ -1077,12 +1077,12 @@ void loadFiles(int i)
 
     ///////////////////////////////////////////////////////////////////////////
     // Construct Systematic Data Objects
-    // Systematic: Efficiency
+    // Systematic: Enrichment
     // Systematic Value: -0.5 %
     ///////////////////////////////////////////////////////////////////////////
 
     gSystematics.reset();
-    gSystematics.systematic_efficiency = -0.5e-02;
+    gSystematics.systematic_enrichment = -0.5e-02;
     rebuild_fake_data_systematics(xi_31_covariance_matrix_reweight_value, xi_31_baseline);
 
     // loop over all channels
@@ -1130,12 +1130,12 @@ void loadFiles(int i)
 
     ///////////////////////////////////////////////////////////////////////////
     // Construct Systematic Data Objects
-    // Systematic: Efficiency
+    // Systematic: Enrichment
     // Systematic Value: +0.5 %
     ///////////////////////////////////////////////////////////////////////////
 
     gSystematics.reset();
-    gSystematics.systematic_efficiency = +0.5e-02;
+    gSystematics.systematic_enrichment = +0.5e-02;
     rebuild_fake_data_systematics(xi_31_covariance_matrix_reweight_value, xi_31_baseline);
 
     // loop over all channels

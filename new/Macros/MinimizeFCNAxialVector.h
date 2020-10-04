@@ -540,6 +540,8 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
 
             check_alloc_V_PHYS_SYS1_data();
             check_alloc_V_PHYS_SYS2_data();
+            check_alloc_V_PHYS_SYS3_data();
+            check_alloc_V_PHYS_SYS4_data();
 
             #if 0
             // systematics do not change, so leave alone!

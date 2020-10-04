@@ -709,6 +709,8 @@ std::vector<bool> V_ENABLE_SYS2_stack;
 std::vector<bool> V_ENABLE_SYS3_stack;
 std::vector<bool> V_ENABLE_SYS4_stack;
 
+bool DRAW_V_PHYS_MATRIX = true;
+
 void V_ENABLE_SYS_stack_push()
 {
     V_ENABLE_SYSALL_stack.push_back(V_ENABLE_SYS1);
