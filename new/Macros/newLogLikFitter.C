@@ -1650,6 +1650,8 @@ void loadFiles(int i)
         std::cout << "HSD Fit: NEMO3 Data (same as Summers fit)" << std::endl;
         std::cout << "SYSTEMATICS: CONSTANT OFFSET DISABLED: " << gSystematics.systematic_energy_offset << " MeV" << std::endl;
         std::cout << "SYSTEMATICS: CONSTANT SCALE DISABLED: " << gSystematics.systematic_energy_scale << " MeV" << std::endl;
+        std::cout << "SYSTEMATICS: EFFICIENCY DISABLED: " << gSystematics.systematic_efficiency << "" << std::endl;
+        std::cout << "SYSTEMATICS: ENRICHMENT DISABLED: " << gSystematics.systematic_enrichment << "" << std::endl;
         std::cout << "Result: " << std::endl;
         std::cout << "fval_before=" << fval_before << std::endl;
         std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
@@ -1752,6 +1754,8 @@ void loadFiles(int i)
         std::cout << "SSD Fit: NEMO3 Data" << std::endl;
         std::cout << "SYSTEMATICS: CONSTANT OFFSET DISABLED: " << gSystematics.systematic_energy_offset << " MeV" << std::endl;
         std::cout << "SYSTEMATICS: CONSTANT SCALE DISABLED: " << gSystematics.systematic_energy_scale << " MeV" << std::endl;
+        std::cout << "SYSTEMATICS: EFFICIENCY DISABLED: " << gSystematics.systematic_efficiency << "" << std::endl;
+        std::cout << "SYSTEMATICS: ENRICHMENT DISABLED: " << gSystematics.systematic_enrichment << "" << std::endl;
         std::cout << "Result: " << std::endl;
         std::cout << "fval_before=" << fval_before << std::endl;
         std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;

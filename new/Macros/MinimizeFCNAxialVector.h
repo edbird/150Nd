@@ -2364,6 +2364,8 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
     void check_alloc_V_PHYS_STAT_data() const;
     void check_alloc_V_PHYS_SYS1_data() const;
     void check_alloc_V_PHYS_SYS2_data() const;
+    void check_alloc_V_PHYS_SYS3_data() const;
+    void check_alloc_V_PHYS_SYS4_data() const;
     void check_alloc_D() const;
     void check_alloc_M() const;
     void check_alloc_D_minus_M() const;

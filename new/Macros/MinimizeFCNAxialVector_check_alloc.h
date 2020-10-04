@@ -17,18 +17,6 @@ MinimizeFCNAxialVector::check_alloc_V_PHYS_data() const
         for(int ch = 0; ch < number1DHists; ++ ch)
         {
             const Int_t NUM_BINS_XY = 50;
-            TString hname;
-
-            hname.Form("V_PHYS_1D_P1_CH%d", ch);
-            //V_PHYS_1D_P1[ch] = new TH2D(hname, hname,
-            //                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
-            //                  NUM_BINS_XY, 0.0, NUM_BINS_XY);
-
-            hname.Form("V_PHYS_1D_P2_CH%d", ch);
-            //V_PHYS_1D_P2[ch] = new TH2D(hname, hname,
-            //                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
-            //                  NUM_BINS_XY, 0.0, NUM_BINS_XY);
-
             V_PHYS_1D_P1_data[ch] = new std::vector<double>(NUM_BINS_XY * NUM_BINS_XY, 0.0);
             V_PHYS_1D_P2_data[ch] = new std::vector<double>(NUM_BINS_XY * NUM_BINS_XY, 0.0);
             std::cout << "ALLOC " << __func__ << std::endl;
@@ -76,18 +64,6 @@ MinimizeFCNAxialVector::check_alloc_V_PHYS_STAT_data() const
         for(int ch = 0; ch < number1DHists; ++ ch)
         {
             const Int_t NUM_BINS_XY = 50;
-            TString hname;
-
-            hname.Form("V_PHYS_STAT_1D_P1_CH%d", ch);
-            //V_PHYS_STAT_1D_P1[ch] = new TH2D(hname, hname,
-            //                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
-            //                  NUM_BINS_XY, 0.0, NUM_BINS_XY);
-
-            hname.Form("V_PHYS_STAT_1D_P2_CH%d", ch);
-            //V_PHYS_STAT_1D_P2[ch] = new TH2D(hname, hname,
-            //                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
-            //                  NUM_BINS_XY, 0.0, NUM_BINS_XY);
-
             V_PHYS_STAT_1D_P1_data[ch] = new std::vector<double>(NUM_BINS_XY * NUM_BINS_XY, 0.0);
             V_PHYS_STAT_1D_P2_data[ch] = new std::vector<double>(NUM_BINS_XY * NUM_BINS_XY, 0.0);
             std::cout << "ALLOC " << __func__ << std::endl;
@@ -146,18 +122,6 @@ MinimizeFCNAxialVector::check_alloc_V_PHYS_SYS1_data() const
         for(int ch = 0; ch < number1DHists; ++ ch)
         {
             const Int_t NUM_BINS_XY = 50;
-            TString hname;
-
-            hname.Form("V_PHYS_SYS1_1D_P1_CH%d", ch);
-            //V_PHYS_SYS1_1D_P1[ch] = new TH2D(hname, hname,
-            //                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
-            //                  NUM_BINS_XY, 0.0, NUM_BINS_XY);
-
-            hname.Form("V_PHYS_SYS1_1D_P2_CH%d", ch);
-            //V_PHYS_SYS1_1D_P2[ch] = new TH2D(hname, hname,
-            //                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
-            //                  NUM_BINS_XY, 0.0, NUM_BINS_XY);
-
             V_PHYS_SYS1_1D_P1_data[ch] = new std::vector<double>(NUM_BINS_XY * NUM_BINS_XY, 0.0);
             V_PHYS_SYS1_1D_P2_data[ch] = new std::vector<double>(NUM_BINS_XY * NUM_BINS_XY, 0.0);
             std::cout << "ALLOC " << __func__ << std::endl;
@@ -261,12 +225,6 @@ MinimizeFCNAxialVector::check_alloc_V_PHYS_SYS2_data() const
         for(int ch = 0; ch < number1DHists; ++ ch)
         {
             const Int_t NUM_BINS_XY = 50;
-            TString hname;
-
-            hname.Form("V_PHYS_SYS2_1D_P1_CH%d", ch);
-
-            hname.Form("V_PHYS_SYS2_1D_P2_CH%d", ch);
-
             V_PHYS_SYS2_1D_P1_data[ch] = new std::vector<double>(NUM_BINS_XY * NUM_BINS_XY, 0.0);
             V_PHYS_SYS2_1D_P2_data[ch] = new std::vector<double>(NUM_BINS_XY * NUM_BINS_XY, 0.0);
             std::cout << "ALLOC " << __func__ << std::endl;
@@ -335,7 +293,6 @@ MinimizeFCNAxialVector::check_alloc_V_PHYS_SYS3_data() const
         for(int ch = 0; ch < number1DHists; ++ ch)
         {
             const Int_t NUM_BINS_XY = 50;
-
             V_PHYS_SYS3_1D_P1_data[ch] = new std::vector<double>(NUM_BINS_XY * NUM_BINS_XY, 0.0);
             V_PHYS_SYS3_1D_P2_data[ch] = new std::vector<double>(NUM_BINS_XY * NUM_BINS_XY, 0.0);
             std::cout << "ALLOC " << __func__ << std::endl;
@@ -403,12 +360,6 @@ MinimizeFCNAxialVector::check_alloc_V_PHYS_SYS4_data() const
         for(int ch = 0; ch < number1DHists; ++ ch)
         {
             const Int_t NUM_BINS_XY = 50;
-            TString hname;
-
-            hname.Form("V_PHYS_SYS4_1D_P1_CH%d", ch);
-
-            hname.Form("V_PHYS_SYS4_1D_P2_CH%d", ch);
-
             V_PHYS_SYS4_1D_P1_data[ch] = new std::vector<double>(NUM_BINS_XY * NUM_BINS_XY, 0.0);
             V_PHYS_SYS4_1D_P2_data[ch] = new std::vector<double>(NUM_BINS_XY * NUM_BINS_XY, 0.0);
             std::cout << "ALLOC " << __func__ << std::endl;
@@ -487,18 +438,6 @@ void MinimizeFCNAxialVector::check_alloc_D() const
         for(int ch = 0; ch < number1DHists; ++ ch)
         {
             const Int_t NUM_BINS_XY = 50;
-            TString hname;
-
-            hname.Form("D_1D_P1_CH%d", ch);
-            //D_1D_P1[ch] = new TH2D(hname, hname,
-            //                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
-            //                  1, 0.0, 1.0);
-
-            hname.Form("D_1D_P2_CH%d", ch);
-            //D_1D_P2[ch] = new TH2D(hname, hname,
-            //                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
-            //                  1, 0.0, 1.0);
-
             D_1D_P1_data[ch] = new std::vector<double>(NUM_BINS_XY, 0.0);
             D_1D_P2_data[ch] = new std::vector<double>(NUM_BINS_XY, 0.0);
             std::cout << "ALLOC " << __func__ << std::endl;
@@ -554,18 +493,6 @@ void MinimizeFCNAxialVector::check_alloc_M() const
         for(int ch = 0; ch < number1DHists; ++ ch)
         {
             const Int_t NUM_BINS_XY = 50;
-            TString hname;
-
-            hname.Form("M_1D_P1_CH%d", ch);
-            //M_1D_P1[ch] = new TH2D(hname, hname,
-            //                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
-            //                  1, 0.0, 1.0);
-
-            hname.Form("M_1D_P2_CH%d", ch);
-            //M_1D_P2[ch] = new TH2D(hname, hname,
-            //                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
-            //                  1, 0.0, 1.0);
-
             M_1D_P1_data[ch] = new std::vector<double>(NUM_BINS_XY, 0.0);
             M_1D_P2_data[ch] = new std::vector<double>(NUM_BINS_XY, 0.0);
             std::cout << "ALLOC " << __func__ << std::endl;
@@ -622,18 +549,6 @@ void MinimizeFCNAxialVector::check_alloc_D_minus_M() const
         for(int ch = 0; ch < number1DHists; ++ ch)
         {
             const Int_t NUM_BINS_XY = 50;
-            TString hname;
-
-            hname.Form("D_minus_M_1D_P1_CH%d", ch);
-            //D_minus_M_1D_P1[ch] = new TH2D(hname, hname,
-            //                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
-            //                  1, 0.0, 1.0);
-
-            hname.Form("D_minus_M_1D_P2_CH%d", ch);
-            //D_minus_M_1D_P2[ch] = new TH2D(hname, hname,
-            //                  NUM_BINS_XY, 0.0, NUM_BINS_XY,
-            //                  1, 0.0, 1.0);
-
             D_minus_M_1D_P1_data[ch] = new std::vector<double>(NUM_BINS_XY, 0.0);
             D_minus_M_1D_P2_data[ch] = new std::vector<double>(NUM_BINS_XY, 0.0);
             std::cout << "ALLOC " << __func__ << std::endl;
