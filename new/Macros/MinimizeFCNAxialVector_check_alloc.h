@@ -1644,6 +1644,7 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c3=" << c3 << std::endl;
                         std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c4=" << c4 << std::endl;
                         std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c5=" << c5 << std::endl;
+                        std::cin.get();
 
                         #if DRAWVPHYSMATRIX
                         if(DRAW_V_PHYS_MATRIX == true)

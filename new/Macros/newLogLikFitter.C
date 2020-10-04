@@ -1237,6 +1237,7 @@ void loadFiles(int i)
             // TODO
             //systematic_scale_V_MATRIX_coeff_1D_P1[channel]->operator[](i) = value;
             systematic_scale_V_MATRIX_coeff_1D_P1[channel]->push_back(value);
+            std::cout << "P1: scale: coeff: " << value << std::endl;
         }
 
         for(std::size_t i = 0; i < systematic_nominal_1D_P2[channel]->size(); ++ i)
@@ -1250,7 +1251,9 @@ void loadFiles(int i)
             // TODO
             //systematic_scale_V_MATRIX_coeff_1D_P2[channel]->operator[](i) = value;
             systematic_scale_V_MATRIX_coeff_1D_P2[channel]->push_back(value);
+            std::cout << "P2: scale: coeff: " << value << std::endl;
         }
+        std::cin.get();
 
 
         ///////////////////////////////////////////////////////////////////////
