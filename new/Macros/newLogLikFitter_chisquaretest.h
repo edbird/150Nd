@@ -638,19 +638,20 @@ void newloglikfitter_testmyphasespace_newversion(
                 int nfp = g_pg.get_number_free_params();
                 int ndf = nch - nfp;
  
+            /*
                 std::cout << "fval=" << fval_before << std::endl;
                 for(int i = 0; i < params_before.size(); ++ i)
                 {
                     std::cout << "i=" << i << " params_before[" << i << "]=" << params_before[i] << std::endl;
                 }
-                
-
+            */  
+            /*
                 std::cout << "V_ENABLE_SYSALL=" << V_ENABLE_SYSALL << std::endl;
                 std::cout << "V_ENABLE_SYS1=" << V_ENABLE_SYS1 << std::endl;
                 std::cout << "V_ENABLE_SYS2=" << V_ENABLE_SYS2 << std::endl;
                 std::cout << "V_ENABLE_SYS3=" << V_ENABLE_SYS3 << std::endl;
                 std::cout << "V_ENABLE_SYS4=" << V_ENABLE_SYS4 << std::endl;
-
+            */
 
                 // do minuit2 fit
                 ROOT::Minuit2::FunctionMinimum FCN_min =
@@ -669,12 +670,14 @@ void newloglikfitter_testmyphasespace_newversion(
                 nfp = g_pg.get_number_free_params();
                 ndf = nch - nfp;
 
+            /*
                 std::cout << "fval=" << fval_after << std::endl;
                 for(int i = 0; i < params_after.size(); ++ i)
                 {
                     std::cout << "i=" << i << " params_after[" << i << "]=" << params_after[i] << std::endl;
                 }
                 std::cin.get();
+            */
 
                 //print_adjustacts(os, params_after, param_errs_after);
 
