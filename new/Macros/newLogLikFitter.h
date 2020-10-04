@@ -722,6 +722,12 @@ void V_ENABLE_SYS_stack_pop()
 {
     if(V_ENABLE_SYS1_stack.size() > 0)
     {
+        V_ENABLE_SYSALL = V_ENABLE_SYSALL.back();
+        V_ENABLE_SYS1 = V_ENABLE_SYS1.back();
+        V_ENABLE_SYS2 = V_ENABLE_SYS2.back();
+        V_ENABLE_SYS3 = V_ENABLE_SYS3.back();
+        V_ENABLE_SYS4 = V_ENABLE_SYS4.back();
+
         V_ENABLE_SYSALL_stack.pop_back();
         V_ENABLE_SYS1_stack.pop_back();
         V_ENABLE_SYS2_stack.pop_back();
