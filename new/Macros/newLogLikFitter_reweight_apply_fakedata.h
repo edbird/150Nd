@@ -693,9 +693,22 @@ void reweight_apply_fakedata(
                 // if sample is nd150, then apply both
                 if(sampleName.Contains("nd150"))
                 {
+                //std::cout << "sampleName=" << sampleName << std::endl;
+                //std::cin.get();
+                //if(gSystematics.systematic_enrichment != 0.0)
+                //{
+                //std::cout << gSystematics.systematic_enrichment << std::endl;
+                //std::cout << "weight=" << weight << std::endl;
+                //}
                     weight = weight *
                         (1.0 + gSystematics.systematic_efficiency
                              + gSystematics.systematic_enrichment);
+                             
+                //if(gSystematics.systematic_enrichment != 0.0)
+                //{
+                //std::cout << "weight=" << weight << std::endl;
+                //std::cin.get();
+                //}
                 }
                 // if some other MC sample, then only apply efficiency effect
                 else
@@ -758,6 +771,16 @@ void reweight_apply_fakedata(
 
 
             }
+
+            /*
+            if(sampleName.Contains("nd150"))
+            {
+                for(Int_t i = 1; i <= hSingleEnergy_P2_tmp->GetNbinsX(); ++ i)
+                {
+                    std::cout << "bin " << i << " -> " << hSingleEnergy_P2_tmp->GetBinContent(i) << std::endl;
+                }
+            }
+            */
 
             inputFile->Close();
             if(debuglevel >= 8)

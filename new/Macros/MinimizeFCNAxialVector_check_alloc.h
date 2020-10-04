@@ -96,6 +96,7 @@ MinimizeFCNAxialVector::check_alloc_V_PHYS_STAT_data() const
 void
 MinimizeFCNAxialVector::check_alloc_V_PHYS_SYS1_data() const
 {
+    //std::cout << __func__ << std::endl;
 
     ///////////////////////////////////////////////////////////////////
     // V_PHYS_SYS1
@@ -200,6 +201,7 @@ MinimizeFCNAxialVector::check_alloc_V_PHYS_SYS1_data() const
 void
 MinimizeFCNAxialVector::check_alloc_V_PHYS_SYS2_data() const
 {
+    //std::cout << __func__ << std::endl;
 
     ///////////////////////////////////////////////////////////////////
     // V_PHYS_SYS2
@@ -253,6 +255,8 @@ MinimizeFCNAxialVector::check_alloc_V_PHYS_SYS2_data() const
                         double coeff2 = systematic_scale_V_MATRIX_coeff_1D_P1[channel]->operator[](biny);
                         V_PHYS_SYS2_1D_P1_data[channel]->operator[](biny * 50 + binx) = coeff1 * coeff2;
                         #endif
+
+                        //std::cout << "biny=" << biny << " binx=" << binx << " " << coeff1 << " * " << coeff2 << std::endl;
                     }
 
                     // P2
@@ -266,6 +270,9 @@ MinimizeFCNAxialVector::check_alloc_V_PHYS_SYS2_data() const
                         double coeff2 = systematic_scale_V_MATRIX_coeff_1D_P2[channel]->operator[](biny);
                         V_PHYS_SYS2_1D_P2_data[channel]->operator[](biny * 50 + binx) = coeff1 * coeff2;
                         #endif
+
+                        //std::cout << "biny=" << biny << " binx=" << binx << " " << coeff1 << " * " << coeff2 << std::endl;
+                        //std::cin.get();
                     }
 
 
@@ -282,6 +289,7 @@ MinimizeFCNAxialVector::check_alloc_V_PHYS_SYS2_data() const
 void
 MinimizeFCNAxialVector::check_alloc_V_PHYS_SYS3_data() const
 {
+    //std::cout << __func__ << std::endl;
 
     ///////////////////////////////////////////////////////////////////
     // V_PHYS_SYS3
@@ -349,6 +357,7 @@ MinimizeFCNAxialVector::check_alloc_V_PHYS_SYS3_data() const
 void
 MinimizeFCNAxialVector::check_alloc_V_PHYS_SYS4_data() const
 {
+    //std::cout << __func__ << std::endl;
 
     ///////////////////////////////////////////////////////////////////
     // V_PHYS_SYS4
@@ -387,6 +396,16 @@ MinimizeFCNAxialVector::check_alloc_V_PHYS_SYS4_data() const
                         double coeff2 = systematic_enrichment_V_MATRIX_coeff_1D_P1[channel]->operator[](biny);
                         V_PHYS_SYS4_1D_P1_data[channel]->operator[](biny * 50 + binx) = coeff1 * coeff2;
                         #endif
+
+                        // these bins are zero - the 150Nd does not extend to
+                        // bin 34, only the BKGs do
+                        /*
+                        if((biny == 34) || (binx == 34))
+                        {
+                            std::cout << coeff1 << " " << coeff2 << std::endl;
+                            std::cin.get();
+                        }
+                        */
                     }
 
                     // P2
@@ -400,6 +419,16 @@ MinimizeFCNAxialVector::check_alloc_V_PHYS_SYS4_data() const
                         double coeff2 = systematic_enrichment_V_MATRIX_coeff_1D_P2[channel]->operator[](biny);
                         V_PHYS_SYS4_1D_P2_data[channel]->operator[](biny * 50 + binx) = coeff1 * coeff2;
                         #endif
+
+                        // these bins are zero - the 150Nd does not extend to
+                        // bin 34, only the BKGs do
+                        /*
+                        if((biny == 34) || (binx == 34))
+                        {
+                            std::cout << "biny=" << biny << " binx=" << binx << " " << coeff1 << " " << coeff2 << std::endl;
+                            std::cin.get();
+                        }
+                        */
                     }
 
 
@@ -1638,13 +1667,18 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         V_PHYS_1D_P1_MATHMORE[channel]->operator[](j_counter).operator[](i_counter) = content;
                         //std::cout << "j=" << j << " i=" << i << " " << content << std::endl;
 
-                        std::cout << "P1" << std::endl;
-                        std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c1=" << c1 << std::endl;
-                        std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c2=" << c2 << std::endl;
-                        std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c3=" << c3 << std::endl;
-                        std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c4=" << c4 << std::endl;
-                        std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c5=" << c5 << std::endl;
-                        std::cin.get();
+                        /*
+                        if(channel == 1)
+                        {
+                            std::cout << "P1" << std::endl;
+                            std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c1=" << c1 << std::endl;
+                            std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c2=" << c2 << std::endl;
+                            std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c3=" << c3 << std::endl;
+                            std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c4=" << c4 << std::endl;
+                            std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c5=" << c5 << std::endl;
+                            std::cin.get();
+                        }
+                        */
 
                         #if DRAWVPHYSMATRIX
                         if(DRAW_V_PHYS_MATRIX == true)
@@ -1778,13 +1812,18 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         //std::cout << "i=" << i << " j=" << j << " i_counter=" << i_counter << " j_counter=" << j_counter << " content=" << content << std::endl;
                         V_PHYS_1D_P2_MATHMORE[channel]->operator[](j_counter).operator[](i_counter) = content;
 
-                        std::cout << "P2" << std::endl;
-                        std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c1=" << c1 << std::endl;
-                        std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c2=" << c2 << std::endl;
-                        std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c3=" << c3 << std::endl;
-                        std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c4=" << c4 << std::endl;
-                        std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c5=" << c5 << std::endl;
-                        std::cin.get();
+                        /*
+                        if(channel == 1)
+                        {
+                            std::cout << "P2" << std::endl;
+                            std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c1=" << c1 << std::endl;
+                            std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c2=" << c2 << std::endl;
+                            std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c3=" << c3 << std::endl;
+                            std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c4=" << c4 << std::endl;
+                            std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c5=" << c5 << std::endl;
+                            std::cin.get();
+                        }
+                        */
 
                         #if DRAWVPHYSMATRIX
                         if(DRAW_V_PHYS_MATRIX == true)
@@ -1816,6 +1855,9 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
 
                     ++ j_counter;
                 }
+
+                //std::cout << "AT END OF SET V_MATRIX_?_MATHMORE" << std::endl;
+                //std::cin.get();
 
                 #if DRAWVPHYSMATRIX
                 if(DRAW_V_PHYS_MATRIX == true)

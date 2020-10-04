@@ -538,10 +538,18 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             }
 
 
+            //std::cout << "CHECK CALL" << std::endl;
             check_alloc_V_PHYS_SYS1_data();
+            //std::cin.get();
+            //std::cout << "CHECK CALL" << std::endl;
             check_alloc_V_PHYS_SYS2_data();
+            //std::cin.get();
+            //std::cout << "CHECK CALL" << std::endl;
             check_alloc_V_PHYS_SYS3_data();
+            //std::cin.get();
+            //std::cout << "CHECK CALL" << std::endl;
             check_alloc_V_PHYS_SYS4_data();
+            //std::cin.get();
 
             #if 0
             // systematics do not change, so leave alone!
