@@ -1651,7 +1651,20 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                                 draw_V_PHYS_SYS4_P1->SetBinContent(i + 1, j + 1, c5);
                                 draw_V_PHYS_P1->SetBinContent(i + 1, j + 1, content);
 
+                            /*
+                                std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c1=" << c1 << std::endl;
+                                std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c2=" << c2 << std::endl;
+                                std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c3=" << c3 << std::endl;
+                                std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c5=" << c5 << std::endl;
                                 //std::cout << "channel=" << channel << " i=" << i << " j=" << j << " content=" << content << std::endl;
+
+                                std::cout << "V_ENABLE_SYSALL=" << V_ENABLE_SYSALL << std::endl;
+                                std::cout << "V_ENABLE_SYS1=" << V_ENABLE_SYS1 << std::endl;
+                                std::cout << "V_ENABLE_SYS2=" << V_ENABLE_SYS2 << std::endl;
+                                std::cout << "V_ENABLE_SYS3=" << V_ENABLE_SYS3 << std::endl;
+                                std::cout << "V_ENABLE_SYS4=" << V_ENABLE_SYS4 << std::endl;
+                                //std::cin.get();
+                            */
                             }
                         }
                         #endif
@@ -1771,7 +1784,14 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                                 draw_V_PHYS_SYS4_P2->SetBinContent(i + 1, j + 1, c5);
                                 draw_V_PHYS_P2->SetBinContent(i + 1, j + 1, content);
 
+                            /*
+                                std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c1=" << c1 << std::endl;
+                                std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c2=" << c2 << std::endl;
+                                std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c3=" << c3 << std::endl;
+                                std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c4=" << c4 << std::endl;
+                                std::cout << "channel=" << channel << " i=" << i << " j=" << j << " c5=" << c5 << std::endl;
                                 //std::cout << "channel=" << channel << " i=" << i << " j=" << j << " content=" << content << std::endl;
+                            */
                             }
                         }
                         #endif

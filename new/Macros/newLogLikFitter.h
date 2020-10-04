@@ -709,7 +709,10 @@ std::vector<bool> V_ENABLE_SYS2_stack;
 std::vector<bool> V_ENABLE_SYS3_stack;
 std::vector<bool> V_ENABLE_SYS4_stack;
 
-bool DRAW_V_PHYS_MATRIX = true;
+// 2020-10-04
+// wanted to implement this as a debugging step but turned out to be not
+// trivial so did not bother
+bool DRAW_V_PHYS_MATRIX = false;
 
 void V_ENABLE_SYS_stack_push()
 {
@@ -718,6 +721,16 @@ void V_ENABLE_SYS_stack_push()
     V_ENABLE_SYS2_stack.push_back(V_ENABLE_SYS2);
     V_ENABLE_SYS3_stack.push_back(V_ENABLE_SYS3);
     V_ENABLE_SYS4_stack.push_back(V_ENABLE_SYS4);
+
+    /*
+    std::cout << "push(): size() => " << V_ENABLE_SYS1_stack.size() << std::endl;
+
+    std::cout << "V_ENABLE_SYS1=" << V_ENABLE_SYS1 << std::endl;
+    std::cout << "V_ENABLE_SYS2=" << V_ENABLE_SYS2 << std::endl;
+    std::cout << "V_ENABLE_SYS3=" << V_ENABLE_SYS3 << std::endl;
+    std::cout << "V_ENABLE_SYS4=" << V_ENABLE_SYS4 << std::endl;
+    std::cin.get();
+    */
 }
 
 void V_ENABLE_SYS_stack_pop()
@@ -735,6 +748,15 @@ void V_ENABLE_SYS_stack_pop()
         V_ENABLE_SYS2_stack.pop_back();
         V_ENABLE_SYS3_stack.pop_back();
         V_ENABLE_SYS4_stack.pop_back();
+        /*
+        std::cout << "pop(): size() => " << V_ENABLE_SYS1_stack.size() << std::endl;
+
+        std::cout << "V_ENABLE_SYS1=" << V_ENABLE_SYS1 << std::endl;
+        std::cout << "V_ENABLE_SYS2=" << V_ENABLE_SYS2 << std::endl;
+        std::cout << "V_ENABLE_SYS3=" << V_ENABLE_SYS3 << std::endl;
+        std::cout << "V_ENABLE_SYS4=" << V_ENABLE_SYS4 << std::endl;
+        std::cin.get();
+        */
     }
     else
     {
