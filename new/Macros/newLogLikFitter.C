@@ -1774,7 +1774,7 @@ void loadFiles(int i)
     ///////////////////////////////////////////////////////////////////////////
 
     // do not do this in parallel mode
-    if(1) // || (MODE_PARALLEL == 0))
+    if(0) // || (MODE_PARALLEL == 0))
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
@@ -2004,7 +2004,7 @@ void loadFiles(int i)
     // Fake Data
     // No Systematics
     ///////////////////////////////////////////////////////////////////////////
-    if(1)
+    if(0)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
@@ -2043,7 +2043,7 @@ void loadFiles(int i)
     // Constant Energy Offset
     // Low Systematic
     ///////////////////////////////////////////////////////////////////////////
-    if(1)
+    if(0)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
@@ -2076,7 +2076,7 @@ void loadFiles(int i)
     // Constant Energy Offset
     // High Systematic
     ///////////////////////////////////////////////////////////////////////////
-    if(1)
+    if(0)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
@@ -2109,7 +2109,7 @@ void loadFiles(int i)
     // Energy Scale Multiplier
     // Low Systematic
     ///////////////////////////////////////////////////////////////////////////
-    if(1)
+    if(0)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
@@ -2142,7 +2142,7 @@ void loadFiles(int i)
     // Energy Scale Multiplier
     // High Systematic
     ///////////////////////////////////////////////////////////////////////////
-    if(1)
+    if(0)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
@@ -2176,6 +2176,7 @@ void loadFiles(int i)
     // Low Systematic
     ///////////////////////////////////////////////////////////////////////////
 
+    if(0)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
@@ -2209,6 +2210,7 @@ void loadFiles(int i)
     // High Systematic
     ///////////////////////////////////////////////////////////////////////////
 
+    if(0)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
@@ -2242,6 +2244,7 @@ void loadFiles(int i)
     // Low Systematic
     ///////////////////////////////////////////////////////////////////////////
 
+    if(0)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
@@ -2275,6 +2278,7 @@ void loadFiles(int i)
     // High Systematic
     ///////////////////////////////////////////////////////////////////////////
 
+    if(0)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
