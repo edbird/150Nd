@@ -1478,10 +1478,16 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                 #if DRAWVPHYSMATRIX
                 TH2D *draw_V_PHYS_STAT_P1 = nullptr;
                 TH2D *draw_V_PHYS_SYS1_P1 = nullptr;
+                TH2D *draw_V_PHYS_SYS2_P1 = nullptr;
+                TH2D *draw_V_PHYS_SYS3_P1 = nullptr;
+                TH2D *draw_V_PHYS_SYS4_P1 = nullptr;
                 TH2D *draw_V_PHYS_P1 = nullptr;
                 TH2D *draw_V_PHYSINV_P1 = nullptr;
                 TH2D *draw_V_PHYS_STAT_P2 = nullptr;
                 TH2D *draw_V_PHYS_SYS1_P2 = nullptr;
+                TH2D *draw_V_PHYS_SYS2_P2 = nullptr;
+                TH2D *draw_V_PHYS_SYS3_P2 = nullptr;
+                TH2D *draw_V_PHYS_SYS4_P2 = nullptr;
                 TH2D *draw_V_PHYS_P2 = nullptr;
                 TH2D *draw_V_PHYSINV_P2 = nullptr;
                 if(DRAW_V_PHYS_MATRIX == true)
