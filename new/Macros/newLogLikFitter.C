@@ -1832,33 +1832,22 @@ void loadFiles(int i)
 
 
 
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Systematics Enabled: Default
-    // (whatever is set in newLogLikFitter.h)
-    // UPDATE: SYSTEMATICS DISABLED
-    ///////////////////////////////////////////////////////////////////////////
-
-    // do not do this in parallel mode
-    if(1) // || (MODE_PARALLEL == 0))
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        V_ENABLE_SYS1 = false;
-        V_ENABLE_SYS2 = false;
-        V_ENABLE_SYS3 = false;
-        V_ENABLE_SYS4 = false;
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = false;
-    
-        newLogLikFitter_preMPSfitdriver(std::string("All Parameter Fit: NEMO3 Data"), min_point);
-
-        V_ENABLE_SYS_stack_pop();
-
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
+    // 2020-10-05: NOTE
+    //
+    // Fit to data, set min_point used to be here
+    // Moved below, as this function requires the state machine to be in mode
+    // V_ENABLE_SYSx = FALSE
+    // (ie; systematics disabled)
+    //
+    // This means that the first call to MinimizeFCNAxialVector::operator()
+    // has V_ENABLE_SYSx = false, and therefore the V_PHYS_MATHMORE objects
+    // are initilized with systematics DISABLED.
+    //
+    // Now this call block has been moved to the end (before MPS block)
+    // the V_PHYS_MATHMORE objects will contain systematics. I do not know
+    // if this will affect the result of the calculations of the min_point
+    //
+    // Probably it will not?
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -2478,6 +2467,42 @@ void loadFiles(int i)
     }
     #endif
     //std::cin.get();
+
+
+
+    // NOTE: moved from above
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Systematics Enabled: Default
+    // (whatever is set in newLogLikFitter.h)
+    // UPDATE: SYSTEMATICS DISABLED
+    ///////////////////////////////////////////////////////////////////////////
+
+    // do not do this in parallel mode
+    if(1) // || (MODE_PARALLEL == 0))
+    {
+        V_ENABLE_SYS_stack_push();
+        V_ENABLE_SYSALL = false;
+        V_ENABLE_SYS1 = false;
+        V_ENABLE_SYS2 = false;
+        V_ENABLE_SYS3 = false;
+        V_ENABLE_SYS4 = false;
+
+        bool restore_g_mode_fake_data = g_mode_fake_data;
+        g_mode_fake_data = false;
+    
+        newLogLikFitter_preMPSfitdriver(std::string("All Parameter Fit: NEMO3 Data"), min_point);
+
+        V_ENABLE_SYS_stack_pop();
+
+        g_mode_fake_data = restore_g_mode_fake_data;
+    }
+
+
+
+
+
 
     ll_walk_save.clear();
 
