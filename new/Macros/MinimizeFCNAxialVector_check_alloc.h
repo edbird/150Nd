@@ -134,6 +134,7 @@ MinimizeFCNAxialVector::check_alloc_V_PHYS_SYS1_data() const
     {
         for(int ch = 0; ch < number1DHists; ++ ch)
         {
+            const Int_t NUM_BINS_XY = 50;
 
             // initialize elements of V_PHYS_SYS1_*
             int channel = ch;
@@ -245,6 +246,7 @@ MinimizeFCNAxialVector::check_alloc_V_PHYS_SYS2_data() const
     {
         for(int ch = 0; ch < number1DHists; ++ ch)
         {
+            const Int_t NUM_BINS_XY = 50;
 
             // initialize elements of V_PHYS_SYS2_*
             int channel = ch;
@@ -327,6 +329,7 @@ MinimizeFCNAxialVector::check_alloc_V_PHYS_SYS3_data() const
     {
         for(int ch = 0; ch < number1DHists; ++ ch)
         {
+            const Int_t NUM_BINS_XY = 50;
 
             // initialize elements of V_PHYS_SYS3_*
             int channel = ch;
@@ -403,6 +406,7 @@ MinimizeFCNAxialVector::check_alloc_V_PHYS_SYS4_data() const
     {
         for(int ch = 0; ch < number1DHists; ++ ch)
         {
+            const Int_t NUM_BINS_XY = 50;
 
             // initialize elements of V_PHYS_SYS4_*
             int channel = ch;
