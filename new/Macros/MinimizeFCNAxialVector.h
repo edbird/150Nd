@@ -2410,7 +2410,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
 #include "MinimizeFCNAxialVector_check_alloc.h"
 #include "MinimizeFCNAxialVector_set_D_minus_M.h"
 #include "MinimizeFCNAxialVector_set_V_MATRIX.h"
-#include "MinimizeFCNAxialVector_chi2.h"
+#include "MinimizeFCNAxialVector_calculate_chi2.h"
 #include "MinimizeFCNAxialVector_calculate_penalty_term.h"
 
 
