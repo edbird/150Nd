@@ -473,6 +473,11 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             }
 
             check_alloc_V_PHYS_STAT_data();
+            //if(recalculate_V_PHYS_xD_Px_MATHMORE == true)
+            //if(true) // must be done each time? since M will change
+            // however check function: set_V_MATRIX
+            // elements set there so only need this on first run?
+            // this will do for now 
             if(recalculate_V_PHYS_xD_Px_MATHMORE == true)
             {
                 // Set to zero
@@ -2404,6 +2409,9 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
 
 #include "MinimizeFCNAxialVector_check_alloc.h"
 #include "MinimizeFCNAxialVector_set_D_minus_M.h"
+#include "MinimizeFCNAxialVector_set_V_MATRIX.h"
+#include "MinimizeFCNAxialVector_chi2.h"
+#include "MinimizeFCNAxialVector_calculate_penalty_term.h"
 
 
 
