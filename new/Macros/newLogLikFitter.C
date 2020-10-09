@@ -1848,6 +1848,48 @@ void loadFiles(int i)
     // if this will affect the result of the calculations of the min_point
     //
     // Probably it will not?
+    //
+    // Further note: This still does not resolve the problem, as the first
+    // call to MinimizeFCNAxialVector::operator() has the following settings:
+    //
+    // V_ENABLE_SYSALL = false;
+    // V_ENABLE_SYS1 = false;
+    // V_ENABLE_SYS2 = false;
+    // V_ENABLE_SYS3 = false;
+    // V_ENABLE_SYS4 = false;
+    //
+    //
+
+
+    // NOTE: moved from above
+    // NOTE: moved back
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Systematics Enabled: Default
+    // (whatever is set in newLogLikFitter.h)
+    // UPDATE: SYSTEMATICS DISABLED
+    ///////////////////////////////////////////////////////////////////////////
+
+    // do not do this in parallel mode
+    if(1) // || (MODE_PARALLEL == 0))
+    {
+        V_ENABLE_SYS_stack_push();
+        V_ENABLE_SYSALL = false;
+        V_ENABLE_SYS1 = false;
+        V_ENABLE_SYS2 = false;
+        V_ENABLE_SYS3 = false;
+        V_ENABLE_SYS4 = false;
+
+        bool restore_g_mode_fake_data = g_mode_fake_data;
+        g_mode_fake_data = false;
+    
+        newLogLikFitter_preMPSfitdriver(std::string("All Parameter Fit: NEMO3 Data"), min_point);
+
+        V_ENABLE_SYS_stack_pop();
+
+        g_mode_fake_data = restore_g_mode_fake_data;
+    }
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -2470,34 +2512,6 @@ void loadFiles(int i)
 
 
 
-    // NOTE: moved from above
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Systematics Enabled: Default
-    // (whatever is set in newLogLikFitter.h)
-    // UPDATE: SYSTEMATICS DISABLED
-    ///////////////////////////////////////////////////////////////////////////
-
-    // do not do this in parallel mode
-    if(1) // || (MODE_PARALLEL == 0))
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        V_ENABLE_SYS1 = false;
-        V_ENABLE_SYS2 = false;
-        V_ENABLE_SYS3 = false;
-        V_ENABLE_SYS4 = false;
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = false;
-    
-        newLogLikFitter_preMPSfitdriver(std::string("All Parameter Fit: NEMO3 Data"), min_point);
-
-        V_ENABLE_SYS_stack_pop();
-
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
 
 
 
@@ -2509,6 +2523,11 @@ void loadFiles(int i)
     // reenable this one
     if(1)
     {
+
+        std::cout << "recalculate_V_PHYS_xD_Px_MATHMORE=" << recalculate_V_PHYS_xD_Px_MATHMORE << std::endl;
+        recalculate_V_PHYS_xD_Px_MATHMORE = true;
+        std::cout << "recalculate_V_PHYS_xD_Px_MATHMORE=" << recalculate_V_PHYS_xD_Px_MATHMORE << std::endl;
+
         std::cout << "g_mode_fake_data=" << g_mode_fake_data << std::endl;
 
         gSystematics.reset();
