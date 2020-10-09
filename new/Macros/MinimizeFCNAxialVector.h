@@ -184,7 +184,15 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             // yes this is correct, because the systematics are applied ONLY
             // when constructing the FAKE DATA from all the MC input samples
             // (read from TTrees)
+            #if MEASURE_FUNCTION_CALL_TIME 
+            std::chrono::system_clock::time_point start_time_rebuild_150Nd_MC = std::chrono::high_resolution_clock::now();
+            #endif 
             rebuild_150Nd_MC(xi_31, xi_31_baseline);
+            #if MEASURE_FUNCTION_CALL_TIME 
+            std::chrono::system_clock::time_point end_time_rebuild_150Nd_MC = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> runtime_microsec_rebuild_150Nd_MC = end_time_rebuild_150Nd_MC - start_time_rebuild_150Nd_MC;
+            std::cout << "rebuild_150Nd_MC, time=" << 1.0e+06 * runtime_microsec_rebuild_150Nd_MC.count() << " microsecond" << std::endl;
+            #endif 
 
 
     /*
@@ -462,7 +470,6 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                     }
                 }
             }*/
-            //}
 
             //check_alloc_V_PHYS();
             check_alloc_V_PHYS_data();
@@ -478,7 +485,8 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             // however check function: set_V_MATRIX
             // elements set there so only need this on first run?
             // this will do for now 
-            if(recalculate_V_PHYS_xD_Px_MATHMORE == true)
+            //if(recalculate_V_PHYS_xD_Px_MATHMORE == true)
+            if(false)
             {
                 // Set to zero
 
@@ -543,18 +551,45 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             }
 
 
-            //std::cout << "CHECK CALL" << std::endl;
+            #if MEASURE_FUNCTION_CALL_TIME 
+            std::chrono::system_clock::time_point start_time_A = std::chrono::high_resolution_clock::now();
+            #endif 
             check_alloc_V_PHYS_SYS1_data();
-            //std::cin.get();
-            //std::cout << "CHECK CALL" << std::endl;
+            #if MEASURE_FUNCTION_CALL_TIME 
+            std::chrono::system_clock::time_point end_time_A = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> runtime_microsec_A = end_time_A - start_time_A;
+            std::cout << "Done init V_PHYS_SYS1, time=" << 1.0e+06 * runtime_microsec_A.count() << " microsecond" << std::endl;
+            #endif 
+
+            #if MEASURE_FUNCTION_CALL_TIME 
+            std::chrono::system_clock::time_point start_time_B = std::chrono::high_resolution_clock::now();
+            #endif 
             check_alloc_V_PHYS_SYS2_data();
-            //std::cin.get();
-            //std::cout << "CHECK CALL" << std::endl;
+            #if MEASURE_FUNCTION_CALL_TIME 
+            std::chrono::system_clock::time_point end_time_B = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> runtime_microsec_B = end_time_B - start_time_B;
+            std::cout << "Done init V_PHYS_SYS2, time=" << 1.0e+06 * runtime_microsec_B.count() << " microsecond" << std::endl;
+            #endif 
+            
+            #if MEASURE_FUNCTION_CALL_TIME 
+            std::chrono::system_clock::time_point start_time_C = std::chrono::high_resolution_clock::now();
+            #endif 
             check_alloc_V_PHYS_SYS3_data();
-            //std::cin.get();
-            //std::cout << "CHECK CALL" << std::endl;
+            #if MEASURE_FUNCTION_CALL_TIME 
+            std::chrono::system_clock::time_point end_time_C = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> runtime_microsec_C = end_time_C - start_time_C;
+            std::cout << "Done init V_PHYS_SYS3, time=" << 1.0e+06 * runtime_microsec_C.count() << " microsecond" << std::endl;
+            #endif 
+            
+            #if MEASURE_FUNCTION_CALL_TIME 
+            std::chrono::system_clock::time_point start_time_D = std::chrono::high_resolution_clock::now();
+            #endif 
             check_alloc_V_PHYS_SYS4_data();
-            //std::cin.get();
+            #if MEASURE_FUNCTION_CALL_TIME 
+            std::chrono::system_clock::time_point end_time_D = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> runtime_microsec_D = end_time_D - start_time_D;
+            std::cout << "Done init V_PHYS_SYS4, time=" << 1.0e+06 * runtime_microsec_D.count() << " microsecond" << std::endl;
+            #endif 
 
             #if 0
             // systematics do not change, so leave alone!
@@ -620,7 +655,15 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
 
 
 
+            #if MEASURE_FUNCTION_CALL_TIME 
+            std::chrono::system_clock::time_point start_time_E = std::chrono::high_resolution_clock::now();
+            #endif 
             check_alloc_D();
+            #if MEASURE_FUNCTION_CALL_TIME 
+            std::chrono::system_clock::time_point end_time_E = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> runtime_microsec_E = end_time_E - start_time_E;
+            std::cout << "check_alloc_D(), time=" << 1.0e+06 * runtime_microsec_E.count() << " microsecond" << std::endl;
+            #endif 
 
 
             #if 0
@@ -684,7 +727,15 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             #endif
 
 
+            #if MEASURE_FUNCTION_CALL_TIME 
+            std::chrono::system_clock::time_point start_time_F = std::chrono::high_resolution_clock::now();
+            #endif
             check_alloc_M();
+            #if MEASURE_FUNCTION_CALL_TIME 
+            std::chrono::system_clock::time_point end_time_F = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> runtime_microsec_F = end_time_F - start_time_F;
+            std::cout << "check_alloc_M(), time=" << 1.0e+06 * runtime_microsec_F.count() << " microsecond" << std::endl;
+            #endif
 
             if(recalculate_V_PHYS_xD_Px_MATHMORE == true)
             {
@@ -747,7 +798,15 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             }
 
 
+            #if MEASURE_FUNCTION_CALL_TIME 
+            std::chrono::system_clock::time_point start_time_G = std::chrono::high_resolution_clock::now();
+            #endif
             check_alloc_D_minus_M();
+            #if MEASURE_FUNCTION_CALL_TIME 
+            std::chrono::system_clock::time_point end_time_G = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> runtime_microsec_G = end_time_G - start_time_G;
+            std::cout << "check_alloc_D_minus_M(), time=" << 1.0e+06 * runtime_microsec_G.count() << " microsecond" << std::endl;
+            #endif
 
 
 
@@ -856,14 +915,40 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             c_D_minus_M->SaveAs("debug_c_D_minus_M.png");
             */
             
+            #if MEASURE_FUNCTION_CALL_TIME 
+            std::chrono::system_clock::time_point start_time_H = std::chrono::high_resolution_clock::now();
+            #endif
             set_V_MATRIX();
+            #if MEASURE_FUNCTION_CALL_TIME 
+            std::chrono::system_clock::time_point end_time_H = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> runtime_microsec_H = end_time_H - start_time_H;
+            std::cout << "set_V_MATRIX(), time=" << 1.0e+06 * runtime_microsec_H.count() << " microsecond" << std::endl;
+            #endif
 
             double chi2_P1 = 0.0;
             double chi2_P2 = 0.0;
             int nch_P1 = 0;
             int nch_P2 = 0; // overshadows previous definitions
+
+            #if MEASURE_FUNCTION_CALL_TIME 
+            std::chrono::system_clock::time_point start_time_I = std::chrono::high_resolution_clock::now();
+            #endif
             calculate_chi2_P1(chi2_P1, nch_P1);
+            #if MEASURE_FUNCTION_CALL_TIME 
+            std::chrono::system_clock::time_point end_time_I = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> runtime_microsec_I = end_time_I - start_time_I;
+            std::cout << "calculate_chi2_P1(), time=" << 1.0e+06 * runtime_microsec_I.count() << " microsecond" << std::endl;
+            #endif
+
+            #if MEASURE_FUNCTION_CALL_TIME 
+            std::chrono::system_clock::time_point start_time_J = std::chrono::high_resolution_clock::now();
+            #endif
             calculate_chi2_P2(chi2_P2, nch_P2);
+            #if MEASURE_FUNCTION_CALL_TIME 
+            std::chrono::system_clock::time_point end_time_J = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> runtime_microsec_J = end_time_J - start_time_J;
+            std::cout << "calculate_chi2_P2(), time=" << 1.0e+06 * runtime_microsec_J.count() << " microsecond" << std::endl;
+            #endif
 
             chi2_total = chi2_P1 + chi2_P2;
             nch = nch_P1 + nch_P2;
@@ -878,7 +963,16 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
 
             // penalty terms section
             double penalty_term = 0.0;
+
+            #if MEASURE_FUNCTION_CALL_TIME 
+            std::chrono::system_clock::time_point start_time_K = std::chrono::high_resolution_clock::now();
+            #endif
             calculate_penalty_term(penalty_term, param);
+            #if MEASURE_FUNCTION_CALL_TIME 
+            std::chrono::system_clock::time_point end_time_K = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> runtime_microsec_K = end_time_K - start_time_K;
+            std::cout << "calculate_penalty_term(), time=" << 1.0e+06 * runtime_microsec_K.count() << " microsecond" << std::endl;
+            #endif
             //std::cout << "penalty_term=" << penalty_term << std::endl;
 
             chi2_total += penalty_term;
@@ -890,6 +984,10 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             std::chrono::duration<double> runtime_microsec = end_time - start_time;
             std::cout << "operator() call time: " << 1.0e+06 * runtime_microsec.count() << " microsecond" << std::endl;
             #endif
+
+
+            recalculate_V_PHYS_xD_Px_MATHMORE = false;
+
             return chi2_total;
 
         }
