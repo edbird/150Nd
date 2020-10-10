@@ -765,7 +765,9 @@ void V_ENABLE_SYS_stack_pop()
     }
 }
 
-bool recalculate_V_PHYS_xD_Px_MATHMORE = true;
+
+bool recalculate_V_PHYS_MATHMORE = true;
+bool recalculate_V_PHYS_SYS = true;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -792,6 +794,8 @@ std::vector<bool> *V_ENABLE_BIN_1D_P1[number1DHists] =
     nullptr
 };
 
+// not used
+/*
 std::vector<double> *V_PHYS_1D_P1_data[number1DHists] = 
 {
     nullptr,
@@ -801,7 +805,9 @@ std::vector<double> *V_PHYS_1D_P1_data[number1DHists] =
     nullptr,
     nullptr
 };
+*/
 
+// changes depending on M
 std::vector<double> *V_PHYS_STAT_1D_P1_data[number1DHists] = 
 {
     nullptr,
@@ -851,6 +857,17 @@ std::vector<double> *V_PHYS_SYS4_1D_P1_data[number1DHists] =
     nullptr,
     nullptr
 };
+
+std::vector<double> *V_PHYS_SYSALL_1D_P1_data[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
 
 std::vector<double> *D_1D_P1_data[number1DHists] = 
 {
@@ -906,6 +923,7 @@ std::vector<bool> *V_ENABLE_BIN_1D_P2[number1DHists] =
     nullptr
 };
 
+/*
 std::vector<double> *V_PHYS_1D_P2_data[number1DHists] = 
 {
     nullptr,
@@ -915,6 +933,7 @@ std::vector<double> *V_PHYS_1D_P2_data[number1DHists] =
     nullptr,
     nullptr
 };
+*/
 
 std::vector<double> *V_PHYS_STAT_1D_P2_data[number1DHists] = 
 {
@@ -965,6 +984,18 @@ std::vector<double> *V_PHYS_SYS4_1D_P2_data[number1DHists] =
     nullptr,
     nullptr
 };
+
+std::vector<double> *V_PHYS_SYSALL_1D_P2_data[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+
 
 std::vector<double> *D_1D_P2_data[number1DHists] = 
 {

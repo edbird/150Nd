@@ -1,80 +1,10 @@
-#ifndef MINIMIZEFCNAXIALVECTOR_SET_D_MINUS_M
-#define MINIMIZEFCNAXIALVECTOR_SET_D_MINUS_M
+#ifndef MINIMIZEFCNAXIALVECTOR_SET_M_H
+#define MINIMIZEFCNAXIALVECTOR_SET_M_H
 
 
-void
-MinimizeFCNAxialVector::set_D_minus_M() const
-{
-    // M is set, D is set
 
-    
-    for(int channel = 0; channel < number1DHists; ++ channel)
-    {
-        if(channel_enable_1D[channel] == 1)
-        {
-            // set D_minus_M
-            //for(Int_t binx{1}; binx <= D_1D_P1[channel]->GetNbinsX(); ++ binx)
-            for(Int_t binx{0}; binx < D_1D_P1_data[channel]->size(); ++ binx)
-            {
-                // P1
-                {
-                    //Double_t content_D = D_1D_P1[channel]->GetBinContent(binx, 1);
-                    //Double_t content_M = M_1D_P1[channel]->GetBinContent(binx, 1);
-                    #if VECTOR_RANGE_CHECK
-                    Double_t content_D = D_1D_P1_data[channel]->at(binx);
-                    Double_t content_M = M_1D_P1_data[channel]->at(binx);
-                    #else
-                    Double_t content_D = D_1D_P1_data[channel]->operator[](binx);
-                    Double_t content_M = M_1D_P1_data[channel]->operator[](binx);
-                    #endif
-                    /*
-                    if(content_D != 0.0)
-                    {
-                        std::cout << "binx=" << binx << " ~> " << content_D << " " << content_M << std::endl;
-                    }
-                    */
-                    Double_t content_D_minus_M = content_D - content_M;
-                    //D_minus_M_1D_P1[channel]->SetBinContent(binx, 1, content_D_minus_M);
-                    #if VECTOR_RANGE_CHECK
-                    D_minus_M_1D_P1_data[channel]->at(binx) = content_D_minus_M;
-                    #else
-                    D_minus_M_1D_P1_data[channel]->operator[](binx) = content_D_minus_M;
-                    #endif
-                }
-
-                // P2
-                {
-                    //Double_t content_D = D_1D_P2[channel]->GetBinContent(binx, 1);
-                    //Double_t content_M = M_1D_P2[channel]->GetBinContent(binx, 1);
-                    #if VECTOR_RANGE_CHECK
-                    Double_t content_D = D_1D_P2_data[channel]->at(binx);
-                    Double_t content_M = M_1D_P2_data[channel]->at(binx);
-                    #else
-                    Double_t content_D = D_1D_P2_data[channel]->operator[](binx);
-                    Double_t content_M = M_1D_P2_data[channel]->operator[](binx);
-                    #endif
-                    /*
-                    if(content_D != 0.0)
-                    {
-                        std::cout << "binx=" << binx << " ~> " << content_D << " " << content_M << std::endl;
-                    }
-                    */
-                    Double_t content_D_minus_M = content_D - content_M;
-                    //D_minus_M_1D_P2[channel]->SetBinContent(binx, 1, content_D_minus_M);
-                    #if VECTOR_RANGE_CHECK
-                    D_minus_M_1D_P2_data[channel]->at(binx) = content_D_minus_M;
-                    #else
-                    D_minus_M_1D_P2_data[channel]->operator[](binx) = content_D_minus_M;
-                    #endif
-                }
-            }
-        }
-    }
-}
-
-
-#if 0
-void MinimizeFCNAxialVector::set_D_minus_M(const std::vector<double> &param) const
+void 
+MinimizeFCNAxialVector::set_M(const std::vector<double> &param) const
 {
 
     // loop over all channels
@@ -95,91 +25,53 @@ void MinimizeFCNAxialVector::set_D_minus_M(const std::vector<double> &param) con
             continue;
         }
 
-        // TODO: this no longer works because there are multiple phases
-        // in the tmpData1D arrays
-        // copy code from below to find correct object
-        // TODO: phase 1 and phase 2 data objects
-        //Double_t *tmpData1D_P1 = nullptr; //(TH1D*)allDataSamples1D->At(channel);
-        //Double_t *tmpData1D_P2 = nullptr;
-        //Double_t *tmpFakeData1D_P1 = nullptr; //(TH1D*)allFakeDataSamples1D->At(channel);
-        //Double_t *tmpFakeData1D_P2 = nullptr;
-
-        std::string histname = std::string(channel_histname_1D[channel]);
-        std::string search_object_P1;
-        std::string search_object_P2;
-        if(g_mode_fake_data == false)
+        // reset M
+        //for(Int_t bin_x{1}; bin_x <= M_1D_P1[channel]->GetNbinsX(); ++ bin_x)
+        for(Int_t bin_x{0}; bin_x < M_1D_P1_data[channel]->size(); ++ bin_x)
         {
-            search_object_P1 = histname + std::string(DataFile) + "_P1";
-            search_object_P2 = histname + std::string(DataFile) + "_P2";
-        }
-        else if(g_mode_fake_data == true)
-        {
-            search_object_P1 = histname + std::string("fakedata") + "_P1";
-            search_object_P2 = histname + std::string("fakedata") + "_P2";
-        }
-        TH1D *tmpDataHist1D_P1 = nullptr;
-        TH1D *tmpDataHist1D_P2 = nullptr;
-        
-        if(debuglevel >= 6)
-        {
-            std::cout << "search_object_P1=" << search_object_P1
-                      << " search_object_P2=" << search_object_P2 << std::endl;
-        }
-
-        if(g_mode_fake_data == false)
-        {
-            tmpDataHist1D_P1 = (TH1D*)allDataSamples1D->FindObject(search_object_P1.c_str());
-            tmpDataHist1D_P2 = (TH1D*)allDataSamples1D->FindObject(search_object_P2.c_str());
-        }
-        else if(g_mode_fake_data == true)
-        {
-            tmpDataHist1D_P1 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P1.c_str());
-            tmpDataHist1D_P2 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P2.c_str());
-        }
-
-        if(tmpDataHist1D_P1 == nullptr)
-        {
-            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
-            throw "problem";
-        }
-        if(tmpDataHist1D_P2 == nullptr)
-        {
-            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
-            throw "problem";
-        }
-
-        ///////////////////////////////////////////////////////////////////////
-        // init P1
-
-        // initialize D_minus_M with D value
-        for(Int_t bin_x{0}; bin_x < tmpDataHist1D_P1->GetNbinsX(); ++ bin_x)
-        {
-            Double_t content = tmpDataHist1D_P1->GetBinContent(bin_x + 1);
+            //M_1D_P1[channel]->SetBinContent(bin_x, 1, 0.0);
             #if VECTOR_RANGE_CHECK
-            D_minus_M_1D_P1_data[channel]->at(bin_x) = content;
+            M_1D_P1_data[channel]->at(bin_x) = 0.0;
             #else
-            D_minus_M_1D_P1_data[channel]->operator[](bin_x) = content;
+            M_1D_P1_data[channel]->operator[](bin_x) = 0.0;
+            #endif
+        }
+        
+        // reset M
+        //for(Int_t bin_x{1}; bin_x <= M_1D_P2[channel]->GetNbinsX(); ++ bin_x)
+        for(Int_t bin_x{0}; bin_x < M_1D_P2_data[channel]->size(); ++ bin_x)
+        {
+            //M_1D_P2[channel]->SetBinContent(bin_x, 1, 0.0);
+            #if VECTOR_RANGE_CHECK
+            M_1D_P2_data[channel]->at(bin_x) = 0.0;
+            #else
+            M_1D_P2_data[channel]->operator[](bin_x) = 0.0;
             #endif
         }
 
-        ///////////////////////////////////////////////////////////////////////
-        // init P2
-        
-        //std::cout << "LIST OF P2 DATA channel=" << channel << std::endl;
-        //std::cin.get();
-        for(Int_t bin_x{0}; bin_x < tmpDataHist1D_P2->GetNbinsX(); ++ bin_x)
-        {
-            Double_t content = tmpDataHist1D_P2->GetBinContent(bin_x + 1);
-            #if VECTOR_RANGE_CHECK
-            D_minus_M_1D_P2_data[channel]->at(bin_x) = content;
-            #else
-            D_minus_M_1D_P2_data[channel]->operator[](bin_x) = content;
-            #endif
-            //std::cout << "bin_x=" << bin_x + 1 << " content=" << content_output << std::endl;
-        }
+    // can M change?
+    // yes - if xi_31 parameter changes, which is detectable using g_pg
+    // as shown above
+    // can it change another way?
+    // it depends on all "amplitude" parameters, so need to rebuild if any
+    // of these parameters changes
+    // just assume it always changes for now
 
-        ///////////////////////////////////////////////////////////////////////
-        // subtract MC
+
+        /*
+        Double_t *tmpTotalMC1D_P1 = new Double_t[tmpDataHist1D_P1->GetNbinsX()];
+        Double_t *tmpTotalMC1D_P2 = new Double_t[tmpDataHist1D_P2->GetNbinsX()];
+        for(Int_t bin_x{1}; bin_x <= tmpDataHist1D_P1->GetNbinsX(); ++ bin_x)
+        {
+            tmpTotalMC1D_P1[bin_x] = 0.0;
+        }
+        for(Int_t bin_x{1}; bin_x <= tmpDataHist1D_P2->GetNbinsX(); ++ bin_x)
+        {
+            tmpTotalMC1D_P2[bin_x] = 0.0;
+        }
+        */
+
+
 
         // loop over all the parameters
         std::map<int, file_parameter>::iterator it{g_pg.file_params.begin()};
@@ -226,8 +118,8 @@ void MinimizeFCNAxialVector::set_D_minus_M(const std::vector<double> &param) con
             {
                 if(debuglevel > 0)
                 {
-                    std::cout << __func__ << " channel [channel TODO] is disabled (overall) skip" << std::endl;
-                    std::cin.get();
+                    //std::cout << __func__ << " param " << paramNumber <<  " is disabled (overall) skip" << std::endl;
+                    //std::cin.get();
                 }
                 continue;
             }
@@ -236,7 +128,7 @@ void MinimizeFCNAxialVector::set_D_minus_M(const std::vector<double> &param) con
                 // if both are false
                 if(debuglevel > 0)
                 {
-                    std::cout << __func__ << " channel [channel TODO] is disabled for P1 and P2, skip" << std::endl;
+                    std::cout << __func__ << " param " << paramNumber << " is disabled for P1 and P2, skip" << std::endl;
                     std::cin.get();
                 }
                 continue;
@@ -336,20 +228,19 @@ void MinimizeFCNAxialVector::set_D_minus_M(const std::vector<double> &param) con
 
                     for(Int_t bin_x{0}; bin_x < tmpHist1D_P1->GetNbinsX(); ++ bin_x)
                     {
+                        //Double_t content_input = M_1D_P1[channel]->GetBinContent(bin_x + 1, 1);
                         #if VECTOR_RANGE_CHECK
-                        Double_t content_input = D_minus_M_1D_P1_data[channel]->at(bin_x);
+                        Double_t content_input = M_1D_P1_data[channel]->at(bin_x);
                         #else
-                        Double_t content_input = D_minus_M_1D_P1_data[channel]->operator[](bin_x);
+                        Double_t content_input = M_1D_P1_data[channel]->operator[](bin_x);
                         #endif
-
                         Double_t content_add = scale_factor_P1 * tmpHist1D_P1->GetBinContent(bin_x + 1);
-                        
                         Double_t content_output = content_input + content_add;
-
+                        //M_1D_P1[channel]->SetBinContent(bin_x + 1, 1, content_output);
                         #if VECTOR_RANGE_CHECK
-                        D_minus_M_1D_P1_data[channel]->at(bin_x) = content_output;
+                        M_1D_P1_data[channel]->at(bin_x) = content_output;
                         #else
-                        D_minus_M_1D_P1_data[channel]->operator[](bin_x) = content_output;
+                        M_1D_P1_data[channel]->operator[](bin_x) = content_output;
                         #endif
                         //std::cout << "content_input=" << content_input << " content_output=" << content_output << " content_add=" << content_add << std::endl;
                     }
@@ -382,20 +273,20 @@ void MinimizeFCNAxialVector::set_D_minus_M(const std::vector<double> &param) con
                     //std::cout << "super_index (start) : " << channel * 2 * 50 + 50 + 0 << std::endl;
                     for(Int_t bin_x{0}; bin_x < tmpHist1D_P2->GetNbinsX(); ++ bin_x)
                     {
+                        //Int_t super_index = channel * 2 * 50 + 50 + bin_x;
+                        //Double_t content_input = M_1D_P2[channel]->GetBinContent(bin_x + 1, 1);
                         #if VECTOR_RANGE_CHECK
-                        Double_t content_input = D_minus_M_1D_P2_data[channel]->at(bin_x);
+                        Double_t content_input = M_1D_P2_data[channel]->at(bin_x);
                         #else
-                        Double_t content_input = D_minus_M_1D_P2_data[channel]->operator[](bin_x);
+                        Double_t content_input = M_1D_P2_data[channel]->operator[](bin_x);
                         #endif
-                        
                         Double_t content_add = scale_factor_P2 * tmpHist1D_P2->GetBinContent(bin_x + 1);
-                        
                         Double_t content_output = content_input + content_add;
-
+                        //M_1D_P2[channel]->SetBinContent(bin_x + 1, 1, content_output);
                         #if VECTOR_RANGE_CHECK
-                        D_minus_M_1D_P2_data[channel]->at(bin_x) = content_output;
+                        M_1D_P2_data[channel]->at(bin_x) = content_output;
                         #else
-                        D_minus_M_1D_P2_data[channel]->operator[](bin_x) = content_output;
+                        M_1D_P2_data[channel]->operator[](bin_x) = content_output;
                         #endif
                         //std::cout << "debug: " << "super_index=" << super_index << " content_input=" << content_input << " content_add=" << content_add << " content_output=" << content_output << " M:" << M->GetBinContent(super_index + 1, 1) << std::endl;
 
@@ -419,7 +310,7 @@ void MinimizeFCNAxialVector::set_D_minus_M(const std::vector<double> &param) con
         } // file_param iterator
     }
 }
-#endif
 
 
-#endif // MINIMIZEFCNAXIALVECTOR_SET_D_MINUS_M
+
+#endif // MINIMIZEFCNAXIALVECTOR_SET_M_H

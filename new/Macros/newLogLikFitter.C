@@ -2524,9 +2524,12 @@ void loadFiles(int i)
     if(1)
     {
 
-        std::cout << "recalculate_V_PHYS_xD_Px_MATHMORE=" << recalculate_V_PHYS_xD_Px_MATHMORE << std::endl;
-        recalculate_V_PHYS_xD_Px_MATHMORE = true;
-        std::cout << "recalculate_V_PHYS_xD_Px_MATHMORE=" << recalculate_V_PHYS_xD_Px_MATHMORE << std::endl;
+        std::cout << "recalculate_V_PHYS_MATHMORE=" << recalculate_V_PHYS_MATHMORE << std::endl;
+        std::cout << "recalculate_V_PHYS_SYS=" << recalculate_V_PHYS_SYS << std::endl;
+        recalculate_V_PHYS_MATHMORE = true;
+        recalculate_V_PHYS_SYS = true;
+        std::cout << "recalculate_V_PHYS_MATHMORE=" << recalculate_V_PHYS_MATHMORE << std::endl;
+        std::cout << "recalculate_V_PHYS_SYS=" << recalculate_V_PHYS_SYS << std::endl;
 
         
         std::cout << "V_ENABLE_SYSALL=" << V_ENABLE_SYSALL << std::endl;
