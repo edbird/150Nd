@@ -1,0 +1,70 @@
+39  0	nd150_rot_2b2n_m4	        3.5350E-04	5.9777E-06  notfixed
+
+32  1	ac228_int_rot  	        1.363   	0.056       fixed
+32	1   bi212_int_rot  	        1.363	    0.056       fixed
+32	1   tl208_int_rot 	        0.490	    0.020       fixed
+33	2   bi207_int_rot  	        6.666	    0.606       fixed
+34	3   bi214_int_rot  	        0.172	    0.020       fixed
+34	3   b214_int_rot 	        0.172	    0.020       fixed
+35	4   eu152_int_rot  	        4.545	    0.303       fixed
+36	5   eu154_int_rot  	        0.758	    0.101       fixed
+37	6   k40_int_rot	            9.696	    0.101       fixed
+38	7   pa234m_int_rot 	        2.778	    0.035       fixed
+
+40	8   ca48_63_rot_2n2b_m4	    0.02974	    0.00006     fixed
+40	8   ca48_63_rot_bi214	    0.02974	    0.00006     fixed
+40	8   ca48_63_rot_pa234m	    0.02974	    0.00006     fixed
+40	8   ca48_63_rot_y90	        0.02974	    0.00006     fixed
+44	9   mo100_99_rot_2n2b_m4	0.00015     0.00015	    fixed
+45	9   mo100_99_rot_bi214	    0.00169     0.00169     fixed
+45	9   mo100_99_rot_pa234m	    0.00169     0.00169     fixed
+45	9   mo100_99_rot_k40	    0.00169     0.00169     fixed
+42	10  zr96_rot_2n2b_m4	    0.00019	    0.00002     fixed
+42	10  zr96_rot_bi214	        0.00019	    0.00002     fixed
+42	10  zr96_rot_pa234m	        0.00019	    0.00002     fixed
+43	10  zr96_rot_k40	        0.01970	    0.00010     fixed
+
+15	11  bi214_sfoil_P1	        0.0091	    0.0048      fixed
+15	11  pb214_sfoil_P1	        0.0091	    0.0048      fixed
+16	12  bi214_sfoil_P2	        0.00341	    0.00096     fixed
+16	12  pb214_sfoil_P2	        0.00341	    0.00096     fixed
+
+21	13  bi214_swire_P1	        0.556	    0.058       fixed
+21	13  pb214_swire_P1	        0.556	    0.058       fixed
+22	14  bi214_swire_P2	        0.085	    0.012       fixed
+22	14  pb214_swire_P2	        0.085	    0.012       fixed
+
+25	15  tl208_swire_P1	        0.0035	    0.0004      fixed
+26	16  tl208_swire_P2	        0.00290	    0.00040     fixed
+
+18	17  bi214_sscin_P1	        0.380	    0.038       fixed
+18	17  pb214_sscin_P1	        0.380	    0.380       fixed
+19	18  bi214_sscin_P2	        0.380	    0.038       fixed
+19	18  pb214_sscin_P2	        0.380	    0.038       fixed
+
+17	19  bi210_sfoil_P1	        4.244	    0.023       fixed
+23	20  bi210_swire_P1	        12.620	    0.730       fixed
+20	21  bi210_sscin_P1	        30.400	    3.040       fixed
+
+17	22  bi210_sfoil_P2	        4.244	    0.023       fixed
+23	23  bi210_swire_P2	        12.620	    0.730       fixed
+20	24  bi210_sscin_P2	        30.400	    3.040       fixed
+
+24	25  bi214_mylar	            0.000	    2.028E-05   fixed
+24	25  pb214_mylar	            0.000	    2.028E-05   fixed
+
+0	26  bi214_air_P1	        566.000	    56.600      fixed
+0	26  pb214_air_P1	        566.000	    56.600      fixed
+1	27  tl208_air_P1	        11.500  	1.150       fixed
+
+11	28  bi214_pmt	            324.000	    1.000       fixed
+13	29  ac228_pmt	            75.125	    1.669       fixed
+13	29  tl208_pmt	            27.000	    0.600       fixed
+3	30  bi214_feShield	        7360.000	200.000     fixed
+2	31  ac228_feShield	        1346.689	66.778      fixed
+2	31  tl208_feShield	        484.000	    24.000      fixed
+31	32  k40_sscin	            4.365	    2.103       fixed
+100 33  pa234m_sscin            0.0         0.0         fixed
+4	34  co60_cuTower	        18.400	    0.800       fixed
+12	35  k40_pmt	                1078.000	32.000      fixed
+27	36  k40_scintIN	            7.170	    0.300       fixed
