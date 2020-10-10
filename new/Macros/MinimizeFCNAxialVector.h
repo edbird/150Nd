@@ -437,6 +437,10 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                         V_ENABLE_BIN_1D_P2[ch]->reserve(NUM_BINS_XY); 
                     }
                 }
+            }
+
+            if(true)
+            {
                 // realloc these each time
                 for(int ch = 0; ch < number1DHists; ++ ch)
                 {

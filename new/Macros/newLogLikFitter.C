@@ -2528,6 +2528,13 @@ void loadFiles(int i)
         recalculate_V_PHYS_xD_Px_MATHMORE = true;
         std::cout << "recalculate_V_PHYS_xD_Px_MATHMORE=" << recalculate_V_PHYS_xD_Px_MATHMORE << std::endl;
 
+        
+        std::cout << "V_ENABLE_SYSALL=" << V_ENABLE_SYSALL << std::endl;
+        std::cout << "V_ENABLE_SYS1=" << V_ENABLE_SYS1 << std::endl;
+        std::cout << "V_ENABLE_SYS2=" << V_ENABLE_SYS2 << std::endl;
+        std::cout << "V_ENABLE_SYS3=" << V_ENABLE_SYS3 << std::endl;
+        std::cout << "V_ENABLE_SYS4=" << V_ENABLE_SYS4 << std::endl;
+
         std::cout << "g_mode_fake_data=" << g_mode_fake_data << std::endl;
 
         gSystematics.reset();
