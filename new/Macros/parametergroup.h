@@ -211,6 +211,7 @@ class parameter_group
         //minuitParamNumberCounter = 0;
 
         xi_31_int_ext_param_number_set = false;
+        xi_51_int_ext_param_number_set = false;
     }
 
 
@@ -220,9 +221,13 @@ class parameter_group
         std::map<int, file_parameter>::const_iterator it{file_params.cbegin()};
         for(; it != file_params.cend(); ++ it)
         {
-            if(it->second.paramConstraintMode == MODE_CONSTRAINT_FREE)
+            if(it->second.paramEnabled == true)
             {
-                ++ sum;
+                // TODO: check enabled P1 || P2
+                if(it->second.paramConstraintMode == MODE_CONSTRAINT_FREE)
+                {
+                    ++ sum;
+                }
             }
         }
         return sum;
@@ -302,6 +307,79 @@ class parameter_group
     }
 
 
+    int get_xi_51_int_param_number()
+    {
+        if(xi_51_int_ext_param_number_set == true)
+        {
+            return xi_51_int_param_number;
+        }
+        else
+        {
+            std::string param_name = "xi_51";
+
+            xi_51_ext_param_number = ParamNameToExtParamNumberMap.at(param_name);
+            std::map<std::string, int>::iterator it = ParamNameToExtParamNumberMap.find(param_name);
+            if(it != ParamNameToExtParamNumberMap.end())
+            {
+                std::map<int, int>::iterator it = ExtToIntParamNumberMap.find(xi_51_ext_param_number);
+                if(it != ExtToIntParamNumberMap.end())
+                {
+                    xi_51_int_param_number = ExtToIntParamNumberMap.at(xi_51_ext_param_number);
+                }
+                else
+                {
+                    xi_51_int_param_number = -1;
+                }
+                //xi_51_int_param_number = ExtToIntParamNumberMap.at(xi_51_ext_param_number);
+            }
+            else
+            {
+                xi_51_int_param_number = -1;
+            }
+            //xi_51_int_param_number = ExtToIntParamNumberMap.at(xi_51_ext_param_number);
+            xi_51_int_ext_param_number_set = true;
+
+            return xi_51_int_param_number;
+        }
+    }
+
+
+    int get_xi_51_ext_param_number()
+    {
+        if(xi_51_int_ext_param_number_set == true)
+        {
+            return xi_51_ext_param_number;
+        }
+        else
+        {
+            std::string param_name = "xi_51";
+
+            xi_51_ext_param_number = ParamNameToExtParamNumberMap.at(param_name);
+
+            std::map<std::string, int>::iterator it = ParamNameToExtParamNumberMap.find(param_name);
+            if(it != ParamNameToExtParamNumberMap.end())
+            {
+                std::map<int, int>::iterator it = ExtToIntParamNumberMap.find(xi_51_ext_param_number);
+                if(it != ExtToIntParamNumberMap.end())
+                {
+                    xi_51_int_param_number = ExtToIntParamNumberMap.at(xi_51_ext_param_number);
+                }
+                else
+                {
+                    xi_51_int_param_number = -1;
+                }
+            }
+            else
+            {
+                xi_51_int_param_number = -1;
+            }
+            xi_51_int_ext_param_number_set = true;
+
+            return xi_51_ext_param_number;
+        }
+    }
+
+
     void reset()
     {
         file_params.clear();
@@ -311,6 +389,9 @@ class parameter_group
         IntToExtParamNumberMap.clear();
         numberEnabledParams = 0;
         //minuitParamNumberCounter = 0;
+
+        xi_31_int_ext_param_number_set = false;
+        xi_51_int_ext_param_number_set = false;
     }
 
 
@@ -393,6 +474,21 @@ class parameter_group
                         else
                         {
                             std::cout << "ERROR: xi_31_int_ext_param_number is already set" << std::endl;
+                        }
+                    }
+
+
+                    if(it->second.paramName == "xi_51")
+                    {
+                        if(xi_51_int_ext_param_number_set == false)
+                        {
+                            xi_51_int_param_number = minuit_param_number_counter;
+                            xi_51_ext_param_number = paramNumber;
+                            xi_51_int_ext_param_number_set = true;
+                        }
+                        else
+                        {
+                            std::cout << "ERROR: xi_51_int_ext_param_number is already set" << std::endl;
                         }
                     }
 
@@ -604,6 +700,17 @@ class parameter_group
         {
             std::cout << "no" << std::endl;
         }
+        std::cout << "Is the xi_51 parameter number set?" << std::endl;
+        if(xi_51_int_ext_param_number_set == true)
+        {
+            std::cout << "yes" << std::endl;
+            std::cout << "xi_51_int_param_number=" << xi_51_int_param_number << std::endl;
+            std::cout << "xi_51_ext_param_number=" << xi_51_ext_param_number << std::endl;
+        }
+        else
+        {
+            std::cout << "no" << std::endl;
+        }
         std::cout << "--------------------------------------------------------------------------------" << std::endl;
     }
 
@@ -643,6 +750,12 @@ class parameter_group
     int xi_31_int_param_number;
     int xi_31_ext_param_number;
     bool xi_31_int_ext_param_number_set;
+
+    int xi_51_int_param_number;
+    int xi_51_ext_param_number;
+    bool xi_51_int_ext_param_number_set;
+
+
 };
 
 #endif // PARAMETERGROUP_H

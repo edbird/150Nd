@@ -178,6 +178,7 @@ BREAK
 BREAK
 43  enabled     P1_enabled  P2_disabled 557.0	    38.0        useinit     useinit     hard    RN222       bi214_pb214_air_P1          bi214_air   pb214_air                           END     # 4 events
 44  enabled     P1_enabled  P2_disabled 9.0  	    4.0         useinit     useinit     hard    RN220       tl208_air_P1                tl208_air   	                                END     # 0 events
+45  disabled    P1_enabled  P2_enabled  0.0         0.1         useinit     useinit     free    NA          xi_51                       NOMC                                            END
 BREAK
 BREAK
 BREAK
@@ -244,6 +245,10 @@ NAME    42      ^{214}Bi ^{214}Bi SWire L>0 P2
 # Air (Radon)
 NAME    43      ^{214}Bi ^{214}Pb Air
 NAME    44      ^{208}Tl Air
+#
+BREAK
+#
+NAME    45      g_{A} Axial Vector 51
 #
 BREAK
 #
