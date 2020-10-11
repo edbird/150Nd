@@ -1748,7 +1748,7 @@ void loadFiles(int i)
     // TODO: this block doesn't really make sense, unless we fit
     // for xi_31 = SSD with xi_31 fixed
     // do not do this in parallel mode
-    if(1)// || (MODE_PARALLEL == 0))
+    if(0)// || (MODE_PARALLEL == 0))
     {
         bool restore_V_ENABLE_SYSALL = V_ENABLE_SYSALL;
         V_ENABLE_SYSALL = false;
