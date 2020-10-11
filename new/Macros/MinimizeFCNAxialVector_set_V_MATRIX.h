@@ -172,7 +172,7 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                 #endif
 
    
-                #define DRAWVPHYSMATRIX 0
+                #define DRAWVPHYSMATRIX 1
                 #if DRAWVPHYSMATRIX
                 TH2D *draw_V_PHYS_STAT_P1 = nullptr;
                 TH2D *draw_V_PHYS_SYS1_P1 = nullptr;
