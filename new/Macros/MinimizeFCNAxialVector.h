@@ -531,7 +531,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             #endif
 
 
-            recalculate_V_PHYS_MATHMORE = false;
+            //recalculate_V_PHYS_MATHMORE = true; //?
             recalculate_V_PHYS_SYS = false;
 
             return chi2_total;
