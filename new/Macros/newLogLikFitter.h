@@ -429,7 +429,7 @@ std::vector<bool> V_ENABLE_SYS4_stack;
 // 2020-10-04
 // wanted to implement this as a debugging step but turned out to be not
 // trivial so did not bother
-bool DRAW_V_PHYS_MATRIX = true;
+bool DRAW_V_PHYS_MATRIX = false;
 
 ///////////////////////////////////////////////////////////////////////////////
 // state machine support functions
