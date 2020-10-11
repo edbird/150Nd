@@ -265,7 +265,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             //}
 
             check_alloc_V_PHYS_STAT_data();
-            set_V_PHYS_STAT_data();
+            set_V_PHYS_STAT_data(); // does not do anything, done elsewhere
             //if(recalculate_V_PHYS_xD_Px_MATHMORE == true)
             //if(true) // must be done each time? since M will change
             // however check function: set_V_MATRIX

@@ -300,8 +300,8 @@ const int number2DHists = 1; //number2DHists_perphase * numberPhases;
 
 const double channel_enable_1D[number1DHists] =
 {
-0, // ch  0 = hTotalE        (P1&2)
-1, // ch  1 = hSingleEnergy  (P1&2)
+1, // ch  0 = hTotalE        (P1&2)
+0, // ch  1 = hSingleEnergy  (P1&2)
 0, // ch  2 = hHighEnergy    (P1&2)
 0, // ch  3 = hLowEnergy     (P1&2)
 0, // ch  4 = hEnergySum     (P1&2)
@@ -382,326 +382,43 @@ std::vector<std::pair<double,double>> ll_walk_save;
 
 bool FORCE_BKG_HARD = false;
 
-///////////////////////////////////////////////////////////////////////////////
-// minimization points
-///////////////////////////////////////////////////////////////////////////////
-
-// systematic: SYS1
-// h = high
-// l = low
-double min_point[2] = {0.0, 0.0}; // minimum point found, all parameter fit
-double min_point_fake_data[2] = {0.0, 0.0};
-double min_point_sys1_h[2] = {0.0, 0.0}; // +- 0.1 MeV
-double min_point_sys1_l[2] = {0.0, 0.0};
-double min_point_sys2_h[2] = {0.0, 0.0}; // +- 1.2 % scale
-double min_point_sys2_l[2] = {0.0, 0.0};
-double min_point_sys3_h[2] = {0.0, 0.0}; // +- 5.55 % efficiency
-double min_point_sys4_l[2] = {0.0, 0.0};
-double min_point_sys4_h[2] = {0.0, 0.0}; // +- 0.50 % enrichment
-double min_point_sys3_l[2] = {0.0, 0.0};
-
-const bool ENABLE_MIN_POINT_SYS1 = false; // +- 0.1 MeV
-const bool ENABLE_MIN_POINT_SYS2 = true; // +- 1.2 % scale
-const bool ENABLE_MIN_POINT_SYS3 = true; // +- 5.55 % efficiency
-const bool ENABLE_MIN_POINT_SYS4 = true; // +- 0.50 % enrichment
-
-///////////////////////////////////////////////////////////////////////////////
-// systematic objects - Phase 1
-///////////////////////////////////////////////////////////////////////////////
-
-std::vector<double> *systematic_nominal_1D_P1[number1DHists] =
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};
-
-std::vector<double> *systematic_offset_low_1D_P1[number1DHists] = 
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};
-
-std::vector<double> *systematic_offset_high_1D_P1[number1DHists] = 
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};
-
-std::vector<double> *systematic_offset_V_MATRIX_coeff_1D_P1[number1DHists] = 
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-std::vector<double> *systematic_scale_low_1D_P1[number1DHists] = 
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};
-
-std::vector<double> *systematic_scale_high_1D_P1[number1DHists] = 
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};
-
-std::vector<double> *systematic_scale_V_MATRIX_coeff_1D_P1[number1DHists] = 
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-std::vector<double> *systematic_efficiency_low_1D_P1[number1DHists] = 
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};
-
-std::vector<double> *systematic_efficiency_high_1D_P1[number1DHists] = 
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};
-
-std::vector<double> *systematic_efficiency_V_MATRIX_coeff_1D_P1[number1DHists] = 
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-std::vector<double> *systematic_enrichment_low_1D_P1[number1DHists] = 
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};
-
-std::vector<double> *systematic_enrichment_high_1D_P1[number1DHists] = 
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};
-
-std::vector<double> *systematic_enrichment_V_MATRIX_coeff_1D_P1[number1DHists] = 
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};
-
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// systematic objects - Phase 2
-///////////////////////////////////////////////////////////////////////////////
-
-std::vector<double> *systematic_nominal_1D_P2[number1DHists] =
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};
-
-std::vector<double> *systematic_offset_low_1D_P2[number1DHists] = 
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};
-
-std::vector<double> *systematic_offset_high_1D_P2[number1DHists] = 
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};
-
-std::vector<double> *systematic_offset_V_MATRIX_coeff_1D_P2[number1DHists] = 
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-std::vector<double> *systematic_scale_low_1D_P2[number1DHists] = 
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};
-
-std::vector<double> *systematic_scale_high_1D_P2[number1DHists] = 
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};
-
-std::vector<double> *systematic_scale_V_MATRIX_coeff_1D_P2[number1DHists] = 
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-std::vector<double> *systematic_efficiency_low_1D_P2[number1DHists] = 
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};
-
-std::vector<double> *systematic_efficiency_high_1D_P2[number1DHists] = 
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};
-
-std::vector<double> *systematic_efficiency_V_MATRIX_coeff_1D_P2[number1DHists] = 
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-std::vector<double> *systematic_enrichment_low_1D_P2[number1DHists] = 
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};
-
-std::vector<double> *systematic_enrichment_high_1D_P2[number1DHists] = 
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};
-
-std::vector<double> *systematic_enrichment_V_MATRIX_coeff_1D_P2[number1DHists] = 
-{
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
-};
-
-
-
-///////////////////////////////////////////////////////////////////////////////
-// chi2 objects for V MATRIX method, Phase 1
+// state machine
 ///////////////////////////////////////////////////////////////////////////////
 
 bool V_ENABLE_STAT = true; // leave on
 // TODO: might need to update code which enables/disables bins
 // now that SYS are included
 
+// enable/disable systematics
 bool V_ENABLE_SYSALL = true;
 bool V_ENABLE_SYS1 = false; // constant 1.0 MeV shift
 bool V_ENABLE_SYS2 = true; // scale factor: m = 1 % + 0.2 %
 bool V_ENABLE_SYS3 = true; // +- 5.55 % efficiency
 bool V_ENABLE_SYS4 = true; // +- 0.50 % enrichment
+
+
+// set to true to recalculate V_PHYS_MATHMORE
+// ... and maybe some other stuff I got confused about it
+bool recalculate_V_PHYS_MATHMORE = true;
+
+// set to true after changing which systematics are enabled
+// related to functions inside MinimizeFCNAxialVector::operator()
+bool recalculate_V_PHYS_SYS = true;
+
+
+// enable/disable drawing of minimum points for each systematic fit
+const bool ENABLE_MIN_POINT_SYS1 = false; // +- 0.1 MeV
+const bool ENABLE_MIN_POINT_SYS2 = true; // +- 1.2 % scale
+const bool ENABLE_MIN_POINT_SYS3 = true; // +- 5.55 % efficiency
+const bool ENABLE_MIN_POINT_SYS4 = true; // +- 0.50 % enrichment
+
+
+
+
+
 
 std::vector<bool> V_ENABLE_SYSALL_stack;
 std::vector<bool> V_ENABLE_SYS1_stack;
@@ -713,6 +430,9 @@ std::vector<bool> V_ENABLE_SYS4_stack;
 // wanted to implement this as a debugging step but turned out to be not
 // trivial so did not bother
 bool DRAW_V_PHYS_MATRIX = true;
+
+///////////////////////////////////////////////////////////////////////////////
+// state machine support functions
 
 void V_ENABLE_SYS_stack_push()
 {
@@ -766,8 +486,332 @@ void V_ENABLE_SYS_stack_pop()
 }
 
 
-bool recalculate_V_PHYS_MATHMORE = true;
-bool recalculate_V_PHYS_SYS = true;
+
+
+///////////////////////////////////////////////////////////////////////////////
+// minimization points
+///////////////////////////////////////////////////////////////////////////////
+
+// systematic: SYS1
+// h = high
+// l = low
+double min_point[2] = {0.0, 0.0}; // minimum point found, all parameter fit
+double min_point_fake_data[2] = {0.0, 0.0};
+double min_point_sys1_h[2] = {0.0, 0.0}; // +- 0.1 MeV
+double min_point_sys1_l[2] = {0.0, 0.0};
+double min_point_sys2_h[2] = {0.0, 0.0}; // +- 1.2 % scale
+double min_point_sys2_l[2] = {0.0, 0.0};
+double min_point_sys3_h[2] = {0.0, 0.0}; // +- 5.55 % efficiency
+double min_point_sys4_l[2] = {0.0, 0.0};
+double min_point_sys4_h[2] = {0.0, 0.0}; // +- 0.50 % enrichment
+double min_point_sys3_l[2] = {0.0, 0.0};
+
+
+///////////////////////////////////////////////////////////////////////////////
+// systematic objects - Phase 1
+///////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////
+// nominal
+
+std::vector<double> *systematic_nominal_1D_P1[number1DHists] =
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// SYS1: offset
+
+std::vector<double> *systematic_offset_low_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_offset_high_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_offset_V_MATRIX_coeff_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// SYS2: scale
+
+std::vector<double> *systematic_scale_low_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_scale_high_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_scale_V_MATRIX_coeff_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// SYS3: efficiency
+
+std::vector<double> *systematic_efficiency_low_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_efficiency_high_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_efficiency_V_MATRIX_coeff_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// SYS4: enrichment
+
+std::vector<double> *systematic_enrichment_low_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_enrichment_high_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_enrichment_V_MATRIX_coeff_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+// systematic objects - Phase 2
+///////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////
+// nominal
+
+std::vector<double> *systematic_nominal_1D_P2[number1DHists] =
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// SYS1: offset
+
+std::vector<double> *systematic_offset_low_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_offset_high_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_offset_V_MATRIX_coeff_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// SYS2: scale
+
+std::vector<double> *systematic_scale_low_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_scale_high_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_scale_V_MATRIX_coeff_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// SYS3: efficiency
+
+std::vector<double> *systematic_efficiency_low_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_efficiency_high_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_efficiency_V_MATRIX_coeff_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// SYS4: enrichment
+
+std::vector<double> *systematic_enrichment_low_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_enrichment_high_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_enrichment_V_MATRIX_coeff_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+// chi2 objects for V MATRIX method, Phase 1
+///////////////////////////////////////////////////////////////////////////////
 
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -65,8 +65,8 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         {
                             V_ENABLE_BIN_1D_P1[channel]->push_back(true);
 
-                            Double_t sigma_M = std::sqrt(content_M);
-                            Double_t sigma_D = std::sqrt(content_D);
+                            //Double_t sigma_M = std::sqrt(content_M);
+                            //Double_t sigma_D = std::sqrt(content_D);
                             //stat = sigma_M * sigma_M;
                             stat = content_M;
 
@@ -106,8 +106,8 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         {
                             V_ENABLE_BIN_1D_P2[channel]->push_back(true);
                         
-                            Double_t sigma_M = std::sqrt(content_M);
-                            Double_t sigma_D = std::sqrt(content_D);
+                            //Double_t sigma_M = std::sqrt(content_M);
+                            //Double_t sigma_D = std::sqrt(content_D);
                             //stat = sigma_M * sigma_M;
                             stat = content_M;
 
@@ -116,9 +116,9 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         }
 
                         #if VECTOR_RANGE_CHECK
-                        V_PHYS_STAT_1D_P2_data[channel]->at(binx * 50 + binx) =  stat;
+                        V_PHYS_STAT_1D_P2_data[channel]->at(binx * 50 + binx) = stat;
                         #else
-                        V_PHYS_STAT_1D_P2_data[channel]->operator[](binx * 50 + binx) =  stat;
+                        V_PHYS_STAT_1D_P2_data[channel]->operator[](binx * 50 + binx) = stat;
                         #endif
                     }
                 }
@@ -172,7 +172,7 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                 #endif
 
    
-                #define DRAWVPHYSMATRIX 1
+                #define DRAWVPHYSMATRIX 0
                 #if DRAWVPHYSMATRIX
                 TH2D *draw_V_PHYS_STAT_P1 = nullptr;
                 TH2D *draw_V_PHYS_SYS1_P1 = nullptr;
@@ -321,32 +321,32 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         {
                             if(channel == 1)
                             {
-                                double c2 = 0.0;
-                                double c3 = 0.0;
-                                double c4 = 0.0;
-                                double c5 = 0.0;
+                                double sys1 = 0.0;
+                                double sys2 = 0.0;
+                                double sys3 = 0.0;
+                                double sys4 = 0.0;
                                 if(V_ENABLE_SYS1 == true)
                                 {
-                                    c2 = V_PHYS_SYS1_1D_P1_data[channel]->operator[](i + j * 50);
+                                    sys1 = V_PHYS_SYS1_1D_P1_data[channel]->operator[](i + j * 50);
                                 }
                                 if(V_ENABLE_SYS2 == true)
                                 {
-                                    c3 = V_PHYS_SYS2_1D_P1_data[channel]->operator[](i + j * 50);
+                                    sys2 = V_PHYS_SYS2_1D_P1_data[channel]->operator[](i + j * 50);
                                 }
                                 if(V_ENABLE_SYS3 == true)
                                 {
-                                    c4 = V_PHYS_SYS3_1D_P1_data[channel]->operator[](i + j * 50);
+                                    sys3 = V_PHYS_SYS3_1D_P1_data[channel]->operator[](i + j * 50);
                                 }
                                 if(V_ENABLE_SYS4 == true)
                                 {
-                                    c5 = V_PHYS_SYS4_1D_P1_data[channel]->operator[](i + j * 50);
+                                    sys4 = V_PHYS_SYS4_1D_P1_data[channel]->operator[](i + j * 50);
                                 }
 
                                 draw_V_PHYS_STAT_P1->SetBinContent(i + 1, j + 1, cstat);
-                                draw_V_PHYS_SYS1_P1->SetBinContent(i + 1, j + 1, c2);
-                                draw_V_PHYS_SYS2_P1->SetBinContent(i + 1, j + 1, c3);
-                                draw_V_PHYS_SYS3_P1->SetBinContent(i + 1, j + 1, c4);
-                                draw_V_PHYS_SYS4_P1->SetBinContent(i + 1, j + 1, c5);
+                                draw_V_PHYS_SYS1_P1->SetBinContent(i + 1, j + 1, sys1);
+                                draw_V_PHYS_SYS2_P1->SetBinContent(i + 1, j + 1, sys2);
+                                draw_V_PHYS_SYS3_P1->SetBinContent(i + 1, j + 1, sys3);
+                                draw_V_PHYS_SYS4_P1->SetBinContent(i + 1, j + 1, sys4);
                                 draw_V_PHYS_SYSALL_P1->SetBinContent(i + 1, j + 1, csys);
                                 draw_V_PHYS_P1->SetBinContent(i + 1, j + 1, content);
 
@@ -447,32 +447,33 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         {
                             if(channel == 1)
                             {
-                                double c2 = 0.0;
-                                double c3 = 0.0;
-                                double c4 = 0.0;
-                                double c5 = 0.0;
+                                double sys1 = 0.0;
+                                double sys2 = 0.0;
+                                double sys3 = 0.0;
+                                double sys4 = 0.0;
                                 if(V_ENABLE_SYS1 == true)
                                 {
-                                    c2 = V_PHYS_SYS1_1D_P2_data[channel]->operator[](i + j * 50);
+                                    sys1 = V_PHYS_SYS1_1D_P2_data[channel]->operator[](i + j * 50);
                                 }
                                 if(V_ENABLE_SYS2 == true)
                                 {
-                                    c3 = V_PHYS_SYS2_1D_P2_data[channel]->operator[](i + j * 50);
+                                    sys2 = V_PHYS_SYS2_1D_P2_data[channel]->operator[](i + j * 50);
                                 }
                                 if(V_ENABLE_SYS3 == true)
                                 {
-                                    c4 = V_PHYS_SYS3_1D_P2_data[channel]->operator[](i + j * 50);
+                                    sys3 = V_PHYS_SYS3_1D_P2_data[channel]->operator[](i + j * 50);
                                 }
                                 if(V_ENABLE_SYS4 == true)
                                 {
-                                    c5 = V_PHYS_SYS4_1D_P2_data[channel]->operator[](i + j * 50);
+                                    sys4 = V_PHYS_SYS4_1D_P2_data[channel]->operator[](i + j * 50);
                                 }
 
                                 draw_V_PHYS_STAT_P2->SetBinContent(i + 1, j + 1, cstat);
-                                draw_V_PHYS_SYS1_P2->SetBinContent(i + 1, j + 1, c2);
-                                draw_V_PHYS_SYS2_P2->SetBinContent(i + 1, j + 1, c3);
-                                draw_V_PHYS_SYS3_P2->SetBinContent(i + 1, j + 1, c4);
-                                draw_V_PHYS_SYS4_P2->SetBinContent(i + 1, j + 1, csys);
+                                draw_V_PHYS_SYS1_P2->SetBinContent(i + 1, j + 1, sys1);
+                                draw_V_PHYS_SYS2_P2->SetBinContent(i + 1, j + 1, sys2);
+                                draw_V_PHYS_SYS3_P2->SetBinContent(i + 1, j + 1, sys3);
+                                draw_V_PHYS_SYS4_P2->SetBinContent(i + 1, j + 1, sys4);
+                                draw_V_PHYS_SYSALL_P2->SetBinContent(i + 1, j + 1, csys);
                                 draw_V_PHYS_P2->SetBinContent(i + 1, j + 1, content);
 
                             /*
@@ -609,21 +610,10 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                     }
                 }
 
-                //TMatrixD copy(*V_PHYS_1D_P1_MATHMORE[channel]);
+                // invert
                 V_PHYS_1D_P1_MATHMORE[channel]->Invert();
-                //TMatrixD multiplymat = copy * *V_PHYS_1D_P1_MATHMORE[channel];
-                //std::cout << "Elements after mult" << std::endl;
-                //    for(int j = 0; j < V_PHYS_1D_P1_MATHMORE[channel]->GetNcols(); ++ j)
-                //    {
-                //        for(int i = 0; i < V_PHYS_1D_P1_MATHMORE[channel]->GetNrows(); ++ i)
-                //        {
-                //            std::cout << "i=" << i << " j=" << j << " " << multiplymat.operator[](j).operator[](i) << std::endl;
-                //        }
-                //    }
-                //    std::cin.get();
-                //std::cout << "Next Invert" << std::endl;
-                //std::cout << "P2 V_MATRIX size: " << V_PHYS_1D_P2_MATHMORE[channel]->GetNrows() << " " << V_PHYS_1D_P2_MATHMORE[channel]->GetNcols() << std::endl;
                 V_PHYS_1D_P2_MATHMORE[channel]->Invert();
+
                 #if MEASURE_FUNCTION_CALL_TIME_MATRIX_INVERT
                 std::chrono::system_clock::time_point end_time = std::chrono::high_resolution_clock::now();
                 std::chrono::duration<double> runtime_sec = end_time - start_time;
@@ -632,7 +622,7 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
 
 
 
-
+                #if DRAWVPHYSMATRIX
                 j_counter = 0;
                 for(Int_t j = 0; j < 50; ++ j)
                 {
@@ -659,7 +649,7 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
 
                         double content = V_PHYS_1D_P1_MATHMORE[channel]->operator[](j_counter).operator[](i_counter);
 
-                        #if DRAWVPHYSMATRIX
+                        //#if DRAWVPHYSMATRIX
                         if(DRAW_V_PHYS_MATRIX == true)
                         {
                             if(channel == 1)
@@ -668,20 +658,21 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                                 //std::cout << content << "\t";
                             }
                         }
-                        #endif
+                        //#endif
                         ++ i_counter;
                     }
-                    #if DRAWVPHYSMATRIX
+                    //#if DRAWVPHYSMATRIX
                     if(DRAW_V_PHYS_MATRIX == true)
                     {
                         //std::cout << std::endl;
                     }
-                    #endif
+                    //#endif
 
                     ++ j_counter;
                 }
+                #endif
 
-
+                #if DRAWVPHYSMATRIX
                 j_counter = 0;
                 for(Int_t j = 0; j < 50; ++ j)
                 {
@@ -708,7 +699,7 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
 
                         double content = V_PHYS_1D_P2_MATHMORE[channel]->operator[](j_counter).operator[](i_counter);
 
-                        #if DRAWVPHYSMATRIX
+                        //#if DRAWVPHYSMATRIX
                         if(DRAW_V_PHYS_MATRIX == true)
                         {
                             if(channel == 1)
@@ -717,18 +708,19 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                                 //std::cout << content << "\t";
                             }
                         }
-                        #endif
+                        //#endif
                         ++ i_counter;
                     }
-                        #if DRAWVPHYSMATRIX
+                        //#if DRAWVPHYSMATRIX
                         if(DRAW_V_PHYS_MATRIX == true)
                         {
                             //std::cout << std::endl;
                         }
-                        #endif
+                        //#endif
 
                     ++ j_counter;
                 }
+                #endif
 
 
                 #if DRAWVPHYSMATRIX

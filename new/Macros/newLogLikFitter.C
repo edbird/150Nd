@@ -1620,6 +1620,10 @@ void loadFiles(int i)
     {
         bool restore_V_ENABLE_SYSALL = V_ENABLE_SYSALL;
         V_ENABLE_SYSALL = false;
+        //V_ENABLE_SYSALL = true;
+
+        bool restore_g_mode_fake_data = g_mode_fake_data;
+        g_mode_fake_data = false;
 
         // create minimizer
         ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
@@ -1720,10 +1724,19 @@ void loadFiles(int i)
         std::cout << "SYSTEMATICS: ENRICHMENT DISABLED: " << gSystematics.systematic_enrichment << "" << std::endl;
         std::cout << "Result: " << std::endl;
         std::cout << "fval_before=" << fval_before << std::endl;
-        std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
+        std::cout << "fval_after=" << fval_after
+                  << " for params_after[0]=" << params_after[0]
+                  << " +- " << param_errs_after[0]
+                  << " params_after[1]=" << params_after[1]
+                  << " +- " << param_errs_after[1]
+                  << std::endl;
         std::cout << std::endl;
 
         V_ENABLE_SYSALL = restore_V_ENABLE_SYSALL;
+
+        g_mode_fake_data = restore_g_mode_fake_data;
+
+        return 0;
     }
 
 
@@ -1735,10 +1748,14 @@ void loadFiles(int i)
     // TODO: this block doesn't really make sense, unless we fit
     // for xi_31 = SSD with xi_31 fixed
     // do not do this in parallel mode
-    if(0)// || (MODE_PARALLEL == 0))
+    if(1)// || (MODE_PARALLEL == 0))
     {
         bool restore_V_ENABLE_SYSALL = V_ENABLE_SYSALL;
         V_ENABLE_SYSALL = false;
+        //V_ENABLE_SYSALL = true;
+
+        bool restore_g_mode_fake_data = g_mode_fake_data;
+        g_mode_fake_data = false;
 
         // create minimizer
         ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
@@ -1778,7 +1795,6 @@ void loadFiles(int i)
         drawinputdata.nch = nch;
         drawinputdata.serial_dir = "SSD";
         drawinputdata.saveas_filename = "SSD_before";
-        drawinputdata.saveas_filename = "SSD_systematic1_before";
         drawinputdata.saveas_png = true;
        
         draw(drawinputdata,
@@ -1809,7 +1825,6 @@ void loadFiles(int i)
         drawinputdata.chi2 = fval_after;
         drawinputdata.nch = nch;
         drawinputdata.saveas_filename = "SSD_after";
-        drawinputdata.saveas_filename = "SSD_systematic1_after";
        
         draw(drawinputdata,
              params_after,
@@ -1824,10 +1839,19 @@ void loadFiles(int i)
         std::cout << "SYSTEMATICS: ENRICHMENT DISABLED: " << gSystematics.systematic_enrichment << "" << std::endl;
         std::cout << "Result: " << std::endl;
         std::cout << "fval_before=" << fval_before << std::endl;
-        std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
+        std::cout << "fval_after=" << fval_after
+                  << " for params_after[0]=" << params_after[0]
+                  << " +- " << param_errs_after[0]
+                  << " params_after[1]=" << params_after[1]
+                  << " +- " << param_errs_after[1]
+                  << std::endl;
         std::cout << std::endl;
 
         V_ENABLE_SYSALL = restore_V_ENABLE_SYSALL;
+
+        g_mode_fake_data = restore_g_mode_fake_data;
+
+        return 0;
     }
 
 
