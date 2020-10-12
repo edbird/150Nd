@@ -874,9 +874,9 @@ void draw_get_total_data_MC(
         }
         leg->AddEntry(hAllMC1D[i], "Total MC (" + Nmc_str + ")", "EP");
         leg->AddEntry(h_2nubb[i], "2#nu#beta#beta", "F");
-        leg->AddEntry(h_tl208_int[i], "^{208}Tl Int", "F");
-        leg->AddEntry(h_bi214_int[i], "^{214}Bi Int", "F");
-        leg->AddEntry(h_bi207_int[i], "^{207}Bi Int", "F");
+        leg->AddEntry(h_tl208_int[i], "^{208}Tl Internal", "F");
+        leg->AddEntry(h_bi214_int[i], "^{214}Bi Internal", "F");
+        leg->AddEntry(h_bi207_int[i], "^{207}Bi Internal", "F");
         leg->AddEntry(h_internal[i], "Internal", "F");
         leg->AddEntry(h_neighbours[i], "Neighbour Foil", "F");
         leg->AddEntry(h_radon[i], "Radon", "F");

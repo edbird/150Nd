@@ -34,6 +34,9 @@ MinimizeFCNAxialVector::set_V_PHYS_SYS1_data() const
 
     if(recalculate_V_PHYS_SYS == true)
     {
+
+        std::cout << __func__ << std::endl;
+
         for(int ch = 0; ch < number1DHists; ++ ch)
         {
             const Int_t NUM_BINS_XY = 50;
@@ -121,6 +124,9 @@ MinimizeFCNAxialVector::set_V_PHYS_SYS2_data() const
     
     if(recalculate_V_PHYS_SYS == true)
     {
+
+        std::cout << __func__ << std::endl;
+
         for(int ch = 0; ch < number1DHists; ++ ch)
         {
             const Int_t NUM_BINS_XY = 50;
@@ -212,6 +218,7 @@ MinimizeFCNAxialVector::set_V_PHYS_SYS3_data() const
     
     if(recalculate_V_PHYS_SYS == true)
     {
+
         for(int ch = 0; ch < number1DHists; ++ ch)
         {
             const Int_t NUM_BINS_XY = 50;
@@ -295,9 +302,12 @@ MinimizeFCNAxialVector::check_alloc_V_PHYS_SYS4_data() const
 void
 MinimizeFCNAxialVector::set_V_PHYS_SYS4_data() const
 {
-    
+
     if(recalculate_V_PHYS_SYS == true)
     {
+
+        std::cout << __func__ << std::endl;
+
         for(int ch = 0; ch < number1DHists; ++ ch)
         {
             const Int_t NUM_BINS_XY = 50;
@@ -335,6 +345,7 @@ MinimizeFCNAxialVector::set_V_PHYS_SYS4_data() const
                             std::cin.get();
                         }
                         */
+
                     }
 
                     // P2
@@ -358,6 +369,7 @@ MinimizeFCNAxialVector::set_V_PHYS_SYS4_data() const
                             std::cin.get();
                         }
                         */
+
                     }
 
 
@@ -404,6 +416,16 @@ MinimizeFCNAxialVector::set_V_PHYS_SYSALL_data() const
     
     if(recalculate_V_PHYS_SYS == true)
     {
+
+        std::cout << __func__ << std::endl;
+        /*
+        std::cout << "V_ENABLE_SYSALL=" << V_ENABLE_SYSALL << std::endl;
+        std::cout << "V_ENABLE_SYS1=" << V_ENABLE_SYS1 << std::endl;
+        std::cout << "V_ENABLE_SYS2=" << V_ENABLE_SYS2 << std::endl;
+        std::cout << "V_ENABLE_SYS3=" << V_ENABLE_SYS3 << std::endl;
+        std::cout << "V_ENABLE_SYS4=" << V_ENABLE_SYS4 << std::endl;
+        */
+
         for(int ch = 0; ch < number1DHists; ++ ch)
         {
             const Int_t NUM_BINS_XY = 50;
@@ -465,6 +487,7 @@ MinimizeFCNAxialVector::set_V_PHYS_SYSALL_data() const
                             sysall = sys1 + sys2 + sys3 + sys4;
                             V_PHYS_SYSALL_1D_P1_data[channel]->operator[](biny * 50 + binx) = sysall;
                         #endif
+
                     }
 
                     // P2

@@ -337,6 +337,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             }
 
 
+
             #if MEASURE_FUNCTION_CALL_TIME 
             std::chrono::system_clock::time_point start_time_A = std::chrono::high_resolution_clock::now();
             #endif 
@@ -384,6 +385,8 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
 
             check_alloc_V_PHYS_SYSALL_data();
             set_V_PHYS_SYSALL_data();
+    
+
 
             // TODO: move if statements from set functions to here
 
@@ -398,7 +401,6 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             std::chrono::duration<double> runtime_microsec_E = end_time_E - start_time_E;
             std::cout << "check_alloc_D(), time=" << 1.0e+06 * runtime_microsec_E.count() << " microsecond" << std::endl;
             #endif 
-
 
 
 
@@ -423,8 +425,6 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             std::chrono::duration<double> runtime_microsec_G = end_time_G - start_time_G;
             std::cout << "check_alloc_D_minus_M(), time=" << 1.0e+06 * runtime_microsec_G.count() << " microsecond" << std::endl;
             #endif
-
-
 
 
 
@@ -463,6 +463,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             D_minus_M->Draw("colz");
             c_D_minus_M->SaveAs("debug_c_D_minus_M.png");
             */
+
             
             #if MEASURE_FUNCTION_CALL_TIME 
             std::chrono::system_clock::time_point start_time_H = std::chrono::high_resolution_clock::now();

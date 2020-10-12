@@ -436,7 +436,7 @@ bool DRAW_V_PHYS_MATRIX = false;
 
 void V_ENABLE_SYS_stack_push()
 {
-    V_ENABLE_SYSALL_stack.push_back(V_ENABLE_SYS1);
+    V_ENABLE_SYSALL_stack.push_back(V_ENABLE_SYSALL);
     V_ENABLE_SYS1_stack.push_back(V_ENABLE_SYS1);
     V_ENABLE_SYS2_stack.push_back(V_ENABLE_SYS2);
     V_ENABLE_SYS3_stack.push_back(V_ENABLE_SYS3);
@@ -502,9 +502,11 @@ double min_point_sys1_l[2] = {0.0, 0.0};
 double min_point_sys2_h[2] = {0.0, 0.0}; // +- 1.2 % scale
 double min_point_sys2_l[2] = {0.0, 0.0};
 double min_point_sys3_h[2] = {0.0, 0.0}; // +- 5.55 % efficiency
-double min_point_sys4_l[2] = {0.0, 0.0};
-double min_point_sys4_h[2] = {0.0, 0.0}; // +- 0.50 % enrichment
 double min_point_sys3_l[2] = {0.0, 0.0};
+double min_point_sys4_h[2] = {0.0, 0.0}; // +- 0.50 % enrichment
+double min_point_sys4_l[2] = {0.0, 0.0};
+
+
 
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -1896,7 +1896,7 @@ void loadFiles(int i)
     ///////////////////////////////////////////////////////////////////////////
 
     // do not do this in parallel mode
-    if(1) // || (MODE_PARALLEL == 0))
+    if(1 && true) // || (MODE_PARALLEL == 0))
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
@@ -2120,12 +2120,14 @@ void loadFiles(int i)
 
 
 
+    const bool ENABLE_MIN_POINT_FIT = false;
+
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit
     // Fake Data
     // No Systematics
     ///////////////////////////////////////////////////////////////////////////
-    if(1)
+    if(1 && ENABLE_MIN_POINT_FIT)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
@@ -2164,7 +2166,7 @@ void loadFiles(int i)
     // Constant Energy Offset
     // Low Systematic
     ///////////////////////////////////////////////////////////////////////////
-    if(1)
+    if(1 && ENABLE_MIN_POINT_FIT)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
@@ -2197,7 +2199,7 @@ void loadFiles(int i)
     // Constant Energy Offset
     // High Systematic
     ///////////////////////////////////////////////////////////////////////////
-    if(1)
+    if(1 && ENABLE_MIN_POINT_FIT)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
@@ -2230,7 +2232,7 @@ void loadFiles(int i)
     // Energy Scale Multiplier
     // Low Systematic
     ///////////////////////////////////////////////////////////////////////////
-    if(1)
+    if(1 && ENABLE_MIN_POINT_FIT)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
@@ -2263,7 +2265,7 @@ void loadFiles(int i)
     // Energy Scale Multiplier
     // High Systematic
     ///////////////////////////////////////////////////////////////////////////
-    if(1)
+    if(1 && ENABLE_MIN_POINT_FIT)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
@@ -2297,7 +2299,7 @@ void loadFiles(int i)
     // Low Systematic
     ///////////////////////////////////////////////////////////////////////////
 
-    if(1)
+    if(1 && ENABLE_MIN_POINT_FIT)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
@@ -2331,7 +2333,7 @@ void loadFiles(int i)
     // High Systematic
     ///////////////////////////////////////////////////////////////////////////
 
-    if(1)
+    if(1 && ENABLE_MIN_POINT_FIT)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
@@ -2365,7 +2367,7 @@ void loadFiles(int i)
     // Low Systematic
     ///////////////////////////////////////////////////////////////////////////
 
-    if(1)
+    if(1 && ENABLE_MIN_POINT_FIT)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
@@ -2399,7 +2401,7 @@ void loadFiles(int i)
     // High Systematic
     ///////////////////////////////////////////////////////////////////////////
 
-    if(1)
+    if(1 && ENABLE_MIN_POINT_FIT)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
@@ -2541,7 +2543,6 @@ void loadFiles(int i)
 
 
 
-
     ll_walk_save.clear();
 
     // reenable this one
@@ -2557,7 +2558,6 @@ void loadFiles(int i)
         std::cout << "recalculate_V_PHYS_MATHMORE=" << recalculate_V_PHYS_MATHMORE << std::endl;
         std::cout << "recalculate_V_PHYS_SYS=" << recalculate_V_PHYS_SYS << std::endl;
 
-        
         std::cout << "V_ENABLE_SYSALL=" << V_ENABLE_SYSALL << std::endl;
         std::cout << "V_ENABLE_SYS1=" << V_ENABLE_SYS1 << std::endl;
         std::cout << "V_ENABLE_SYS2=" << V_ENABLE_SYS2 << std::endl;

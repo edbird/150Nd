@@ -280,23 +280,23 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         double csys = 0.0;
                         double content = 0.0;
                         #if VECTOR_RANGE_CHECK
-                            if(V_ENABLE_STAT == true)
-                            {
-                                cstat = V_PHYS_STAT_1D_P1_data[channel]->at(i + j * 50);
-                            }
-                            if(V_ENABLE_SYSALL == true)
-                            {
-                                csys = V_PHYS_SYSALL_1D_P1_data[channel]->at(i + j * 50);
-                            }
+                        if(V_ENABLE_STAT == true)
+                        {
+                            cstat = V_PHYS_STAT_1D_P1_data[channel]->at(i + j * 50);
+                        }
+                        if(V_ENABLE_SYSALL == true)
+                        {
+                            csys = V_PHYS_SYSALL_1D_P1_data[channel]->at(i + j * 50);
+                        }
                         #else
-                            if(V_ENABLE_STAT == true)
-                            {
-                                cstat = V_PHYS_STAT_1D_P1_data[channel]->operator[](i + j * 50);
-                            }
-                            if(V_ENABLE_SYSALL == true)
-                            {
-                                csys = V_PHYS_SYSALL_1D_P1_data[channel]->operator[](i + j * 50);
-                            }
+                        if(V_ENABLE_STAT == true)
+                        {
+                            cstat = V_PHYS_STAT_1D_P1_data[channel]->operator[](i + j * 50);
+                        }
+                        if(V_ENABLE_SYSALL == true)
+                        {
+                            csys = V_PHYS_SYSALL_1D_P1_data[channel]->operator[](i + j * 50);
+                        }
                         #endif
                         content = cstat + csys;
                         //std::cout << "i=" << i << " j=" << j << " i_counter=" << i_counter << " j_counter=" << j_counter << " content=" << content << std::endl;
@@ -321,6 +321,7 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         {
                             if(channel == 1)
                             {
+
                                 double sys1 = 0.0;
                                 double sys2 = 0.0;
                                 double sys3 = 0.0;
