@@ -411,7 +411,7 @@ bool recalculate_V_PHYS_SYS = true;
 
 
 // enable/disable drawing of minimum points for each systematic fit
-const bool ENABLE_MIN_POINT_SYS1 = false; // +- 0.1 MeV
+const bool ENABLE_MIN_POINT_SYS1 = true; // +- 0.1 MeV
 const bool ENABLE_MIN_POINT_SYS2 = true; // +- 1.2 % scale
 const bool ENABLE_MIN_POINT_SYS3 = true; // +- 5.55 % efficiency
 const bool ENABLE_MIN_POINT_SYS4 = true; // +- 0.50 % enrichment

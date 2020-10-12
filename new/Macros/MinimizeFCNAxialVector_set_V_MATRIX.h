@@ -290,7 +290,11 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         #if VECTOR_RANGE_CHECK
                         if(V_ENABLE_STAT == true)
                         {
-                            cstat = V_PHYS_STAT_1D_P1_data[channel]->at(i + j * 50);
+                            // TODO: move optimization to new loop
+                            if(i == j)
+                            {
+                                cstat = V_PHYS_STAT_1D_P1_data[channel]->at(i + j * 50);
+                            }
                         }
                         if(V_ENABLE_SYSALL == true)
                         {
@@ -299,7 +303,11 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         #else
                         if(V_ENABLE_STAT == true)
                         {
-                            cstat = V_PHYS_STAT_1D_P1_data[channel]->operator[](i + j * 50);
+                            // TODO: move optimization to new loop
+                            if(i == j)
+                            {
+                                cstat = V_PHYS_STAT_1D_P1_data[channel]->operator[](i + j * 50);
+                            }
                         }
                         if(V_ENABLE_SYSALL == true)
                         {
@@ -336,26 +344,26 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                                 double sys4 = 0.0;
                                 double sys5 = 0.0;
 
-                                if(V_ENABLE_SYS1 == true)
-                                {
+                                //if(V_ENABLE_SYS1 == true)
+                                //{
                                     sys1 = V_PHYS_SYS1_1D_P1_data[channel]->operator[](i + j * 50);
-                                }
-                                if(V_ENABLE_SYS2 == true)
-                                {
+                                //}
+                                //if(V_ENABLE_SYS2 == true)
+                                //{
                                     sys2 = V_PHYS_SYS2_1D_P1_data[channel]->operator[](i + j * 50);
-                                }
-                                if(V_ENABLE_SYS3 == true)
-                                {
+                                //}
+                                //if(V_ENABLE_SYS3 == true)
+                                //{
                                     sys3 = V_PHYS_SYS3_1D_P1_data[channel]->operator[](i + j * 50);
-                                }
-                                if(V_ENABLE_SYS4 == true)
-                                {
+                                //}
+                                //if(V_ENABLE_SYS4 == true)
+                                //{
                                     sys4 = V_PHYS_SYS4_1D_P1_data[channel]->operator[](i + j * 50);
-                                }
-                                if(V_ENABLE_SYS5 == true)
-                                {
+                                //}
+                                //if(V_ENABLE_SYS5 == true)
+                                //{
                                     sys5 = V_PHYS_SYS5_1D_P1_data[channel]->operator[](i + j * 50);
-                                }
+                                //}
 
                                 draw_V_PHYS_STAT_P1->SetBinContent(i + 1, j + 1, cstat);
                                 draw_V_PHYS_SYS1_P1->SetBinContent(i + 1, j + 1, sys1);
@@ -425,7 +433,11 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         #if VECTOR_RANGE_CHECK
                         if(V_ENABLE_STAT == true)
                         {
-                            cstat = V_PHYS_STAT_1D_P2_data[channel]->at(i + j * 50);
+                            // TODO: move optimization to new loop
+                            if(i == j)
+                            {
+                                cstat = V_PHYS_STAT_1D_P2_data[channel]->at(i + j * 50);
+                            }
                         }
                         if(V_ENABLE_SYSALL == true)
                         {
@@ -434,7 +446,11 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         #else
                         if(V_ENABLE_STAT == true)
                         {
-                            cstat = V_PHYS_STAT_1D_P2_data[channel]->operator[](i + j * 50);
+                            // TODO: move optimization to new loop
+                            if(i == j)
+                            {
+                                cstat = V_PHYS_STAT_1D_P2_data[channel]->operator[](i + j * 50);
+                            }
                         }
                         if(V_ENABLE_SYSALL == true)
                         {
@@ -469,26 +485,27 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                                 double sys4 = 0.0;
                                 double sys5 = 0.0;
 
-                                if(V_ENABLE_SYS1 == true)
-                                {
+                                // fill figures regardless of whether systematic is enabled
+                                //if(V_ENABLE_SYS1 == true)
+                                //{
                                     sys1 = V_PHYS_SYS1_1D_P2_data[channel]->operator[](i + j * 50);
-                                }
-                                if(V_ENABLE_SYS2 == true)
-                                {
+                                //}
+                                //if(V_ENABLE_SYS2 == true)
+                                //{
                                     sys2 = V_PHYS_SYS2_1D_P2_data[channel]->operator[](i + j * 50);
-                                }
-                                if(V_ENABLE_SYS3 == true)
-                                {
+                                //}
+                                //if(V_ENABLE_SYS3 == true)
+                                //{
                                     sys3 = V_PHYS_SYS3_1D_P2_data[channel]->operator[](i + j * 50);
-                                }
-                                if(V_ENABLE_SYS4 == true)
-                                {
+                                //}
+                                //if(V_ENABLE_SYS4 == true)
+                                //{
                                     sys4 = V_PHYS_SYS4_1D_P2_data[channel]->operator[](i + j * 50);
-                                }
-                                if(V_ENABLE_SYS5 == true)
-                                {
+                                //}
+                                //if(V_ENABLE_SYS5 == true)
+                                //{
                                     sys5 = V_PHYS_SYS5_1D_P2_data[channel]->operator[](i + j * 50);
-                                }
+                                //}
 
                                 draw_V_PHYS_STAT_P2->SetBinContent(i + 1, j + 1, cstat);
                                 draw_V_PHYS_SYS1_P2->SetBinContent(i + 1, j + 1, sys1);
