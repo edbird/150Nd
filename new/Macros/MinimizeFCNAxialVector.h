@@ -337,7 +337,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             }
 
 
-
+        #if 0
             #if MEASURE_FUNCTION_CALL_TIME 
             std::chrono::system_clock::time_point start_time_A = std::chrono::high_resolution_clock::now();
             #endif 
@@ -380,7 +380,45 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             std::chrono::system_clock::time_point end_time_D = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> runtime_microsec_D = end_time_D - start_time_D;
             std::cout << "Done init V_PHYS_SYS4, time=" << 1.0e+06 * runtime_microsec_D.count() << " microsecond" << std::endl;
-            #endif 
+            #endif
+        #endif
+
+            
+            check_alloc_V_PHYS_SYSx_data_helper(V_PHYS_SYS1_1D_P1_data, V_PHYS_SYS1_1D_P2_data);
+            check_alloc_V_PHYS_SYSx_data_helper(V_PHYS_SYS2_1D_P1_data, V_PHYS_SYS2_1D_P2_data);
+            check_alloc_V_PHYS_SYSx_data_helper(V_PHYS_SYS3_1D_P1_data, V_PHYS_SYS3_1D_P2_data);
+            check_alloc_V_PHYS_SYSx_data_helper(V_PHYS_SYS4_1D_P1_data, V_PHYS_SYS4_1D_P2_data);
+            check_alloc_V_PHYS_SYSx_data_helper(V_PHYS_SYS5_1D_P1_data, V_PHYS_SYS5_1D_P2_data);
+           
+            // SYS1
+            set_V_PHYS_SYSx_data_helper(V_PHYS_SYS1_1D_P1_data,
+                                        V_PHYS_SYS1_1D_P2_data,
+                                        systematic_offset_V_MATRIX_coeff_1D_P1,
+                                        systematic_offset_V_MATRIX_coeff_1D_P2);
+
+            // SYS2
+            set_V_PHYS_SYSx_data_helper(V_PHYS_SYS2_1D_P1_data,
+                                        V_PHYS_SYS2_1D_P2_data,
+                                        systematic_scale_V_MATRIX_coeff_1D_P1,
+                                        systematic_scale_V_MATRIX_coeff_1D_P2);
+
+            // SYS3
+            set_V_PHYS_SYSx_data_helper(V_PHYS_SYS3_1D_P1_data,
+                                        V_PHYS_SYS3_1D_P2_data,
+                                        systematic_efficiency_V_MATRIX_coeff_1D_P1,
+                                        systematic_efficiency_V_MATRIX_coeff_1D_P2);
+
+            // SYS4
+            set_V_PHYS_SYSx_data_helper(V_PHYS_SYS4_1D_P1_data,
+                                        V_PHYS_SYS4_1D_P2_data,
+                                        systematic_enrichment_V_MATRIX_coeff_1D_P1,
+                                        systematic_enrichment_V_MATRIX_coeff_1D_P2);
+
+            // SYS5
+            set_V_PHYS_SYSx_data_helper(V_PHYS_SYS5_1D_P1_data,
+                                        V_PHYS_SYS5_1D_P2_data,
+                                        systematic_offsetsmall_V_MATRIX_coeff_1D_P1,
+                                        systematic_offsetsmall_V_MATRIX_coeff_1D_P2);
 
 
             check_alloc_V_PHYS_SYSALL_data();
@@ -560,18 +598,37 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
     void check_alloc_V_PHYS_data() const;
     
     void check_alloc_V_PHYS_STAT_data() const;
-    void check_alloc_V_PHYS_SYS1_data() const;
-    void check_alloc_V_PHYS_SYS2_data() const;
-    void check_alloc_V_PHYS_SYS3_data() const;
-    void check_alloc_V_PHYS_SYS4_data() const;
+    //void check_alloc_V_PHYS_SYS1_data() const;
+    //void check_alloc_V_PHYS_SYS2_data() const;
+    //void check_alloc_V_PHYS_SYS3_data() const;
+    //void check_alloc_V_PHYS_SYS4_data() const;
     void check_alloc_V_PHYS_SYSALL_data() const;
     
     void set_V_PHYS_STAT_data() const;
-    void set_V_PHYS_SYS1_data() const;
-    void set_V_PHYS_SYS2_data() const;
-    void set_V_PHYS_SYS3_data() const;
-    void set_V_PHYS_SYS4_data() const;
+    //void set_V_PHYS_SYS1_data() const;
+    //void set_V_PHYS_SYS2_data() const;
+    //void set_V_PHYS_SYS3_data() const;
+    //void set_V_PHYS_SYS4_data() const;
     void set_V_PHYS_SYSALL_data() const;
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // helper functions
+    //
+    void check_alloc_V_PHYS_SYSx_data_helper(
+        std::vector<double>**,
+        std::vector<double>**
+    ) const;
+    
+    void set_V_PHYS_SYSx_data_helper(
+        std::vector<double>**,
+        std::vector<double>**,
+        std::vector<double>**,
+        std::vector<double>**
+    ) const;
+    //
+    ///////////////////////////////////////////////////////////////////////////
+
 
     void check_alloc_D() const;
     void check_alloc_M() const;

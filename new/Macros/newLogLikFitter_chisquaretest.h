@@ -1204,6 +1204,71 @@ void newloglikfitter_testmyphasespace_newversion(
             }
         }
 
+        if(ENABLE_MIN_POINT_SYS5 == true)
+        {
+            double x_orig = 0.0;
+            double y_orig = 0.0;
+            if(g_mode_fake_data == true)
+            {
+                x_orig = min_point_fake_data[0];
+                y_orig = min_point_fake_data[1];
+            }
+            else if(g_mode_fake_data == false)
+            {
+                x_orig = min_point[0];
+                y_orig = min_point[1];
+            }
+
+            if((min_point_sys5_l[0] != 0.0) &&
+               (min_point_sys5_l[1] != 0.0))
+            {
+                double x_min_point = min_point_sys5_l[0] - min_point_fake_data[0] + x_orig;
+                double y_min_point = min_point_sys5_l[1] - min_point_fake_data[1] + y_orig;
+
+                //std::cout << "DRAW MARK SYS5L" << std::endl;
+                std::cout << "SYS5L: " << min_point_sys5_l[0] << " " << min_point_sys5_l[1] << std::endl;
+                std::cout << "MIN_POINT: " << min_point[0] << " " << min_point[1] << std::endl;
+                std::cout << "MIN_POINT FAKE DATA: " << min_point_fake_data[0] << " " << min_point_fake_data[1] << std::endl;
+                std::cout << "DRAWING: " << x_min_point << " " << y_min_point << std::endl;
+
+                TMarker *mark_min_point_sys5_l = new TMarker(
+                    x_min_point, y_min_point, 106);
+
+                mark_min_point_sys5_l->SetMarkerColorAlpha(kWhite, 0.0);
+                mark_min_point_sys5_l->SetMarkerSize(1.0);
+                mark_min_point_sys5_l->Draw();
+
+                TLine *line_min_point_sys5_l = new TLine(x_orig, y_orig, x_min_point, y_min_point);
+                line_min_point_sys5_l->SetLineColorAlpha(kOrange, 0.5);
+                line_min_point_sys5_l->SetLineWidth(1);
+                line_min_point_sys5_l->Draw();
+            }
+
+            if((min_point_sys5_h[0] != 0.0) &&
+               (min_point_sys5_h[1] != 0.0))
+            {
+                double x_min_point = min_point_sys5_h[0] - min_point_fake_data[0] + x_orig;
+                double y_min_point = min_point_sys5_h[1] - min_point_fake_data[1] + y_orig;
+
+                //std::cout << "DRAW MARK SYS5H" << std::endl;
+                std::cout << "SYS5H: " << min_point_sys5_h[0] << " " << min_point_sys5_h[1] << std::endl;
+                std::cout << "MIN_POINT: " << min_point[0] << " " << min_point[1] << std::endl;
+                std::cout << "MIN_POINT FAKE DATA: " << min_point_fake_data[0] << " " << min_point_fake_data[1] << std::endl;
+                std::cout << "DRAWING: " << x_min_point << " " << y_min_point << std::endl;
+                TMarker *mark_min_point_sys5_h = new TMarker(
+                    x_min_point, y_min_point, 106);
+
+                mark_min_point_sys5_h->SetMarkerColorAlpha(kWhite, 0.0);
+                mark_min_point_sys5_h->SetMarkerSize(1.0);
+                mark_min_point_sys5_h->Draw();
+
+                TLine *line_min_point_sys5_h = new TLine(x_orig, y_orig, x_min_point, y_min_point);
+                line_min_point_sys5_h->SetLineColorAlpha(kOrange, 0.5);
+                line_min_point_sys5_h->SetLineWidth(1);
+                line_min_point_sys5_h->Draw();
+            }
+        }
+
 
         if(ll_walk_save.size() > 0)
         {

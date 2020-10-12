@@ -20,6 +20,8 @@ class Systematics
         systematic_efficiency_last = -std::numeric_limits<double>::infinity();
         systematic_enrichment = 0.0;
         systematic_enrichment_last = -std::numeric_limits<double>::infinity();
+        systematic_energy_offsetsmall = 0.0;
+        systematic_energy_offsetsmall_last = -std::numeric_limits<double>::infinity();
     }
 
 
@@ -29,6 +31,7 @@ class Systematics
         systematic_energy_scale = 0.0;
         systematic_efficiency = 0.0;
         systematic_enrichment = 0.0;
+        systematic_energy_offsetsmall = 0.0;
     }
 
 
@@ -40,6 +43,8 @@ class Systematics
     double systematic_efficiency_last; // think not used
     double systematic_enrichment;
     double systematic_enrichment_last; // think not used
+    double systematic_energy_offsetsmall;
+    double systematic_energy_offsetsmall_last; // think not used
 
 
 }gSystematics;

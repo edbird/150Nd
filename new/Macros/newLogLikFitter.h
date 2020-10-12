@@ -398,6 +398,7 @@ bool V_ENABLE_SYS1 = false; // constant 1.0 MeV shift
 bool V_ENABLE_SYS2 = true; // scale factor: m = 1 % + 0.2 %
 bool V_ENABLE_SYS3 = true; // +- 5.55 % efficiency
 bool V_ENABLE_SYS4 = true; // +- 0.50 % enrichment
+bool V_ENABLE_SYS5 = true; // +- 3 keV
 
 
 // set to true to recalculate V_PHYS_MATHMORE
@@ -414,6 +415,7 @@ const bool ENABLE_MIN_POINT_SYS1 = false; // +- 0.1 MeV
 const bool ENABLE_MIN_POINT_SYS2 = true; // +- 1.2 % scale
 const bool ENABLE_MIN_POINT_SYS3 = true; // +- 5.55 % efficiency
 const bool ENABLE_MIN_POINT_SYS4 = true; // +- 0.50 % enrichment
+const bool ENABLE_MIN_POINT_SYS5 = true; // +- 3 keV
 
 
 
@@ -425,6 +427,7 @@ std::vector<bool> V_ENABLE_SYS1_stack;
 std::vector<bool> V_ENABLE_SYS2_stack;
 std::vector<bool> V_ENABLE_SYS3_stack;
 std::vector<bool> V_ENABLE_SYS4_stack;
+std::vector<bool> V_ENABLE_SYS5_stack;
 
 // 2020-10-04
 // wanted to implement this as a debugging step but turned out to be not
@@ -434,13 +437,43 @@ bool DRAW_V_PHYS_MATRIX = false;
 ///////////////////////////////////////////////////////////////////////////////
 // state machine support functions
 
+void check_V_ENABLE_SYS_stack()
+{
+
+    if(V_ENABLE_SYSALL_stack.size() != V_ENABLE_SYS1_stack.size())
+    {
+        throw "V_ENABLE_SYSx_stack size error";
+    }
+    if(V_ENABLE_SYSALL_stack.size() != V_ENABLE_SYS2_stack.size())
+    {
+        throw "V_ENABLE_SYSx_stack size error";
+    }
+    if(V_ENABLE_SYSALL_stack.size() != V_ENABLE_SYS3_stack.size())
+    {
+        throw "V_ENABLE_SYSx_stack size error";
+    }
+    if(V_ENABLE_SYSALL_stack.size() != V_ENABLE_SYS4_stack.size())
+    {
+        throw "V_ENABLE_SYSx_stack size error";
+    }
+    if(V_ENABLE_SYSALL_stack.size() != V_ENABLE_SYS5_stack.size())
+    {
+        throw "V_ENABLE_SYSx_stack size error";
+    }
+
+    return;
+}
+
 void V_ENABLE_SYS_stack_push()
 {
+    check_V_ENABLE_SYS_stack();
+
     V_ENABLE_SYSALL_stack.push_back(V_ENABLE_SYSALL);
     V_ENABLE_SYS1_stack.push_back(V_ENABLE_SYS1);
     V_ENABLE_SYS2_stack.push_back(V_ENABLE_SYS2);
     V_ENABLE_SYS3_stack.push_back(V_ENABLE_SYS3);
     V_ENABLE_SYS4_stack.push_back(V_ENABLE_SYS4);
+    V_ENABLE_SYS5_stack.push_back(V_ENABLE_SYS5);
 
     /*
     std::cout << "push(): size() => " << V_ENABLE_SYS1_stack.size() << std::endl;
@@ -451,10 +484,14 @@ void V_ENABLE_SYS_stack_push()
     std::cout << "V_ENABLE_SYS4=" << V_ENABLE_SYS4 << std::endl;
     std::cin.get();
     */
+
+    check_V_ENABLE_SYS_stack();
 }
 
 void V_ENABLE_SYS_stack_pop()
 {
+    check_V_ENABLE_SYS_stack();
+
     if(V_ENABLE_SYS1_stack.size() > 0)
     {
         V_ENABLE_SYSALL = V_ENABLE_SYSALL_stack.back();
@@ -462,12 +499,14 @@ void V_ENABLE_SYS_stack_pop()
         V_ENABLE_SYS2 = V_ENABLE_SYS2_stack.back();
         V_ENABLE_SYS3 = V_ENABLE_SYS3_stack.back();
         V_ENABLE_SYS4 = V_ENABLE_SYS4_stack.back();
+        V_ENABLE_SYS5 = V_ENABLE_SYS5_stack.back();
 
         V_ENABLE_SYSALL_stack.pop_back();
         V_ENABLE_SYS1_stack.pop_back();
         V_ENABLE_SYS2_stack.pop_back();
         V_ENABLE_SYS3_stack.pop_back();
         V_ENABLE_SYS4_stack.pop_back();
+        V_ENABLE_SYS5_stack.pop_back();
         /*
         std::cout << "pop(): size() => " << V_ENABLE_SYS1_stack.size() << std::endl;
 
@@ -483,6 +522,8 @@ void V_ENABLE_SYS_stack_pop()
         std::cout <<  "V_ENABLE_SYS_stack_pop ERROR" << std::endl;
         throw "V_ENABLE_SYS_stack_pop ERROR";
     }
+
+    check_V_ENABLE_SYS_stack();
 }
 
 
@@ -497,15 +538,21 @@ void V_ENABLE_SYS_stack_pop()
 // l = low
 double min_point[2] = {0.0, 0.0}; // minimum point found, all parameter fit
 double min_point_fake_data[2] = {0.0, 0.0};
+
 double min_point_sys1_h[2] = {0.0, 0.0}; // +- 0.1 MeV
 double min_point_sys1_l[2] = {0.0, 0.0};
+
 double min_point_sys2_h[2] = {0.0, 0.0}; // +- 1.2 % scale
 double min_point_sys2_l[2] = {0.0, 0.0};
+
 double min_point_sys3_h[2] = {0.0, 0.0}; // +- 5.55 % efficiency
 double min_point_sys3_l[2] = {0.0, 0.0};
+
 double min_point_sys4_h[2] = {0.0, 0.0}; // +- 0.50 % enrichment
 double min_point_sys4_l[2] = {0.0, 0.0};
 
+double min_point_sys5_h[2] = {0.0, 0.0}; // +- 3 keV
+double min_point_sys5_l[2] = {0.0, 0.0};
 
 
 
@@ -649,6 +696,40 @@ std::vector<double> *systematic_enrichment_high_1D_P1[number1DHists] =
 };
 
 std::vector<double> *systematic_enrichment_V_MATRIX_coeff_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+// SYS5: offset small
+
+std::vector<double> *systematic_offsetsmall_low_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_offsetsmall_high_1D_P1[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_offsetsmall_V_MATRIX_coeff_1D_P1[number1DHists] = 
 {
     nullptr,
     nullptr,
@@ -809,6 +890,39 @@ std::vector<double> *systematic_enrichment_V_MATRIX_coeff_1D_P2[number1DHists] =
     nullptr
 };
 
+///////////////////////////////////////////////////////////////////////////////
+// SYS5: offset small
+
+std::vector<double> *systematic_offsetsmall_low_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_offsetsmall_high_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *systematic_offsetsmall_V_MATRIX_coeff_1D_P2[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -895,6 +1009,16 @@ std::vector<double> *V_PHYS_SYS3_1D_P1_data[number1DHists] =
 };
 
 std::vector<double> *V_PHYS_SYS4_1D_P1_data[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *V_PHYS_SYS5_1D_P1_data[number1DHists] = 
 {
     nullptr,
     nullptr,
@@ -1022,6 +1146,16 @@ std::vector<double> *V_PHYS_SYS3_1D_P2_data[number1DHists] =
 };
 
 std::vector<double> *V_PHYS_SYS4_1D_P2_data[number1DHists] = 
+{
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
+std::vector<double> *V_PHYS_SYS5_1D_P2_data[number1DHists] = 
 {
     nullptr,
     nullptr,

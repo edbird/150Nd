@@ -10,10 +10,12 @@ void newLogLikFitter_preMPSfitdriver(const std::string &fit_description_string, 
         std::cout << "sem=" << gSystematics.systematic_energy_scale << std::endl;
         std::cout << "sef=" << gSystematics.systematic_efficiency << std::endl;
         std::cout << "sen=" << gSystematics.systematic_enrichment << std::endl;
+        std::cout << "seos=" << gSystematics.systematic_energy_offsetsmall << std::endl;
         std::string name_extra = "seo_" + std::to_string(gSystematics.systematic_energy_offset)
                                + "_sem_" + std::to_string(gSystematics.systematic_energy_scale)
                                + "_sef_" + std::to_string(gSystematics.systematic_efficiency)
-                               + "_sen_" + std::to_string(gSystematics.systematic_enrichment);
+                               + "_sen_" + std::to_string(gSystematics.systematic_enrichment)
+                               + "_seos_" + std::to_string(gSystematics.systematic_energy_offsetsmall);
 
     // create minimizer
     ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
@@ -124,6 +126,7 @@ void newLogLikFitter_preMPSfitdriver(const std::string &fit_description_string, 
     std::cout << "SYSTEMATICS: CONSTANT SCALE: " << gSystematics.systematic_energy_scale << " MeV" << std::endl;
     std::cout << "SYSTEMATICS: EFFICIENCY: " << gSystematics.systematic_efficiency << "" << std::endl;
     std::cout << "SYSTEMATICS: ENRICHMENT: " << gSystematics.systematic_enrichment << "" << std::endl;
+    std::cout << "SYSTEMATICS: OFFSETSMALL: " << gSystematics.systematic_energy_offsetsmall << " MeV" << std::endl;
     std::cout << "Result: " << std::endl;
     std::cout << "fval_before=" << fval_before << std::endl;
     std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;

@@ -41,6 +41,7 @@ void reweight_apply_data(
 
     if(debuglevel >= 5)
     {
+    /*
         if(gSystematics.systematic_energy_offset != gSystematics.systematic_energy_offset_last)
         {
             std::cout << "gSystematics.systematic_energy_offset=" << gSystematics.systematic_energy_offset << std::endl;
@@ -53,6 +54,7 @@ void reweight_apply_data(
             std::cin.get();
             gSystematics.systematic_energy_scale_last = gSystematics.systematic_energy_scale;
         }
+    */
     }
 
 
@@ -328,6 +330,7 @@ void reweight_apply_data(
     std::cout << "sem=" << gSystematics.systematic_energy_scale << std::endl;
     std::cout << "sef=" << gSystematics.systematic_efficiency << std::endl;
     std::cout << "sen=" << gSystematics.systematic_enrichment << std::endl;
+    std::cout << "seos=" << gSystematics.systematic_energy_offsetsmall << std::endl;
     std::cin.get();
 
 

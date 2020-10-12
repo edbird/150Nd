@@ -686,6 +686,10 @@ void reweight_apply_fakedata(
                 el_energy_0 = el_energy_0 + gSystematics.systematic_energy_offset;
                 el_energy_1 = el_energy_1 + gSystematics.systematic_energy_offset;
 
+                // linear energy offsetsmall systematic
+                el_energy_0 = el_energy_0 + gSystematics.systematic_energy_offsetsmall;
+                el_energy_1 = el_energy_1 + gSystematics.systematic_energy_offsetsmall;
+
                 //std::cout << "-> el_energy_0=" << el_energy_0 << std::endl;
                 //std::cout << "-> el_energy_1=" << el_energy_1 << std::endl;
 
