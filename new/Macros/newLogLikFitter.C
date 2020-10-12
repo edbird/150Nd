@@ -2120,7 +2120,7 @@ void loadFiles(int i)
 
 
 
-    const bool ENABLE_MIN_POINT_FIT = false;
+    const bool ENABLE_MIN_POINT_FIT = true;
 
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit
