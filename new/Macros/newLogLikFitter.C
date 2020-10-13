@@ -396,7 +396,10 @@ bool load_from_script(
 
 
 
-
+void newLogLikFitter()
+{
+    loadFiles(0);
+}
 
 void newLogLikFitter(int i)
 {
