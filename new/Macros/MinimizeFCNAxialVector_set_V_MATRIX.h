@@ -563,69 +563,91 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                 {
                     if(channel == 1)
                     {
+                        TString dir;
+                        if(V_ENABLE_SYS1 == true)
+                        {
+                            dir += "./SYS1/";
+                        }
+                        if(V_ENABLE_SYS2 == true)
+                        {
+                            dir += "./SYS2/";
+                        }
+                        if(V_ENABLE_SYS3 == true)
+                        {
+                            dir += "./SYS3/";
+                        }
+                        if(V_ENABLE_SYS4 == true)
+                        {
+                            dir += "./SYS4/";
+                        }
+                        if(V_ENABLE_SYS5 == true)
+                        {
+                            dir += "./SYS5/";
+                        }
+
                         TCanvas *canvas_V_PHYS_STAT_P1 = new TCanvas("canvas_V_PHYS_STAT_P1", "canvas_V_PHYS_STAT_P1");
                         draw_V_PHYS_STAT_P1->Draw("colz");
-                        canvas_V_PHYS_STAT_P1->SaveAs("draw_V_PHYS_STAT_P1.png");
+                        canvas_V_PHYS_STAT_P1->SaveAs(dir + "draw_V_PHYS_STAT_P1.png");
 
                         TCanvas *canvas_V_PHYS_SYS1_P1 = new TCanvas("canvas_V_PHYS_SYS1_P1", "canvas_V_PHYS_SYS1_P1");
                         draw_V_PHYS_SYS1_P1->Draw("colz");
-                        canvas_V_PHYS_SYS1_P1->SaveAs("draw_V_PHYS_SYS1_P1.png");
+                        canvas_V_PHYS_SYS1_P1->SaveAs(dir + "draw_V_PHYS_SYS1_P1.png");
 
                         TCanvas *canvas_V_PHYS_SYS2_P1 = new TCanvas("canvas_V_PHYS_SYS2_P1", "canvas_V_PHYS_SYS2_P1");
                         draw_V_PHYS_SYS2_P1->Draw("colz");
-                        canvas_V_PHYS_SYS2_P1->SaveAs("draw_V_PHYS_SYS2_P1.png");
+                        canvas_V_PHYS_SYS2_P1->SaveAs(dir + "draw_V_PHYS_SYS2_P1.png");
 
                         TCanvas *canvas_V_PHYS_SYS3_P1 = new TCanvas("canvas_V_PHYS_SYS3_P1", "canvas_V_PHYS_SYS3_P1");
                         draw_V_PHYS_SYS3_P1->Draw("colz");
-                        canvas_V_PHYS_SYS3_P1->SaveAs("draw_V_PHYS_SYS3_P1.png");
+                        canvas_V_PHYS_SYS3_P1->SaveAs(dir + "draw_V_PHYS_SYS3_P1.png");
 
                         TCanvas *canvas_V_PHYS_SYS4_P1 = new TCanvas("canvas_V_PHYS_SYS4_P1", "canvas_V_PHYS_SYS4_P1");
                         draw_V_PHYS_SYS4_P1->Draw("colz");
-                        canvas_V_PHYS_SYS4_P1->SaveAs("draw_V_PHYS_SYS4_P1.png");
+                        canvas_V_PHYS_SYS4_P1->SaveAs(dir + "draw_V_PHYS_SYS4_P1.png");
 
                         TCanvas *canvas_V_PHYS_SYS5_P1 = new TCanvas("canvas_V_PHYS_SYS5_P1", "canvas_V_PHYS_SYS5_P1");
                         draw_V_PHYS_SYS5_P1->Draw("colz");
-                        canvas_V_PHYS_SYS5_P1->SaveAs("draw_V_PHYS_SYS5_P1.png");
+                        canvas_V_PHYS_SYS5_P1->SaveAs(dir + "draw_V_PHYS_SYS5_P1.png");
 
                         TCanvas *canvas_V_PHYS_SYSALL_P1 = new TCanvas("canvas_V_PHYS_SYSALL_P1", "canvas_V_PHYS_SYSALL_P1");
                         draw_V_PHYS_SYSALL_P1->Draw("colz");
-                        canvas_V_PHYS_SYSALL_P1->SaveAs("draw_V_PHYS_SYSALL_P1.png");
+                        canvas_V_PHYS_SYSALL_P1->SaveAs(dir + "draw_V_PHYS_SYSALL_P1.png");
 
                         TCanvas *canvas_V_PHYS_P1 = new TCanvas("canvas_V_PHYS_P1", "canvas_V_PHYS_P1");
                         draw_V_PHYS_P1->Draw("colz");
-                        canvas_V_PHYS_P1->SaveAs("draw_V_PHYS_P1.png");
+                        canvas_V_PHYS_P1->SaveAs(dir + "draw_V_PHYS_P1.png");
 
                         TCanvas *canvas_V_PHYS_STAT_P2 = new TCanvas("canvas_V_PHYS_STAT_P2", "canvas_V_PHYS_STAT_P2");
                         draw_V_PHYS_STAT_P2->Draw("colz");
-                        canvas_V_PHYS_STAT_P2->SaveAs("draw_V_PHYS_STAT_P2.png");
+                        canvas_V_PHYS_STAT_P2->SaveAs(dir + "draw_V_PHYS_STAT_P2.png");
 
                         TCanvas *canvas_V_PHYS_SYS1_P2 = new TCanvas("canvas_V_PHYS_SYS1_P2", "canvas_V_PHYS_SYS1_P2");
                         draw_V_PHYS_SYS1_P2->Draw("colz");
-                        canvas_V_PHYS_SYS1_P2->SaveAs("draw_V_PHYS_SYS1_P2.png");
+                        canvas_V_PHYS_SYS1_P2->SaveAs(dir + "draw_V_PHYS_SYS1_P2.png");
 
                         TCanvas *canvas_V_PHYS_SYS2_P2 = new TCanvas("canvas_V_PHYS_SYS2_P2", "canvas_V_PHYS_SYS2_P2");
                         draw_V_PHYS_SYS2_P2->Draw("colz");
-                        canvas_V_PHYS_SYS2_P2->SaveAs("draw_V_PHYS_SYS2_P2.png");
+                        canvas_V_PHYS_SYS2_P2->SaveAs(dir + "draw_V_PHYS_SYS2_P2.png");
 
                         TCanvas *canvas_V_PHYS_SYS3_P2 = new TCanvas("canvas_V_PHYS_SYS3_P2", "canvas_V_PHYS_SYS3_P2");
                         draw_V_PHYS_SYS3_P2->Draw("colz");
-                        canvas_V_PHYS_SYS3_P2->SaveAs("draw_V_PHYS_SYS3_P2.png");
+                        canvas_V_PHYS_SYS3_P2->SaveAs(dir + "draw_V_PHYS_SYS3_P2.png");
 
                         TCanvas *canvas_V_PHYS_SYS4_P2 = new TCanvas("canvas_V_PHYS_SYS4_P2", "canvas_V_PHYS_SYS4_P2");
                         draw_V_PHYS_SYS4_P2->Draw("colz");
-                        canvas_V_PHYS_SYS4_P2->SaveAs("draw_V_PHYS_SYS4_P2.png");
+                        canvas_V_PHYS_SYS4_P2->SaveAs(dir + "draw_V_PHYS_SYS4_P2.png");
 
                         TCanvas *canvas_V_PHYS_SYS5_P2 = new TCanvas("canvas_V_PHYS_SYS5_P2", "canvas_V_PHYS_SYS5_P2");
                         draw_V_PHYS_SYS5_P2->Draw("colz");
-                        canvas_V_PHYS_SYS5_P2->SaveAs("draw_V_PHYS_SYS5_P2.png");
+                        canvas_V_PHYS_SYS5_P2->SaveAs(dir + "draw_V_PHYS_SYS5_P2.png");
 
                         TCanvas *canvas_V_PHYS_SYSALL_P2 = new TCanvas("canvas_V_PHYS_SYSALL_P2", "canvas_V_PHYS_SYSALL_P2");
                         draw_V_PHYS_SYSALL_P2->Draw("colz");
-                        canvas_V_PHYS_SYSALL_P2->SaveAs("draw_V_PHYS_SYSALL_P2.png");
+                        canvas_V_PHYS_SYSALL_P2->SaveAs(dir + "draw_V_PHYS_SYSALL_P2.png");
 
                         TCanvas *canvas_V_PHYS_P2 = new TCanvas("canvas_V_PHYS_P2", "canvas_V_PHYS_P2");
                         draw_V_PHYS_P2->Draw("colz");
-                        canvas_V_PHYS_P2->SaveAs("draw_V_PHYS_P2.png");
+                        canvas_V_PHYS_P2->SaveAs(dir + "draw_V_PHYS_P2.png");
                         std::cout << "ALLOC " << __func__ << std::endl;
 
                         //std::cout << "printed all canvas" << std::endl;

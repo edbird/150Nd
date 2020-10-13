@@ -2333,8 +2333,31 @@ void newloglikfitter_testmyphasespace(
                 std::cout << "c_fname=" << c_fname << std::endl;
                 std::cout << "is the filename legal?" << std::endl;
                 std::cout << "*****************************************************" << std::endl;
-                c_mps->SaveAs(c_fname_png);
-                c_mps->SaveAs(c_fname_pdf);
+
+                TString dir;
+                if(V_ENABLE_SYS1 == true)
+                {
+                    dir += "./SYS1/";
+                }
+                if(V_ENABLE_SYS2 == true)
+                {
+                    dir += "./SYS2/";
+                }
+                if(V_ENABLE_SYS3 == true)
+                {
+                    dir += "./SYS3/";
+                }
+                if(V_ENABLE_SYS4 == true)
+                {
+                    dir += "./SYS4/";
+                }
+                if(V_ENABLE_SYS5 == true)
+                {
+                    dir += "./SYS5/";
+                }
+                
+                c_mps->SaveAs(dir + c_fname_png);
+                c_mps->SaveAs(dir + c_fname_pdf);
                 //h_mps = nullptr;
             }
 
@@ -2457,11 +2480,34 @@ void newloglikfitter_testmyphasespace(
                 TString c_fname_before_png = c_fname_before + ".png";
                 TString c_fname_before_pdf = c_fname_before + ".pdf";
                 std::cout << "*****************************************************" << std::endl;
-                std::cout << "c_fname_beofre=" << c_fname_before << std::endl;
+                std::cout << "c_fname_before=" << c_fname_before << std::endl;
                 std::cout << "is the filename legal?" << std::endl;
                 std::cout << "*****************************************************" << std::endl;
-                c_mps_before->SaveAs(c_fname_before_png);
-                c_mps_before->SaveAs(c_fname_before_pdf);
+
+                TString dir;
+                if(V_ENABLE_SYS1 == true)
+                {
+                    dir += "./SYS1/";
+                }
+                if(V_ENABLE_SYS2 == true)
+                {
+                    dir += "./SYS2/";
+                }
+                if(V_ENABLE_SYS3 == true)
+                {
+                    dir += "./SYS3/";
+                }
+                if(V_ENABLE_SYS4 == true)
+                {
+                    dir += "./SYS4/";
+                }
+                if(V_ENABLE_SYS5 == true)
+                {
+                    dir += "./SYS5/";
+                }
+                
+                c_mps_before->SaveAs(dir + c_fname_before_png);
+                c_mps_before->SaveAs(dir + c_fname_before_pdf);
                 //h_mps_before = nullptr;
             }
 
