@@ -251,6 +251,26 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                                                              50, 0.0, 5.0,
                                                              50, 0.0, 5.0);
                         std::cout << "ALLOC " << __func__ << std::endl;
+
+
+                        draw_V_PHYS_STAT_P1->SetContour(1000);
+                        draw_V_PHYS_SYS1_P1->SetContour(1000);
+                        draw_V_PHYS_SYS2_P1->SetContour(1000);
+                        draw_V_PHYS_SYS3_P1->SetContour(1000);
+                        draw_V_PHYS_SYS4_P1->SetContour(1000);
+                        draw_V_PHYS_SYS5_P1->SetContour(1000);
+                        draw_V_PHYS_SYSALL_P1->SetContour(1000);
+                        draw_V_PHYS_P1->SetContour(1000);
+                        draw_V_PHYSINV_P1->SetContour(1000);
+                        draw_V_PHYS_STAT_P2->SetContour(1000);
+                        draw_V_PHYS_SYS1_P2->SetContour(1000);
+                        draw_V_PHYS_SYS2_P2->SetContour(1000);
+                        draw_V_PHYS_SYS3_P2->SetContour(1000);
+                        draw_V_PHYS_SYS4_P2->SetContour(1000);
+                        draw_V_PHYS_SYS5_P2->SetContour(1000);
+                        draw_V_PHYS_SYSALL_P2->SetContour(1000);
+                        draw_V_PHYS_P2->SetContour(1000);
+                        draw_V_PHYSINV_P2->SetContour(1000);
                     }
                 }
                 #endif
