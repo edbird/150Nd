@@ -394,11 +394,11 @@ bool V_ENABLE_STAT = true; // leave on
 
 // enable/disable systematics
 bool V_ENABLE_SYSALL = true;
-bool V_ENABLE_SYS1 = true; // constant 1.0 MeV shift
-bool V_ENABLE_SYS2 = false; // scale factor: m = 1 % + 0.2 %
-bool V_ENABLE_SYS3 = false; // +- 5.55 % efficiency
-bool V_ENABLE_SYS4 = false; // +- 0.50 % enrichment
-bool V_ENABLE_SYS5 = false; // +- 3 keV
+bool V_ENABLE_SYS1 = false; // constant 1.0 MeV shift
+bool V_ENABLE_SYS2 = true; // scale factor: m = 1 % + 0.2 %
+bool V_ENABLE_SYS3 = true; // +- 5.55 % efficiency
+bool V_ENABLE_SYS4 = true; // +- 0.50 % enrichment
+bool V_ENABLE_SYS5 = true; // +- 3 keV
 
 
 // set to true to recalculate V_PHYS_MATHMORE

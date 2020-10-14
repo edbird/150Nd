@@ -105,6 +105,7 @@ class draw_output_data
 
         canvas = nullptr;
         hRatio = nullptr;
+        hSig = nullptr;
         hAllMC1D = nullptr;
         data1D = nullptr;
         fakeData1D = nullptr;
@@ -126,6 +127,7 @@ class draw_output_data
     //TPad *p0;
     //TPad *p1;
     TH1D *hRatio;
+    TH1D *hSig;
     TH1D *hAllMC1D;
     TH1D *data1D;
     TH1D *fakeData1D;
@@ -149,6 +151,19 @@ void draw_channel_phase(
     const std::vector<double> &param_errs
     );
 
+
+
+void draw_channel_phase_with_pull(
+    const int channel,
+    const std::string& phase_arg_str,
+    const draw_input_data &drawinputdata,
+    const std::vector<double> &params,
+    const std::vector<double> &param_errs
+    );
+
+
+
+
 void draw_channel(
     const int channel,
     const draw_input_data &drawinputdata,
@@ -160,19 +175,22 @@ void draw_channel(
     if(drawinputdata.draw_P1 == true)
     {
         //std::cout << "draw P1" << std::endl;
-        draw_channel_phase(channel, "P1", drawinputdata, params, param_errs);
+        //draw_channel_phase(channel, "P1", drawinputdata, params, param_errs);
+        draw_channel_phase_with_pull(channel, "P1", drawinputdata, params, param_errs);
     }
 
     if(drawinputdata.draw_P2 == true)
     {
         //std::cout << "draw P2" << std::endl;
-        draw_channel_phase(channel, "P2", drawinputdata, params, param_errs);
+        //draw_channel_phase(channel, "P2", drawinputdata, params, param_errs);
+        draw_channel_phase_with_pull(channel, "P2", drawinputdata, params, param_errs);
     }
 
     if(drawinputdata.draw_P1P2 == true)
     {
         //std::cout << "draw PBOTH" << std::endl;
-        draw_channel_phase(channel, "PBOTH", drawinputdata, params, param_errs);
+        //draw_channel_phase(channel, "PBOTH", drawinputdata, params, param_errs);
+        draw_channel_phase_with_pull(channel, "PBOTH", drawinputdata, params, param_errs);
     }
 
     

@@ -57,6 +57,7 @@
 #include "newLogLikFitter_book2DHistograms.h"
 #include "newLogLikFitter_stacker_helper.h"
 #include "newLogLikFitter_drawchannel.h"
+#include "newLogLikFitter_draw_channel_phase_with_pull.h"
 #include "newLogLikFitter_draw.h"
 #include "newLogLikFitter_draw_2D.h"
 #include "newLogLikFitter_draw_outputdiff.h"

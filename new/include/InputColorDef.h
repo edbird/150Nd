@@ -16,28 +16,28 @@
 Color_t DataColor = kBlack;
 
 Int_t ci_c0 = TColor::GetFreeColorIndex();
-TColor *c_c0 = new TColor(ci_c0, 184.0 / 255.0, 67.0 / 255.0, 34.0 / 255.0); //kAzure + 1;
+TColor *c_c0 = new TColor(ci_c0, 184.0 / 255.0, 67.0 / 255.0, 34.0 / 255.0);
 
 Int_t ci_c1 = TColor::GetFreeColorIndex(); 
-TColor *c_c1 = new TColor(ci_c1, 196.0 / 255.0, 119.0 / 255.0, 55.0 / 255.0); //kGreen;
+TColor *c_c1 = new TColor(ci_c1, 196.0 / 255.0, 119.0 / 255.0, 55.0 / 255.0);
 
 Int_t ci_c2 = TColor::GetFreeColorIndex();
-TColor *c_c2 = new TColor(ci_c2 , 209.0 / 255.0, 168.0 / 255.0, 88.0 / 255.0); //kBlue;
+TColor *c_c2 = new TColor(ci_c2 , 209.0 / 255.0, 168.0 / 255.0, 88.0 / 255.0);
 
 Int_t ci_c3 = TColor::GetFreeColorIndex();
-TColor *c_c3 = new TColor(ci_c3 , 220.0 / 255.0, 223.0 / 255.0, 171.0 / 255.0); //kViolet;
+TColor *c_c3 = new TColor(ci_c3 , 220.0 / 255.0, 223.0 / 255.0, 171.0 / 255.0);
 
 Int_t ci_c4 = TColor::GetFreeColorIndex();
-TColor *c_c4 = new TColor(ci_c4 , 210.0 / 255.0, 231.0 / 255.0, 210.0 / 255.0); //kOrange; //for grouping
+TColor *c_c4 = new TColor(ci_c4 , 210.0 / 255.0, 231.0 / 255.0, 210.0 / 255.0);
 
 Int_t ci_c5 = TColor::GetFreeColorIndex();
-TColor *c_c5 = new TColor(ci_c5, 153.0 / 255.0, 204.0 / 255.0, 223.0 / 255.0); //kCyan;
+TColor *c_c5 = new TColor(ci_c5, 153.0 / 255.0, 204.0 / 255.0, 223.0 / 255.0);
 
 Int_t ci_c6 = TColor::GetFreeColorIndex();
-TColor *c_c6 = new TColor(ci_c6, 102.0 / 255.0, 149.0 / 255.0, 223.0 / 255.0); //kYellow;
+TColor *c_c6 = new TColor(ci_c6, 102.0 / 255.0, 149.0 / 255.0, 223.0 / 255.0);
 
 Int_t ci_c7 = TColor::GetFreeColorIndex();
-TColor *c_c7 = new TColor(ci_c7, 46.0 / 255.0, 70.0 / 255.0, 227.0 / 255.0); //kRed;
+TColor *c_c7 = new TColor(ci_c7, 46.0 / 255.0, 70.0 / 255.0, 227.0 / 255.0);
 
 Color_t Nd150Color = ci_c7;
 Color_t tl208InternalBkgColor = ci_c6;
