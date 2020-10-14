@@ -19,6 +19,7 @@ void draw_channel_phase_with_pull(
     )
 {
 
+/*
     std::cout << __func__ << std::endl;
     std::cout << "params: ";
     for(int i = 0; i < params.size(); ++ i)
@@ -26,7 +27,7 @@ void draw_channel_phase_with_pull(
         std::cout << params.at(i) << " ";
     }
     std::cout << std::endl;
-
+*/
 
     int debuglevel = 1;
 
@@ -252,59 +253,19 @@ void draw_channel_phase_with_pull(
             it != phase_arg_strs.end(); ++ it)
         {
             std::string search_object_Px;
-            if(g_mode_fake_data == false)
-            {
-                search_object_Px = histname + std::string(DataFile) + "_" + (*it);
-            }
-            else if(g_mode_fake_data == true)
-            {
-                search_object_Px = histname + std::string("fakedata") + "_" + (*it);
-            }
-            //std::cout << "search_object_Px=" << search_object_Px << std::endl;
-            //std::string search_object_P2 = histname + std::string(DataFile) + "_P2";
-            #if 0
-            if(g_mode_fake_data == false)
-            {
-                //if(data1D_Px == nullptr)
-                //{
-                //    TString name = TString(allDataSamples1D->FindObject(search_object_Px.c_str())->GetName()) + "_drawclone";
-                //    data1D_Px = (TH1D*)allDataSamples1D->FindObject(search_object_Px.c_str())->Clone(name);
-                //    //tmpDataHistP2 = (TH1D*)allDataSamples1D->FindObject(search_object_P2.c_str());
-                //}
-                //else
-                //{
-                //    data1D_Px->Add((TH1D*)allDataSamples1D->FindObject(search_object_Px.c_str()));
-                //}
-                TH1D *tmpHist1D = allDataSamples1D->FindObject(search_object_Px.c_str());
-                h_stack_total_MC->Add((TH1D*)tmpHist1D, 1.0);
-            }
-            else if(g_mode_fake_data == true)
-            {
-                //if(fakeData1D_Px == nullptr)
-                //{
-                //    TString name = TString(allFakeDataSamples1D->FindObject(search_object_Px.c_str())->GetName()) + "_drawclone";
-                //    fakeData1D_Px = (TH1D*)allFakeDataSamples1D->FindObject(search_object_Px.c_str())->Clone(name);
-                //    //tmpDataHistP2 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P2.c_str());
-                //    // TODO: will not work if logLikelihood not called before
-                //    // because LL function calls function to construct fakedata
-                //}
-                //else
-                //{
-                //    fakeData1D_Px->Add((TH1D*)allFakeDataSamples1D->FindObject(search_object_Px.c_str()));
-                //}
-                TH1D *tmpHist1D = allDataSamples1D->FindObject(search_object_Px.c_str());
-                h_stack_total_MC->Add((TH1D*)tmpHist1D, 1.0);
-            }
-            #endif
             TH1D *tmpHist1D = nullptr;
             if(g_mode_fake_data == false)
             {
+                search_object_Px = histname + std::string(DataFile) + "_" + (*it);
                 tmpHist1D = (TH1D*)allDataSamples1D->FindObject(search_object_Px.c_str());
             }
             else if(g_mode_fake_data == true)
             {
+                search_object_Px = histname + std::string("fakedata") + "_" + (*it);
                 tmpHist1D = (TH1D*)allFakeDataSamples1D->FindObject(search_object_Px.c_str());
             }
+            //std::cout << "search_object_Px=" << search_object_Px << std::endl;
+            //std::string search_object_P2 = histname + std::string(DataFile) + "_P2";
             if(tmpHist1D != nullptr)
             {
                 h_data_fakedata->Add((TH1D*)tmpHist1D, 1.0);
@@ -318,55 +279,8 @@ void draw_channel_phase_with_pull(
             // manually create a THStack since the programmers of ROOT were
             // incapable of programming such a thing properly
             ///////////////////////////////////////////////////////////////////////
-            
-            #if 0
-            TString stackname = histname + "_stack_external_" + "_" + (*it)
-            h_stack_external = new (stackname, stackname, 50, 0.0, 5.0);
-
-            TString stackname = histname + "_stack_radon_" + "_" + (*it)
-            h_stack_radon = new (stackname, stackname, 50, 0.0, 5.0);
-            
-            TString stackname = histname + "_stack_neighbour_" + "_" + (*it)
-            h_stack_neighbour = new (stackname, stackname, 50, 0.0, 5.0);
-            
-            TString stackname = histname + "_stack_internal_" + "_" + (*it)
-            h_stack_internal = new (stackname, stackname, 50, 0.0, 5.0);
-            
-            TString stackname = histname + "_stack_bi207_int_" + "_" + (*it)
-            h_stack_bi207_int = new (stackname, stackname, 50, 0.0, 5.0);
-            
-            TString stackname = histname + "_stack_bi214_int_" + "_" + (*it)
-            h_stack_bi214_int = new (stackname, stackname, 50, 0.0, 5.0);
-            
-            TString stackname = histname + "_stack_tl208_int_" + "_" + (*it)
-            h_stack_tl208_int = new (stackname, stackname, 50, 0.0, 5.0);
-            
-            TString stackname = histname + "_stack_2nubb_" + "_" + (*it)
-            h_stack_2nubb_int = new (stackname, stackname, 50, 0.0, 5.0);
-            
-            TString stackname = histname + "_stack_all_" + "_" + (*it)
-            h_stack_all = new (stackname, stackname, 50, 0.0, 5.0);
-            #endif
         }
 
-        #if 0
-        if(g_mode_fake_data == false)
-        {
-            for(Int_t i = 0; i < data1D_Px->GetNbinsX(); ++ i)
-            {
-                Double_t content = data1D_Px->GetBinContent(i);
-                data1D_Px->SetBinError(i, std::sqrt(content));
-            }
-        }
-        else if(g_mode_fake_data == true)
-        {
-            for(Int_t i = 0; i < fakeData1D_Px->GetNbinsX(); ++ i)
-            {
-                Double_t content = fakeData1D_Px->GetBinContent(i);
-                fakeData1D_Px->SetBinError(i, std::sqrt(content));
-            }
-        }
-        #endif
         // init errors for data/fakedata stack
         for(Int_t i = 0; i < h_data_fakedata->GetNbinsX(); ++ i)
         {
@@ -534,74 +448,33 @@ void draw_channel_phase_with_pull(
         }
 
 
-        //if(paramEnabledP1 == true)
-        //{
-        /*
-            if(hAllMC1D_Px == nullptr)
-            {
-                hAllMC1D_Px = (TH1D*)h_2nubb_Px->Clone("Total MC");
-            }
-            else
-            {
-                hAllMC1D_Px->Add((TH1D*)h_2nubb_Px);
-            }
 
-            hAllMC1D_Px->Add((TH1D*)h_tl208_int_Px);
-            hAllMC1D_Px->Add((TH1D*)h_bi214_int_Px);
-            hAllMC1D_Px->Add((TH1D*)h_bi207_int_Px);
-            hAllMC1D_Px->Add((TH1D*)h_internal_Px);
-            hAllMC1D_Px->Add((TH1D*)h_neighbour_Px);
-            hAllMC1D_Px->Add((TH1D*)h_radon_Px);
-            hAllMC1D_Px->Add((TH1D*)h_external_Px);
-        */
-        //}
-
-        /*if(paramEnabledP2 == true)
-        {
-            if(hAllMC1D_Px == nullptr)
-            {
-                hAllMC1D_Px = (TH1D*)h_2nubb_Px->Clone("Total MC");
-            }
-            else
-            {
-                hAllMC1D_Px->Add((TH1D*)h_2nubb_Px);
-            }
-
-            hAllMC1D_Px->Add((TH1D*)h_tl208_int_Px);
-            hAllMC1D_Px->Add((TH1D*)h_bi214_int_Px);
-            hAllMC1D_Px->Add((TH1D*)h_bi207_int_Px);
-            hAllMC1D_Px->Add((TH1D*)h_internal_Px);
-            hAllMC1D_Px->Add((TH1D*)h_neighbour_Px);
-            hAllMC1D_Px->Add((TH1D*)h_radon_Px);
-            hAllMC1D_Px->Add((TH1D*)h_external_Px);
-        }*/
-
-        
-
-
-
+        ///////////////////////////////////////////////////////////////////////
+        // END OF STACKING CODE
+        // START OF CANVAS DRAWING CODE
+        ///////////////////////////////////////////////////////////////////////
 
 
         double PAD_U_Y_MIN_P1_P2 = 0.0;
         double PAD_U_Y_MAX_P1_P2 = 500.0;
         double PAD_L_Y_MIN_P1_P2 = 0.5;
         double PAD_L_Y_MAX_P1_P2 = 2.0;
-        double PAD_LL_Y_MIN_P1_P2 = -5.0;
-        double PAD_LL_Y_MAX_P1_P2 = 5.0;
+        double PAD_LL_Y_MIN_P1_P2 = -3.0;
+        double PAD_LL_Y_MAX_P1_P2 = 3.0;
 
         double PAD_U_Y_MIN_P1 = 0.0;
         double PAD_U_Y_MAX_P1 = 500.0;
         double PAD_L_Y_MIN_P1 = 0.5;
         double PAD_L_Y_MAX_P1 = 2.0;
-        double PAD_LL_Y_MIN_P1 = -5.0;
-        double PAD_LL_Y_MAX_P1 = 5.0;
+        double PAD_LL_Y_MIN_P1 = -3.0;
+        double PAD_LL_Y_MAX_P1 = 3.0;
 
         double PAD_U_Y_MIN_P2 = 0.0;
         double PAD_U_Y_MAX_P2 = 500.0;
         double PAD_L_Y_MIN_P2 = 0.5;
         double PAD_L_Y_MAX_P2 = 2.0;
-        double PAD_LL_Y_MIN_P2 = -5.0;
-        double PAD_LL_Y_MAX_P2 = 5.0;
+        double PAD_LL_Y_MIN_P2 = -3.0;
+        double PAD_LL_Y_MAX_P2 = 3.0;
 
         double PAD_U_Y_MIN_Px = 0.0;
         double PAD_U_Y_MAX_Px = 0.0;
@@ -767,14 +640,6 @@ void draw_channel_phase_with_pull(
 
 
 
-        //if(g_mode_fake_data == false)
-        //{
-        //    h_ratio->Add((TH1D*)h_data_fakedata, 1.0);
-        //}
-        //else if(g_mode_fake_data == true)
-        //{
-        //    h_ratio->Add((TH1D*)h_data_fakedata, 1.0);
-        //}
         h_ratio->Add((TH1D*)h_data_fakedata, 1.0);
         //hRatio->Sumw2();
         h_ratio->Divide(h_stack_total_MC);
@@ -800,29 +665,6 @@ void draw_channel_phase_with_pull(
             }
         }
 //        hRatio_Px->SetTitle("");
-    /*
-        if(g_mode_fake_data == false)
-        {
-            TString name = TString(data1D_Px->GetName()) + "_sig";
-            //hSig_Px = (TH1D*)data1D_Px->Clone(name);
-            hSig_Px = new TH1D(name, name, 50, 0.0, 5.0);
-        }
-        else if(g_mode_fake_data == true)
-        {
-            TString name = TString(fakeData1D_Px->GetName()) + "_sig";
-            //hSig_Px = (TH1D*)fakeData1D_Px->Clone(name);
-            hSig_Px = new TH1D(name, name, 50, 0.0, 5.0);
-        }
-    */
-
-        //if(g_mode_fake_data == false)
-        //{
-        //    h_pull->Add((TH1D*)h_data_fakedata, 1.0);
-        //}
-        //else if(g_mode_fake_data == true)
-        //{
-        //    h_pull->Add((TH1D*)h_data_fakedata, 1.0);
-        //}
         h_pull->Add((TH1D*)h_data_fakedata, 1.0);
         h_pull->Add((TH1D*)h_stack_total_MC, -1.0);
         for(Int_t i = 1; i <= h_pull->GetNbinsX(); ++ i)
@@ -944,17 +786,6 @@ void draw_channel_phase_with_pull(
         hRatio_Px->GetYaxis()->SetTitleOffset(1.0);
         hRatio_Px->GetYaxis()->SetTitle("data / MC");
 
-
-        if(AXISMODE == 2)
-        {
-            hRatio_Px->GetYaxis()->SetLabelSize(0.0);
-            hRatio_Px->GetYaxis()->SetTickLength(0.0);
-        }
-        else if(AXISMODE == 1)
-        {
-            hRatio_Px->GetYaxis()->SetLabelSize(15);
-            hRatio_Px->GetYaxis()->SetTickLength(1.0 / 93.0);
-        }
     */
 
 
@@ -1113,6 +944,7 @@ void draw_channel_phase_with_pull(
         h_stack_2nubb->GetYaxis()->SetTitleOffset(1.0);
         h_stack_2nubb->GetYaxis()->SetTitle("Events / 0.1 MeV");
 
+        h_stack_2nubb->GetXaxis()->SetTickSize(0.04);
         h_stack_2nubb->GetYaxis()->SetTickSize(0);
 
 
@@ -1477,6 +1309,7 @@ std::cout << "axis draw" << std::endl;
         h_ratio->GetYaxis()->SetTitleOffset(1.0);
         h_ratio->GetYaxis()->SetTitle("data / MC");
 
+        h_ratio->GetXaxis()->SetTickSize(0.06);
         h_ratio->GetYaxis()->SetTickSize(0);
 
 
@@ -1514,7 +1347,7 @@ std::cout << "axis draw" << std::endl;
                 {
                     Double_t y_center = 0.5 * (PAD_L_Y_MAX_Px + PAD_L_Y_MIN_Px);
                     Double_t y_delta = 0.5 * (PAD_L_Y_MAX_Px - PAD_L_Y_MIN_Px);
-                    Double_t y_value = y_center + 0.98 * y_delta;
+                    Double_t y_value = y_center + 0.95 * y_delta;
                     TMarker *m = new TMarker(center, y_value, 22);
                     m->SetMarkerColor(kBlack);
                     outofbounds_marker.push_back(m);
@@ -1537,7 +1370,7 @@ std::cout << "axis draw" << std::endl;
                 {
                     Double_t y_center = 0.5 * (PAD_L_Y_MAX_Px + PAD_L_Y_MIN_Px);
                     Double_t y_delta = 0.5 * (PAD_L_Y_MAX_Px - PAD_L_Y_MIN_Px);
-                    Double_t y_value = y_center - 0.98 * y_delta;
+                    Double_t y_value = y_center - 0.95 * y_delta;
                     TMarker *m = new TMarker(center, y_value, 23);
                     m->SetMarkerColor(kBlack);
                     outofbounds_marker.push_back(m);
@@ -1602,6 +1435,7 @@ std::cout << "axis draw" << std::endl;
         h_pull->GetYaxis()->SetTitleOffset(1.0);
         h_pull->GetYaxis()->SetTitle("#chi^{2} pull (#sigma) ");
 
+        h_pull->GetXaxis()->SetTickSize(0.05);
         h_pull->GetYaxis()->SetTickSize(0);
 
         //hSig_Px->SetMarkerStyle(20);

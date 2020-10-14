@@ -2346,7 +2346,6 @@ void loadFiles(int i)
 
         g_mode_fake_data = restore_g_mode_fake_data;
     }
-    return 0;
 
 
     ///////////////////////////////////////////////////////////////////////////

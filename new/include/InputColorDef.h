@@ -20,21 +20,29 @@ TColor *c_c0 = new TColor(ci_c0, 184.0 / 255.0, 67.0 / 255.0, 34.0 / 255.0);
 
 Int_t ci_c1 = TColor::GetFreeColorIndex(); 
 TColor *c_c1 = new TColor(ci_c1, 196.0 / 255.0, 119.0 / 255.0, 55.0 / 255.0);
+//TColor *c_c1 = new TColor(ci_c1, 190.0 / 255.0, 92.0 / 255.0, 44.0 / 255.0);
 
 Int_t ci_c2 = TColor::GetFreeColorIndex();
 TColor *c_c2 = new TColor(ci_c2 , 209.0 / 255.0, 168.0 / 255.0, 88.0 / 255.0);
+//TColor *c_c2 = new TColor(ci_c2 , 196.0 / 255.0, 119.0 / 255.0, 55.0 / 255.0);
 
 Int_t ci_c3 = TColor::GetFreeColorIndex();
-TColor *c_c3 = new TColor(ci_c3 , 220.0 / 255.0, 223.0 / 255.0, 171.0 / 255.0);
+//TColor *c_c3 = new TColor(ci_c3 , 220.0 / 255.0, 223.0 / 255.0, 171.0 / 255.0);
+TColor *c_c3 = new TColor(ci_c3 , 221.0 / 255.0, 215.0 / 255.0, 150.0 / 255.0);
 
 Int_t ci_c4 = TColor::GetFreeColorIndex();
+//TColor *c_c4 = new TColor(ci_c4 , 210.0 / 255.0, 231.0 / 255.0, 210.0 / 255.0);
+//TColor *c_c4 = new TColor(ci_c4 , 190.0 / 255.0, 223.0 / 255.0, 215.0 / 255.0);
 TColor *c_c4 = new TColor(ci_c4 , 210.0 / 255.0, 231.0 / 255.0, 210.0 / 255.0);
 
 Int_t ci_c5 = TColor::GetFreeColorIndex();
-TColor *c_c5 = new TColor(ci_c5, 153.0 / 255.0, 204.0 / 255.0, 223.0 / 255.0);
+//TColor *c_c5 = new TColor(ci_c5, 153.0 / 255.0, 204.0 / 255.0, 223.0 / 255.0);
+//TColor *c_c5 = new TColor(ci_c5, 123.0 / 255.0, 171.0 / 255.0, 228.0 / 255.0);
+TColor *c_c5 = new TColor(ci_c5, 138.0 / 255.0, 187.0 / 255.0, 226.0 / 255.0);
 
 Int_t ci_c6 = TColor::GetFreeColorIndex();
-TColor *c_c6 = new TColor(ci_c6, 102.0 / 255.0, 149.0 / 255.0, 223.0 / 255.0);
+//TColor *c_c6 = new TColor(ci_c6, 102.0 / 255.0, 149.0 / 255.0, 223.0 / 255.0);
+TColor *c_c6 = new TColor(ci_c6, 82.0 / 255.0, 129.0 / 255.0, 217.0 / 255.0);
 
 Int_t ci_c7 = TColor::GetFreeColorIndex();
 TColor *c_c7 = new TColor(ci_c7, 46.0 / 255.0, 70.0 / 255.0, 227.0 / 255.0);
