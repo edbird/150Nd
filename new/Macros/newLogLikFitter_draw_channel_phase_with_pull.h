@@ -19,6 +19,15 @@ void draw_channel_phase_with_pull(
     )
 {
 
+    std::cout << __func__ << std::endl;
+    std::cout << "params: ";
+    for(int i = 0; i < params.size(); ++ i)
+    {
+        std::cout << params.at(i) << " ";
+    }
+    std::cout << std::endl;
+
+
     int debuglevel = 1;
 
     std::vector<std::string> phase_arg_strs;
@@ -287,7 +296,15 @@ void draw_channel_phase_with_pull(
                 h_stack_total_MC->Add((TH1D*)tmpHist1D, 1.0);
             }
             #endif
-            TH1D *tmpHist1D = (TH1D*)allDataSamples1D->FindObject(search_object_Px.c_str());
+            TH1D *tmpHist1D = nullptr;
+            if(g_mode_fake_data == false)
+            {
+                tmpHist1D = (TH1D*)allDataSamples1D->FindObject(search_object_Px.c_str());
+            }
+            else if(g_mode_fake_data == true)
+            {
+                tmpHist1D = (TH1D*)allFakeDataSamples1D->FindObject(search_object_Px.c_str());
+            }
             if(tmpHist1D != nullptr)
             {
                 h_data_fakedata->Add((TH1D*)tmpHist1D, 1.0);
@@ -750,20 +767,37 @@ void draw_channel_phase_with_pull(
 
 
 
-        if(g_mode_fake_data == false)
-        {
-            h_ratio->Add((TH1D*)h_data_fakedata, 1.0);
-        }
-        else if(g_mode_fake_data == true)
-        {
-            h_ratio->Add((TH1D*)h_data_fakedata, 1.0);
-        }
+        //if(g_mode_fake_data == false)
+        //{
+        //    h_ratio->Add((TH1D*)h_data_fakedata, 1.0);
+        //}
+        //else if(g_mode_fake_data == true)
+        //{
+        //    h_ratio->Add((TH1D*)h_data_fakedata, 1.0);
+        //}
+        h_ratio->Add((TH1D*)h_data_fakedata, 1.0);
         //hRatio->Sumw2();
         h_ratio->Divide(h_stack_total_MC);
         for(Int_t i = 1; i <= h_ratio->GetNbinsX(); ++ i)
         {
-            Double_t content = h_ratio->GetBinContent(i);
-            h_ratio->SetBinContent(i, std::sqrt(content));
+            Double_t content_M = h_stack_total_MC->GetBinContent(i);
+            Double_t content_D = h_data_fakedata->GetBinContent(i);
+            //Double_t error_M = h_stack_total_MC->GetBinError(i);
+            //Double_t error_M = std::sqrt(h_stack_total_MC->GetBinContent(i));
+            //Double_t error_D = h_data_fakedata->GetBinError(i);
+            //Double_t content = std::pow(1.0 / content_M, 2.0) * std::pow(error_D, 2.0)
+            // error on D is effective zero
+            if(content_M <= 0.0)
+            {
+                h_ratio->SetBinContent(i, 0.0);
+                h_ratio->SetBinError(i, 0.0);
+            }
+            else
+            {
+                Double_t error_M = std::sqrt(h_stack_total_MC->GetBinContent(i));
+                Double_t error_sq = std::pow(content_D / (content_M * content_M), 2.0) * std::pow(error_M, 2.0);
+                h_ratio->SetBinError(i, std::sqrt(error_sq));
+            }
         }
 //        hRatio_Px->SetTitle("");
     /*
@@ -1460,6 +1494,69 @@ std::cout << "axis draw" << std::endl;
         //TLine *zeroline = new TLine(0.0, 0.0, 5.0, 0.0);
         //zeroline->Draw();
 
+        std::vector<TLine*> outofbounds_line;
+        std::vector<TMarker*> outofbounds_marker;
+        for(Int_t i = 1; i <= h_ratio->GetNbinsX(); ++ i)
+        {
+            Double_t content = h_ratio->GetBinContent(i);
+            Double_t error = h_ratio->GetBinError(i);
+            Double_t center = h_ratio->GetBinCenter(i);
+            if(content == 0.0)
+            {
+                if(error == 0.0)
+                {
+                    continue;
+                }
+            }
+            if(content > PAD_L_Y_MAX_Px)
+            {
+                if(content - error >= PAD_L_Y_MAX_Px)
+                {
+                    Double_t y_center = 0.5 * (PAD_L_Y_MAX_Px + PAD_L_Y_MIN_Px);
+                    Double_t y_delta = 0.5 * (PAD_L_Y_MAX_Px - PAD_L_Y_MIN_Px);
+                    Double_t y_value = y_center + 0.98 * y_delta;
+                    TMarker *m = new TMarker(center, y_value, 22);
+                    m->SetMarkerColor(kBlack);
+                    outofbounds_marker.push_back(m);
+                    m->Draw();
+
+                    //std::cout << "drawing marker: " << center << " " << y_center << std::endl;
+                }
+                else
+                {
+                    TLine *l = new TLine(center, content - error, center, PAD_L_Y_MAX_Px);
+                    l->SetLineWidth(2.0);
+                    l->SetLineColor(kBlack);
+                    outofbounds_line.push_back(l);
+                    l->Draw();
+                }
+            }
+            else if(content < PAD_L_Y_MIN_Px)
+            {
+                if(content + error <= PAD_L_Y_MAX_Px)
+                {
+                    Double_t y_center = 0.5 * (PAD_L_Y_MAX_Px + PAD_L_Y_MIN_Px);
+                    Double_t y_delta = 0.5 * (PAD_L_Y_MAX_Px - PAD_L_Y_MIN_Px);
+                    Double_t y_value = y_center - 0.98 * y_delta;
+                    TMarker *m = new TMarker(center, y_value, 23);
+                    m->SetMarkerColor(kBlack);
+                    outofbounds_marker.push_back(m);
+                    m->Draw();
+
+                    //std::cout << "drawing marker: " << center << " " << y_center << std::endl;
+                }
+                else
+                {
+                    TLine *l = new TLine(center, content + error, center, PAD_L_Y_MIN_Px);
+                    l->SetLineWidth(2.0);
+                    l->SetLineColor(kBlack);
+                    outofbounds_line.push_back(l);
+                    l->Draw();
+                }
+            }
+        }
+
+
         TGaxis *axis3 = nullptr;
         TGaxis *axis4 = nullptr;
         if(AXISMODE == 2)
@@ -1665,7 +1762,7 @@ std::cout << "leg draw" << std::endl;
 
 
 
-        canvas_Px->Show();
+//        canvas_Px->Show();
 
         // TODO: other parameters in this class for filename/dir
         std::string saveas_filename = drawinputdata.saveas_filename;

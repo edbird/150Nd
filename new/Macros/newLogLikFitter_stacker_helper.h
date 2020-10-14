@@ -30,7 +30,7 @@ void new_stacker_helper
         h_stack_total_MC->Add(tmpHist1D, scale_factor);
     }
     // tl208 internal
-    if(hname.Contains("tl208_int"))// ||
+    else if(hname.Contains("tl208_int"))// ||
             //hname.Contains("ac228_int") ||
             //hname.Contains("bi212_int"))
     {
@@ -39,7 +39,7 @@ void new_stacker_helper
         h_stack_total_MC->Add(tmpHist1D, scale_factor);
     }
     // bi 214 internal
-    if(hname.Contains("bi214_int") ||
+    else if(hname.Contains("bi214_int") ||
             hname.Contains("pb214_int")
             )
     {
@@ -49,7 +49,7 @@ void new_stacker_helper
         h_stack_total_MC->Add(tmpHist1D, scale_factor);
     }
     // bi 207 internal
-    if(hname.Contains("bi207_int"))
+    else if(hname.Contains("bi207_int"))
     {
         h_stack_bi207_int->Add(tmpHist1D, scale_factor);    // 1
         h_stack_bi214_int->Add(tmpHist1D, scale_factor);
@@ -58,7 +58,7 @@ void new_stacker_helper
         h_stack_total_MC->Add(tmpHist1D, scale_factor);     // 5
     }
     // internals (other)
-    if(
+    else if(
         hname.Contains("int") ||
         hname.Contains("mylar")
         )
@@ -71,7 +71,7 @@ void new_stacker_helper
         h_stack_total_MC->Add(tmpHist1D, scale_factor);
     }
     // neighbours
-    if(
+    else if(
         hname.Contains("mo100") ||
         hname.Contains("zr96") ||
         hname.Contains("ca48")
@@ -86,7 +86,7 @@ void new_stacker_helper
         h_stack_total_MC->Add(tmpHist1D, scale_factor);     // 7
     }
     // radon
-    if(
+    else if(
         hname.Contains("swire") ||
         hname.Contains("sfoil")
         )
@@ -101,7 +101,7 @@ void new_stacker_helper
         h_stack_total_MC->Add(tmpHist1D, scale_factor);
     }
     // external
-    if(
+    else if(
         hname.Contains("feShield") ||
         hname.Contains("pmt") ||
         hname.Contains("cuTower") ||
@@ -121,10 +121,10 @@ void new_stacker_helper
         h_stack_total_MC->Add(tmpHist1D, scale_factor);     // 9
     }
     // everything else
-    //else
-    //{
-    //    std::cout << "adding " << tmpHist1D->GetName() << " to others TODO: FIX" << std::endl;
-    //}
+    else
+    {
+        std::cout << "adding " << tmpHist1D->GetName() << " to others TODO: FIX" << std::endl;
+    }
 
 
     //std::cout << __func__ << " exit" <<std::endl;
