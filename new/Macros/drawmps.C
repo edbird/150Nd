@@ -329,12 +329,6 @@ void drawmps()
     // c_mps_after
     ///////////////////////////////////////////////////////////////////////////
 
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // read "after"
-    ///////////////////////////////////////////////////////////////////////////
-
     TString h_mps_name_base;
     if(g_mode_fake_data == true)
     {
@@ -382,11 +376,6 @@ void drawmps()
 
 
 
-    if(!ofs_resultsmatrix_after.is_open())
-    {
-        std::cout << "Error: could not open " << ofs_resultsmatrix_after_fname << std::endl;
-        return -1;
-    }
 
     //"mps_resultsmatrix_after"
     std::string ofs_resultsmatrix_after_fname =
@@ -395,6 +384,19 @@ void drawmps()
         + ".txt";
 
     std::ifstream ofs_resultsmatrix_after(ofs_resultsmatrix_after_fname);
+
+    if(!ofs_resultsmatrix_after.is_open())
+    {
+        std::cout << "Error: could not open " << ofs_resultsmatrix_after_fname << std::endl;
+        return -1;
+    }
+
+    double min_stripe = std::numeric_limits<double>::infinity();
+    double min_stripe_y = 0.0;
+
+    ///////////////////////////////////////////////////////////////////////////
+    // read "after"
+    ///////////////////////////////////////////////////////////////////////////
     
     std::cout << "*****************************************************" << std::endl;
     std::cout << "*****************************************************" << std::endl;
@@ -403,9 +405,10 @@ void drawmps()
     std::cout << "*****************************************************" << std::endl;
 
 
-    line_count = 1;
-    n_1_last = -1;
-    n_2_last = -1;
+    std::size_t line_count = 1;
+    int n_1_last = -1;
+    int n_2_last = -1;
+    double t_param_1, t_param_2;
     while(!ofs_resultsmatrix_after.eof())
     {
         
