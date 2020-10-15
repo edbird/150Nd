@@ -1,0 +1,494 @@
+#ifndef NEWLOGLIKFITTER_MPS_CALCULATE_H
+#define NEWLOGLIKFITTER_MPS_CALCULATE_H
+
+
+
+void newloglikfitter_mps_calculate
+(
+    const int number_job_id,
+    const std::string &output_name,
+    const int start_index,
+    const int stop_index
+)
+{
+
+    // TODO: NOTE: have to change value of "stop_index" as well
+    const int n_param_xy = 31; //51;//301; // 1001
+    int n_param_1 = n_param_xy;
+    int n_param_2 = n_param_xy;
+    int n_param_max = n_param_1 * n_param_2;
+    int c_param = 0;
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // SET param_1 RANGE
+    ///////////////////////////////////////////////////////////////////////////
+
+    double param_1_min;
+    double param_1_max;
+
+    // param 1 is gA
+    // custom range
+    param_1_min = 0.1; //-0.4; //-0.5; //1.0; //-0.5;
+    param_1_max = 1.7; //0.6; //1.6; //0.5; //2.5; //5.0; //2.5;
+    // after changing the psiN0, psiN2 values...
+    param_1_min = -0.3;
+    param_1_max = 1.7; // adjusted for SYS1 energy offset was 1.5
+    //param_1_min = -0.4;
+    //param_1_max = 1.6; TODO
+    // fake data values
+    if(g_mode_fake_data == true)
+    {
+//        param_1_min = -0.4;
+//        param_1_max = 0.6;
+        param_1_min = -0.7;
+        param_1_max = 0.7;
+    }
+    
+    // with systematics
+    if(V_ENABLE_SYSALL == true)
+    {
+        // TODO: change depending on systematic
+        if(g_mode_fake_data == false)
+        {
+            param_1_min = -0.7;
+            param_1_max = 2.1;
+        }
+        else if(g_mode_fake_data == true)
+        {
+            param_1_min = -0.5;
+            param_1_max = 0.7;
+        }
+    }
+
+    // hack to get HSD
+    //param_1_min = -0.1;
+    //param_1_max = +0.1;
+
+    
+    ///////////////////////////////////////////////////////////////////////////
+    // SET param_2 RANGE
+    ///////////////////////////////////////////////////////////////////////////
+
+    double param_2_min;
+    double param_2_max;
+    
+    // param 2 is 150Nd amplitude
+    // custom range
+    param_2_min = 0.8; //1.1; //0.0; //0.0;
+    param_2_max = 2.6; //2.6; //1.8; //2.0; //2.0; //4.0;
+    // after changing the psiN0, psiN2 values...
+    param_2_min = 0.95;
+    param_2_max = 1.3;
+    //param_2_min = 0.0;
+    //param_2_max = 3.0;  //TODO
+    // fake data values
+    if(g_mode_fake_data == true)
+    {
+//        param_2_min = 0.2;
+//        param_2_max = 1.8
+        param_2_max = 1.15;
+        param_2_min = 0.85;
+    }
+    
+    // with systematics
+    if(g_mode_fake_data == false)
+    {
+        param_2_min = 0.75;
+        param_2_max = 1.5;
+    }
+    else if(g_mode_fake_data == true)
+    {
+        param_2_min = 0.85;
+        param_2_max = 1.15;
+    }
+
+    // hack to get HSD
+    //param_1_min = 0.9999;
+    //param_1_max = 1.0001;
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // mps ITERATION
+    ///////////////////////////////////////////////////////////////////////////
+
+    // mps (after) name
+    TString h_mps_name_base;
+    if(g_mode_fake_data == true)
+    {
+        h_mps_name_base = "h_mps_fake_data";
+    }
+    if(g_mode_fake_data == false)
+    {
+        h_mps_name_base = "h_mps";
+    }
+    TString h_mps_name = h_mps_name_base;
+
+
+    // mps_before name
+    TString h_mps_name_base_before;
+    if(g_mode_fake_data == true)
+    {
+        h_mps_name_base_before = "h_mps_fake_data_before";
+    }
+    if(g_mode_fake_data == false)
+    {
+        h_mps_name_base_before = "h_mps_before";
+    }
+    TString h_mps_name_before = h_mps_name_base_before;
+
+
+
+
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // INIT OUTPUT FILE
+    ///////////////////////////////////////////////////////////////////////////
+
+    std::string os_fname = std::string("mps_")
+                         + std::string("JID") + std::to_string(number_job_id)
+                         + std::string(".log");
+    std::ofstream os(os_fname, std::ios::out | std::ios::app);
+
+    // TODO: other systematics should be able to be saved in different
+    // combinations without overwriting
+    std::string output_name_append;
+    if(V_ENABLE_SYSALL == false)
+    {
+        output_name_append += "_STAT";
+    }
+    else if(V_ENABLE_SYSALL == true)
+    {
+        output_name_append += "_STATSYS";
+    }
+    if(g_mode_fake_data == false)
+    {
+        output_name_append += "_data";
+    }
+    else if(g_mode_fake_data == true)
+    {
+        output_name_append += "_fake";
+    }
+
+    std::string ofs_resultsmatrix_before_fname =
+        output_name + output_name_append + "_before" + "_"
+        + "JID" + std::to_string(number_job_id)
+        + ".txt";
+
+    std::string ofs_resultsmatrix_after_fname =
+        output_name + output_name_append + "_after" + "_"
+        + "JID" + std::to_string(number_job_id)
+        + ".txt";
+
+    std::ofstream ofs_resultsmatrix_before(ofs_resultsmatrix_before_fname);
+    std::ofstream ofs_resultsmatrix_after(ofs_resultsmatrix_after_fname);
+
+    std::cout << "*****************************************************" << std::endl;
+    std::cout << "*****************************************************" << std::endl;
+    std::cout << "saving data to " << ofs_resultsmatrix_before_fname << std::endl;
+    std::cout << "saving data to " << ofs_resultsmatrix_after_fname << std::endl;
+    std::cout << "*****************************************************" << std::endl;
+    std::cout << "*****************************************************" << std::endl;
+
+    if(!ofs_resultsmatrix_before.is_open())
+    {
+        std::cout << "Error: could not open " << ofs_resultsmatrix_before_fname << std::endl;
+        return;
+    }
+
+    if(!ofs_resultsmatrix_after.is_open())
+    {
+        std::cout << "Error: could not open " << ofs_resultsmatrix_after_fname << std::endl;
+        return;
+    }
+
+    ofs_resultsmatrix_before << n_param_1 << " " << param_1_min << " " << param_1_max << std::endl;
+    ofs_resultsmatrix_before << n_param_2 << " " << param_2_min << " " << param_2_max << std::endl;
+
+    ofs_resultsmatrix_after << n_param_1 << " " << param_1_min << " " << param_1_max << std::endl;
+    ofs_resultsmatrix_after << n_param_2 << " " << param_2_min << " " << param_2_max << std::endl;
+
+
+
+    // save minimum fit points here
+    // TODO
+    ofs_resultsmatrix_before << ENABLE_MIN_POINT_SYS1 << " "
+                             << ENABLE_MIN_POINT_SYS2 << " "
+                             << ENABLE_MIN_POINT_SYS3 << " "
+                             << ENABLE_MIN_POINT_SYS4 << " "
+                             << ENABLE_MIN_POINT_SYS5 << std::endl;
+    ofs_resultsmatrix_before << g_mode_fake_data << std::endl;
+    ofs_resultsmatrix_before << min_point[0] << " " << min_point[1] << std::endl;
+    ofs_resultsmatrix_before << min_point_fake_data[0] << " " << min_point_fake_data[1] << std::endl;
+    ofs_resultsmatrix_before << min_point_sys1_l[0] << " " << min_point_sys1_l[1] << std::endl;
+    ofs_resultsmatrix_before << min_point_sys1_h[0] << " " << min_point_sys1_h[1] << std::endl;
+    ofs_resultsmatrix_before << min_point_sys2_l[0] << " " << min_point_sys2_l[1] << std::endl;
+    ofs_resultsmatrix_before << min_point_sys2_h[0] << " " << min_point_sys2_h[1] << std::endl;
+    ofs_resultsmatrix_before << min_point_sys3_l[0] << " " << min_point_sys3_l[1] << std::endl;
+    ofs_resultsmatrix_before << min_point_sys3_h[0] << " " << min_point_sys3_h[1] << std::endl;
+    ofs_resultsmatrix_before << min_point_sys4_l[0] << " " << min_point_sys4_l[1] << std::endl;
+    ofs_resultsmatrix_before << min_point_sys4_h[0] << " " << min_point_sys4_h[1] << std::endl;
+    ofs_resultsmatrix_before << min_point_sys5_l[0] << " " << min_point_sys5_l[1] << std::endl;
+    ofs_resultsmatrix_before << min_point_sys5_h[0] << " " << min_point_sys5_h[1] << std::endl;
+
+    ofs_resultsmatrix_after << ENABLE_MIN_POINT_SYS1 << " "
+                             << ENABLE_MIN_POINT_SYS2 << " "
+                             << ENABLE_MIN_POINT_SYS3 << " "
+                             << ENABLE_MIN_POINT_SYS4 << " "
+                             << ENABLE_MIN_POINT_SYS5 << std::endl;
+    ofs_resultsmatrix_after << g_mode_fake_data << std::endl;
+    ofs_resultsmatrix_after << min_point[0] << " " << min_point[1] << std::endl;
+    ofs_resultsmatrix_after << min_point_fake_data[0] << " " << min_point_fake_data[1] << std::endl;
+    ofs_resultsmatrix_after << min_point_sys1_l[0] << " " << min_point_sys1_l[1] << std::endl;
+    ofs_resultsmatrix_after << min_point_sys1_h[0] << " " << min_point_sys1_h[1] << std::endl;
+    ofs_resultsmatrix_after << min_point_sys2_l[0] << " " << min_point_sys2_l[1] << std::endl;
+    ofs_resultsmatrix_after << min_point_sys2_h[0] << " " << min_point_sys2_h[1] << std::endl;
+    ofs_resultsmatrix_after << min_point_sys3_l[0] << " " << min_point_sys3_l[1] << std::endl;
+    ofs_resultsmatrix_after << min_point_sys3_h[0] << " " << min_point_sys3_h[1] << std::endl;
+    ofs_resultsmatrix_after << min_point_sys4_l[0] << " " << min_point_sys4_l[1] << std::endl;
+    ofs_resultsmatrix_after << min_point_sys4_h[0] << " " << min_point_sys4_h[1] << std::endl;
+    ofs_resultsmatrix_after << min_point_sys5_l[0] << " " << min_point_sys5_l[1] << std::endl;
+    ofs_resultsmatrix_after << min_point_sys5_h[0] << " " << min_point_sys5_h[1] << std::endl;
+
+    // TODO: insert more systematics here
+
+
+
+    // minimum point found for entire mps iteration space
+    // after minuit2 fit
+    double min = std::numeric_limits<double>::infinity();
+    double min_x = -1.0; //-0.085;
+    double min_y = -1.0; //0.87;
+    
+    // minimum point found for entire mps iteration range
+    // before minuit2 fit
+    double min_before = std::numeric_limits<double>::infinity();
+    double min_x_before = -1.0; //-0.085;
+    double min_y_before = -1.0; //0.87;
+
+    if(1)
+    {
+        std::cout << "START_INDEX=" << start_index << " STOP_INDEX=" << stop_index << std::endl;
+        std::cout << "n_param_1=" << n_param_1 << " n_param_2=" << n_param_2 << std::endl;
+
+        // modify parameters
+        //for(int n_1 = 0; n_1 <= n_param_1; ++ n_1)
+        for(int n_1 = 0; n_1 < n_param_1; ++ n_1)
+        {
+
+            std::cout << "n_1=" << n_1 << std::endl;
+
+            if((start_index <= n_1) && (n_1 < stop_index))
+            {
+                // do nothing
+            }
+            else
+            {
+                // managed by another job, skip
+                continue;
+            }
+
+            // TODO: preserve the minuit parameters as we go down in
+            // Y axis
+            // to speed up the fit, start params using previous params
+            // obtained
+            // does this introduce a bias?
+
+            double min_stripe = std::numeric_limits<double>::infinity();
+            double min_stripe_y = 0.0;
+
+            double t_param_1 = (((double)n_1 + 0.5) / (double)n_param_1) * (param_1_max - param_1_min) + param_1_min;
+
+            //for(int n_2 = 0; n_2 <= n_param_2; ++ n_2)
+            for(int n_2 = 0; n_2 < n_param_2; ++ n_2)
+            {
+
+                std::chrono::system_clock::time_point start_time = std::chrono::high_resolution_clock::now();
+
+                double t_param_2 = (((double)n_2 + 0.5) / (double)n_param_2) * (param_2_max - param_2_min) + param_2_min;
+
+                // do this for test with no additional minimization
+                ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
+                ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
+                MinimizeFCNAxialVector theFCN;
+
+                const double Nd150_A_value = t_param_2;
+                const double Nd150_A_error = 0.1;
+                const double xi_31_value = t_param_1;
+                const double xi_31_error = 0.1;
+
+                fitBackgrounds_phasespace_init(
+                    theParameterStateBefore,
+                    theMinimizer,
+                    Nd150_A_value,
+                    Nd150_A_error,
+                    xi_31_value,
+                    xi_31_error);
+                
+                // get initial parameters
+                std::vector<double> params_before = theParameterStateBefore.Params();
+                std::vector<double> param_errs_before = theParameterStateBefore.Errors();
+                double fval_before = theFCN.operator()(params_before);
+
+                // these do not change between before/after
+                int nch = theFCN.nch;
+                int nfp = g_pg.get_number_free_params();
+                int ndf = nch - nfp;
+ 
+                // do minuit2 fit
+                ROOT::Minuit2::FunctionMinimum FCN_min =
+                fitBackgrounds_phasespace_exec(
+                    theParameterStateBefore,
+                    theMinimizer,
+                    theFCN);
+
+                // get best fit parameters
+                ROOT::Minuit2::MnUserParameterState theParameterStateAfter = FCN_min.UserParameters();
+                std::vector<double> params_after = theParameterStateAfter.Params(); // TODO this overwrites params
+                std::vector<double> param_errs_after = theParameterStateAfter.Errors();
+                double fval_after = theFCN.operator()(params_after);
+                
+                // these do not change between before/after
+                nch = theFCN.nch;
+                nfp = g_pg.get_number_free_params();
+                ndf = nch - nfp;
+
+
+                os << "fval_before=" << fval_before << std::endl;
+                //double fval_after = theFCN.operator()(params_after); // TODO: this produces a different result to above?
+                os << "fval_after=" << fval_after << std::endl;
+
+
+                /*
+                if((n_2 == 0) || (n_2 == n_param_2 - 1))
+                {
+                    std::cout << "t_param_1=" << t_param_1
+                              << " t_param_2=" << t_param_2
+                              << " fval_before=" << fval_before
+                              << " fval_after=" << fval_after
+                              << std::endl;
+                }
+                */
+
+
+                //////////////////////////
+                // SET MINIMUM TRACKERS //
+                //////////////////////////
+
+                // min stripe after
+                if(fval_after < min_stripe)
+                {
+                    min_stripe = fval_after;
+                    min_stripe_y = t_param_2;
+                }
+
+                // min after
+                if(fval_after < min)
+                {
+                    min = fval_after;
+                    min_x = t_param_1;
+                    min_y = t_param_2;
+                }
+
+                // min before
+                if(fval_before < min_before)
+                {
+                    min_before = fval_before;
+                    min_x_before = t_param_1;
+                    min_y_before = t_param_2;
+                }
+
+
+                ///////////////////////////////////////////////////////////////
+                // SAVE TO FILE
+                ///////////////////////////////////////////////////////////////
+                // TODO: save min stripe, min, min_before
+
+                ofs_resultsmatrix_before << n_1 << " "
+                                         << n_2 << " "
+                                         << t_param_1 << " "
+                                         << t_param_2 << " "
+                                         << fval_before << " ";
+                ofs_resultsmatrix_before << params_before.size() << " ";
+                for(int pix = 0; pix < params_before.size(); ++ pix)
+                {
+                    ofs_resultsmatrix_before << params_before.at(pix) << " "
+                                             << param_errs_before.at(pix) << " ";
+                }
+                ofs_resultsmatrix_before << std::endl;
+
+                ofs_resultsmatrix_after << n_1 << " "
+                                        << n_2 << " "
+                                        << t_param_1 << " "
+                                        << t_param_2 << " "
+                                        << fval_after << " ";
+                ofs_resultsmatrix_after << params_after.size() << " ";
+                for(int pix = 0; pix < params_after.size(); ++ pix)
+                {
+                    ofs_resultsmatrix_after << params_after.at(pix) << " "
+                                            << param_errs_after.at(pix) << " ";
+                }
+                ofs_resultsmatrix_after << std::endl;
+
+                //std::cout << "n_1=" << n_1 << " n_2=" << n_2 << std::endl;
+                //std::cout << "t_param_1=" << t_param_1 << " t_param_2=" << t_param_2 << std::endl;
+                //std::cout << "fval=" << fval_after << std::endl;
+                //std::cout << std::endl;
+
+                /*
+                std::string mps_output_name_before = "mps_output_singleenergy_before_"
+                                            + std::to_string(bin_ix)
+                                            + "_"
+                                            + std::to_string(bin_iy)
+                                            + ".png";
+                draw(params_before, param_errs_before, fval_before,
+                     number_job_id,
+                     mps_output_name_before,
+                     "mps_output_before",
+                     false, 1);
+                */
+
+                /*
+                std::string mps_output_name_after = "mps_output_singleenergy_after_"
+                                            + std::to_string(bin_ix)
+                                            + "_"
+                                            + std::to_string(bin_iy)
+                                            + ".png";
+                draw(params_after, param_errs_after, fval_after,
+                     number_job_id,
+                     mps_output_name_after,
+                     "mps_output_after",
+                     false, 1);
+                */
+
+                ++ c_param;
+                //std::cout << c_param << " / " << n_param_max << std::endl;
+
+                std::chrono::system_clock::time_point end_time = std::chrono::high_resolution_clock::now();
+                std::chrono::duration<double> runtime_sec = end_time - start_time;
+                //if((n_2 == 0)) || (n_2 == n_param_2 - 1))
+                if(n_2 == 0) // || (n_2 == n_param_2 - 1))
+                {
+                    std::cout << "Exec time: " << runtime_sec.count() << " s (n_2=" << n_2 << ")" << std::endl;
+                }
+
+
+            } // for n_2
+
+            std::cout << c_param << " / " << n_param_max << std::endl;
+            std::cout << "min_stripe=" << min_stripe << " min_stripe_x=" << t_param_1 << " min_stripe_y=" << min_stripe_y << std::endl;
+
+        } // for n_1
+
+    }  // if(1)
+
+    os.close();
+
+    ofs_resultsmatrix_before.close();
+    ofs_resultsmatrix_after.close();
+
+}
+
+
+#endif // NEWLOGLIKFITTER_MPS_CALCULATE_H
