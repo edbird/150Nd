@@ -9,6 +9,9 @@
 void drawmps()
 {
 
+    gStyle->SetPalette(kLightTemperature);
+
+
     bool g_mode_fake_data = true;
     const bool V_ENABLE_SYSALL = true;
 
@@ -117,51 +120,43 @@ void drawmps()
     //param_1_max = 1.0001;
 
 
-    TString h_mps_name_base;
-    if(g_mode_fake_data == true)
+    
+
+
+
+
+
+
+
+
+    std::string output_name_append;
+    if(V_ENABLE_SYSALL == false)
     {
-        h_mps_name_base = "h_mps_fake_data";
+        output_name_append += "_STAT";
+    }
+    else if(V_ENABLE_SYSALL == true)
+    {
+        output_name_append += "_STATSYS";
     }
     if(g_mode_fake_data == false)
     {
-        h_mps_name_base = "h_mps";
+        output_name_append += "_data";
     }
-    TString h_mps_name = h_mps_name_base;
-
-    //std::cout << h_mps_name << " param_1=" << param_1 << " sigma_1=" << sigma_1
-    //                        << " param_1_min=" << param_1_min << " param_1_max=" << param_1_max
-    //                        << " param_2=" << param_2 << " sigma_2=" << sigma_2
-    //                        << " param_2_min=" << param_2_min << " param_2_max=" << param_2_max
-    //                        << std::endl;
-
-    TH2D *h_mps = new TH2D(h_mps_name, h_mps_name,
-                           n_param_1, param_1_min, param_1_max,
-                           n_param_2, param_2_min, param_2_max); 
-    //h_mps_v.push_back(h_mps);
-    //h_mps = nullptr;
-
-    //h_mps->GetZaxis()->SetRangeUser(0.0, 1.0e+04);
-    h_mps->SetContour(1000);
-    
-    //TString param_1_name_str = TString(paramNameMap[param_1_ix_external]);
-    //TString param_2_name_str = TString(paramNameMap[param_2_ix_external]);
-
-    //h_mps->GetXaxis()->SetTitle(param_1_name_str);
-    //h_mps->GetYaxis()->SetTitle(param_2_name_str);
-    h_mps->GetXaxis()->SetTitle("^{150}Nd Amplitude Scale Factor");
-    h_mps->GetYaxis()->SetTitle("#xi_{31}^{2#nu#beta#beta}");
-
-    // reset params array
-    // now code moved to new function, simply use new variables (local)
-    //std::vector<double> params = theParameterState.Params();
-    //std::vector<double> param_errs = theParameterState.Errors();
+    else if(g_mode_fake_data == true)
+    {
+        output_name_append += "_fake";
+    }
 
 
 
-    double min = std::numeric_limits<double>::infinity();
-    double min_x = -1.0; //-0.085;
-    double min_y = -1.0; //0.87;
-    
+
+#if 0
+    ///////////////////////////////////////////////////////////////////////////
+    // c_mps_before
+    ///////////////////////////////////////////////////////////////////////////
+
+
+
     double min_before = std::numeric_limits<double>::infinity();
     double min_x_before = -1.0; //-0.085;
     double min_y_before = -1.0; //0.87;
@@ -193,60 +188,22 @@ void drawmps()
     h_mps_before->GetXaxis()->SetTitle("^{150}Nd Amplitude Scale Factor");
     h_mps_before->GetYaxis()->SetTitle("#xi_{31}^{2#nu#beta#beta}");
 
-
-
-
-
-
-
-
-    std::string output_name_append;
-    if(V_ENABLE_SYSALL == false)
-    {
-        output_name_append += "_STAT";
-    }
-    else if(V_ENABLE_SYSALL == true)
-    {
-        output_name_append += "_STATSYS";
-    }
-    if(g_mode_fake_data == false)
-    {
-        output_name_append += "_data";
-    }
-    else if(g_mode_fake_data == true)
-    {
-        output_name_append += "_fake";
-    }
-
     std::string ofs_resultsmatrix_before_fname =
         output_name + output_name_append + "_before" + "_"
         + "JID" + std::to_string(number_job_id)
         + ".txt";
 
-    //"mps_resultsmatrix_after"
-    std::string ofs_resultsmatrix_after_fname =
-        output_name + output_name_append + "_after" + "_"
-        + "JID" + std::to_string(number_job_id)
-        + ".txt";
-
     std::ifstream ofs_resultsmatrix_before(ofs_resultsmatrix_before_fname);
-    std::ifstream ofs_resultsmatrix_after(ofs_resultsmatrix_after_fname);
-    
+
     if(!ofs_resultsmatrix_before.is_open())
     {
         std::cout << "Error: could not open " << ofs_resultsmatrix_before_fname << std::endl;
-        return -1;
-    }
-    if(!ofs_resultsmatrix_after.is_open())
-    {
-        std::cout << "Error: could not open " << ofs_resultsmatrix_after_fname << std::endl;
         return -1;
     }
 
     std::cout << "*****************************************************" << std::endl;
     std::cout << "*****************************************************" << std::endl;
     std::cout << "reading data from " << ofs_resultsmatrix_before_fname << std::endl;
-    std::cout << "reading data from " << ofs_resultsmatrix_after_fname << std::endl;
     std::cout << "*****************************************************" << std::endl;
     std::cout << "*****************************************************" << std::endl;
 
@@ -359,12 +316,92 @@ void drawmps()
     }
     std::cout << "min_stripe=" << min_stripe << " min_stripe_x=" << t_param_1 << " min_stripe_y=" << min_stripe_y << std::endl;
     std::cout << "read: " << ofs_resultsmatrix_before_fname << " -> done" << std::endl;
+#endif
+
+
+
+
+
+
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // c_mps_after
+    ///////////////////////////////////////////////////////////////////////////
 
 
 
     ///////////////////////////////////////////////////////////////////////////
     // read "after"
     ///////////////////////////////////////////////////////////////////////////
+
+    TString h_mps_name_base;
+    if(g_mode_fake_data == true)
+    {
+        h_mps_name_base = "h_mps_fake_data";
+    }
+    if(g_mode_fake_data == false)
+    {
+        h_mps_name_base = "h_mps";
+    }
+    TString h_mps_name = h_mps_name_base;
+
+    //std::cout << h_mps_name << " param_1=" << param_1 << " sigma_1=" << sigma_1
+    //                        << " param_1_min=" << param_1_min << " param_1_max=" << param_1_max
+    //                        << " param_2=" << param_2 << " sigma_2=" << sigma_2
+    //                        << " param_2_min=" << param_2_min << " param_2_max=" << param_2_max
+    //                        << std::endl;
+
+    TH2D *h_mps = new TH2D(h_mps_name, h_mps_name,
+                           n_param_1, param_1_min, param_1_max,
+                           n_param_2, param_2_min, param_2_max); 
+    //h_mps_v.push_back(h_mps);
+    //h_mps = nullptr;
+
+    //h_mps->GetZaxis()->SetRangeUser(0.0, 1.0e+04);
+    h_mps->SetContour(1000);
+    
+    //TString param_1_name_str = TString(paramNameMap[param_1_ix_external]);
+    //TString param_2_name_str = TString(paramNameMap[param_2_ix_external]);
+
+    //h_mps->GetXaxis()->SetTitle(param_1_name_str);
+    //h_mps->GetYaxis()->SetTitle(param_2_name_str);
+    h_mps->GetXaxis()->SetTitle("^{150}Nd Amplitude Scale Factor");
+    h_mps->GetYaxis()->SetTitle("#xi_{31}^{2#nu#beta#beta}");
+
+    // reset params array
+    // now code moved to new function, simply use new variables (local)
+    //std::vector<double> params = theParameterState.Params();
+    //std::vector<double> param_errs = theParameterState.Errors();
+
+
+
+    double min = std::numeric_limits<double>::infinity();
+    double min_x = -1.0; //-0.085;
+    double min_y = -1.0; //0.87;
+
+
+
+    if(!ofs_resultsmatrix_after.is_open())
+    {
+        std::cout << "Error: could not open " << ofs_resultsmatrix_after_fname << std::endl;
+        return -1;
+    }
+
+    //"mps_resultsmatrix_after"
+    std::string ofs_resultsmatrix_after_fname =
+        output_name + output_name_append + "_after" + "_"
+        + "JID" + std::to_string(number_job_id)
+        + ".txt";
+
+    std::ifstream ofs_resultsmatrix_after(ofs_resultsmatrix_after_fname);
+    
+    std::cout << "*****************************************************" << std::endl;
+    std::cout << "*****************************************************" << std::endl;
+    std::cout << "reading data from " << ofs_resultsmatrix_after_fname << std::endl;
+    std::cout << "*****************************************************" << std::endl;
+    std::cout << "*****************************************************" << std::endl;
+
 
     line_count = 1;
     n_1_last = -1;
@@ -485,6 +522,7 @@ void drawmps()
         //c_mps = nullptr;
         //c_mps->cd();
         h_mps->SetTitle("");
+        h_mps->SetStats(0);
         h_mps->GetZaxis()->SetLabelOffset(0.005);
         h_mps->GetXaxis()->SetLabelSize(17.0);
         h_mps->GetXaxis()->SetLabelFont(43);
@@ -511,6 +549,7 @@ void drawmps()
         double clevels[3] = {min + 2.30, min + 4.61, min + 9.21};
         //double clevels[3] = {2.30, 4.61, 9.21}; // true minimum is 0.0 for HSD
         h_mps_contour->SetLineColor(kBlack);
+//        h_mps_contour->SetLineStyle(0); did not fix problem
         h_mps_contour->SetContour(3, clevels);
 
         c_mps->Update();
@@ -626,6 +665,7 @@ void drawmps()
     }
 
 
+#if 0
     ///////////////////////////////////////////////////////////////////
     // c_mps_before
     ///////////////////////////////////////////////////////////////////
@@ -751,7 +791,7 @@ void drawmps()
         c_mps_before->SaveAs(c_fname_before_pdf);
         //h_mps_before = nullptr;
     }
-
+#endif
 
     ///////////////////////////////////////////////////////////////////////////
     // draw the minimum and draw the point (0,1)

@@ -872,6 +872,7 @@ void newloglikfitter_testmyphasespace_newversion(
         //c_mps = nullptr;
         //c_mps->cd();
         h_mps->SetTitle("");
+        h_mps->SetStats(0);
         h_mps->GetZaxis()->SetLabelOffset(0.005);
         h_mps->GetXaxis()->SetLabelSize(17.0);
         h_mps->GetXaxis()->SetLabelFont(43);
@@ -898,6 +899,7 @@ void newloglikfitter_testmyphasespace_newversion(
         double clevels[3] = {min + 2.30, min + 4.61, min + 9.21};
         //double clevels[3] = {2.30, 4.61, 9.21}; // true minimum is 0.0 for HSD
         h_mps_contour->SetLineColor(kBlack);
+//        h_mps_contour->SetLineStyle(0); // in drawmps.C but not used
         h_mps_contour->SetContour(3, clevels);
 
         c_mps->Update();
