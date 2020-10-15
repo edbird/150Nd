@@ -67,6 +67,9 @@
 #include "newLogLikFitter_rebuild_150Nd_fakedata.h"
 #include "MinimizeFCNAxialVector.h"
 #include "newLogLikFitter_fitBackgrounds.h"
+#include "newLogLikFitter_mps_aux.h"
+#include "newLogLikFitter_mps_draw.h"
+#include "newLogLikFitter_mps_calculate.h"
 #include "newLogLikFitter_chisquaretest.h"
 #include "newLogLikFitter_test.h"
 #include "newLogLikFitter_preMPSfitdriver.h"
@@ -2048,7 +2051,7 @@ void loadFiles(int i)
     ///////////////////////////////////////////////////////////////////////////
 
     // do not do this in parallel mode
-    if(1 && true) // || (MODE_PARALLEL == 0))
+    if(1 && false) // || (MODE_PARALLEL == 0))
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
@@ -2273,7 +2276,7 @@ void loadFiles(int i)
 
 
 
-    const bool ENABLE_MIN_POINT_FIT = true;
+    const bool ENABLE_MIN_POINT_FIT = false;
 
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit
@@ -2824,7 +2827,14 @@ void loadFiles(int i)
         std::cout << "stop_index=" << stop_index << std::endl;
         //std::cin.get();
         //newloglikfitter_testmyphasespace(theParameterState, theFCN); //, FCN_min);
-        newloglikfitter_testmyphasespace_newversion(number_job_id, output_name, start_index, stop_index);
+        //newloglikfitter_testmyphasespace_newversion(number_job_id, output_name, start_index, stop_index);
+
+        std::cout << "calling calculate" << std::endl;
+        newloglikfitter_mps_calculate(number_job_id, output_name, start_index, stop_index);
+        std::cout << "calling draw" << std::endl;
+        newloglikfitter_mps_draw(number_job_id, output_name, start_index, stop_index);
+        
+
         std::cout << "MPS done" << std::endl;
     }
    

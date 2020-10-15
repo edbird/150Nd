@@ -9,6 +9,7 @@
 void drawmps()
 {
 
+    gStyle->SetGridStyle(0);
     gStyle->SetPalette(kLightTemperature);
 
 
@@ -150,173 +151,172 @@ void drawmps()
 
 
 
-#if 0
     ///////////////////////////////////////////////////////////////////////////
     // c_mps_before
     ///////////////////////////////////////////////////////////////////////////
 
-
-
     double min_before = std::numeric_limits<double>::infinity();
     double min_x_before = -1.0; //-0.085;
     double min_y_before = -1.0; //0.87;
-
-
-
-    TString h_mps_name_base_before;
-    if(g_mode_fake_data == true)
+    TH2D *h_mps_before = nullptr;
     {
-        h_mps_name_base_before = "h_mps_fake_data_before";
-    }
-    if(g_mode_fake_data == false)
-    {
-        h_mps_name_base_before = "h_mps_before";
-    }
-    TString h_mps_name_before = h_mps_name_base_before;
-
-    TH2D *h_mps_before = new TH2D(h_mps_name_before, h_mps_name_before,
-                           n_param_1, param_1_min, param_1_max,
-                           n_param_2, param_2_min, param_2_max); 
-
-    h_mps_before->SetContour(1000);
-    
-    //TString param_1_name_str = TString(paramNameMap[param_1_ix_external]);
-    //TString param_2_name_str = TString(paramNameMap[param_2_ix_external]);
-
-    //h_mps_before->GetXaxis()->SetTitle(param_1_name_str);
-    //h_mps_before->GetYaxis()->SetTitle(param_2_name_str);
-    h_mps_before->GetXaxis()->SetTitle("^{150}Nd Amplitude Scale Factor");
-    h_mps_before->GetYaxis()->SetTitle("#xi_{31}^{2#nu#beta#beta}");
-
-    std::string ofs_resultsmatrix_before_fname =
-        output_name + output_name_append + "_before" + "_"
-        + "JID" + std::to_string(number_job_id)
-        + ".txt";
-
-    std::ifstream ofs_resultsmatrix_before(ofs_resultsmatrix_before_fname);
-
-    if(!ofs_resultsmatrix_before.is_open())
-    {
-        std::cout << "Error: could not open " << ofs_resultsmatrix_before_fname << std::endl;
-        return -1;
-    }
-
-    std::cout << "*****************************************************" << std::endl;
-    std::cout << "*****************************************************" << std::endl;
-    std::cout << "reading data from " << ofs_resultsmatrix_before_fname << std::endl;
-    std::cout << "*****************************************************" << std::endl;
-    std::cout << "*****************************************************" << std::endl;
 
 
-//    double min = 0.0;
-//    min = std::numeric_limits<double>::infinity();
 
-    double min_stripe = std::numeric_limits<double>::infinity();
-    double min_stripe_y = 0.0;
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // read "before"
-    ///////////////////////////////////////////////////////////////////////////
-
-    std::size_t line_count = 1;
-    int n_1_last = -1;
-    int n_2_last = -1;
-    double t_param_1, t_param_2;
-    while(!ofs_resultsmatrix_before.eof())
-    {
-    //std::cin.get();
-        std::stringstream ss;
-        std::string s;
-        std::getline(ofs_resultsmatrix_before, s);
-        ++ line_count;
-
-        ss << s;
-
-        int n_1, n_2;
-        /*double t_param_1, t_param_2;*/
-        double fval_before;
-        std::vector<double> params_before;
-        std::vector<double> param_errs_before;
-
-        ss >> n_1 >> n_2;
-        ss >> t_param_1 >> t_param_2;
-        ss >> fval_before;
-        //std::cout << "n_1=" << n_1 << " n_2=" << n_2 << std::endl;
-        //std::cout << "t_param_1=" << t_param_1 << " t_param_2=" << t_param_2 << std::endl;
-        //std::cout << "fval_before=" << fval_before << std::endl;
-        for(;;)
+        TString h_mps_name_base_before;
+        if(g_mode_fake_data == true)
         {
-            try
+            h_mps_name_base_before = "h_mps_fake_data_before";
+        }
+        if(g_mode_fake_data == false)
+        {
+            h_mps_name_base_before = "h_mps_before";
+        }
+        TString h_mps_name_before = h_mps_name_base_before;
+
+        h_mps_before = new TH2D(h_mps_name_before, h_mps_name_before,
+                               n_param_1, param_1_min, param_1_max,
+                               n_param_2, param_2_min, param_2_max); 
+
+        h_mps_before->SetContour(1000);
+        
+        //TString param_1_name_str = TString(paramNameMap[param_1_ix_external]);
+        //TString param_2_name_str = TString(paramNameMap[param_2_ix_external]);
+
+        //h_mps_before->GetXaxis()->SetTitle(param_1_name_str);
+        //h_mps_before->GetYaxis()->SetTitle(param_2_name_str);
+        h_mps_before->GetXaxis()->SetTitle("^{150}Nd Amplitude Scale Factor");
+        h_mps_before->GetYaxis()->SetTitle("#xi_{31}^{2#nu#beta#beta}");
+
+        std::string ofs_resultsmatrix_before_fname =
+            output_name + output_name_append + "_before" + "_"
+            + "JID" + std::to_string(number_job_id)
+            + ".txt";
+
+        std::ifstream ofs_resultsmatrix_before(ofs_resultsmatrix_before_fname);
+
+        if(!ofs_resultsmatrix_before.is_open())
+        {
+            std::cout << "Error: could not open " << ofs_resultsmatrix_before_fname << std::endl;
+            return -1;
+        }
+
+        std::cout << "*****************************************************" << std::endl;
+        std::cout << "*****************************************************" << std::endl;
+        std::cout << "reading data from " << ofs_resultsmatrix_before_fname << std::endl;
+        std::cout << "*****************************************************" << std::endl;
+        std::cout << "*****************************************************" << std::endl;
+
+
+    //    double min = 0.0;
+    //    min = std::numeric_limits<double>::infinity();
+
+        double min_stripe = std::numeric_limits<double>::infinity();
+        double min_stripe_y = 0.0;
+
+
+        ///////////////////////////////////////////////////////////////////////////
+        // read "before"
+        ///////////////////////////////////////////////////////////////////////////
+
+        std::size_t line_count = 1;
+        int n_1_last = -1;
+        int n_2_last = -1;
+        double t_param_1, t_param_2;
+        while(!ofs_resultsmatrix_before.eof())
+        {
+        //std::cin.get();
+            std::stringstream ss;
+            std::string s;
+            std::getline(ofs_resultsmatrix_before, s);
+            ++ line_count;
+
+            ss << s;
+
+            int n_1, n_2;
+            /*double t_param_1, t_param_2;*/
+            double fval_before;
+            std::vector<double> params_before;
+            std::vector<double> param_errs_before;
+
+            ss >> n_1 >> n_2;
+            ss >> t_param_1 >> t_param_2;
+            ss >> fval_before;
+            //std::cout << "n_1=" << n_1 << " n_2=" << n_2 << std::endl;
+            //std::cout << "t_param_1=" << t_param_1 << " t_param_2=" << t_param_2 << std::endl;
+            //std::cout << "fval_before=" << fval_before << std::endl;
+            for(;;)
             {
-                if(ss.peek() == std::char_traits<wchar_t>::eof())
+                try
+                {
+                    if(ss.peek() == std::char_traits<wchar_t>::eof())
+                    {
+                        break;
+                    }
+                    double tmp1, tmp2;
+                    ss >> tmp1 >> tmp2;
+                    params_before.push_back(tmp1);
+                    param_errs_before.push_back(tmp2);
+                }
+                catch(...)
                 {
                     break;
                 }
-                double tmp1, tmp2;
-                ss >> tmp1 >> tmp2;
-                params_before.push_back(tmp1);
-                param_errs_before.push_back(tmp2);
             }
-            catch(...)
+            //std::cout << "line: " << line_count << " params_before.size()=" << params_before.size() << " param_errs_before.size()=" << param_errs_before.size() << std::endl;
+
+            // This detects n_1 changing (loop of outer for loop)
+            if(n_1 != n_1_last)
             {
-                break;
-            }
-        }
-        //std::cout << "line: " << line_count << " params_before.size()=" << params_before.size() << " param_errs_before.size()=" << param_errs_before.size() << std::endl;
+                if(n_1_last != -1)
+                {
+                    std::cout << "min_stripe=" << min_stripe << " min_stripe_x=" << t_param_1 << " min_stripe_y=" << min_stripe_y << std::endl;
 
-        // This detects n_1 changing (loop of outer for loop)
-        if(n_1 != n_1_last)
-        {
-            if(n_1_last != -1)
+                    min_stripe = std::numeric_limits<double>::infinity();
+                    min_stripe_y = 0.0;
+                }
+
+                n_1_last = n_1;
+            }
+
+            if(n_2 != n_2_last)
             {
-                std::cout << "min_stripe=" << min_stripe << " min_stripe_x=" << t_param_1 << " min_stripe_y=" << min_stripe_y << std::endl;
 
-                min_stripe = std::numeric_limits<double>::infinity();
-                min_stripe_y = 0.0;
+                n_2_last = n_2;
             }
 
-            n_1_last = n_1;
+            int bin_ix = h_mps_before->GetNbinsX() - n_1;
+            //std::cout << "bin_ix=" << bin_ix << std::endl;
+            //std::cout << "t_param_1=" << t_param_1 << std::endl;
+            //std::cout << "bin center: " << h_mps_before->GetXaxis()->GetBinCenter(bin_ix) << std::endl;
+
+            int bin_iy = h_mps_before->GetNbinsY() - n_2;
+            //std::cout << "bin_iy=" << bin_iy << std::endl;
+            //std::cout << "t_param_2=" << t_param_2 << std::endl;
+            //std::cout << "bin center: " << h_mps_before->GetYaxis()->GetBinCenter(bin_iy) << std::endl;
+
+
+            if(fval_before < min_stripe)
+            {
+                min_stripe = fval_before;
+                min_stripe_y = t_param_2;
+            }
+
+            if(fval_before < min_before)
+            {
+                min_before = fval_before;
+                min_x_before = t_param_1;
+                min_y_before = t_param_2;
+            }
+
+            std::cout << "ix=" << bin_ix << " iy=" << bin_iy << " fval=" << fval_before << std::endl;
+            h_mps_before->SetBinContent(bin_ix, bin_iy, fval_before);
+
+            ++ line_count;
         }
-
-        if(n_2 != n_2_last)
-        {
-
-            n_2_last = n_2;
-        }
-
-        int bin_ix = h_mps_before->GetNbinsX() - n_1;
-        //std::cout << "bin_ix=" << bin_ix << std::endl;
-        //std::cout << "t_param_1=" << t_param_1 << std::endl;
-        //std::cout << "bin center: " << h_mps_before->GetXaxis()->GetBinCenter(bin_ix) << std::endl;
-
-        int bin_iy = h_mps_before->GetNbinsY() - n_2;
-        //std::cout << "bin_iy=" << bin_iy << std::endl;
-        //std::cout << "t_param_2=" << t_param_2 << std::endl;
-        //std::cout << "bin center: " << h_mps_before->GetYaxis()->GetBinCenter(bin_iy) << std::endl;
-
-
-        if(fval_before < min_stripe)
-        {
-            min_stripe = fval_before;
-            min_stripe_y = t_param_2;
-        }
-
-        if(fval_before < min_before)
-        {
-            min_before = fval_before;
-            min_x_before = t_param_1;
-            min_y_before = t_param_2;
-        }
-
-        std::cout << "ix=" << bin_ix << " iy=" << bin_iy << " fval=" << fval_before << std::endl;
-        h_mps_before->SetBinContent(bin_ix, bin_iy, fval_before);
-
-        ++ line_count;
+        std::cout << "min_stripe=" << min_stripe << " min_stripe_x=" << t_param_1 << " min_stripe_y=" << min_stripe_y << std::endl;
+        std::cout << "read: " << ofs_resultsmatrix_before_fname << " -> done" << std::endl;
     }
-    std::cout << "min_stripe=" << min_stripe << " min_stripe_x=" << t_param_1 << " min_stripe_y=" << min_stripe_y << std::endl;
-    std::cout << "read: " << ofs_resultsmatrix_before_fname << " -> done" << std::endl;
-#endif
 
 
 
@@ -329,170 +329,168 @@ void drawmps()
     // c_mps_after
     ///////////////////////////////////////////////////////////////////////////
 
-    TString h_mps_name_base;
-    if(g_mode_fake_data == true)
-    {
-        h_mps_name_base = "h_mps_fake_data";
-    }
-    if(g_mode_fake_data == false)
-    {
-        h_mps_name_base = "h_mps";
-    }
-    TString h_mps_name = h_mps_name_base;
-
-    //std::cout << h_mps_name << " param_1=" << param_1 << " sigma_1=" << sigma_1
-    //                        << " param_1_min=" << param_1_min << " param_1_max=" << param_1_max
-    //                        << " param_2=" << param_2 << " sigma_2=" << sigma_2
-    //                        << " param_2_min=" << param_2_min << " param_2_max=" << param_2_max
-    //                        << std::endl;
-
-    TH2D *h_mps = new TH2D(h_mps_name, h_mps_name,
-                           n_param_1, param_1_min, param_1_max,
-                           n_param_2, param_2_min, param_2_max); 
-    //h_mps_v.push_back(h_mps);
-    //h_mps = nullptr;
-
-    //h_mps->GetZaxis()->SetRangeUser(0.0, 1.0e+04);
-    h_mps->SetContour(1000);
-    
-    //TString param_1_name_str = TString(paramNameMap[param_1_ix_external]);
-    //TString param_2_name_str = TString(paramNameMap[param_2_ix_external]);
-
-    //h_mps->GetXaxis()->SetTitle(param_1_name_str);
-    //h_mps->GetYaxis()->SetTitle(param_2_name_str);
-    h_mps->GetXaxis()->SetTitle("^{150}Nd Amplitude Scale Factor");
-    h_mps->GetYaxis()->SetTitle("#xi_{31}^{2#nu#beta#beta}");
-
-    // reset params array
-    // now code moved to new function, simply use new variables (local)
-    //std::vector<double> params = theParameterState.Params();
-    //std::vector<double> param_errs = theParameterState.Errors();
-
-
-
     double min = std::numeric_limits<double>::infinity();
     double min_x = -1.0; //-0.085;
     double min_y = -1.0; //0.87;
-
-
-
-
-    //"mps_resultsmatrix_after"
-    std::string ofs_resultsmatrix_after_fname =
-        output_name + output_name_append + "_after" + "_"
-        + "JID" + std::to_string(number_job_id)
-        + ".txt";
-
-    std::ifstream ofs_resultsmatrix_after(ofs_resultsmatrix_after_fname);
-
-    if(!ofs_resultsmatrix_after.is_open())
+    TH2D *h_mps = nullptr;
     {
-        std::cout << "Error: could not open " << ofs_resultsmatrix_after_fname << std::endl;
-        return -1;
-    }
-
-    double min_stripe = std::numeric_limits<double>::infinity();
-    double min_stripe_y = 0.0;
-
-    ///////////////////////////////////////////////////////////////////////////
-    // read "after"
-    ///////////////////////////////////////////////////////////////////////////
-    
-    std::cout << "*****************************************************" << std::endl;
-    std::cout << "*****************************************************" << std::endl;
-    std::cout << "reading data from " << ofs_resultsmatrix_after_fname << std::endl;
-    std::cout << "*****************************************************" << std::endl;
-    std::cout << "*****************************************************" << std::endl;
-
-
-    std::size_t line_count = 1;
-    int n_1_last = -1;
-    int n_2_last = -1;
-    double t_param_1, t_param_2;
-    while(!ofs_resultsmatrix_after.eof())
-    {
-        
-        std::stringstream ss;
-        std::string s;
-        std::getline(ofs_resultsmatrix_after, s);
-        ++ line_count;
-
-        ss << s;
-
-        int n_1, n_2;
-        /*double t_param_1, t_param_2;*/
-        double fval_after;
-        std::vector<double> params_after;
-        std::vector<double> param_errs_after;
-
-        ss >> n_1 >> n_2;
-        ss >> t_param_1 >> t_param_2;
-        ss >> fval_after;
-        for(;;)
+        TString h_mps_name_base;
+        if(g_mode_fake_data == true)
         {
-            try
+            h_mps_name_base = "h_mps_fake_data";
+        }
+        if(g_mode_fake_data == false)
+        {
+            h_mps_name_base = "h_mps";
+        }
+        TString h_mps_name = h_mps_name_base;
+
+        //std::cout << h_mps_name << " param_1=" << param_1 << " sigma_1=" << sigma_1
+        //                        << " param_1_min=" << param_1_min << " param_1_max=" << param_1_max
+        //                        << " param_2=" << param_2 << " sigma_2=" << sigma_2
+        //                        << " param_2_min=" << param_2_min << " param_2_max=" << param_2_max
+        //                        << std::endl;
+
+        h_mps = new TH2D(h_mps_name, h_mps_name,
+                               n_param_1, param_1_min, param_1_max,
+                               n_param_2, param_2_min, param_2_max); 
+        //h_mps_v.push_back(h_mps);
+        //h_mps = nullptr;
+
+        //h_mps->GetZaxis()->SetRangeUser(0.0, 1.0e+04);
+        h_mps->SetContour(1000);
+        
+        //TString param_1_name_str = TString(paramNameMap[param_1_ix_external]);
+        //TString param_2_name_str = TString(paramNameMap[param_2_ix_external]);
+
+        //h_mps->GetXaxis()->SetTitle(param_1_name_str);
+        //h_mps->GetYaxis()->SetTitle(param_2_name_str);
+        h_mps->GetXaxis()->SetTitle("^{150}Nd Amplitude Scale Factor");
+        h_mps->GetYaxis()->SetTitle("#xi_{31}^{2#nu#beta#beta}");
+
+        // reset params array
+        // now code moved to new function, simply use new variables (local)
+        //std::vector<double> params = theParameterState.Params();
+        //std::vector<double> param_errs = theParameterState.Errors();
+
+
+        //"mps_resultsmatrix_after"
+        std::string ofs_resultsmatrix_after_fname =
+            output_name + output_name_append + "_after" + "_"
+            + "JID" + std::to_string(number_job_id)
+            + ".txt";
+
+        std::ifstream ofs_resultsmatrix_after(ofs_resultsmatrix_after_fname);
+
+        if(!ofs_resultsmatrix_after.is_open())
+        {
+            std::cout << "Error: could not open " << ofs_resultsmatrix_after_fname << std::endl;
+            return -1;
+        }
+
+        double min_stripe = std::numeric_limits<double>::infinity();
+        double min_stripe_y = 0.0;
+
+        ///////////////////////////////////////////////////////////////////////////
+        // read "after"
+        ///////////////////////////////////////////////////////////////////////////
+        
+        std::cout << "*****************************************************" << std::endl;
+        std::cout << "*****************************************************" << std::endl;
+        std::cout << "reading data from " << ofs_resultsmatrix_after_fname << std::endl;
+        std::cout << "*****************************************************" << std::endl;
+        std::cout << "*****************************************************" << std::endl;
+
+
+        std::size_t line_count = 1;
+        int n_1_last = -1;
+        int n_2_last = -1;
+        double t_param_1, t_param_2;
+        while(!ofs_resultsmatrix_after.eof())
+        {
+            
+            std::stringstream ss;
+            std::string s;
+            std::getline(ofs_resultsmatrix_after, s);
+            ++ line_count;
+
+            ss << s;
+
+            int n_1, n_2;
+            /*double t_param_1, t_param_2;*/
+            double fval_after;
+            std::vector<double> params_after;
+            std::vector<double> param_errs_after;
+
+            ss >> n_1 >> n_2;
+            ss >> t_param_1 >> t_param_2;
+            ss >> fval_after;
+            for(;;)
             {
-                if(ss.peek() == std::char_traits<wchar_t>::eof())
+                try
+                {
+                    if(ss.peek() == std::char_traits<wchar_t>::eof())
+                    {
+                        break;
+                    }
+                    double tmp1, tmp2;
+                    ss >> tmp1 >> tmp2;
+                    params_after.push_back(tmp1);
+                    param_errs_after.push_back(tmp2);
+                }
+                catch(...)
                 {
                     break;
                 }
-                double tmp1, tmp2;
-                ss >> tmp1 >> tmp2;
-                params_after.push_back(tmp1);
-                param_errs_after.push_back(tmp2);
             }
-            catch(...)
+            std::cout << "line: " << line_count << " params_after.size()=" << params_after.size() << " param_errs_after.size()=" << param_errs_after.size() << std::endl;
+
+            // This detects n_1 changing (loop of outer for loop)
+            if(n_1 != n_1_last)
             {
-                break;
+                std::cout << "min_stripe=" << min_stripe << " min_stripe_x=" << t_param_1 << " min_stripe_y=" << min_stripe_y << std::endl;
+
+                min_stripe = std::numeric_limits<double>::infinity();
+                min_stripe_y = 0.0;
+                n_1_last = n_1;
             }
+
+            if(n_2 != n_2_last)
+            {
+
+                n_2_last = n_2;
+            }
+
+            int bin_ix = h_mps->GetNbinsX() - n_1;
+            std::cout << "bin_ix=" << bin_ix << std::endl;
+            std::cout << "t_param_1=" << t_param_1 << std::endl;
+            std::cout << "bin center: " << h_mps->GetXaxis()->GetBinCenter(bin_ix) << std::endl;
+
+            int bin_iy = h_mps->GetNbinsY() - n_2;
+            std::cout << "bin_iy=" << bin_iy << std::endl;
+            std::cout << "t_param_2=" << t_param_2 << std::endl;
+            std::cout << "bin center: " << h_mps->GetYaxis()->GetBinCenter(bin_iy) << std::endl;
+
+
+            if(fval_after < min_stripe)
+            {
+                min_stripe = fval_after;
+                min_stripe_y = t_param_2;
+            }
+            
+            if(fval_after < min)
+            {
+                min = fval_after;
+                min_x = t_param_1;
+                min_y = t_param_2;
+            }
+           
+            h_mps->SetBinContent(bin_ix, bin_iy, fval_after);
+
+            ++ line_count;
         }
-        std::cout << "line: " << line_count << " params_after.size()=" << params_after.size() << " param_errs_after.size()=" << param_errs_after.size() << std::endl;
-
-        // This detects n_1 changing (loop of outer for loop)
-        if(n_1 != n_1_last)
-        {
-            std::cout << "min_stripe=" << min_stripe << " min_stripe_x=" << t_param_1 << " min_stripe_y=" << min_stripe_y << std::endl;
-
-            min_stripe = std::numeric_limits<double>::infinity();
-            min_stripe_y = 0.0;
-            n_1_last = n_1;
-        }
-
-        if(n_2 != n_2_last)
-        {
-
-            n_2_last = n_2;
-        }
-
-        int bin_ix = h_mps->GetNbinsX() - n_1;
-        std::cout << "bin_ix=" << bin_ix << std::endl;
-        std::cout << "t_param_1=" << t_param_1 << std::endl;
-        std::cout << "bin center: " << h_mps->GetXaxis()->GetBinCenter(bin_ix) << std::endl;
-
-        int bin_iy = h_mps->GetNbinsY() - n_2;
-        std::cout << "bin_iy=" << bin_iy << std::endl;
-        std::cout << "t_param_2=" << t_param_2 << std::endl;
-        std::cout << "bin center: " << h_mps->GetYaxis()->GetBinCenter(bin_iy) << std::endl;
-
-
-        if(fval_after < min_stripe)
-        {
-            min_stripe = fval_after;
-            min_stripe_y = t_param_2;
-        }
-        
-        if(fval_after < min)
-        {
-            min = fval_after;
-            min_x = t_param_1;
-            min_y = t_param_2;
-        }
-       
-        h_mps->SetBinContent(bin_ix, bin_iy, fval_after);
-
-        ++ line_count;
+        std::cout << "read: " << ofs_resultsmatrix_after_fname << " -> done" << std::endl;
     }
-    std::cout << "read: " << ofs_resultsmatrix_after_fname << " -> done" << std::endl;
 
 
 
@@ -650,7 +648,8 @@ void drawmps()
         }
         */
 
-        h_mps_contour->Draw("cont2same");
+        h_mps_contour->SetLineStyle(0);
+        h_mps_contour->Draw("cont3same");
         //TString c_fname_png = c_mps_name + datetimestamp_TString + ".png";
         //TString c_fname_pdf = c_mps_name + datetimestamp_TString + ".pdf";
         TString c_fname = c_mps_name + "_"
@@ -668,7 +667,6 @@ void drawmps()
     }
 
 
-#if 0
     ///////////////////////////////////////////////////////////////////
     // c_mps_before
     ///////////////////////////////////////////////////////////////////
@@ -687,6 +685,7 @@ void drawmps()
         //c_mps_before = nullptr;
         //c_mps_before->cd();
         h_mps_before->SetTitle("");
+        h_mps_before->SetStats(0);
         h_mps_before->GetZaxis()->SetLabelOffset(0.005);
         h_mps_before->GetXaxis()->SetLabelSize(17.0);
         h_mps_before->GetXaxis()->SetLabelFont(43);
@@ -778,7 +777,7 @@ void drawmps()
         }
         */
 
-        h_mps_contour_before->Draw("cont2same");
+        h_mps_contour_before->Draw("cont3same");
         //TString c_fname_before_png = c_mps_name_before + datetimestamp_TString + ".png";
         //TString c_fname_before_pdf = c_mps_name_before + datetimestamp_TString + ".pdf";
         TString c_fname_before = c_mps_name_before + "_"
@@ -794,7 +793,6 @@ void drawmps()
         c_mps_before->SaveAs(c_fname_before_pdf);
         //h_mps_before = nullptr;
     }
-#endif
 
     ///////////////////////////////////////////////////////////////////////////
     // draw the minimum and draw the point (0,1)

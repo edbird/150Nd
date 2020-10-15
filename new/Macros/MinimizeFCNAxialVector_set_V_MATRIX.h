@@ -181,10 +181,13 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                 TH2D *draw_V_PHYS_SYS4_P1 = nullptr;
                 TH2D *draw_V_PHYS_SYS5_P1 = nullptr;
                 TH2D *draw_V_PHYS_SYSALL_P1 = nullptr;
+                /*
                 TH2D *draw_V_PHYS_DmMSYSALL_P1 = nullptr;
                 TH2D *draw_V_PHYS_SYSALLDmM_P1 = nullptr;
+                TH2D *draw_V_PHYS_DmMSYSALLDmM_P1 = nullptr;*/
                 TH2D *draw_V_PHYS_P1 = nullptr;
                 TH2D *draw_V_PHYSINV_P1 = nullptr;
+                TH2D *draw_V_DmMPHYSINVDmM_P1 = nullptr;
                 TH2D *draw_V_PHYS_STAT_P2 = nullptr;
                 TH2D *draw_V_PHYS_SYS1_P2 = nullptr;
                 TH2D *draw_V_PHYS_SYS2_P2 = nullptr;
@@ -192,10 +195,12 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                 TH2D *draw_V_PHYS_SYS4_P2 = nullptr;
                 TH2D *draw_V_PHYS_SYS5_P2 = nullptr;
                 TH2D *draw_V_PHYS_SYSALL_P2 = nullptr;
-                TH2D *draw_V_PHYS_DmMSYSALL_P2 = nullptr;
+                /*TH2D *draw_V_PHYS_DmMSYSALL_P2 = nullptr;
                 TH2D *draw_V_PHYS_SYSALLDmM_P2 = nullptr;
+                TH2D *draw_V_PHYS_DmMSYSALLDmM_P2 = nullptr;*/
                 TH2D *draw_V_PHYS_P2 = nullptr;
                 TH2D *draw_V_PHYSINV_P2 = nullptr;
+                TH2D *draw_V_DmMPHYSINVDmM_P2 = nullptr;
                 if(DRAW_V_PHYS_MATRIX == true)
                 {
                     if(channel == 1)
@@ -221,16 +226,24 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         draw_V_PHYS_SYSALL_P1 = new TH2D("draw_V_PHYS_SYSALL_P1", "draw_V_PHYS_SYSALL_P1",
                                                              50, 0.0, 5.0,
                                                              50, 0.0, 5.0);
+                        /*
                         draw_V_PHYS_DmMSYSALL_P1 = new TH2D("draw_V_PHYS_DmMSYSALL_P1", "draw_V_PHYS_DmMSYSALL_P1",
                                                              50, 0.0, 5.0,
                                                              50, 0.0, 5.0);
                         draw_V_PHYS_SYSALLDmM_P1 = new TH2D("draw_V_PHYS_SYSALLDmM_P1", "draw_V_PHYS_SYSALLDmM_P1",
                                                              50, 0.0, 5.0,
                                                              50, 0.0, 5.0);
+                        draw_V_PHYS_DmMSYSALLDmM_P1 = new TH2D("draw_V_PHYS_DmMSYSALLDmM_P1", "draw_V_PHYS_DmMSYSALLDmM_P1",
+                                                             50, 0.0, 5.0,
+                                                             50, 0.0, 5.0);
+                        */
                         draw_V_PHYS_P1 =      new TH2D("draw_V_PHYS_P1", "draw_V_PHYS_P1",
                                                              50, 0.0, 5.0,
                                                              50, 0.0, 5.0);
                         draw_V_PHYSINV_P1 =   new TH2D("draw_V_PHYSINV_P1", "draw_V_PHYSINV_P1",
+                                                             50, 0.0, 5.0,
+                                                             50, 0.0, 5.0);
+                        draw_V_DmMPHYSINVDmM_P1 =   new TH2D("draw_V_DmMPHYSINVDmM_P1", "draw_V_DmMPHYSINVDmM_P1",
                                                              50, 0.0, 5.0,
                                                              50, 0.0, 5.0);
                         draw_V_PHYS_STAT_P2 = new TH2D("draw_V_PHYS_STAT_P2", "draw_V_PHYS_STAT_P2",
@@ -254,16 +267,24 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         draw_V_PHYS_SYSALL_P2 = new TH2D("draw_V_PHYS_SYSALL_P2", "draw_V_PHYS_SYSALL_P2",
                                                              50, 0.0, 5.0,
                                                              50, 0.0, 5.0);
+                        /*
                         draw_V_PHYS_DmMSYSALL_P2 = new TH2D("draw_V_PHYS_DmMSYSALL_P2", "draw_V_PHYS_DmMSYSALL_P2",
                                                              50, 0.0, 5.0,
                                                              50, 0.0, 5.0);
                         draw_V_PHYS_SYSALLDmM_P2 = new TH2D("draw_V_PHYS_SYSALLDmM_P2", "draw_V_PHYS_SYSALLDmM_P2",
                                                              50, 0.0, 5.0,
                                                              50, 0.0, 5.0);
+                        draw_V_PHYS_DmMSYSALLDmM_P2 = new TH2D("draw_V_PHYS_DmMSYSALLDmM_P2", "draw_V_PHYS_DmMSYSALLDmM_P2",
+                                                             50, 0.0, 5.0,
+                                                             50, 0.0, 5.0);
+                        */
                         draw_V_PHYS_P2 =      new TH2D("draw_V_PHYS_P2", "draw_V_PHYS_P2",
                                                              50, 0.0, 5.0,
                                                              50, 0.0, 5.0);
                         draw_V_PHYSINV_P2 =   new TH2D("draw_V_PHYSINV_P2", "draw_V_PHYSINV_P2",
+                                                             50, 0.0, 5.0,
+                                                             50, 0.0, 5.0);
+                        draw_V_DmMPHYSINVDmM_P2 =   new TH2D("draw_V_DmMPHYSINVDmM_P2", "draw_V_DmMPHYSINVDmM_P2",
                                                              50, 0.0, 5.0,
                                                              50, 0.0, 5.0);
                         std::cout << "ALLOC " << __func__ << std::endl;
@@ -276,10 +297,12 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         draw_V_PHYS_SYS4_P1->SetContour(1000);
                         draw_V_PHYS_SYS5_P1->SetContour(1000);
                         draw_V_PHYS_SYSALL_P1->SetContour(1000);
-                        draw_V_PHYS_DmMSYSALL_P1->SetContour(1000);
+                        /*draw_V_PHYS_DmMSYSALL_P1->SetContour(1000);
                         draw_V_PHYS_SYSALLDmM_P1->SetContour(1000);
+                        draw_V_PHYS_DmMSYSALLDmM_P1->SetContour(1000);*/
                         draw_V_PHYS_P1->SetContour(1000);
                         draw_V_PHYSINV_P1->SetContour(1000);
+                        draw_V_DmMPHYSINVDmM_P1->SetContour(1000);
                         draw_V_PHYS_STAT_P2->SetContour(1000);
                         draw_V_PHYS_SYS1_P2->SetContour(1000);
                         draw_V_PHYS_SYS2_P2->SetContour(1000);
@@ -287,10 +310,12 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         draw_V_PHYS_SYS4_P2->SetContour(1000);
                         draw_V_PHYS_SYS5_P2->SetContour(1000);
                         draw_V_PHYS_SYSALL_P2->SetContour(1000);
-                        draw_V_PHYS_DmMSYSALL_P2->SetContour(1000);
+                        /*draw_V_PHYS_DmMSYSALL_P2->SetContour(1000);
                         draw_V_PHYS_SYSALLDmM_P2->SetContour(1000);
+                        draw_V_PHYS_DmMSYSALLDmM_P2->SetContour(1000);*/
                         draw_V_PHYS_P2->SetContour(1000);
                         draw_V_PHYSINV_P2->SetContour(1000);
+                        draw_V_DmMPHYSINVDmM_P2->SetContour(1000);
                     }
                 }
                 #endif
@@ -581,6 +606,7 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                 #if DRAWVPHYSMATRIX
                 if(DRAW_V_PHYS_MATRIX == true)
                 {
+                    /*
                     for(Int_t j = 0; j < 50; ++ j)
                     {
                         for(Int_t i = 0; i < 50; ++ i)
@@ -641,6 +667,42 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                             }
                         }
                     }
+
+
+                    for(Int_t i = 0; i < 50; ++ i)
+                    {
+                        for(Int_t j = 0; j < 50; ++ j)
+                        {
+                            {
+                                #if VECTOR_RANGE_CHECK
+                                double D_minus_M_content_1 = D_minus_M_1D_P1_data[channel]->at(i);
+                                double V_PHYS_SYSALL_content = V_PHYS_SYSALL_1D_P1_data[channel]->at(i + j * 50);
+                                double D_minus_M_content_2 = D_minus_M_1D_P1_data[channel]->at(j);
+                                #else
+                                double D_minus_M_content_1 = D_minus_M_1D_P1_data[channel]->operator[](i);
+                                double V_PHYS_SYSALL_content = V_PHYS_SYSALL_1D_P1_data[channel]->operator[](i + j * 50);
+                                double D_minus_M_content_2 = D_minus_M_1D_P1_data[channel]->operator[](j);
+                                #endif
+                                double content = D_minus_M_content_1 * V_PHYS_SYSALL_content * D_minus_M_content_2;
+                                draw_V_PHYS_DmMSYSALLDmM_P1->SetBinContent(i + 1, j + 1, content);
+                            }
+
+                            {
+                                #if VECTOR_RANGE_CHECK
+                                double D_minus_M_content_1 = D_minus_M_1D_P2_data[channel]->at(i);
+                                double V_PHYS_SYSALL_content = V_PHYS_SYSALL_1D_P2_data[channel]->at(i + j * 50);
+                                double D_minus_M_content_2 = D_minus_M_1D_P2_data[channel]->at(j);
+                                #else
+                                double D_minus_M_content_1 = D_minus_M_1D_P2_data[channel]->operator[](i);
+                                double V_PHYS_SYSALL_content = V_PHYS_SYSALL_1D_P2_data[channel]->operator[](i + j * 50);
+                                double D_minus_M_content_2 = D_minus_M_1D_P2_data[channel]->operator[](j);
+                                #endif
+                                double content = D_minus_M_content_1 * V_PHYS_SYSALL_content * D_minus_M_content_2;
+                                draw_V_PHYS_DmMSYSALLDmM_P2->SetBinContent(i + 1, j + 1, content);
+                            }
+                        }
+                    }
+                    */
                 }
                 #endif
 
@@ -699,7 +761,7 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         TCanvas *canvas_V_PHYS_SYSALL_P1 = new TCanvas("canvas_V_PHYS_SYSALL_P1", "canvas_V_PHYS_SYSALL_P1");
                         draw_V_PHYS_SYSALL_P1->Draw("colz");
                         canvas_V_PHYS_SYSALL_P1->SaveAs(TString("./") + dir + "/" + "draw_V_PHYS_SYSALL_P1.png");
-
+                        /*
                         TCanvas *canvas_V_PHYS_DmMSYSALL_P1 = new TCanvas("canvas_V_PHYS_DmMSYSALL_P1", "canvas_V_PHYS_DmMSYSALL_P1");
                         draw_V_PHYS_DmMSYSALL_P1->Draw("colz");
                         canvas_V_PHYS_DmMSYSALL_P1->SaveAs(TString("./") + dir + "/" + "draw_V_PHYS_DmMSYSALL_P1.png");
@@ -708,6 +770,10 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         draw_V_PHYS_SYSALLDmM_P1->Draw("colz");
                         canvas_V_PHYS_SYSALLDmM_P1->SaveAs(TString("./") + dir + "/" + "draw_V_PHYS_SYSALLDmM_P1.png");
 
+                        TCanvas *canvas_V_PHYS_DmMSYSALLDmM_P1 = new TCanvas("canvas_V_PHYS_DmMSYSALLDmM_P1", "canvas_V_PHYS_DmMSYSALLDmM_P1");
+                        draw_V_PHYS_DmMSYSALLDmM_P1->Draw("colz");
+                        canvas_V_PHYS_DmMSYSALLDmM_P1->SaveAs(TString("./") + dir + "/" + "draw_V_PHYS_DmMSYSALLDmM_P1.png");
+                        */
                         TCanvas *canvas_V_PHYS_P1 = new TCanvas("canvas_V_PHYS_P1", "canvas_V_PHYS_P1");
                         draw_V_PHYS_P1->Draw("colz");
                         canvas_V_PHYS_P1->SaveAs(TString("./") + dir + "/" + "draw_V_PHYS_P1.png");
@@ -739,7 +805,7 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         TCanvas *canvas_V_PHYS_SYSALL_P2 = new TCanvas("canvas_V_PHYS_SYSALL_P2", "canvas_V_PHYS_SYSALL_P2");
                         draw_V_PHYS_SYSALL_P2->Draw("colz");
                         canvas_V_PHYS_SYSALL_P2->SaveAs(TString("./") + dir + "/" + "draw_V_PHYS_SYSALL_P2.png");
-
+                        /*
                         TCanvas *canvas_V_PHYS_DmMSYSALL_P2 = new TCanvas("canvas_V_PHYS_DmMSYSALL_P2", "canvas_V_PHYS_DmMSYSALL_P2");
                         draw_V_PHYS_DmMSYSALL_P2->Draw("colz");
                         canvas_V_PHYS_DmMSYSALL_P2->SaveAs(TString("./") + dir + "/" + "draw_V_PHYS_DmMSYSALL_P2.png");
@@ -748,6 +814,10 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         draw_V_PHYS_SYSALLDmM_P2->Draw("colz");
                         canvas_V_PHYS_SYSALLDmM_P2->SaveAs(TString("./") + dir + "/" + "draw_V_PHYS_SYSALLDmM_P2.png");
 
+                        TCanvas *canvas_V_PHYS_DmMSYSALLDmM_P2 = new TCanvas("canvas_V_PHYS_DmMSYSALLDmM_P2", "canvas_V_PHYS_DmMSYSALLDmM_P2");
+                        draw_V_PHYS_DmMSYSALLDmM_P2->Draw("colz");
+                        canvas_V_PHYS_DmMSYSALLDmM_P2->SaveAs(TString("./") + dir + "/" + "draw_V_PHYS_DmMSYSALLDmM_P2.png");
+                        */
                         TCanvas *canvas_V_PHYS_P2 = new TCanvas("canvas_V_PHYS_P2", "canvas_V_PHYS_P2");
                         draw_V_PHYS_P2->Draw("colz");
                         canvas_V_PHYS_P2->SaveAs(TString("./") + dir + "/" + "draw_V_PHYS_P2.png");
@@ -849,6 +919,15 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                             {
                                 draw_V_PHYSINV_P1->SetBinContent(i + 1, j + 1, content);
                                 //std::cout << content << "\t";
+
+                                #if VECTOR_RANGE_CHECK
+                                double D_minus_M_content_1 = D_minus_M_1D_P1_data[channel]->at(i);
+                                double D_minus_M_content_2 = D_minus_M_1D_P1_data[channel]->at(j);
+                                #else
+                                double D_minus_M_content_1 = D_minus_M_1D_P1_data[channel]->operator[](i);
+                                double D_minus_M_content_2 = D_minus_M_1D_P1_data[channel]->operator[](j);
+                                #endif
+                                draw_V_PHYS_DmMSYSALLDmM_P1->SetBinContent(i + 1, j + 1, D_minus_M_content_1 * content * D_minus_M_content_2);
                             }
                         }
                         //#endif
@@ -899,6 +978,15 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                             {
                                 draw_V_PHYSINV_P2->SetBinContent(i + 1, j + 1, content);
                                 //std::cout << content << "\t";
+
+                                #if VECTOR_RANGE_CHECK
+                                double D_minus_M_content_1 = D_minus_M_1D_P2_data[channel]->at(i);
+                                double D_minus_M_content_2 = D_minus_M_1D_P2_data[channel]->at(j);
+                                #else
+                                double D_minus_M_content_1 = D_minus_M_1D_P2_data[channel]->operator[](i);
+                                double D_minus_M_content_2 = D_minus_M_1D_P2_data[channel]->operator[](j);
+                                #endif
+                                draw_V_PHYS_DmMSYSALLDmM_P2->SetBinContent(i + 1, j + 1, D_minus_M_content_1 * content * D_minus_M_content_2);
                             }
                         }
                         //#endif
@@ -926,9 +1014,17 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         draw_V_PHYSINV_P1->Draw("colz");
                         canvas_V_PHYSINV_P1->SaveAs("draw_V_PHYSINV_P1.png");
 
+                        TCanvas *canvas_V_DmMPHYSINVDmM_P1 = new TCanvas("canvas_V_DmMPHYSINVDmM_P1", "canvas_V_DmMPHYSINVDmM_P1");
+                        draw_V_DmMPHYSINVDmM_P1->Draw("colz");
+                        canvas_V_DmMPHYSINVDmM_P1->SaveAs("draw_V_DmMPHYSINVDmM_P1.png");
+
                         TCanvas *canvas_V_PHYSINV_P2 = new TCanvas("canvas_V_PHYSINV_P2", "canvas_V_PHYSINV_P2");
                         draw_V_PHYSINV_P2->Draw("colz");
                         canvas_V_PHYSINV_P2->SaveAs("draw_V_PHYSINV_P2.png");
+
+                        TCanvas *canvas_V_DmMPHYSINVDmM_P2 = new TCanvas("canvas_V_DmMPHYSINVDmM_P2", "canvas_V_DmMPHYSINVDmM_P2");
+                        draw_V_DmMPHYSINVDmM_P2->Draw("colz");
+                        canvas_V_DmMPHYSINVDmM_P2->SaveAs("draw_V_DmMPHYSINVDmM_P2.png");
 
                         std::cout << "printed all canvas" << std::endl;
                         //std::cin.get();

@@ -69,7 +69,7 @@ MinimizeFCNAxialVector::check_alloc_V_PHYS_STAT_data() const
             const Int_t NUM_BINS_XY = 50;
             V_PHYS_STAT_1D_P1_data[ch] = new std::vector<double>(NUM_BINS_XY * NUM_BINS_XY, 0.0);
             V_PHYS_STAT_1D_P2_data[ch] = new std::vector<double>(NUM_BINS_XY * NUM_BINS_XY, 0.0);
-            std::cout << "ALLOC " << __func__ << std::endl;
+            //std::cout << "ALLOC " << __func__ << std::endl;
         }
 
         /*
@@ -138,7 +138,7 @@ void MinimizeFCNAxialVector::check_alloc_D() const
             const Int_t NUM_BINS_XY = 50;
             D_1D_P1_data[ch] = new std::vector<double>(NUM_BINS_XY, 0.0);
             D_1D_P2_data[ch] = new std::vector<double>(NUM_BINS_XY, 0.0);
-            std::cout << "ALLOC " << __func__ << std::endl;
+            //std::cout << "ALLOC " << __func__ << std::endl;
         }
 
         /*
@@ -193,7 +193,7 @@ void MinimizeFCNAxialVector::check_alloc_M() const
             const Int_t NUM_BINS_XY = 50;
             M_1D_P1_data[ch] = new std::vector<double>(NUM_BINS_XY, 0.0);
             M_1D_P2_data[ch] = new std::vector<double>(NUM_BINS_XY, 0.0);
-            std::cout << "ALLOC " << __func__ << std::endl;
+            //std::cout << "ALLOC " << __func__ << std::endl;
         }
 
         // 2D
@@ -249,7 +249,7 @@ void MinimizeFCNAxialVector::check_alloc_D_minus_M() const
             const Int_t NUM_BINS_XY = 50;
             D_minus_M_1D_P1_data[ch] = new std::vector<double>(NUM_BINS_XY, 0.0);
             D_minus_M_1D_P2_data[ch] = new std::vector<double>(NUM_BINS_XY, 0.0);
-            std::cout << "ALLOC " << __func__ << std::endl;
+            //std::cout << "ALLOC " << __func__ << std::endl;
         }
 
 
