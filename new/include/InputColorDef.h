@@ -30,6 +30,8 @@ Int_t ci_c3 = TColor::GetFreeColorIndex();
 //TColor *c_c3 = new TColor(ci_c3 , 220.0 / 255.0, 223.0 / 255.0, 171.0 / 255.0);
 TColor *c_c3 = new TColor(ci_c3 , 221.0 / 255.0, 215.0 / 255.0, 150.0 / 255.0);
 
+// TODO: change above color it's grim
+
 Int_t ci_c4 = TColor::GetFreeColorIndex();
 //TColor *c_c4 = new TColor(ci_c4 , 210.0 / 255.0, 231.0 / 255.0, 210.0 / 255.0);
 //TColor *c_c4 = new TColor(ci_c4 , 190.0 / 255.0, 223.0 / 255.0, 215.0 / 255.0);

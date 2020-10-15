@@ -9,7 +9,8 @@
 void drawmps()
 {
 
-    bool g_mode_fake_data = false;
+    bool g_mode_fake_data = true;
+    const bool V_ENABLE_SYSALL = true;
 
     const int number_job_id = 0;
     const std::string &output_name = "noparallel";
@@ -31,7 +32,7 @@ void drawmps()
     std::cout << "rendering: " << c_mps_name << std::endl;
 
     // TODO: NOTE: have to change value of "stop_index" as well
-    const int n_param_xy = 51;//301; // 1001
+    const int n_param_xy = 31;//301; // 1001
     int n_param_1 = n_param_xy; //300;
     int n_param_2 = n_param_xy; //300;
     int n_param_max = n_param_1 * n_param_2;
@@ -61,7 +62,16 @@ void drawmps()
     }
     
     // with systematics
-    param_1_max = 2.1;
+    if(g_mode_fake_data == false)
+    {
+        param_1_min = -0.7;
+        param_1_max = 2.1;
+    }
+    else if(g_mode_fake_data == true)
+    {
+        param_1_min = -0.5;
+        param_1_max = 0.7;
+    }
 
     // hack to get HSD
     //param_1_min = -0.1;
@@ -91,8 +101,16 @@ void drawmps()
     }
     
     // with systematics
-    param_2_min = 0.75;
-    param_2_max = 1.5;
+    if(g_mode_fake_data == false)
+    {
+        param_2_min = 0.75;
+        param_2_max = 1.5;
+    }
+    else if(g_mode_fake_data == true)
+    {
+        param_2_min = 0.85;
+        param_2_max = 1.15;
+    }
 
     // hack to get HSD
     //param_1_min = 0.9999;
@@ -182,7 +200,6 @@ void drawmps()
 
 
 
-
     std::string output_name_append;
     if(V_ENABLE_SYSALL == false)
     {
@@ -214,6 +231,17 @@ void drawmps()
 
     std::ifstream ofs_resultsmatrix_before(ofs_resultsmatrix_before_fname);
     std::ifstream ofs_resultsmatrix_after(ofs_resultsmatrix_after_fname);
+    
+    if(!ofs_resultsmatrix_before.is_open())
+    {
+        std::cout << "Error: could not open " << ofs_resultsmatrix_before_fname << std::endl;
+        return -1;
+    }
+    if(!ofs_resultsmatrix_after.is_open())
+    {
+        std::cout << "Error: could not open " << ofs_resultsmatrix_after_fname << std::endl;
+        return -1;
+    }
 
     std::cout << "*****************************************************" << std::endl;
     std::cout << "*****************************************************" << std::endl;
@@ -240,7 +268,7 @@ void drawmps()
     double t_param_1, t_param_2;
     while(!ofs_resultsmatrix_before.eof())
     {
-    std::cin.get();
+    //std::cin.get();
         std::stringstream ss;
         std::string s;
         std::getline(ofs_resultsmatrix_before, s);
@@ -278,7 +306,7 @@ void drawmps()
                 break;
             }
         }
-        std::cout << "line: " << line_count << " params_before.size()=" << params_before.size() << " param_errs_before.size()=" << param_errs_before.size() << std::endl;
+        //std::cout << "line: " << line_count << " params_before.size()=" << params_before.size() << " param_errs_before.size()=" << param_errs_before.size() << std::endl;
 
         // This detects n_1 changing (loop of outer for loop)
         if(n_1 != n_1_last)
@@ -301,14 +329,14 @@ void drawmps()
         }
 
         int bin_ix = h_mps_before->GetNbinsX() - n_1;
-        std::cout << "bin_ix=" << bin_ix << std::endl;
-        std::cout << "t_param_1=" << t_param_1 << std::endl;
-        std::cout << "bin center: " << h_mps_before->GetXaxis()->GetBinCenter(bin_ix) << std::endl;
+        //std::cout << "bin_ix=" << bin_ix << std::endl;
+        //std::cout << "t_param_1=" << t_param_1 << std::endl;
+        //std::cout << "bin center: " << h_mps_before->GetXaxis()->GetBinCenter(bin_ix) << std::endl;
 
         int bin_iy = h_mps_before->GetNbinsY() - n_2;
-        std::cout << "bin_iy=" << bin_iy << std::endl;
-        std::cout << "t_param_2=" << t_param_2 << std::endl;
-        std::cout << "bin center: " << h_mps_before->GetYaxis()->GetBinCenter(bin_iy) << std::endl;
+        //std::cout << "bin_iy=" << bin_iy << std::endl;
+        //std::cout << "t_param_2=" << t_param_2 << std::endl;
+        //std::cout << "bin center: " << h_mps_before->GetYaxis()->GetBinCenter(bin_iy) << std::endl;
 
 
         if(fval_before < min_stripe)
@@ -324,6 +352,7 @@ void drawmps()
             min_y_before = t_param_2;
         }
 
+        std::cout << "ix=" << bin_ix << " iy=" << bin_iy << " fval=" << fval_before << std::endl;
         h_mps_before->SetBinContent(bin_ix, bin_iy, fval_before);
 
         ++ line_count;
