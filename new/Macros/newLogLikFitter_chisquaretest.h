@@ -979,6 +979,28 @@ void newloglikfitter_testmyphasespace_newversion(
         std::cout << "                          PLOTTING MARKERS" << std::endl;
         std::cout << "********************************************************************************" << std::endl;
 
+
+        // SYS n
+        // TODO
+        /*
+        TMarker *mark_min_point_sys1_l = nullptr;
+        TMarker *mark_min_point_sys1_h = nullptr;
+        TLine *line_min_point_sys1_l = nullptr;
+        TLine *line_min_point_sys1_h = nullptr;
+        min_point_marker_helper(
+            mark_min_point_sys1_l,
+            mark_min_point_sys1_h,
+            line_min_point_sys1_l,
+            line_min_point_sys1_h,
+            min_point,
+            min_point_fake_data,
+            min_point_sys1_l,
+            min_point_sys1_h,
+            ENABLE_MIN_POINT_SYS1,
+            106, kRed, kRed
+            );*/
+
+        /*
         // SYS 1
         TMarker *mark_min_point_sys1_l = nullptr;
         TMarker *mark_min_point_sys1_h = nullptr;
@@ -1153,7 +1175,7 @@ void newloglikfitter_testmyphasespace_newversion(
                 line_min_point_sys5_h->Draw();
             }
         }
-
+        */
 
         if(ll_walk_save.size() > 0)
         {

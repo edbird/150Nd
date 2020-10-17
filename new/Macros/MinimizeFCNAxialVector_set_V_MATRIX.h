@@ -2,6 +2,52 @@
 #define MINIMIZEFCNAXIALVECTOR_SET_V_MATRIX_H
 
 
+
+void
+V_PHYS_init_helper(TH2D* histo, const TString latexstring, const TString& xtitle, const TString& ytitle)
+{
+    histo->SetTitle(0);
+    histo->SetStats(0);
+    histo->SetContour(1000);
+
+    histo->GetXaxis()->SetTitle(xtitle);
+    histo->GetYaxis()->SetTitle(ytitle);
+
+    histo->GetZaxis()->SetLabelOffset(0.005);
+    histo->GetXaxis()->SetLabelSize(17.0);
+    histo->GetXaxis()->SetLabelFont(43);
+    histo->GetYaxis()->SetLabelSize(17.0);
+    histo->GetYaxis()->SetLabelFont(43);
+    histo->GetZaxis()->SetLabelSize(17.0);
+    histo->GetZaxis()->SetLabelFont(43);
+    histo->GetXaxis()->SetTitleSize(18.0);
+    histo->GetXaxis()->SetTitleFont(43);
+    histo->GetYaxis()->SetTitleSize(18.0);
+    histo->GetYaxis()->SetTitleFont(43);
+    histo->GetXaxis()->SetTitleOffset(1.5);
+    histo->GetYaxis()->SetTitleOffset(1.2);
+    histo->GetXaxis()->SetLabelOffset(0.01);
+    histo->GetYaxis()->SetLabelOffset(0.01);
+
+}
+
+
+void V_PHYS_canvas_helper(TCanvas *canvas, TH2D* histo)
+{
+    // latex top right label
+
+
+    TPaletteAxis *palette = (TPaletteAxis*)histo->GetListOfFunctions()->FindObject("palette");
+    palette->SetX1NDC(0.88 + 0.03);
+    palette->SetX2NDC(0.92 + 0.03);
+    palette->SetY1NDC(0.15);
+    palette->SetY2NDC(0.9);
+    palette->Draw();
+    gPad->Modified();
+    gPad->Update();
+}
+
+
 void
 MinimizeFCNAxialVector::set_V_MATRIX() const
 {
@@ -175,11 +221,16 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                 #define DRAWVPHYSMATRIX 1
                 #if DRAWVPHYSMATRIX
                 TH2D *draw_V_PHYS_STAT_P1 = nullptr;
-                TH2D *draw_V_PHYS_SYS1_P1 = nullptr;
+                /*TH2D *draw_V_PHYS_SYS1_P1 = nullptr;
                 TH2D *draw_V_PHYS_SYS2_P1 = nullptr;
                 TH2D *draw_V_PHYS_SYS3_P1 = nullptr;
                 TH2D *draw_V_PHYS_SYS4_P1 = nullptr;
-                TH2D *draw_V_PHYS_SYS5_P1 = nullptr;
+                TH2D *draw_V_PHYS_SYS5_P1 = nullptr;*/
+                TH2D *draw_V_PHYS_SYSn_P1[N_SYSTEMATICS];
+                for(int i = 0; i < N_SYSTEMATICS; ++ i)
+                {
+                    draw_V_PHYS_SYSn_P1[i] = nullptr;
+                }
                 TH2D *draw_V_PHYS_SYSALL_P1 = nullptr;
                 /*
                 TH2D *draw_V_PHYS_DmMSYSALL_P1 = nullptr;
@@ -189,11 +240,16 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                 TH2D *draw_V_PHYSINV_P1 = nullptr;
                 TH2D *draw_V_DmMPHYSINVDmM_P1 = nullptr;
                 TH2D *draw_V_PHYS_STAT_P2 = nullptr;
-                TH2D *draw_V_PHYS_SYS1_P2 = nullptr;
+                /*TH2D *draw_V_PHYS_SYS1_P2 = nullptr;
                 TH2D *draw_V_PHYS_SYS2_P2 = nullptr;
                 TH2D *draw_V_PHYS_SYS3_P2 = nullptr;
                 TH2D *draw_V_PHYS_SYS4_P2 = nullptr;
-                TH2D *draw_V_PHYS_SYS5_P2 = nullptr;
+                TH2D *draw_V_PHYS_SYS5_P2 = nullptr;*/
+                TH2D *draw_V_PHYS_SYSn_P2[N_SYSTEMATICS]; 
+                for(int i = 0; i < N_SYSTEMATICS; ++ i)
+                {
+                    draw_V_PHYS_SYSn_P2[i] = nullptr;
+                }
                 TH2D *draw_V_PHYS_SYSALL_P2 = nullptr;
                 /*TH2D *draw_V_PHYS_DmMSYSALL_P2 = nullptr;
                 TH2D *draw_V_PHYS_SYSALLDmM_P2 = nullptr;
@@ -208,6 +264,15 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         draw_V_PHYS_STAT_P1 = new TH2D("draw_V_PHYS_STAT_P1", "draw_V_PHYS_STAT_P1",
                                                              50, 0.0, 5.0,
                                                              50, 0.0, 5.0);
+                        V_PHYS_init_helper(draw_V_PHYS_STAT_P1, "V^{#text{STAT}}_{ij} (Phase 1)", "V_{ij} bin i Energy (MeV)", "V_{ij} bin j Energy (MeV)");
+
+                        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+                        {
+                            TString name;
+                            name.Form("draw_V_PHYS_SYS%d_P1", i);
+                            draw_V_PHYS_SYSn_P1[i] = new TH2D(name, name, 50, 0.0, 5.0, 50, 0.0, 5.0);
+                        }
+                        /*
                         draw_V_PHYS_SYS1_P1 = new TH2D("draw_V_PHYS_SYS1_P1", "draw_V_PHYS_SYS1_P1",
                                                              50, 0.0, 5.0,
                                                              50, 0.0, 5.0);
@@ -223,9 +288,12 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         draw_V_PHYS_SYS5_P1 = new TH2D("draw_V_PHYS_SYS5_P1", "draw_V_PHYS_SYS5_P1",
                                                              50, 0.0, 5.0,
                                                              50, 0.0, 5.0);
+                        */
                         draw_V_PHYS_SYSALL_P1 = new TH2D("draw_V_PHYS_SYSALL_P1", "draw_V_PHYS_SYSALL_P1",
                                                              50, 0.0, 5.0,
                                                              50, 0.0, 5.0);
+                        V_PHYS_init_helper(draw_V_PHYS_SYSALL_P1, "V^{#text{STAT}}_{ij} (Phase 1)", "V_{ij} bin i Energy (MeV)", "V_{ij} bin j Energy (MeV)");
+
                         /*
                         draw_V_PHYS_DmMSYSALL_P1 = new TH2D("draw_V_PHYS_DmMSYSALL_P1", "draw_V_PHYS_DmMSYSALL_P1",
                                                              50, 0.0, 5.0,
@@ -249,6 +317,14 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         draw_V_PHYS_STAT_P2 = new TH2D("draw_V_PHYS_STAT_P2", "draw_V_PHYS_STAT_P2",
                                                              50, 0.0, 5.0,
                                                              50, 0.0, 5.0);
+
+                        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+                        {
+                            TString name;
+                            name.Form("draw_V_PHYS_SYS%d_P2", i);
+                            draw_V_PHYS_SYSn_P2[i] = new TH2D(name, name, 50, 0.0, 5.0, 50, 0.0, 5.0);
+                        }
+                        /*
                         draw_V_PHYS_SYS1_P2 = new TH2D("draw_V_PHYS_SYS1_P2", "draw_V_PHYS_SYS1_P2",
                                                              50, 0.0, 5.0,
                                                              50, 0.0, 5.0);
@@ -264,6 +340,7 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         draw_V_PHYS_SYS5_P2 = new TH2D("draw_V_PHYS_SYS5_P2", "draw_V_PHYS_SYS5_P2",
                                                              50, 0.0, 5.0,
                                                              50, 0.0, 5.0);
+                        */
                         draw_V_PHYS_SYSALL_P2 = new TH2D("draw_V_PHYS_SYSALL_P2", "draw_V_PHYS_SYSALL_P2",
                                                              50, 0.0, 5.0,
                                                              50, 0.0, 5.0);
@@ -291,11 +368,17 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
 
 
                         draw_V_PHYS_STAT_P1->SetContour(1000);
+                        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+                        {
+                            draw_V_PHYS_SYSn_P1[i]->SetContour(1000);
+                        }
+                        /*
                         draw_V_PHYS_SYS1_P1->SetContour(1000);
                         draw_V_PHYS_SYS2_P1->SetContour(1000);
                         draw_V_PHYS_SYS3_P1->SetContour(1000);
                         draw_V_PHYS_SYS4_P1->SetContour(1000);
                         draw_V_PHYS_SYS5_P1->SetContour(1000);
+                        */
                         draw_V_PHYS_SYSALL_P1->SetContour(1000);
                         /*draw_V_PHYS_DmMSYSALL_P1->SetContour(1000);
                         draw_V_PHYS_SYSALLDmM_P1->SetContour(1000);
@@ -304,11 +387,17 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         draw_V_PHYSINV_P1->SetContour(1000);
                         draw_V_DmMPHYSINVDmM_P1->SetContour(1000);
                         draw_V_PHYS_STAT_P2->SetContour(1000);
+                        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+                        {
+                            draw_V_PHYS_SYSn_P2[i]->SetContour(1000);
+                        }
+                        /*
                         draw_V_PHYS_SYS1_P2->SetContour(1000);
                         draw_V_PHYS_SYS2_P2->SetContour(1000);
                         draw_V_PHYS_SYS3_P2->SetContour(1000);
                         draw_V_PHYS_SYS4_P2->SetContour(1000);
                         draw_V_PHYS_SYS5_P2->SetContour(1000);
+                        */
                         draw_V_PHYS_SYSALL_P2->SetContour(1000);
                         /*draw_V_PHYS_DmMSYSALL_P2->SetContour(1000);
                         draw_V_PHYS_SYSALLDmM_P2->SetContour(1000);
@@ -402,40 +491,26 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         {
                             if(channel == 1)
                             {
+                                double sysn[N_SYSTEMATICS];
 
-                                double sys1 = 0.0;
-                                double sys2 = 0.0;
-                                double sys3 = 0.0;
-                                double sys4 = 0.0;
-                                double sys5 = 0.0;
+                                for(int n = 0; n < N_SYSTEMATICS; ++ n)
+                                {
+                                    sysn[n] = V_PHYS_SYSn_1D_P1_data[n][channel]->operator[](i + j * 50);
+                                }
 
+                                /*
                                 //if(V_ENABLE_SYS1 == true)
                                 //{
                                     sys1 = V_PHYS_SYS1_1D_P1_data[channel]->operator[](i + j * 50);
                                 //}
-                                //if(V_ENABLE_SYS2 == true)
-                                //{
-                                    sys2 = V_PHYS_SYS2_1D_P1_data[channel]->operator[](i + j * 50);
-                                //}
-                                //if(V_ENABLE_SYS3 == true)
-                                //{
-                                    sys3 = V_PHYS_SYS3_1D_P1_data[channel]->operator[](i + j * 50);
-                                //}
-                                //if(V_ENABLE_SYS4 == true)
-                                //{
-                                    sys4 = V_PHYS_SYS4_1D_P1_data[channel]->operator[](i + j * 50);
-                                //}
-                                //if(V_ENABLE_SYS5 == true)
-                                //{
-                                    sys5 = V_PHYS_SYS5_1D_P1_data[channel]->operator[](i + j * 50);
-                                //}
+                                */
 
                                 draw_V_PHYS_STAT_P1->SetBinContent(i + 1, j + 1, cstat);
-                                draw_V_PHYS_SYS1_P1->SetBinContent(i + 1, j + 1, sys1);
-                                draw_V_PHYS_SYS2_P1->SetBinContent(i + 1, j + 1, sys2);
-                                draw_V_PHYS_SYS3_P1->SetBinContent(i + 1, j + 1, sys3);
-                                draw_V_PHYS_SYS4_P1->SetBinContent(i + 1, j + 1, sys4);
-                                draw_V_PHYS_SYS5_P1->SetBinContent(i + 1, j + 1, sys5);
+
+                                for(int n = 0; n < N_SYSTEMATICS; ++ n)
+                                {
+                                    draw_V_PHYS_SYSn_P1[n]->SetBinContent(i + 1, j + 1, sysn[n]);
+                                }
                                 draw_V_PHYS_SYSALL_P1->SetBinContent(i + 1, j + 1, csys);
                                 draw_V_PHYS_P1->SetBinContent(i + 1, j + 1, content);
 
@@ -544,40 +619,33 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         {
                             if(channel == 1)
                             {
-                                double sys1 = 0.0;
-                                double sys2 = 0.0;
-                                double sys3 = 0.0;
-                                double sys4 = 0.0;
-                                double sys5 = 0.0;
+                                double sysn[N_SYSTEMATICS];
 
+                                for(int n = 0; n < N_SYSTEMATICS; ++ n)
+                                {
+                                    sysn[n] = V_PHYS_SYSn_1D_P2_data[n][channel]->operator[](i + j * 50);
+                                }
+                                
+                                /*
                                 // fill figures regardless of whether systematic is enabled
                                 //if(V_ENABLE_SYS1 == true)
                                 //{
                                     sys1 = V_PHYS_SYS1_1D_P2_data[channel]->operator[](i + j * 50);
                                 //}
-                                //if(V_ENABLE_SYS2 == true)
-                                //{
-                                    sys2 = V_PHYS_SYS2_1D_P2_data[channel]->operator[](i + j * 50);
-                                //}
-                                //if(V_ENABLE_SYS3 == true)
-                                //{
-                                    sys3 = V_PHYS_SYS3_1D_P2_data[channel]->operator[](i + j * 50);
-                                //}
-                                //if(V_ENABLE_SYS4 == true)
-                                //{
-                                    sys4 = V_PHYS_SYS4_1D_P2_data[channel]->operator[](i + j * 50);
-                                //}
-                                //if(V_ENABLE_SYS5 == true)
-                                //{
-                                    sys5 = V_PHYS_SYS5_1D_P2_data[channel]->operator[](i + j * 50);
-                                //}
-
+                                }*/
                                 draw_V_PHYS_STAT_P2->SetBinContent(i + 1, j + 1, cstat);
+                                /*
                                 draw_V_PHYS_SYS1_P2->SetBinContent(i + 1, j + 1, sys1);
                                 draw_V_PHYS_SYS2_P2->SetBinContent(i + 1, j + 1, sys2);
                                 draw_V_PHYS_SYS3_P2->SetBinContent(i + 1, j + 1, sys3);
                                 draw_V_PHYS_SYS4_P2->SetBinContent(i + 1, j + 1, sys4);
                                 draw_V_PHYS_SYS5_P2->SetBinContent(i + 1, j + 1, sys5);
+                                */
+                                for(int n = 0; n < N_SYSTEMATICS; ++ n)
+                                {
+                                    draw_V_PHYS_SYSn_P2[n]->SetBinContent(i + 1, j + 1, sysn[n]);
+                                }
+
                                 draw_V_PHYS_SYSALL_P2->SetBinContent(i + 1, j + 1, csys);
                                 draw_V_PHYS_P2->SetBinContent(i + 1, j + 1, content);
 
@@ -713,6 +781,16 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                     if(channel == 1)
                     {
                         TString dir;
+                        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+                        {
+                            if(V_ENABLE_SYSn[i] == true)
+                            {
+                                TString ts;
+                                ts.Form("SYS%d", i);
+                                dir += ts;
+                            }
+                        }
+                        /*
                         if(V_ENABLE_SYS1 == true)
                         {
                             dir += "SYS1";
@@ -733,11 +811,23 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         {
                             dir += "SYS5";
                         }
+                        */
 
                         TCanvas *canvas_V_PHYS_STAT_P1 = new TCanvas("canvas_V_PHYS_STAT_P1", "canvas_V_PHYS_STAT_P1");
                         draw_V_PHYS_STAT_P1->Draw("colz");
                         canvas_V_PHYS_STAT_P1->SaveAs(TString("./") + dir + "/" + "draw_V_PHYS_STAT_P1.png");
 
+                        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+                        {
+                            TString name;
+                            name.Form("canvas_V_PHYS_SYS%d_P1", i);
+                            TString oname;
+                            oname = name + ".png";
+                            TCanvas *canvas_V_PHYS_SYSn_P1 = new TCanvas(name, name);
+                            draw_V_PHYS_SYSn_P1[i]->Draw("colz");
+                            canvas_V_PHYS_SYSn_P1->SaveAs(TString("./") + dir + "/" + oname);
+                        }
+                        /*
                         TCanvas *canvas_V_PHYS_SYS1_P1 = new TCanvas("canvas_V_PHYS_SYS1_P1", "canvas_V_PHYS_SYS1_P1");
                         draw_V_PHYS_SYS1_P1->Draw("colz");
                         canvas_V_PHYS_SYS1_P1->SaveAs(TString("./") + dir + "/" + "draw_V_PHYS_SYS1_P1.png");
@@ -757,7 +847,7 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         TCanvas *canvas_V_PHYS_SYS5_P1 = new TCanvas("canvas_V_PHYS_SYS5_P1", "canvas_V_PHYS_SYS5_P1");
                         draw_V_PHYS_SYS5_P1->Draw("colz");
                         canvas_V_PHYS_SYS5_P1->SaveAs(TString("./") + dir + "/" + "draw_V_PHYS_SYS5_P1.png");
-
+                        */
                         TCanvas *canvas_V_PHYS_SYSALL_P1 = new TCanvas("canvas_V_PHYS_SYSALL_P1", "canvas_V_PHYS_SYSALL_P1");
                         draw_V_PHYS_SYSALL_P1->Draw("colz");
                         canvas_V_PHYS_SYSALL_P1->SaveAs(TString("./") + dir + "/" + "draw_V_PHYS_SYSALL_P1.png");
@@ -782,6 +872,17 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         draw_V_PHYS_STAT_P2->Draw("colz");
                         canvas_V_PHYS_STAT_P2->SaveAs(TString("./") + dir + "/" + "draw_V_PHYS_STAT_P2.png");
 
+                        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+                        {
+                            TString name;
+                            name.Form("canvas_V_PHYS_SYS%d_P2", i);
+                            TString oname;
+                            oname = name + ".png";
+                            TCanvas *canvas_V_PHYS_SYSn_P2 = new TCanvas(name, name);
+                            draw_V_PHYS_SYSn_P2[i]->Draw("colz");
+                            canvas_V_PHYS_SYSn_P2->SaveAs(TString("./") + dir + "/" + oname);
+                        }
+                        /*
                         TCanvas *canvas_V_PHYS_SYS1_P2 = new TCanvas("canvas_V_PHYS_SYS1_P2", "canvas_V_PHYS_SYS1_P2");
                         draw_V_PHYS_SYS1_P2->Draw("colz");
                         canvas_V_PHYS_SYS1_P2->SaveAs(TString("./") + dir + "/" + "draw_V_PHYS_SYS1_P2.png");
@@ -801,7 +902,7 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                         TCanvas *canvas_V_PHYS_SYS5_P2 = new TCanvas("canvas_V_PHYS_SYS5_P2", "canvas_V_PHYS_SYS5_P2");
                         draw_V_PHYS_SYS5_P2->Draw("colz");
                         canvas_V_PHYS_SYS5_P2->SaveAs(TString("./") + dir + "/" + "draw_V_PHYS_SYS5_P2.png");
-
+                        */
                         TCanvas *canvas_V_PHYS_SYSALL_P2 = new TCanvas("canvas_V_PHYS_SYSALL_P2", "canvas_V_PHYS_SYSALL_P2");
                         draw_V_PHYS_SYSALL_P2->Draw("colz");
                         canvas_V_PHYS_SYSALL_P2->SaveAs(TString("./") + dir + "/" + "draw_V_PHYS_SYSALL_P2.png");
@@ -927,7 +1028,7 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                                 double D_minus_M_content_1 = D_minus_M_1D_P1_data[channel]->operator[](i);
                                 double D_minus_M_content_2 = D_minus_M_1D_P1_data[channel]->operator[](j);
                                 #endif
-                                draw_V_PHYS_DmMSYSALLDmM_P1->SetBinContent(i + 1, j + 1, D_minus_M_content_1 * content * D_minus_M_content_2);
+                                draw_V_DmMPHYSINVDmM_P1->SetBinContent(i + 1, j + 1, D_minus_M_content_1 * content * D_minus_M_content_2);
                             }
                         }
                         //#endif
@@ -986,7 +1087,7 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                                 double D_minus_M_content_1 = D_minus_M_1D_P2_data[channel]->operator[](i);
                                 double D_minus_M_content_2 = D_minus_M_1D_P2_data[channel]->operator[](j);
                                 #endif
-                                draw_V_PHYS_DmMSYSALLDmM_P2->SetBinContent(i + 1, j + 1, D_minus_M_content_1 * content * D_minus_M_content_2);
+                                draw_V_DmMPHYSINVDmM_P2->SetBinContent(i + 1, j + 1, D_minus_M_content_1 * content * D_minus_M_content_2);
                             }
                         }
                         //#endif
@@ -1010,21 +1111,33 @@ MinimizeFCNAxialVector::set_V_MATRIX() const
                     if(channel == 1)
                     {
                         std::cout << "ALLOC " << __func__ << std::endl;
+
+                        TString dir;
+                        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+                        {
+                            if(V_ENABLE_SYSn[i] == true)
+                            {
+                                TString ts;
+                                ts.Form("SYS%d", i);
+                                dir += ts;
+                            }
+                        }
+
                         TCanvas *canvas_V_PHYSINV_P1 = new TCanvas("canvas_V_PHYSINV_P1", "canvas_V_PHYSINV_P1");
                         draw_V_PHYSINV_P1->Draw("colz");
-                        canvas_V_PHYSINV_P1->SaveAs("draw_V_PHYSINV_P1.png");
+                        canvas_V_PHYSINV_P1->SaveAs(TString("./") + dir + "/" + "draw_V_PHYSINV_P1.png");
 
                         TCanvas *canvas_V_DmMPHYSINVDmM_P1 = new TCanvas("canvas_V_DmMPHYSINVDmM_P1", "canvas_V_DmMPHYSINVDmM_P1");
                         draw_V_DmMPHYSINVDmM_P1->Draw("colz");
-                        canvas_V_DmMPHYSINVDmM_P1->SaveAs("draw_V_DmMPHYSINVDmM_P1.png");
+                        canvas_V_DmMPHYSINVDmM_P1->SaveAs(TString("./") + dir + "/" + "draw_V_DmMPHYSINVDmM_P1.png");
 
                         TCanvas *canvas_V_PHYSINV_P2 = new TCanvas("canvas_V_PHYSINV_P2", "canvas_V_PHYSINV_P2");
                         draw_V_PHYSINV_P2->Draw("colz");
-                        canvas_V_PHYSINV_P2->SaveAs("draw_V_PHYSINV_P2.png");
+                        canvas_V_PHYSINV_P2->SaveAs(TString("./") + dir + "/" + "draw_V_PHYSINV_P2.png");
 
                         TCanvas *canvas_V_DmMPHYSINVDmM_P2 = new TCanvas("canvas_V_DmMPHYSINVDmM_P2", "canvas_V_DmMPHYSINVDmM_P2");
                         draw_V_DmMPHYSINVDmM_P2->Draw("colz");
-                        canvas_V_DmMPHYSINVDmM_P2->SaveAs("draw_V_DmMPHYSINVDmM_P2.png");
+                        canvas_V_DmMPHYSINVDmM_P2->SaveAs(TString("./") + dir + "/" + "draw_V_DmMPHYSINVDmM_P2.png");
 
                         std::cout << "printed all canvas" << std::endl;
                         //std::cin.get();

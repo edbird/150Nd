@@ -384,12 +384,24 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
         #endif
 
             
-            check_alloc_V_PHYS_SYSx_data_helper(V_PHYS_SYS1_1D_P1_data, V_PHYS_SYS1_1D_P2_data);
+            /*check_alloc_V_PHYS_SYSx_data_helper(V_PHYS_SYS1_1D_P1_data, V_PHYS_SYS1_1D_P2_data);
             check_alloc_V_PHYS_SYSx_data_helper(V_PHYS_SYS2_1D_P1_data, V_PHYS_SYS2_1D_P2_data);
             check_alloc_V_PHYS_SYSx_data_helper(V_PHYS_SYS3_1D_P1_data, V_PHYS_SYS3_1D_P2_data);
             check_alloc_V_PHYS_SYSx_data_helper(V_PHYS_SYS4_1D_P1_data, V_PHYS_SYS4_1D_P2_data);
-            check_alloc_V_PHYS_SYSx_data_helper(V_PHYS_SYS5_1D_P1_data, V_PHYS_SYS5_1D_P2_data);
+            check_alloc_V_PHYS_SYSx_data_helper(V_PHYS_SYS5_1D_P1_data, V_PHYS_SYS5_1D_P2_data);*/
+            for(int i = 0; i < N_SYSTEMATICS; ++ i)
+            {
+                // SYSn
+                check_alloc_V_PHYS_SYSx_data_helper(V_PHYS_SYSn_1D_P1_data[i], V_PHYS_SYSn_1D_P2_data[i]);
+
+                // SYSn
+                set_V_PHYS_SYSx_data_helper(V_PHYS_SYSn_1D_P1_data[i],
+                                            V_PHYS_SYSn_1D_P2_data[i],
+                                            systematic_n_V_MATRIX_coeff_1D_P1[i],
+                                            systematic_n_V_MATRIX_coeff_1D_P2[i]);
+            }
            
+            /*
             // SYS1
             set_V_PHYS_SYSx_data_helper(V_PHYS_SYS1_1D_P1_data,
                                         V_PHYS_SYS1_1D_P2_data,
@@ -419,6 +431,7 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                                         V_PHYS_SYS5_1D_P2_data,
                                         systematic_offsetsmall_V_MATRIX_coeff_1D_P1,
                                         systematic_offsetsmall_V_MATRIX_coeff_1D_P2);
+            */
 
 
             check_alloc_V_PHYS_SYSALL_data();

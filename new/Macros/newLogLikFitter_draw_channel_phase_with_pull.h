@@ -738,7 +738,7 @@ void draw_channel_phase_with_pull(
 
         if(channel == 0)
         {
-            h_pull->GetXaxis()->SetTitle("2e Electron Energy [MeV]");
+            h_pull->GetXaxis()->SetTitle("Total Electron Energy [MeV]");
         }
         else if(channel == 1)
         {
@@ -754,11 +754,11 @@ void draw_channel_phase_with_pull(
         }
         else if(channel == 4)
         {
-            h_pull->GetXaxis()->SetTitle("Energy Sum [MeV]");
+            h_pull->GetXaxis()->SetTitle("Electron Energy Sum [MeV]");
         }
         else if(channel == 5)
         {
-            h_pull->GetXaxis()->SetTitle("Energy Diff [MeV]");
+            h_pull->GetXaxis()->SetTitle("Electron Energy Diff [MeV]");
         }
 
         h_pull->SetFillColor(kBlack);
@@ -1108,7 +1108,7 @@ std::cout << "hALLMC1D->Draw()" << std::endl;
         }
         //data1D_Px->GetYaxis()->SetRangeUser(PAD_U_Y_MIN, PAD_U_Y_MAX); // TODO???
     */
-std::cout << "data draw" << std::endl;
+//std::cout << "data draw" << std::endl;
         //double chi2;
         int nch_Px = -1;
         nch_Px = get_nch_1D(h_stack_total_MC, h_data_fakedata);
@@ -1240,7 +1240,7 @@ std::cout << "data draw" << std::endl;
             axis2->ChangeLabel(1, -1, 0);
             axis2->Draw();
         }
-std::cout << "axis draw" << std::endl;
+//std::cout << "axis draw" << std::endl;
 
 
         double xi_31_Px = 0.0;
@@ -1394,14 +1394,16 @@ std::cout << "axis draw" << std::endl;
         TGaxis *axis4 = nullptr;
         if(AXISMODE == 2)
         {
-            axis3 = new TGaxis(0.0, PAD_L_Y_MIN_Px, 0.0, PAD_L_Y_MAX_Px, PAD_L_Y_MIN_Px, PAD_L_Y_MAX_Px, 503, "");
+            //axis3 = new TGaxis(0.0, PAD_L_Y_MIN_Px, 0.0, PAD_L_Y_MAX_Px, PAD_L_Y_MIN_Px, PAD_L_Y_MAX_Px, 503, "");
+            axis3 = new TGaxis(0.0, PAD_L_Y_MIN_Px, 0.0, PAD_L_Y_MAX_Px, PAD_L_Y_MIN_Px, PAD_L_Y_MAX_Px, 505, "");
             axis3->SetLabelFont(43);
             axis3->SetLabelSize(15);
             axis3->ChangeLabel(1, -1, 0);
             axis3->ChangeLabel(-1, -1, 0);
             axis3->Draw();
 
-            axis4 = new TGaxis(5.0, PAD_L_Y_MIN_Px, 5.0, PAD_L_Y_MAX_Px, PAD_L_Y_MIN_Px, PAD_L_Y_MAX_Px, 503, "+");
+            //axis4 = new TGaxis(5.0, PAD_L_Y_MIN_Px, 5.0, PAD_L_Y_MAX_Px, PAD_L_Y_MIN_Px, PAD_L_Y_MAX_Px, 503, "+");
+            axis4 = new TGaxis(5.0, PAD_L_Y_MIN_Px, 5.0, PAD_L_Y_MAX_Px, PAD_L_Y_MIN_Px, PAD_L_Y_MAX_Px, 505, "+");
             axis4->SetLabelFont(43);
             axis4->SetLabelSize(0);
             axis4->ChangeLabel(1, -1, 0);
@@ -1469,22 +1471,15 @@ std::cout << "axis draw" << std::endl;
 std::cout << "sigdraw" << std::endl;
 #endif
 
-        std::cout << "PAD_LL_Y_MIN_Px=" << PAD_LL_Y_MIN_Px 
-                  << "PAD_LL_Y_MAX_Px=" << PAD_LL_Y_MAX_Px << std::endl;
+//        std::cout << "PAD_LL_Y_MIN_Px=" << PAD_LL_Y_MIN_Px 
+//                  << "PAD_LL_Y_MAX_Px=" << PAD_LL_Y_MAX_Px << std::endl;
         TGaxis *axis5 = nullptr;
         TGaxis *axis6 = nullptr;
         if(AXISMODE == 2 && true)
         {
             //TGaxis *axis5 = new TGaxis(0.0, PAD_LL_Y_MIN_Px, 0.0, PAD_LL_Y_MAX_Px - 0.0001, PAD_LL_Y_MIN_Px, PAD_LL_Y_MAX_Px - 0.0001, 503, "");
             //TGaxis *axis5 = new TGaxis(0.0, PAD_LL_Y_MIN_Px, 0.0 + 0.0001, PAD_LL_Y_MAX_Px, PAD_LL_Y_MIN_Px, PAD_LL_Y_MAX_Px, 503, "");
-            axis5 = new TGaxis(
-                0.0,                        // x min
-                PAD_LL_Y_MIN_Px,      // y min
-                0.0,                        // x max
-                PAD_LL_Y_MAX_Px,      // y max
-                PAD_LL_Y_MIN_Px,      // w min
-                PAD_LL_Y_MAX_Px,      // w max
-                503, "");
+            axis5 = new TGaxis(0.0, PAD_LL_Y_MIN_Px, 0.0, PAD_LL_Y_MAX_Px, PAD_LL_Y_MIN_Px, PAD_LL_Y_MAX_Px, 505, "");
 
             axis5->SetLabelFont(43);
             axis5->SetLabelSize(15);
@@ -1496,7 +1491,8 @@ std::cout << "sigdraw" << std::endl;
         if(AXISMODE == 2 && true)
         {
             //TGaxis *axis6 = new TGaxis(5.0, PAD_LL_Y_MIN_Px, 5.0, PAD_LL_Y_MAX_Px - 0.0001, PAD_LL_Y_MIN_Px, PAD_LL_Y_MAX_Px - 0.0001, 503, "+");
-            axis6 = new TGaxis(5.0, PAD_LL_Y_MIN_Px, 5.0, PAD_LL_Y_MAX_Px, PAD_LL_Y_MIN_Px, PAD_LL_Y_MAX_Px, 503, "+");
+            //axis6 = new TGaxis(5.0, PAD_LL_Y_MIN_Px, 5.0, PAD_LL_Y_MAX_Px, PAD_LL_Y_MIN_Px, PAD_LL_Y_MAX_Px, 503, "+");
+            axis6 = new TGaxis(5.0, PAD_LL_Y_MIN_Px, 5.0, PAD_LL_Y_MAX_Px, PAD_LL_Y_MIN_Px, PAD_LL_Y_MAX_Px, 505, "+");
             axis6->SetLabelFont(43);
             axis6->SetLabelSize(0);
             axis6->ChangeLabel(-1, 0, 0);
@@ -1534,7 +1530,7 @@ std::cout << "sigdraw" << std::endl;
         deltaneglatex.SetTextSize(20);
         //deltaneglatex.SetTextAlign(31);
         deltaneglatex.DrawLatex(0.80, 0.45, deltaneglatexstr);
-        std::cout << "deltapos=" << deltapos << " deltaneg=" << deltaneg << std::endl;
+//        std::cout << "deltapos=" << deltapos << " deltaneg=" << deltaneg << std::endl;
 
 
 
@@ -1586,7 +1582,7 @@ std::cout << "sigdraw" << std::endl;
         leg->Draw("BR");
         p0_Px->cd();
 
-std::cout << "leg draw" << std::endl;
+//std::cout << "leg draw" << std::endl;
         //TLatex latexlabel;
         //latexlabel.SetNDC();
         //latexlabel.SetTextFont(62);
@@ -1650,13 +1646,13 @@ std::cout << "leg draw" << std::endl;
                 else if(mode_parallel == false)
                 {
                     std::string name = base_name + "_c" + "_" + std::string(channel_str) + "_" + phase_arg_str + extension;
-                    std::cout << "saving " << name << std::endl;
+                    //std::cout << "saving " << name << std::endl;
                     canvas_saveas_helper(dir, name, canvas_Px);
                 }
             }
         }
 
-std::cout << "done with save" << std::endl;
+//std::cout << "done with save" << std::endl;
 
         draw_output_data drawoutputdata_Px;
         //drawoutputdata_Px.stacks1D = stacks1D_Px;

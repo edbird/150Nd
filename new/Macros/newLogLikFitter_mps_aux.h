@@ -12,13 +12,14 @@ void min_point_marker_helper
     TMarker *&mark_min_point_sysx_h,
     TLine *&line_min_point_sysx_l,
     TLine *&line_min_point_sysx_h,
-    double *min_point,
-    double *min_point_fake_data,
-    double *min_point_sysx_l,
-    double *min_point_sysx_h,
+    double min_point[2],
+    double min_point_fake_data[2],
+    double min_point_sysx_l[2],
+    double min_point_sysx_h[2],
     const bool ENABLE_MIN_POINT_SYSx,
     Int_t markstyle,
     Color_t markcolor,
+    Double_t marksize,
     Color_t linecolor
 )
 {
@@ -51,12 +52,9 @@ void min_point_marker_helper
             std::cout << "MIN_POINT FAKE DATA: " << min_point_fake_data[0] << " " << min_point_fake_data[1] << std::endl;
             std::cout << "DRAWING: " << x_min_point << " " << y_min_point << std::endl;
 
-            mark_min_point_sysx_l = new TMarker(
-                x_min_point, y_min_point, markstyle);
-
+            mark_min_point_sysx_l = new TMarker(x_min_point, y_min_point, markstyle);
             mark_min_point_sysx_l->SetMarkerColorAlpha(markcolor, 0.0);
-            mark_min_point_sysx_l->SetMarkerSize(1.0);
-            mark_min_point_sysx_l->Draw();
+            mark_min_point_sysx_l->SetMarkerSize(marksize);
 
             line_min_point_sysx_l = new TLine(x_orig, y_orig, x_min_point, y_min_point);
             line_min_point_sysx_l->SetLineColorAlpha(linecolor, 0.5);
@@ -74,12 +72,9 @@ void min_point_marker_helper
             std::cout << "MIN_POINT: " << min_point[0] << " " << min_point[1] << std::endl;
             std::cout << "MIN_POINT FAKE DATA: " << min_point_fake_data[0] << " " << min_point_fake_data[1] << std::endl;
             std::cout << "DRAWING: " << x_min_point << " " << y_min_point << std::endl;
-            mark_min_point_sysx_h = new TMarker(
-                x_min_point, y_min_point, markstyle);
-
+            mark_min_point_sysx_h = new TMarker(x_min_point, y_min_point, markstyle);
             mark_min_point_sysx_h->SetMarkerColorAlpha(markcolor, 0.0);
-            mark_min_point_sysx_h->SetMarkerSize(1.0);
-            mark_min_point_sysx_h->Draw();
+            mark_min_point_sysx_h->SetMarkerSize(marksize);
 
             line_min_point_sysx_h = new TLine(x_orig, y_orig, x_min_point, y_min_point);
             line_min_point_sysx_h->SetLineColorAlpha(linecolor, 0.5);

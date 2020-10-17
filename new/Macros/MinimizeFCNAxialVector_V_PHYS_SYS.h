@@ -8,8 +8,8 @@
 
 void
 MinimizeFCNAxialVector::check_alloc_V_PHYS_SYSx_data_helper(
-    std::vector<double> **V_PHYS_SYSx_1D_P1_data,
-    std::vector<double> **V_PHYS_SYSx_1D_P2_data
+    std::vector<double> *V_PHYS_SYSx_1D_P1_data[],
+    std::vector<double> *V_PHYS_SYSx_1D_P2_data[]
     ) const
 {
     //std::cout << __func__ << std::endl;
@@ -41,10 +41,10 @@ MinimizeFCNAxialVector::check_alloc_V_PHYS_SYSx_data_helper(
 
 void
 MinimizeFCNAxialVector::set_V_PHYS_SYSx_data_helper(
-    std::vector<double> **V_PHYS_SYSx_1D_P1_data,
-    std::vector<double> **V_PHYS_SYSx_1D_P2_data,
-    std::vector<double> **systematic_X_V_MATRIX_coeff_1D_P1,
-    std::vector<double> **systematic_X_V_MATRIX_coeff_1D_P2
+    std::vector<double> *V_PHYS_SYSx_1D_P1_data[],
+    std::vector<double> *V_PHYS_SYSx_1D_P2_data[],
+    std::vector<double> *systematic_X_V_MATRIX_coeff_1D_P1[],
+    std::vector<double> *systematic_X_V_MATRIX_coeff_1D_P2[]
     ) const
 {
 
@@ -542,60 +542,35 @@ MinimizeFCNAxialVector::set_V_PHYS_SYSALL_data() const
 
                     // P1
                     {
-                        double sys1 = 0.0;
-                        double sys2 = 0.0;
-                        double sys3 = 0.0;
-                        double sys4 = 0.0;
-                        double sys5 = 0.0;
+                        double sysn[N_SYSTEMATICS];
+                        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+                        {
+                            sysn[i] = 0.0;
+                        }
                         double sysall = 0.0;
 
                         #if VECTOR_RANGE_CHECK
-                            if(V_ENABLE_SYS1 == true)
+                            for(int i = 0; i < N_SYSTEMATICS; ++ i)
                             {
-                                sys1 = V_PHYS_SYS1_1D_P1_data[channel]->at(biny * 50 + binx);
-                            }
-                            if(V_ENABLE_SYS2 == true)
-                            {
-                                sys2 = V_PHYS_SYS2_1D_P1_data[channel]->at(biny * 50 + binx);
-                            }
-                            if(V_ENABLE_SYS3 == true)
-                            {
-                                sys3 = V_PHYS_SYS3_1D_P1_data[channel]->at(biny * 50 + binx);
-                            }
-                            if(V_ENABLE_SYS4 == true)
-                            {
-                                sys4 = V_PHYS_SYS4_1D_P1_data[channel]->at(biny * 50 + binx);
-                            }
-                            if(V_ENABLE_SYS5 == true)
-                            {
-                                sys5 = V_PHYS_SYS5_1D_P1_data[channel]->at(biny * 50 + binx);
+                                if(V_ENABLE_SYSn[i] == true)
+                                {
+                                    sysn[i] = V_PHYS_SYSn_1D_P1_data[i][channel]->at(biny * 50 + binx);
+                                }
                             }
                         #else
-                            if(V_ENABLE_SYS1 == true)
+                            for(int i = 0; i < N_SYSTEMATICS; ++ i)
                             {
-                                sys1 = V_PHYS_SYS1_1D_P1_data[channel]->operator[](biny * 50 + binx);
-                            }
-                            if(V_ENABLE_SYS2 == true)
-                            {
-                                sys2 = V_PHYS_SYS2_1D_P1_data[channel]->operator[](biny * 50 + binx);
-                            }
-                            if(V_ENABLE_SYS3 == true)
-                            {
-                                sys3 = V_PHYS_SYS3_1D_P1_data[channel]->operator[](biny * 50 + binx);
-                            }
-                            if(V_ENABLE_SYS4 == true)
-                            {
-                                sys4 = V_PHYS_SYS4_1D_P1_data[channel]->operator[](biny * 50 + binx);
-                            }
-                            if(V_ENABLE_SYS5 == true)
-                            {
-                                sys5 = V_PHYS_SYS5_1D_P1_data[channel]->operator[](biny * 50 + binx);
+                                if(V_ENABLE_SYSn[i] == true)
+                                {
+                                    sysn[i] = V_PHYS_SYSn_1D_P1_data[i][channel]->operator[](biny * 50 + binx);
+                                }
                             }
                         #endif
 
-
-                        sysall = sys1 + sys2 + sys3 + sys4 + sys5;
-
+                        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+                        {
+                            sysall += sysn[i];
+                        }
 
                         #if VECTOR_RANGE_CHECK
                             V_PHYS_SYSALL_1D_P1_data[channel]->at(biny * 50 + binx) = sysall;
@@ -606,60 +581,35 @@ MinimizeFCNAxialVector::set_V_PHYS_SYSALL_data() const
 
                     // P2
                     {
-                        double sys1 = 0.0;
-                        double sys2 = 0.0;
-                        double sys3 = 0.0;
-                        double sys4 = 0.0;
-                        double sys5 = 0.0;
+                        double sysn[N_SYSTEMATICS];
+                        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+                        {
+                            sysn[i] = 0.0;
+                        }
                         double sysall = 0.0;
 
                         #if VECTOR_RANGE_CHECK
-                            if(V_ENABLE_SYS1 == true)
+                            for(int i = 0; i < N_SYSTEMATICS; ++ i)
                             {
-                                sys1 = V_PHYS_SYS1_1D_P2_data[channel]->at(biny * 50 + binx);
-                            }
-                            if(V_ENABLE_SYS2 == true)
-                            {
-                                sys2 = V_PHYS_SYS2_1D_P2_data[channel]->at(biny * 50 + binx);
-                            }
-                            if(V_ENABLE_SYS3 == true)
-                            {
-                                sys3 = V_PHYS_SYS3_1D_P2_data[channel]->at(biny * 50 + binx);
-                            }
-                            if(V_ENABLE_SYS4 == true)
-                            {
-                                sys4 = V_PHYS_SYS4_1D_P2_data[channel]->at(biny * 50 + binx);
-                            }
-                            if(V_ENABLE_SYS5 == true)
-                            {
-                                sys5 = V_PHYS_SYS5_1D_P2_data[channel]->at(biny * 50 + binx);
+                                if(V_ENABLE_SYSn[i] == true)
+                                {
+                                    sysn[i] = V_PHYS_SYSn_1D_P2_data[i][channel]->at(biny * 50 + binx);
+                                }
                             }
                         #else
-                            if(V_ENABLE_SYS1 == true)
+                            for(int i = 0; i < N_SYSTEMATICS; ++ i)
                             {
-                                sys1 = V_PHYS_SYS1_1D_P2_data[channel]->operator[](biny * 50 + binx);
-                            }
-                            if(V_ENABLE_SYS2 == true)
-                            {
-                                sys2 = V_PHYS_SYS2_1D_P2_data[channel]->operator[](biny * 50 + binx);
-                            }
-                            if(V_ENABLE_SYS3 == true)
-                            {
-                                sys3 = V_PHYS_SYS3_1D_P2_data[channel]->operator[](biny * 50 + binx);
-                            }
-                            if(V_ENABLE_SYS4 == true)
-                            {
-                                sys4 = V_PHYS_SYS4_1D_P2_data[channel]->operator[](biny * 50 + binx);
-                            }
-                            if(V_ENABLE_SYS5 == true)
-                            {
-                                sys5 = V_PHYS_SYS5_1D_P2_data[channel]->operator[](biny * 50 + binx);
+                                if(V_ENABLE_SYSn[i] == true)
+                                {
+                                    sysn[i] = V_PHYS_SYSn_1D_P2_data[i][channel]->operator[](biny * 50 + binx);
+                                }
                             }
                         #endif
                             
-
-                        sysall = sys1 + sys2 + sys3 + sys4 + sys5;
-
+                        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+                        {
+                            sysall += sysn[i];
+                        }
 
                         #if VECTOR_RANGE_CHECK
                             V_PHYS_SYSALL_1D_P2_data[channel]->at(biny * 50 + binx) = sysall;

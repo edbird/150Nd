@@ -3,29 +3,39 @@
 
 
 
+#include "newLogLikFitter_mps_draw_data.h"
+#include "newLogLikFitter_mps_draw_helper.h"
 
 
+// TODO: not all statemachine variables are included in the output file
+// for example V_ENABLE_SYSx and V_ENABLE_SYSALL are missing
+// these should be saved/loaded to/from file as well
+// create a struct to manage the output file data
+// and read-write functions
+// this struct should be a copy of all current program data in memory rather
+// than a reference
+
+// NOTE: which output file opened is controlled by:
+//
+// - before_after_string: switches between "before" and "after"
+// - mode_fake_data: switches between "data" and "fakedata"
+// - V_ENABLE_SYSALL: switches between "STAT" and "STATSYS"
+#if 1
 void newloglikfitter_mps_draw_loader
 (
     const int number_job_id,
     const std::string &output_name,
     std::string &before_after_string,
+    const bool filename_enable_sysall,
+    const bool filename_mode_fake_data,
     TH2D *&h_mps,
     int &n_param_1, double& param_1_min, double& param_1_max,
     int &n_param_2, double& param_2_min, double& param_2_max,
-    bool &enable_min_point_sys1,
-    bool &enable_min_point_sys2,
-    bool &enable_min_point_sys3,
-    bool &enable_min_point_sys4,
-    bool &enable_min_point_sys5,
+    bool *enable_min_point_sysn,
     bool &mode_fake_data,
     double *min_point,
     double *min_point_fake_data,
-    double *min_point_sys1_l, double *min_point_sys1_h,
-    double *min_point_sys2_l, double *min_point_sys2_h,
-    double *min_point_sys3_l, double *min_point_sys3_h,
-    double *min_point_sys4_l, double *min_point_sys4_h,
-    double *min_point_sys5_l, double *min_point_sys5_h,
+    double *min_point_sysn_l, double *min_point_sysn_h,
     double &min, double &min_x, double &min_y
 )
 {
@@ -55,21 +65,21 @@ void newloglikfitter_mps_draw_loader
     std::string output_name_append;
 
     // SYS / STATSYS
-    if(V_ENABLE_SYSALL == false)
+    if(filename_enable_sysall == false)
     {
         output_name_append += "_STAT";
     }
-    else if(V_ENABLE_SYSALL == true)
+    else if(filename_enable_sysall == true)
     {
         output_name_append += "_STATSYS";
     }
 
     // fakedata / data
-    if(g_mode_fake_data == false)
+    if(filename_mode_fake_data == false)
     {
         output_name_append += "_data";
     }
-    else if(g_mode_fake_data == true)
+    else if(filename_mode_fake_data == true)
     {
         output_name_append += "_fake";
     }
@@ -88,7 +98,10 @@ void newloglikfitter_mps_draw_loader
     std::cout << "*****************************************************" << std::endl;
     std::cout << "*****************************************************" << std::endl;
 
-
+    if(!ofs_resultsmatrix.is_open())
+    {
+        std::cout << "ERROR: " << __func__ << " could not open file " << ofs_resultsmatrix_fname << std::endl;
+    }
 
 
 
@@ -120,22 +133,20 @@ void newloglikfitter_mps_draw_loader
     //int n_param_max = n_param_1 * n_param_2;
 
     // read file header data
-    enable_min_point_sys1 = false;
-    enable_min_point_sys2 = false;
-    enable_min_point_sys3 = false;
-    enable_min_point_sys4 = false;
-    enable_min_point_sys5 = false;
+    for(int i = 0; i < N_SYSTEMATICS; ++ i)
+    {
+        enable_min_point_sysn[i] = false;
+    }
 
     {
         std::stringstream ss;
         std::string s;
         std::getline(ofs_resultsmatrix, s);
         ss << s;
-        ss >> enable_min_point_sys1
-           >> enable_min_point_sys2
-           >> enable_min_point_sys3
-           >> enable_min_point_sys4
-           >> enable_min_point_sys5;
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            ss >> enable_min_point_sysn[i];
+        }
     }
 
     {
@@ -163,84 +174,26 @@ void newloglikfitter_mps_draw_loader
     }
 
     {
-        std::stringstream ss;
-        std::string s;
-        std::getline(ofs_resultsmatrix, s);
-        ss << s;
-        ss >> min_point_sys1_l[0] >> min_point_sys1_l[1];
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            {
+                std::stringstream ss;
+                std::string s;
+                std::getline(ofs_resultsmatrix, s);
+                ss << s;
+                ss >> min_point_sysn_l[i * 2 + 0] >> min_point_sysn_l[i * 2 + 1];
+            }
+
+            {
+                std::stringstream ss;
+                std::string s;
+                std::getline(ofs_resultsmatrix, s);
+                ss << s;
+                ss >> min_point_sysn_h[i * 2 + 0] >> min_point_sysn_h[i * 2 + 1];
+            }
+        }
     }
 
-    {
-        std::stringstream ss;
-        std::string s;
-        std::getline(ofs_resultsmatrix, s);
-        ss << s;
-        ss >> min_point_sys1_h[0] >> min_point_sys1_h[1];
-    }
-
-    {
-        std::stringstream ss;
-        std::string s;
-        std::getline(ofs_resultsmatrix, s);
-        ss << s;
-        ss >> min_point_sys2_l[0] >> min_point_sys2_l[1];
-    }
-
-    {
-        std::stringstream ss;
-        std::string s;
-        std::getline(ofs_resultsmatrix, s);
-        ss << s;
-        ss >> min_point_sys2_h[0] >> min_point_sys2_h[1];
-    }
-
-    {
-        std::stringstream ss;
-        std::string s;
-        std::getline(ofs_resultsmatrix, s);
-        ss << s;
-        ss >> min_point_sys3_l[0] >> min_point_sys3_l[1];
-    }
-
-    {
-        std::stringstream ss;
-        std::string s;
-        std::getline(ofs_resultsmatrix, s);
-        ss << s;
-        ss >> min_point_sys3_h[0] >> min_point_sys3_h[1];
-    }
-
-    {
-        std::stringstream ss;
-        std::string s;
-        std::getline(ofs_resultsmatrix, s);
-        ss << s;
-        ss >> min_point_sys4_l[0] >> min_point_sys4_l[1];
-    }
-
-    {
-        std::stringstream ss;
-        std::string s;
-        std::getline(ofs_resultsmatrix, s);
-        ss << s;
-        ss >> min_point_sys4_h[0] >> min_point_sys4_h[1];
-    }
-
-    {
-        std::stringstream ss;
-        std::string s;
-        std::getline(ofs_resultsmatrix, s);
-        ss << s;
-        ss >> min_point_sys5_l[0] >> min_point_sys5_l[1];
-    }
-
-    {
-        std::stringstream ss;
-        std::string s;
-        std::getline(ofs_resultsmatrix, s);
-        ss << s;
-        ss >> min_point_sys5_h[0] >> min_point_sys5_h[1];
-    }
 
 
 /*
@@ -270,17 +223,27 @@ void newloglikfitter_mps_draw_loader
     // INIT TH2 OBJECTS
     ///////////////////////////////////////////////////////////////////////////
 
-
     // MPS BEFORE/AFTER //
 
     TString h_mps_name_base;
-    if(g_mode_fake_data == true)
+    // SYS / STATSYS
+    if(filename_enable_sysall == false)
     {
-        h_mps_name_base = "h_mps_fake_data";
+        h_mps_name_base += "_STAT";
     }
-    else if(g_mode_fake_data == false)
+    else if(filename_enable_sysall == true)
     {
-        h_mps_name_base = "h_mps";
+        h_mps_name_base += "_STATSYS";
+    }
+
+    // fakedata / data
+    if(filename_mode_fake_data == false)
+    {
+        h_mps_name_base += "_data";
+    }
+    else if(filename_mode_fake_data == true)
+    {
+        h_mps_name_base += "_fake";
     }
     TString h_mps_name = h_mps_name_base + "_" + before_after_string;
 
@@ -426,353 +389,102 @@ void newloglikfitter_mps_draw_loader
 
 
 }
+#endif
 
 
 
-void newloglikfitter_draw_mps_helper
+
+
+
+void newloglikfitter_mps_draw_systematics
 (
     const int number_job_id,
-    TString &before_after_string,
-    TCanvas *&c_mps,
-    TH2D *h_mps,
-    int n_param_1, double param_1_min, double param_1_max,
-    int n_param_2, double param_2_min, double param_2_max,
-    bool enable_min_point_sys1,
-    bool enable_min_point_sys2,
-    bool enable_min_point_sys3,
-    bool enable_min_point_sys4,
-    bool enable_min_point_sys5,
-    bool mode_fake_data,
-    double *min_point,
-    double *min_point_fake_data,
-    double *min_point_sys1_l, double *min_point_sys1_h,
-    double *min_point_sys2_l, double *min_point_sys2_h,
-    double *min_point_sys3_l, double *min_point_sys3_h,
-    double *min_point_sys4_l, double *min_point_sys4_h,
-    double *min_point_sys5_l, double *min_point_sys5_h,
-    double min, double min_x, double min_y
+    const std::string &output_name,
+    const int start_index,
+    const int stop_index  // TODO: these may no longer make sense
 )
 {
 
-    std::cout << __func__ << std::endl;
+    const bool mode_fake_data_flag = true;
 
-    ///////////////////////////////////////////////////////////////////
-    // c_mps before/after
-    ///////////////////////////////////////////////////////////////////
-
-    if(0 || (MODE_PARALLEL == 0))
+    TString c_mps_name_base = "c_mps_final_after";
+    // fakedata / data
+    if(mode_fake_data_flag == false)
     {
-        TString c_mps_name_base = "c_mps";
-        TString c_mps_name = c_mps_name_base + "_" + before_after_string;
+        c_mps_name_base += "_data";
+    }
+    else if(mode_fake_data_flag == true)
+    {
+        c_mps_name_base += "_fake";
+    }
+    TString c_mps_name = c_mps_name_base;
+    
+    std::cout << "rendering: " << c_mps_name << std::endl;
 
-        TCanvas *c_mps = new TCanvas(c_mps_name, c_mps_name);
-        c_mps->SetTicks(2, 2);
-        c_mps->SetRightMargin(0.15);
-        c_mps->SetBottomMargin(0.15);
-        //c_mps->SetLogz();
-        TVirtualPad *padret = c_mps->cd();
-        if(padret == nullptr)
-        {
-            std::cout << "PAD FAIL" << std::endl;
-            std::cin.get();
-        }
-        //c_mps->GetPad()->cd();
-        //c_mps_v.push_back(c_mps);
-        //c_mps = nullptr;
-        //c_mps->cd();
-        h_mps->SetTitle("");
-        h_mps->SetStats(0);
-        h_mps->GetZaxis()->SetLabelOffset(0.005);
-        h_mps->GetXaxis()->SetLabelSize(17.0);
-        h_mps->GetXaxis()->SetLabelFont(43);
-        h_mps->GetYaxis()->SetLabelSize(17.0);
-        h_mps->GetYaxis()->SetLabelFont(43);
-        h_mps->GetZaxis()->SetLabelSize(17.0);
-        h_mps->GetZaxis()->SetLabelFont(43);
-        h_mps->GetXaxis()->SetTitleSize(18.0);
-        h_mps->GetXaxis()->SetTitleFont(43);
-        h_mps->GetYaxis()->SetTitleSize(18.0);
-        h_mps->GetYaxis()->SetTitleFont(43);
-        h_mps->GetYaxis()->SetTitle("^{150}Nd Amplitude Scale Factor");
-        h_mps->GetXaxis()->SetTitle("#xi^{2#nu#beta#beta}_{31}");
-        h_mps->GetXaxis()->SetTitleOffset(1.5);
-        h_mps->GetYaxis()->SetTitleOffset(1.2);
-        h_mps->GetXaxis()->SetLabelOffset(0.01);
-        h_mps->GetYaxis()->SetLabelOffset(0.01);
-        TH2D *h_mps_contour = (TH2D*)h_mps->Clone("h_mps_1_0_clone");
-        h_mps->Draw("colz");
+    // TODO: NOTE: have to change value of "stop_index" as well
+    int c_param = 0;
 
 
-        std::cout << "min=" << min << " min_x=" << min_x << " min_y=" << min_y << std::endl;
-        //double clevels[3] = {min + 1.0, min + 2.0, min + 3.0};
-        double clevels[3] = {min + 2.30, min + 4.61, min + 9.21};
-        //double clevels[3] = {2.30, 4.61, 9.21}; // true minimum is 0.0 for HSD
-        h_mps_contour->SetLineColor(kBlack);
-//        h_mps_contour->SetLineStyle(0); // in drawmps.C but not used
-        h_mps_contour->SetContour(3, clevels);
 
-        c_mps->Update();
-        TPaletteAxis *palette = (TPaletteAxis*)h_mps->GetListOfFunctions()->FindObject("palette");
-        palette->SetX1NDC(0.88 + 0.03);
-        palette->SetX2NDC(0.92 + 0.03);
-        palette->SetY1NDC(0.15);
-        palette->SetY2NDC(0.9);
-        palette->Draw();
-        gPad->Modified();
-        gPad->Update();
-        c_mps->Modified();
-        
+    ///////////////////////////////////////////////////////////////////////////
+    // OPEN FILE
+    ///////////////////////////////////////////////////////////////////////////
 
-        TLine *lineHSD = new TLine(0.0, param_2_min, 0.0, param_2_max);
-        TLine *lineSSD = new TLine(0.296, param_2_min, 0.296, param_2_max);
-        TLine *lineY = new TLine(param_1_min, 1.0, param_1_max, 1.0);
-        //TLine *lineXc = new TLine(param_1_min, min_y, param_1_max, min_y);
-        //TLine *lineYc = new TLine(min_x, param_2_min, min_x, param_2_max);
-        TLine *lineXc = new TLine(param_1_min, min_point[1], param_1_max, min_point[1]);
-        TLine *lineYc = new TLine(min_point[0], param_2_min, min_point[0], param_2_max);
-        //lineHSD->SetLineColor(kWhite);
-        //lineSSD->SetLineColor(kWhite);
-        //lineY->SetLineColor(kWhite);
-        lineHSD->SetLineColorAlpha(kWhite, 0.5);
-        lineSSD->SetLineColorAlpha(kWhite, 0.5);
-        lineY->SetLineColorAlpha(kWhite, 0.5);
-        lineXc->SetLineColorAlpha(kBlack, 0.5);
-        lineYc->SetLineColorAlpha(kBlack, 0.5);
-        lineHSD->Draw();
-        lineSSD->Draw();
-        lineY->Draw();
-        Int_t min_ix = h_mps->GetXaxis()->FindBin(min_x);
-        Int_t min_iy = h_mps->GetXaxis()->FindBin(min_y);
-        Int_t ix_0 = h_mps->GetXaxis()->FindBin(0.0);
-        Int_t iy_1 = h_mps->GetXaxis()->FindBin(1.0);
-        if(min_ix != ix_0 && min_iy != iy_1)
-        {
-            lineXc->Draw();
-            lineYc->Draw();
-        }
+    std::string after_string = "after";
+
+    mpsdrawdata mps_draw_data_after_sysall;
+    mps_draw_data_after_sysall.read(output_name, after_string, true, mode_fake_data_flag);
+
+    mpsdrawdata mps_draw_data_after_sysnone;
+    mps_draw_data_after_sysnone.read(output_name, after_string, false, mode_fake_data_flag);
 
 
-        ///////////////////////////////////////////////////////////////////////
-        // PLOT MARKERS FOR SYSTEMATICS BEST FIT POINTS
-        ///////////////////////////////////////////////////////////////////////
 
-        // SYS 1
-        TMarker *mark_min_point_sys1_l = nullptr;
-        TMarker *mark_min_point_sys1_h = nullptr;
-        TLine *line_min_point_sys1_l = nullptr;
-        TLine *line_min_point_sys1_h = nullptr;
-        min_point_marker_helper(
-            mark_min_point_sys1_l,
-            mark_min_point_sys1_h,
-            line_min_point_sys1_l,
-            line_min_point_sys1_h,
-            min_point,
-            min_point_fake_data,
-            min_point_sys1_l,
-            min_point_sys1_h,
-            ENABLE_MIN_POINT_SYS1,
-            106, kRed, kRed
-            );
-
-        // SYS 2
-        TMarker *mark_min_point_sys2_l = nullptr;
-        TMarker *mark_min_point_sys2_h = nullptr;
-        TLine *line_min_point_sys2_l = nullptr;
-        TLine *line_min_point_sys2_h = nullptr;
-        min_point_marker_helper(
-            mark_min_point_sys2_l,
-            mark_min_point_sys2_h,
-            line_min_point_sys2_l,
-            line_min_point_sys2_h,
-            min_point,
-            min_point_fake_data,
-            min_point_sys2_l,
-            min_point_sys2_h,
-            ENABLE_MIN_POINT_SYS2,
-            22, kOrange, kOrange
-            );
-
-        // SYS 3
-        TMarker *mark_min_point_sys3_l = nullptr;
-        TMarker *mark_min_point_sys3_h = nullptr;
-        TLine *line_min_point_sys3_l = nullptr;
-        TLine *line_min_point_sys3_h = nullptr;
-        min_point_marker_helper(
-            mark_min_point_sys3_l,
-            mark_min_point_sys3_h,
-            line_min_point_sys3_l,
-            line_min_point_sys3_h,
-            min_point,
-            min_point_fake_data,
-            min_point_sys3_l,
-            min_point_sys3_h,
-            ENABLE_MIN_POINT_SYS3,
-            23, kYellow, kYellow
-            );
-
-        // SYS 4
-        TMarker *mark_min_point_sys4_l = nullptr;
-        TMarker *mark_min_point_sys4_h = nullptr;
-        TLine *line_min_point_sys4_l = nullptr;
-        TLine *line_min_point_sys4_h = nullptr;
-        min_point_marker_helper(
-            mark_min_point_sys4_l,
-            mark_min_point_sys4_h,
-            line_min_point_sys4_l,
-            line_min_point_sys4_h,
-            min_point,
-            min_point_fake_data,
-            min_point_sys4_l,
-            min_point_sys4_h,
-            ENABLE_MIN_POINT_SYS4,
-            45, kGreen, kGreen
-            );
-
-        // SYS 5
-        TMarker *mark_min_point_sys5_l = nullptr;
-        TMarker *mark_min_point_sys5_h = nullptr;
-        TLine *line_min_point_sys5_l = nullptr;
-        TLine *line_min_point_sys5_h = nullptr;
-        min_point_marker_helper(
-            mark_min_point_sys5_l,
-            mark_min_point_sys5_h,
-            line_min_point_sys5_l,
-            line_min_point_sys5_h,
-            min_point,
-            min_point_fake_data,
-            min_point_sys5_l,
-            min_point_sys5_h,
-            ENABLE_MIN_POINT_SYS5,
-            43, kMagenta, kMagenta
-            );
-
-        if(ENABLE_MIN_POINT_SYS1 == true)
-        {
-            if((min_point_sys1_l[0] != 0.0) &&
-               (min_point_sys1_l[1] != 0.0))
-            {
-                mark_min_point_sys1_l->Draw();
-                line_min_point_sys1_l->Draw();
-            }
-
-            if((min_point_sys1_h[0] != 0.0) &&
-               (min_point_sys1_h[1] != 0.0))
-            {
-                mark_min_point_sys1_h->Draw();
-                line_min_point_sys1_h->Draw();
-            }
-        }
-
-        if(ENABLE_MIN_POINT_SYS2 == true)
-        {
-            if((min_point_sys2_l[0] != 0.0) &&
-               (min_point_sys2_l[1] != 0.0))
-            {
-                mark_min_point_sys2_l->Draw();
-                line_min_point_sys2_l->Draw();
-            }
-
-            if((min_point_sys2_h[0] != 0.0) &&
-               (min_point_sys2_h[1] != 0.0))
-            {
-                mark_min_point_sys2_h->Draw();
-                line_min_point_sys2_h->Draw();
-            }
-        }
-
-        if(ENABLE_MIN_POINT_SYS3 == true)
-        {
-            if((min_point_sys3_l[0] != 0.0) &&
-               (min_point_sys3_l[1] != 0.0))
-            {
-                mark_min_point_sys3_l->Draw();
-                line_min_point_sys3_l->Draw();
-            }
-
-            if((min_point_sys3_h[0] != 0.0) &&
-               (min_point_sys3_h[1] != 0.0))
-            {
-                mark_min_point_sys3_h->Draw();
-                line_min_point_sys3_h->Draw();
-            }
-        }
-
-        if(ENABLE_MIN_POINT_SYS4 == true)
-        {
-            if((min_point_sys4_l[0] != 0.0) &&
-               (min_point_sys4_l[1] != 0.0))
-            {
-                mark_min_point_sys4_l->Draw();
-                line_min_point_sys4_l->Draw();
-            }
-
-            if((min_point_sys4_h[0] != 0.0) &&
-               (min_point_sys4_h[1] != 0.0))
-            {
-                mark_min_point_sys4_h->Draw();
-                line_min_point_sys4_h->Draw();
-            }
-        }
-
-        if(ENABLE_MIN_POINT_SYS5 == true)
-        {
-            if((min_point_sys5_l[0] != 0.0) &&
-               (min_point_sys5_l[1] != 0.0))
-            {
-                mark_min_point_sys5_l->Draw();
-                line_min_point_sys5_l->Draw();
-            }
-
-            if((min_point_sys5_h[0] != 0.0) &&
-               (min_point_sys5_h[1] != 0.0))
-            {
-                mark_min_point_sys5_h->Draw();
-                line_min_point_sys5_h->Draw();
-            }
-        }
+    TCanvas *c_mps_after = nullptr;
+    TString after_string_TString = TString(after_string);
+    newloglikfitter_mps_draw_helper
+    (
+        c_mps_after,
+        mps_draw_data_after_sysall,
+        mps_draw_data_after_sysnone
+    );
 
 
 /*
-        if(ll_walk_save.size() > 0)
-        {
-            std::vector<TLine*> linesteps;
-            for(std::size_t ix_walk = 0; ix_walk < ll_walk_save.size() - 1; ++ ix_walk)
-            {
-                std::pair<double, double> p1 = ll_walk_save.at(ix_walk);
-                std::pair<double, double> p2 = ll_walk_save.at(ix_walk + 1);
-                Double_t x1 = p1.first;
-                Double_t x2 = p2.first;
-                Double_t y1 = p1.second;
-                Double_t y2 = p2.second;
-                //std::cout << "ix_walk=" << ix_walk << " " << x1 << " " << y1 << std::endl;
-                TLine *linestep = new TLine(x1, y1, x2, y2);
-                linestep->SetLineColorAlpha(kRed, 0.1);
-                linestep->SetLineWidth(2);
-                linestep->Draw();
-                linesteps.push_back(linestep);
-            }
-        }
+    double min = min_after_sysnone;
+    double min_x = min_x_after_sysnone;
+    double min_y = min_y_after_sysnone;
+
+    c_mps_after->cd();
+    std::cout << "min=" << min << " min_x=" << min_x << " min_y=" << min_y << std::endl;
+    //double clevels[3] = {min + 1.0, min + 2.0, min + 3.0};
+    double clevels[3] = {min + 2.30, min + 4.61, min + 9.21};
+    //double clevels[3] = {2.30, 4.61, 9.21}; // true minimum is 0.0 for HSD
+    h_mps_after_sysnone->SetLineColor(kCyan); //kCyan/kGreen
+//        h_mps_after_sysnone->SetLineStyle(0); // in drawmps.C but not used
+    h_mps_after_sysnone->SetContour(3, clevels);
+    h_mps_after_sysnone->Draw("cont3same");
 */
 
-        h_mps_contour->Draw("cont3same");
-        //TString c_fname_png = c_mps_name + datetimestamp_TString + ".png";
-        //TString c_fname_pdf = c_mps_name + datetimestamp_TString + ".pdf";
-        TString c_fname = c_mps_name + "_"
-                       + "JID" + std::to_string(number_job_id);// + "_"
-                       //+ datetimestamp_TString;
-        TString c_fname_png = c_fname + ".png";
-        TString c_fname_pdf = c_fname + ".pdf";
-        std::cout << "*****************************************************" << std::endl;
-        std::cout << "c_fname=" << c_fname << std::endl;
-        std::cout << "is the filename legal?" << std::endl;
-        std::cout << "*****************************************************" << std::endl;
-        c_mps->SaveAs(c_fname_png);
-        c_mps->SaveAs(c_fname_pdf);
-        //h_mps = nullptr;
-    }
+
+    //TString c_fname_png = c_mps_name + datetimestamp_TString + ".png";
+    //TString c_fname_pdf = c_mps_name + datetimestamp_TString + ".pdf";
+    TString c_fname = c_mps_name + "_"
+                   + "JID" + std::to_string(number_job_id);// + "_"
+                   //+ datetimestamp_TString;
+    TString c_fname_png = c_fname + ".png";
+    TString c_fname_pdf = c_fname + ".pdf";
+    TString c_fname_eps = c_fname + ".eps";
+    std::cout << "*****************************************************" << std::endl;
+    std::cout << "c_fname=" << c_fname << std::endl;
+    std::cout << "is the filename legal?" << std::endl;
+    std::cout << "*****************************************************" << std::endl;
+    c_mps_after->SaveAs(c_fname_png);
+    c_mps_after->SaveAs(c_fname_pdf);
+    c_mps_after->SaveAs(c_fname_eps);
+    //h_mps = nullptr;
+    
 }
-
-
 
 
 
@@ -811,27 +523,17 @@ void newloglikfitter_mps_draw(
     ///////////////////////////////////////////////////////////////////////////
 
     std::string before_string = "before";
+    const bool filename_enable_sysall_after = V_ENABLE_SYSALL;
+    const bool filename_mode_fake_data_after = g_mode_fake_data;
     TH2D *h_mps_before = nullptr;
     int n_param_1_before; double param_1_min_before; double param_1_max_before;
     int n_param_2_before; double param_2_min_before; double param_2_max_before;
-    bool enable_min_point_sys1_before;
-    bool enable_min_point_sys2_before;
-    bool enable_min_point_sys3_before;
-    bool enable_min_point_sys4_before;
-    bool enable_min_point_sys5_before;
+    bool enable_min_point_sysn_before[N_SYSTEMATICS];
     bool mode_fake_data_before;
     double min_point_before[2];
     double min_point_fake_data_before[2];
-    double min_point_sys1_l_before[2];
-    double min_point_sys1_h_before[2];
-    double min_point_sys2_l_before[2];
-    double min_point_sys2_h_before[2];
-    double min_point_sys3_l_before[2];
-    double min_point_sys3_h_before[2];
-    double min_point_sys4_l_before[2];
-    double min_point_sys4_h_before[2];
-    double min_point_sys5_l_before[2];
-    double min_point_sys5_h_before[2];
+    double min_point_sysn_l_before[N_SYSTEMATICS][2];
+    double min_point_sysn_h_before[N_SYSTEMATICS][2];
     double min_before;
     double min_x_before;
     double min_y_before;
@@ -839,47 +541,31 @@ void newloglikfitter_mps_draw(
         number_job_id,
         output_name,
         before_string,
+        filename_enable_sysall_after,
+        filename_mode_fake_data_after,
         h_mps_before,
         n_param_1_before, param_1_min_before, param_1_max_before,
         n_param_2_before, param_2_min_before, param_2_max_before,
-        enable_min_point_sys1_before,
-        enable_min_point_sys2_before,
-        enable_min_point_sys3_before,
-        enable_min_point_sys4_before,
-        enable_min_point_sys5_before,
+        enable_min_point_sysn_before,
         mode_fake_data_before,
         min_point_before,
         min_point_fake_data_before,
-        min_point_sys1_l_before, min_point_sys1_h_before,
-        min_point_sys2_l_before, min_point_sys2_h_before,
-        min_point_sys3_l_before, min_point_sys3_h_before,
-        min_point_sys4_l_before, min_point_sys4_h_before,
-        min_point_sys5_l_before, min_point_sys5_h_before,
+        &min_point_sysn_l_before[0][0], &min_point_sysn_h_before[0][0],
         min_before, min_x_before, min_y_before
     );
 
     std::string after_string = "after";
+    const bool filename_enable_sysall_before = V_ENABLE_SYSALL;
+    const bool filename_mode_fake_data_before = g_mode_fake_data;
     TH2D *h_mps_after = nullptr;
     int n_param_1_after; double param_1_min_after; double param_1_max_after;
     int n_param_2_after; double param_2_min_after; double param_2_max_after;
-    bool enable_min_point_sys1_after;
-    bool enable_min_point_sys2_after;
-    bool enable_min_point_sys3_after;
-    bool enable_min_point_sys4_after;
-    bool enable_min_point_sys5_after;
+    bool enable_min_point_sysn_after[N_SYSTEMATICS];
     bool mode_fake_data_after;
     double min_point_after[2];
     double min_point_fake_data_after[2];
-    double min_point_sys1_l_after[2];
-    double min_point_sys1_h_after[2];
-    double min_point_sys2_l_after[2];
-    double min_point_sys2_h_after[2];
-    double min_point_sys3_l_after[2];
-    double min_point_sys3_h_after[2];
-    double min_point_sys4_l_after[2];
-    double min_point_sys4_h_after[2];
-    double min_point_sys5_l_after[2];
-    double min_point_sys5_h_after[2];
+    double min_point_sysn_l_after[N_SYSTEMATICS][2];
+    double min_point_sysn_h_after[N_SYSTEMATICS][2];
     double min_after;
     double min_x_after;
     double min_y_after;
@@ -887,28 +573,55 @@ void newloglikfitter_mps_draw(
         number_job_id,
         output_name,
         after_string,
+        filename_enable_sysall_before,
+        filename_mode_fake_data_before,
         h_mps_after,
         n_param_1_after, param_1_min_after, param_1_max_after,
         n_param_2_after, param_2_min_after, param_2_max_after,
-        enable_min_point_sys1_after,
-        enable_min_point_sys2_after,
-        enable_min_point_sys3_after,
-        enable_min_point_sys4_after,
-        enable_min_point_sys5_after,
+        enable_min_point_sysn_after,
         mode_fake_data_after,
         min_point_after,
         min_point_fake_data_after,
-        min_point_sys1_l_after, min_point_sys1_h_after,
-        min_point_sys2_l_after, min_point_sys2_h_after,
-        min_point_sys3_l_after, min_point_sys3_h_after,
-        min_point_sys4_l_after, min_point_sys4_h_after,
-        min_point_sys5_l_after, min_point_sys5_h_after,
+        &min_point_sysn_l_after[0][0], &min_point_sysn_h_after[0][0],
         min_after, min_x_after, min_y_after
     );
 
 
     TCanvas *c_mps_before = nullptr;
     TString before_string_TString = TString(before_string);
+    TMarker *mark_min_point_sysn_l_before[N_SYSTEMATICS] = 
+    {
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr
+    };
+    TMarker *mark_min_point_sysn_h_before[N_SYSTEMATICS] = 
+    {
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr
+    };
+    TLine *line_min_point_sysn_l_before[N_SYSTEMATICS] = 
+    {
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr
+    };
+    TLine *line_min_point_sysn_h_before[N_SYSTEMATICS] = 
+    {
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr
+    };
+    /*
     newloglikfitter_draw_mps_helper
     (
         number_job_id,
@@ -917,24 +630,51 @@ void newloglikfitter_mps_draw(
         h_mps_before,
         n_param_1_before, param_1_min_before, param_1_max_before,
         n_param_2_before, param_2_min_before, param_2_max_before,
-        enable_min_point_sys1_before,
-        enable_min_point_sys2_before,
-        enable_min_point_sys3_before,
-        enable_min_point_sys4_before,
-        enable_min_point_sys5_before,
+        enable_min_point_sysn_before,
         mode_fake_data_before,
         min_point_before,
         min_point_fake_data_before,
-        min_point_sys1_l_before, min_point_sys1_h_before,
-        min_point_sys2_l_before, min_point_sys2_h_before,
-        min_point_sys3_l_before, min_point_sys3_h_before,
-        min_point_sys4_l_before, min_point_sys4_h_before,
-        min_point_sys5_l_before, min_point_sys5_h_before,
+        &min_point_sysn_l_before[0][0], &min_point_sysn_h_before[0][0],
+        mark_min_point_sysn_l_before, mark_min_point_sysn_h_before,
+        line_min_point_sysn_l_before, line_min_point_sysn_h_before,
         min_before, min_x_before, min_y_before
     );
-
+    */
     TCanvas *c_mps_after = nullptr;
     TString after_string_TString = TString(after_string);
+    TMarker *mark_min_point_sysn_l_after[N_SYSTEMATICS] = 
+    {
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr
+    };
+    TMarker *mark_min_point_sysn_h_after[N_SYSTEMATICS] = 
+    {
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr
+    };
+    TLine *line_min_point_sysn_l_after[N_SYSTEMATICS] = 
+    {
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr
+    };
+    TLine *line_min_point_sysn_h_after[N_SYSTEMATICS] = 
+    {
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr
+    };
+    /*
     newloglikfitter_draw_mps_helper
     (
         number_job_id,
@@ -943,22 +683,16 @@ void newloglikfitter_mps_draw(
         h_mps_after,
         n_param_1_after, param_1_min_after, param_1_max_after,
         n_param_2_after, param_2_min_after, param_2_max_after,
-        enable_min_point_sys1_after,
-        enable_min_point_sys2_after,
-        enable_min_point_sys3_after,
-        enable_min_point_sys4_after,
-        enable_min_point_sys5_after,
+        enable_min_point_sysn_after,
         mode_fake_data_after,
         min_point_after,
         min_point_fake_data_after,
-        min_point_sys1_l_after, min_point_sys1_h_after,
-        min_point_sys2_l_after, min_point_sys2_h_after,
-        min_point_sys3_l_after, min_point_sys3_h_after,
-        min_point_sys4_l_after, min_point_sys4_h_after,
-        min_point_sys5_l_after, min_point_sys5_h_after,
+        &min_point_sysn_l_after[0][0], &min_point_sysn_h_after[0][0],
+        mark_min_point_sysn_l_after, mark_min_point_sysn_h_after,
+        line_min_point_sysn_l_after, line_min_point_sysn_h_after,
         min_after, min_x_after, min_y_after
     );
-
+    */
 
 
 

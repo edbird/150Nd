@@ -24,42 +24,43 @@ void newloglikfitter_mps_calculate
     // SET param_1 RANGE
     ///////////////////////////////////////////////////////////////////////////
 
-    double param_1_min;
-    double param_1_max;
+    double param_1_min = 0.0;
+    double param_1_max = 0.0;
 
     // param 1 is gA
     // custom range
-    param_1_min = 0.1; //-0.4; //-0.5; //1.0; //-0.5;
-    param_1_max = 1.7; //0.6; //1.6; //0.5; //2.5; //5.0; //2.5;
+//    param_1_min = 0.1; //-0.4; //-0.5; //1.0; //-0.5;
+//    param_1_max = 1.7; //0.6; //1.6; //0.5; //2.5; //5.0; //2.5;
     // after changing the psiN0, psiN2 values...
-    param_1_min = -0.3;
-    param_1_max = 1.7; // adjusted for SYS1 energy offset was 1.5
+//    param_1_min = -0.3;
+//    param_1_max = 1.7; // adjusted for SYS1 energy offset was 1.5
     //param_1_min = -0.4;
     //param_1_max = 1.6; TODO
     // fake data values
-    if(g_mode_fake_data == true)
-    {
-//        param_1_min = -0.4;
-//        param_1_max = 0.6;
-        param_1_min = -0.7;
-        param_1_max = 0.7;
-    }
+//    if(g_mode_fake_data == true)
+//    {
+////        param_1_min = -0.4;
+////        param_1_max = 0.6;
+//        param_1_min = -0.7;
+//        param_1_max = 0.7;
+//    }
     
     // with systematics
-    if(V_ENABLE_SYSALL == true)
+//    if(V_ENABLE_SYSALL == true)
+//    {
+    // TODO: change depending on systematic
+    // NOTE: no longer do this because both contours on single plot
+    if(g_mode_fake_data == false)
     {
-        // TODO: change depending on systematic
-        if(g_mode_fake_data == false)
-        {
-            param_1_min = -0.7;
-            param_1_max = 2.1;
-        }
-        else if(g_mode_fake_data == true)
-        {
-            param_1_min = -0.5;
-            param_1_max = 0.7;
-        }
+        param_1_min = -0.2;
+        param_1_max = 1.0;
     }
+    else if(g_mode_fake_data == true)
+    {
+        param_1_min = -0.5;
+        param_1_max = 0.7;
+    }
+//    }
 
     // hack to get HSD
     //param_1_min = -0.1;
@@ -70,37 +71,37 @@ void newloglikfitter_mps_calculate
     // SET param_2 RANGE
     ///////////////////////////////////////////////////////////////////////////
 
-    double param_2_min;
-    double param_2_max;
+    double param_2_min = 0.0;
+    double param_2_max = 0.0;
     
     // param 2 is 150Nd amplitude
     // custom range
-    param_2_min = 0.8; //1.1; //0.0; //0.0;
-    param_2_max = 2.6; //2.6; //1.8; //2.0; //2.0; //4.0;
+//    param_2_min = 0.8; //1.1; //0.0; //0.0;
+//    param_2_max = 2.6; //2.6; //1.8; //2.0; //2.0; //4.0;
     // after changing the psiN0, psiN2 values...
-    param_2_min = 0.95;
-    param_2_max = 1.3;
+//    param_2_min = 0.95;
+//    param_2_max = 1.3;
     //param_2_min = 0.0;
     //param_2_max = 3.0;  //TODO
     // fake data values
-    if(g_mode_fake_data == true)
-    {
-//        param_2_min = 0.2;
-//        param_2_max = 1.8
-        param_2_max = 1.15;
-        param_2_min = 0.85;
-    }
+//    if(g_mode_fake_data == true)
+//    {
+////        param_2_min = 0.2;
+////        param_2_max = 1.8
+//        param_2_max = 1.15;
+//        param_2_min = 0.85;
+//    }
     
     // with systematics
     if(g_mode_fake_data == false)
     {
         param_2_min = 0.75;
-        param_2_max = 1.5;
+        param_2_max = 1.25;
     }
     else if(g_mode_fake_data == true)
     {
-        param_2_min = 0.85;
-        param_2_max = 1.15;
+        param_2_min = 0.75;
+        param_2_max = 1.25;
     }
 
     // hack to get HSD
@@ -203,56 +204,74 @@ void newloglikfitter_mps_calculate
         return;
     }
 
+    // before
+    ofs_resultsmatrix_before << g_mode_fake_data << std::endl;
+    // after
+    ofs_resultsmatrix_after << g_mode_fake_data << std::endl;
+
+    // before
+    ofs_resultsmatrix_before << V_ENABLE_SYSALL << " ";
+    for(int i = 0; i < N_SYSTEMATICS; ++ i)
+    {
+        ofs_resultsmatrix_before << V_ENABLE_SYSn[i] << " ";
+    }
+    ofs_resultsmatrix_before << std::endl;
+
+    // after
+    ofs_resultsmatrix_after << V_ENABLE_SYSALL << " ";
+    for(int i = 0; i < N_SYSTEMATICS; ++ i)
+    {
+        ofs_resultsmatrix_after << V_ENABLE_SYSn[i] << " ";
+    }
+    ofs_resultsmatrix_after << std::endl;
+
+
+    // before: save minimum systematic fit points
+    for(int i = 0; i < N_SYSTEMATICS; ++ i)
+    {
+        ofs_resultsmatrix_before << ENABLE_MIN_POINT_SYSn[i] << " ";
+    }
+    ofs_resultsmatrix_before << std::endl;
+
+
+    // after: save minimum systematic fit points
+    for(int i = 0; i < N_SYSTEMATICS; ++ i)
+    {
+        ofs_resultsmatrix_after << ENABLE_MIN_POINT_SYSn[i] << " ";
+    }
+    ofs_resultsmatrix_after << std::endl;
+    
+
+    // before 
+    ofs_resultsmatrix_before << min_point[0] << " " << min_point[1] << std::endl;
+    ofs_resultsmatrix_before << min_point_fake_data[0] << " " << min_point_fake_data[1] << std::endl;
+    for(int i = 0; i < N_SYSTEMATICS; ++ i)
+    {
+        ofs_resultsmatrix_before << min_point_sysn_l[i][0] << " " << min_point_sysn_l[i][1] << std::endl;
+        ofs_resultsmatrix_before << min_point_sysn_h[i][0] << " " << min_point_sysn_h[i][1] << std::endl;
+    }
+
+    // after
+    ofs_resultsmatrix_after << min_point[0] << " " << min_point[1] << std::endl;
+    ofs_resultsmatrix_after << min_point_fake_data[0] << " " << min_point_fake_data[1] << std::endl;
+    for(int i = 0; i < N_SYSTEMATICS; ++ i)
+    {
+        ofs_resultsmatrix_after << min_point_sysn_l[i][0] << " " << min_point_sysn_l[i][1] << std::endl;
+        ofs_resultsmatrix_after << min_point_sysn_h[i][0] << " " << min_point_sysn_h[i][1] << std::endl;
+    }
+
+
+    // before
     ofs_resultsmatrix_before << n_param_1 << " " << param_1_min << " " << param_1_max << std::endl;
     ofs_resultsmatrix_before << n_param_2 << " " << param_2_min << " " << param_2_max << std::endl;
 
+    // after
     ofs_resultsmatrix_after << n_param_1 << " " << param_1_min << " " << param_1_max << std::endl;
     ofs_resultsmatrix_after << n_param_2 << " " << param_2_min << " " << param_2_max << std::endl;
 
-
-
-    // save minimum fit points here
-    // TODO
-    ofs_resultsmatrix_before << ENABLE_MIN_POINT_SYS1 << " "
-                             << ENABLE_MIN_POINT_SYS2 << " "
-                             << ENABLE_MIN_POINT_SYS3 << " "
-                             << ENABLE_MIN_POINT_SYS4 << " "
-                             << ENABLE_MIN_POINT_SYS5 << std::endl;
-    ofs_resultsmatrix_before << g_mode_fake_data << std::endl;
-    ofs_resultsmatrix_before << min_point[0] << " " << min_point[1] << std::endl;
-    ofs_resultsmatrix_before << min_point_fake_data[0] << " " << min_point_fake_data[1] << std::endl;
-    ofs_resultsmatrix_before << min_point_sys1_l[0] << " " << min_point_sys1_l[1] << std::endl;
-    ofs_resultsmatrix_before << min_point_sys1_h[0] << " " << min_point_sys1_h[1] << std::endl;
-    ofs_resultsmatrix_before << min_point_sys2_l[0] << " " << min_point_sys2_l[1] << std::endl;
-    ofs_resultsmatrix_before << min_point_sys2_h[0] << " " << min_point_sys2_h[1] << std::endl;
-    ofs_resultsmatrix_before << min_point_sys3_l[0] << " " << min_point_sys3_l[1] << std::endl;
-    ofs_resultsmatrix_before << min_point_sys3_h[0] << " " << min_point_sys3_h[1] << std::endl;
-    ofs_resultsmatrix_before << min_point_sys4_l[0] << " " << min_point_sys4_l[1] << std::endl;
-    ofs_resultsmatrix_before << min_point_sys4_h[0] << " " << min_point_sys4_h[1] << std::endl;
-    ofs_resultsmatrix_before << min_point_sys5_l[0] << " " << min_point_sys5_l[1] << std::endl;
-    ofs_resultsmatrix_before << min_point_sys5_h[0] << " " << min_point_sys5_h[1] << std::endl;
-
-    ofs_resultsmatrix_after << ENABLE_MIN_POINT_SYS1 << " "
-                             << ENABLE_MIN_POINT_SYS2 << " "
-                             << ENABLE_MIN_POINT_SYS3 << " "
-                             << ENABLE_MIN_POINT_SYS4 << " "
-                             << ENABLE_MIN_POINT_SYS5 << std::endl;
-    ofs_resultsmatrix_after << g_mode_fake_data << std::endl;
-    ofs_resultsmatrix_after << min_point[0] << " " << min_point[1] << std::endl;
-    ofs_resultsmatrix_after << min_point_fake_data[0] << " " << min_point_fake_data[1] << std::endl;
-    ofs_resultsmatrix_after << min_point_sys1_l[0] << " " << min_point_sys1_l[1] << std::endl;
-    ofs_resultsmatrix_after << min_point_sys1_h[0] << " " << min_point_sys1_h[1] << std::endl;
-    ofs_resultsmatrix_after << min_point_sys2_l[0] << " " << min_point_sys2_l[1] << std::endl;
-    ofs_resultsmatrix_after << min_point_sys2_h[0] << " " << min_point_sys2_h[1] << std::endl;
-    ofs_resultsmatrix_after << min_point_sys3_l[0] << " " << min_point_sys3_l[1] << std::endl;
-    ofs_resultsmatrix_after << min_point_sys3_h[0] << " " << min_point_sys3_h[1] << std::endl;
-    ofs_resultsmatrix_after << min_point_sys4_l[0] << " " << min_point_sys4_l[1] << std::endl;
-    ofs_resultsmatrix_after << min_point_sys4_h[0] << " " << min_point_sys4_h[1] << std::endl;
-    ofs_resultsmatrix_after << min_point_sys5_l[0] << " " << min_point_sys5_l[1] << std::endl;
-    ofs_resultsmatrix_after << min_point_sys5_h[0] << " " << min_point_sys5_h[1] << std::endl;
-
-    // TODO: insert more systematics here
-
+    ///////////////////////////////////////////////////////////////////////////
+    // end of header
+    ///////////////////////////////////////////////////////////////////////////
 
 
     // minimum point found for entire mps iteration space

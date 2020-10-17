@@ -274,7 +274,25 @@ TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double*& Co
 
 
 
+void final_mps_draw()
+{
+    std::cout << "calling draw" << std::endl;
+    
+    int number_job_id = 0;
+    std::string output_name = "noparallel";
+    int start_index = 0;
+    int stop_index = 51;
 
+    gROOT->SetStyle("Plain");
+    gStyle->SetOptStat(0);
+    gStyle->SetPalette(1);
+    //gStyle->SetPalette(kBird);
+    //gStyle->SetPalette(kBrownCyan);
+    gStyle->SetPalette(kLightTemperature);
+    //gStyle->SetNumberContours(1000);
+
+    newloglikfitter_mps_draw_systematics(number_job_id, output_name, start_index, stop_index);
+}
 
 
 
@@ -400,6 +418,10 @@ bool load_from_script(
 
 
 
+
+
+
+
 void newLogLikFitter()
 {
     loadFiles(0);
@@ -409,6 +431,82 @@ void newLogLikFitter(int i)
 {
     loadFiles(i);
 }
+
+
+
+
+
+
+
+
+
+
+void systematic_n_init_helper
+(
+    std::vector<double> *systematic_n_highlow_1D_P1[][number1DHists],
+    std::vector<double> *systematic_n_highlow_1D_P2[][number1DHists],
+    const int systematic_n_index
+)
+{
+
+    // loop over all channels
+    for(int channel = 0; channel < number1DHists; ++ channel)
+    {
+
+        std::string histname = std::string(channel_histname_1D[channel]);
+        std::string search_object_P1;
+        std::string search_object_P2;
+
+        search_object_P1 = histname + std::string("fakedata") + "_P1";
+        search_object_P2 = histname + std::string("fakedata") + "_P2";
+
+        TH1D *tmpDataHist1D_P1 = nullptr;
+        TH1D *tmpDataHist1D_P2 = nullptr;
+    
+        tmpDataHist1D_P1 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P1.c_str());
+        tmpDataHist1D_P2 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P2.c_str());
+
+        // phase 1
+        if(tmpDataHist1D_P1 == nullptr)
+        {
+            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
+            throw "problem";
+        }
+
+        // phase 2
+        if(tmpDataHist1D_P2 == nullptr)
+        {
+            std::cout << "ERROR: Could not find object " << search_object_P2 << std::endl;
+            throw "problem";
+        }
+
+        // phase 1
+        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P1->GetNbinsX(); ++ bin_ix)
+        {
+            Double_t content = tmpDataHist1D_P1->GetBinContent(bin_ix);
+            //systematic_offset_high_1D_P1[channel]->push_back(content);
+            systematic_n_highlow_1D_P1[systematic_n_index][channel]->push_back(content);
+        }
+
+        // phase 2
+        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P2->GetNbinsX(); ++ bin_ix)
+        {
+            Double_t content = tmpDataHist1D_P2->GetBinContent(bin_ix);
+            //systematic_offset_high_1D_P2[channel]->push_back(content);
+            systematic_n_highlow_1D_P2[systematic_n_index][channel]->push_back(content);
+        }
+
+    }
+}
+
+
+
+
+
+
+
+
+
 
 
 void loadFiles(int i)
@@ -676,55 +774,18 @@ void loadFiles(int i)
             systematic_nominal_1D_P1[channel] = new std::vector<double>;
             systematic_nominal_1D_P2[channel] = new std::vector<double>;
 
-            // offset P1
-            systematic_offset_low_1D_P1[channel] = new std::vector<double>;
-            systematic_offset_high_1D_P1[channel] = new std::vector<double>;
-            systematic_offset_V_MATRIX_coeff_1D_P1[channel] = new std::vector<double>;
+            for(int i = 0; i < N_SYSTEMATICS; ++ i)
+            {
+                // P1
+                systematic_n_low_1D_P1[i][channel] = new std::vector<double>;
+                systematic_n_high_1D_P1[i][channel] = new std::vector<double>;
+                systematic_n_V_MATRIX_coeff_1D_P1[i][channel] = new std::vector<double>;
 
-            // offset P2
-            systematic_offset_low_1D_P2[channel] = new std::vector<double>;
-            systematic_offset_high_1D_P2[channel] = new std::vector<double>;
-            systematic_offset_V_MATRIX_coeff_1D_P2[channel] = new std::vector<double>;
-
-            // scale P1
-            systematic_scale_low_1D_P1[channel] = new std::vector<double>;
-            systematic_scale_high_1D_P1[channel] = new std::vector<double>;
-            systematic_scale_V_MATRIX_coeff_1D_P1[channel] = new std::vector<double>;
-
-            // scale P2
-            systematic_scale_low_1D_P2[channel] = new std::vector<double>;
-            systematic_scale_high_1D_P2[channel] = new std::vector<double>;
-            systematic_scale_V_MATRIX_coeff_1D_P2[channel] = new std::vector<double>;
-
-            // efficiency P1
-            systematic_efficiency_low_1D_P1[channel] = new std::vector<double>;
-            systematic_efficiency_high_1D_P1[channel] = new std::vector<double>;
-            systematic_efficiency_V_MATRIX_coeff_1D_P1[channel] = new std::vector<double>;
-
-            // efficiency P2
-            systematic_efficiency_low_1D_P2[channel] = new std::vector<double>;
-            systematic_efficiency_high_1D_P2[channel] = new std::vector<double>;
-            systematic_efficiency_V_MATRIX_coeff_1D_P2[channel] = new std::vector<double>;
-
-            // enrichment P1
-            systematic_enrichment_low_1D_P1[channel] = new std::vector<double>;
-            systematic_enrichment_high_1D_P1[channel] = new std::vector<double>;
-            systematic_enrichment_V_MATRIX_coeff_1D_P1[channel] = new std::vector<double>;
-
-            // enrichment P2
-            systematic_enrichment_low_1D_P2[channel] = new std::vector<double>;
-            systematic_enrichment_high_1D_P2[channel] = new std::vector<double>;
-            systematic_enrichment_V_MATRIX_coeff_1D_P2[channel] = new std::vector<double>;
-
-            // offsetsmall P1
-            systematic_offsetsmall_low_1D_P1[channel] = new std::vector<double>;
-            systematic_offsetsmall_high_1D_P1[channel] = new std::vector<double>;
-            systematic_offsetsmall_V_MATRIX_coeff_1D_P1[channel] = new std::vector<double>;
-
-            // offsetsmall P2
-            systematic_offsetsmall_low_1D_P2[channel] = new std::vector<double>;
-            systematic_offsetsmall_high_1D_P2[channel] = new std::vector<double>;
-            systematic_offsetsmall_V_MATRIX_coeff_1D_P2[channel] = new std::vector<double>;
+                // P2
+                systematic_n_low_1D_P2[i][channel] = new std::vector<double>;
+                systematic_n_high_1D_P2[i][channel] = new std::vector<double>;
+                systematic_n_V_MATRIX_coeff_1D_P2[i][channel] = new std::vector<double>;
+            }
 
         }
         // check channel enabled
@@ -768,8 +829,6 @@ void loadFiles(int i)
         }
 
     }
-    //gSystematics.systematic_energy_offset = 0.0;
-    //gSystematics.systematic_energy_scale = 0.0;
     gSystematics.reset();
 
 
@@ -781,49 +840,8 @@ void loadFiles(int i)
 
     gSystematics.reset();
     gSystematics.systematic_energy_offset = +0.1;
-    //gSystematics.systematic_energy_scale = 0.0;
     rebuild_fake_data_systematics(xi_31_covariance_matrix_reweight_value, xi_31_baseline);
-
-    // loop over all channels
-    for(int channel = 0; channel < number1DHists; ++ channel)
-    {
-
-        std::string histname = std::string(channel_histname_1D[channel]);
-        std::string search_object_P1;
-        std::string search_object_P2;
-
-        search_object_P1 = histname + std::string("fakedata") + "_P1";
-        search_object_P2 = histname + std::string("fakedata") + "_P2";
-
-        TH1D *tmpDataHist1D_P1 = nullptr;
-        TH1D *tmpDataHist1D_P2 = nullptr;
-    
-        tmpDataHist1D_P1 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P1.c_str());
-        tmpDataHist1D_P2 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P2.c_str());
-
-        if(tmpDataHist1D_P1 == nullptr)
-        {
-            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
-            throw "problem";
-        }
-        if(tmpDataHist1D_P2 == nullptr)
-        {
-            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
-            throw "problem";
-        }
-
-        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P1->GetNbinsX(); ++ bin_ix)
-        {
-            Double_t content = tmpDataHist1D_P1->GetBinContent(bin_ix);
-            systematic_offset_high_1D_P1[channel]->push_back(content);
-        }
-        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P2->GetNbinsX(); ++ bin_ix)
-        {
-            Double_t content = tmpDataHist1D_P2->GetBinContent(bin_ix);
-            systematic_offset_high_1D_P2[channel]->push_back(content);
-        }
-
-    }
+    systematic_n_init_helper(systematic_n_high_1D_P1, systematic_n_high_1D_P2, 0);
     gSystematics.reset();
 
 
@@ -836,47 +854,7 @@ void loadFiles(int i)
     gSystematics.reset();
     gSystematics.systematic_energy_offset = -0.1;
     rebuild_fake_data_systematics(xi_31_covariance_matrix_reweight_value, xi_31_baseline);
-
-    // loop over all channels
-    for(int channel = 0; channel < number1DHists; ++ channel)
-    {
-
-        std::string histname = std::string(channel_histname_1D[channel]);
-        std::string search_object_P1;
-        std::string search_object_P2;
-
-        search_object_P1 = histname + std::string("fakedata") + "_P1";
-        search_object_P2 = histname + std::string("fakedata") + "_P2";
-
-        TH1D *tmpDataHist1D_P1 = nullptr;
-        TH1D *tmpDataHist1D_P2 = nullptr;
-    
-        tmpDataHist1D_P1 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P1.c_str());
-        tmpDataHist1D_P2 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P2.c_str());
-
-        if(tmpDataHist1D_P1 == nullptr)
-        {
-            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
-            throw "problem";
-        }
-        if(tmpDataHist1D_P2 == nullptr)
-        {
-            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
-            throw "problem";
-        }
-
-        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P1->GetNbinsX(); ++ bin_ix)
-        {
-            Double_t content = tmpDataHist1D_P1->GetBinContent(bin_ix);
-            systematic_offset_low_1D_P1[channel]->push_back(content);
-        }
-        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P2->GetNbinsX(); ++ bin_ix)
-        {
-            Double_t content = tmpDataHist1D_P2->GetBinContent(bin_ix);
-            systematic_offset_low_1D_P2[channel]->push_back(content);
-        }
-
-    }
+    systematic_n_init_helper(systematic_n_low_1D_P1, systematic_n_low_1D_P2, 0);
     gSystematics.reset();
 
 
@@ -889,47 +867,7 @@ void loadFiles(int i)
     gSystematics.reset();
     gSystematics.systematic_energy_scale = -0.012;
     rebuild_fake_data_systematics(xi_31_covariance_matrix_reweight_value, xi_31_baseline);
-
-    // loop over all channels
-    for(int channel = 0; channel < number1DHists; ++ channel)
-    {
-
-        std::string histname = std::string(channel_histname_1D[channel]);
-        std::string search_object_P1;
-        std::string search_object_P2;
-
-        search_object_P1 = histname + std::string("fakedata") + "_P1";
-        search_object_P2 = histname + std::string("fakedata") + "_P2";
-
-        TH1D *tmpDataHist1D_P1 = nullptr;
-        TH1D *tmpDataHist1D_P2 = nullptr;
-    
-        tmpDataHist1D_P1 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P1.c_str());
-        tmpDataHist1D_P2 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P2.c_str());
-
-        if(tmpDataHist1D_P1 == nullptr)
-        {
-            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
-            throw "problem";
-        }
-        if(tmpDataHist1D_P2 == nullptr)
-        {
-            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
-            throw "problem";
-        }
-
-        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P1->GetNbinsX(); ++ bin_ix)
-        {
-            Double_t content = tmpDataHist1D_P1->GetBinContent(bin_ix);
-            systematic_scale_low_1D_P1[channel]->push_back(content);
-        }
-        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P2->GetNbinsX(); ++ bin_ix)
-        {
-            Double_t content = tmpDataHist1D_P2->GetBinContent(bin_ix);
-            systematic_scale_low_1D_P2[channel]->push_back(content);
-        }
-
-    }
+    systematic_n_init_helper(systematic_n_low_1D_P1, systematic_n_low_1D_P2, 1);
     gSystematics.reset();
 
 
@@ -942,47 +880,7 @@ void loadFiles(int i)
     gSystematics.reset();
     gSystematics.systematic_energy_scale = +0.012;
     rebuild_fake_data_systematics(xi_31_covariance_matrix_reweight_value, xi_31_baseline);
-
-    // loop over all channels
-    for(int channel = 0; channel < number1DHists; ++ channel)
-    {
-
-        std::string histname = std::string(channel_histname_1D[channel]);
-        std::string search_object_P1;
-        std::string search_object_P2;
-
-        search_object_P1 = histname + std::string("fakedata") + "_P1";
-        search_object_P2 = histname + std::string("fakedata") + "_P2";
-
-        TH1D *tmpDataHist1D_P1 = nullptr;
-        TH1D *tmpDataHist1D_P2 = nullptr;
-    
-        tmpDataHist1D_P1 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P1.c_str());
-        tmpDataHist1D_P2 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P2.c_str());
-
-        if(tmpDataHist1D_P1 == nullptr)
-        {
-            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
-            throw "problem";
-        }
-        if(tmpDataHist1D_P2 == nullptr)
-        {
-            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
-            throw "problem";
-        }
-
-        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P1->GetNbinsX(); ++ bin_ix)
-        {
-            Double_t content = tmpDataHist1D_P1->GetBinContent(bin_ix);
-            systematic_scale_high_1D_P1[channel]->push_back(content);
-        }
-        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P2->GetNbinsX(); ++ bin_ix)
-        {
-            Double_t content = tmpDataHist1D_P2->GetBinContent(bin_ix);
-            systematic_scale_high_1D_P2[channel]->push_back(content);
-        }
-
-    }
+    systematic_n_init_helper(systematic_n_high_1D_P1, systematic_n_high_1D_P2, 1);
     gSystematics.reset();
 
 
@@ -996,59 +894,7 @@ void loadFiles(int i)
     gSystematics.reset();
     gSystematics.systematic_efficiency = -5.55e-02;
     rebuild_fake_data_systematics(xi_31_covariance_matrix_reweight_value, xi_31_baseline);
-
-    // loop over all channels
-    for(int channel = 0; channel < number1DHists; ++ channel)
-    {
-
-        std::string histname = std::string(channel_histname_1D[channel]);
-        std::string search_object_P1;
-        std::string search_object_P2;
-
-        search_object_P1 = histname + std::string("fakedata") + "_P1";
-        search_object_P2 = histname + std::string("fakedata") + "_P2";
-
-        TH1D *tmpDataHist1D_P1 = nullptr;
-        TH1D *tmpDataHist1D_P2 = nullptr;
-    
-        tmpDataHist1D_P1 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P1.c_str());
-        tmpDataHist1D_P2 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P2.c_str());
-
-        if(tmpDataHist1D_P1 == nullptr)
-        {
-            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
-            throw "problem";
-        }
-        if(tmpDataHist1D_P2 == nullptr)
-        {
-            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
-            throw "problem";
-        }
-
-        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P1->GetNbinsX(); ++ bin_ix)
-        {
-            Double_t content = tmpDataHist1D_P1->GetBinContent(bin_ix);
-            systematic_efficiency_low_1D_P1[channel]->push_back(content);
-        }
-        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P2->GetNbinsX(); ++ bin_ix)
-        {
-            Double_t content = tmpDataHist1D_P2->GetBinContent(bin_ix);
-            systematic_efficiency_low_1D_P2[channel]->push_back(content);
-
-            /*
-            if(channel == 1)
-            {
-                
-                if(bin_ix == 35)
-                {
-                    std::cout << "bin_ix=" << bin_ix << " " << content << std::endl;
-                    std::cin.get();
-                }
-            }
-            */
-        }
-
-    }
+    systematic_n_init_helper(systematic_n_low_1D_P1, systematic_n_low_1D_P2, 2);
     gSystematics.reset();
 
 
@@ -1061,59 +907,7 @@ void loadFiles(int i)
     gSystematics.reset();
     gSystematics.systematic_efficiency = +5.55e-02;
     rebuild_fake_data_systematics(xi_31_covariance_matrix_reweight_value, xi_31_baseline);
-
-    // loop over all channels
-    for(int channel = 0; channel < number1DHists; ++ channel)
-    {
-
-        std::string histname = std::string(channel_histname_1D[channel]);
-        std::string search_object_P1;
-        std::string search_object_P2;
-
-        search_object_P1 = histname + std::string("fakedata") + "_P1";
-        search_object_P2 = histname + std::string("fakedata") + "_P2";
-
-        TH1D *tmpDataHist1D_P1 = nullptr;
-        TH1D *tmpDataHist1D_P2 = nullptr;
-    
-        tmpDataHist1D_P1 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P1.c_str());
-        tmpDataHist1D_P2 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P2.c_str());
-
-        if(tmpDataHist1D_P1 == nullptr)
-        {
-            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
-            throw "problem";
-        }
-        if(tmpDataHist1D_P2 == nullptr)
-        {
-            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
-            throw "problem";
-        }
-
-        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P1->GetNbinsX(); ++ bin_ix)
-        {
-            Double_t content = tmpDataHist1D_P1->GetBinContent(bin_ix);
-            systematic_efficiency_high_1D_P1[channel]->push_back(content);
-        }
-        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P2->GetNbinsX(); ++ bin_ix)
-        {
-            Double_t content = tmpDataHist1D_P2->GetBinContent(bin_ix);
-            systematic_efficiency_high_1D_P2[channel]->push_back(content);
-
-            /*
-            if(channel == 1)
-            {
-                
-                if(bin_ix == 35)
-                {
-                    std::cout << "bin_ix=" << bin_ix << " " << content << std::endl;
-                    std::cin.get();
-                }
-            }
-            */
-        }
-
-    }
+    systematic_n_init_helper(systematic_n_high_1D_P1, systematic_n_high_1D_P2, 2);
     gSystematics.reset();
 
 
@@ -1126,59 +920,7 @@ void loadFiles(int i)
     gSystematics.reset();
     gSystematics.systematic_enrichment = -0.5e-02;
     rebuild_fake_data_systematics(xi_31_covariance_matrix_reweight_value, xi_31_baseline);
-
-    // loop over all channels
-    for(int channel = 0; channel < number1DHists; ++ channel)
-    {
-
-        std::string histname = std::string(channel_histname_1D[channel]);
-        std::string search_object_P1;
-        std::string search_object_P2;
-
-        search_object_P1 = histname + std::string("fakedata") + "_P1";
-        search_object_P2 = histname + std::string("fakedata") + "_P2";
-
-        TH1D *tmpDataHist1D_P1 = nullptr;
-        TH1D *tmpDataHist1D_P2 = nullptr;
-    
-        tmpDataHist1D_P1 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P1.c_str());
-        tmpDataHist1D_P2 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P2.c_str());
-
-        if(tmpDataHist1D_P1 == nullptr)
-        {
-            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
-            throw "problem";
-        }
-        if(tmpDataHist1D_P2 == nullptr)
-        {
-            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
-            throw "problem";
-        }
-
-        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P1->GetNbinsX(); ++ bin_ix)
-        {
-            Double_t content = tmpDataHist1D_P1->GetBinContent(bin_ix);
-            systematic_enrichment_low_1D_P1[channel]->push_back(content);
-        }
-        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P2->GetNbinsX(); ++ bin_ix)
-        {
-            Double_t content = tmpDataHist1D_P2->GetBinContent(bin_ix);
-            systematic_enrichment_low_1D_P2[channel]->push_back(content);
-            
-            /*
-            if(channel == 1)
-            {
-                
-                if(bin_ix == 35)
-                {
-                    std::cout << "bin_ix=" << bin_ix << " " << content << std::endl;
-                    std::cin.get();
-                }
-            }
-            */
-        }
-
-    }
+    systematic_n_init_helper(systematic_n_low_1D_P1, systematic_n_low_1D_P2, 3);
     gSystematics.reset();
 
 
@@ -1191,58 +933,7 @@ void loadFiles(int i)
     gSystematics.reset();
     gSystematics.systematic_enrichment = +0.5e-02;
     rebuild_fake_data_systematics(xi_31_covariance_matrix_reweight_value, xi_31_baseline);
-
-    // loop over all channels
-    for(int channel = 0; channel < number1DHists; ++ channel)
-    {
-
-        std::string histname = std::string(channel_histname_1D[channel]);
-        std::string search_object_P1;
-        std::string search_object_P2;
-
-        search_object_P1 = histname + std::string("fakedata") + "_P1";
-        search_object_P2 = histname + std::string("fakedata") + "_P2";
-
-        TH1D *tmpDataHist1D_P1 = nullptr;
-        TH1D *tmpDataHist1D_P2 = nullptr;
-    
-        tmpDataHist1D_P1 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P1.c_str());
-        tmpDataHist1D_P2 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P2.c_str());
-
-        if(tmpDataHist1D_P1 == nullptr)
-        {
-            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
-            throw "problem";
-        }
-        if(tmpDataHist1D_P2 == nullptr)
-        {
-            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
-            throw "problem";
-        }
-
-        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P1->GetNbinsX(); ++ bin_ix)
-        {
-            Double_t content = tmpDataHist1D_P1->GetBinContent(bin_ix);
-            systematic_enrichment_high_1D_P1[channel]->push_back(content);
-        }
-        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P2->GetNbinsX(); ++ bin_ix)
-        {
-            Double_t content = tmpDataHist1D_P2->GetBinContent(bin_ix);
-            systematic_enrichment_high_1D_P2[channel]->push_back(content);
-
-            /*
-            if(channel == 1)
-            {
-                if(bin_ix == 35)
-                {
-                    std::cout << "bin_ix=" << bin_ix << " " << content << std::endl;
-                    std::cin.get();
-                }
-            }
-            */
-        }
-
-    }
+    systematic_n_init_helper(systematic_n_high_1D_P1, systematic_n_high_1D_P2, 3);
     gSystematics.reset();
 
 
@@ -1256,47 +947,7 @@ void loadFiles(int i)
     gSystematics.systematic_energy_offsetsmall = +3.0e-3;
     //gSystematics.systematic_energy_scale = 0.0;
     rebuild_fake_data_systematics(xi_31_covariance_matrix_reweight_value, xi_31_baseline);
-
-    // loop over all channels
-    for(int channel = 0; channel < number1DHists; ++ channel)
-    {
-
-        std::string histname = std::string(channel_histname_1D[channel]);
-        std::string search_object_P1;
-        std::string search_object_P2;
-
-        search_object_P1 = histname + std::string("fakedata") + "_P1";
-        search_object_P2 = histname + std::string("fakedata") + "_P2";
-
-        TH1D *tmpDataHist1D_P1 = nullptr;
-        TH1D *tmpDataHist1D_P2 = nullptr;
-    
-        tmpDataHist1D_P1 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P1.c_str());
-        tmpDataHist1D_P2 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P2.c_str());
-
-        if(tmpDataHist1D_P1 == nullptr)
-        {
-            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
-            throw "problem";
-        }
-        if(tmpDataHist1D_P2 == nullptr)
-        {
-            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
-            throw "problem";
-        }
-
-        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P1->GetNbinsX(); ++ bin_ix)
-        {
-            Double_t content = tmpDataHist1D_P1->GetBinContent(bin_ix);
-            systematic_offsetsmall_high_1D_P1[channel]->push_back(content);
-        }
-        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P2->GetNbinsX(); ++ bin_ix)
-        {
-            Double_t content = tmpDataHist1D_P2->GetBinContent(bin_ix);
-            systematic_offsetsmall_high_1D_P2[channel]->push_back(content);
-        }
-
-    }
+    systematic_n_init_helper(systematic_n_high_1D_P1, systematic_n_high_1D_P2, 4);
     gSystematics.reset();
 
 
@@ -1309,50 +960,12 @@ void loadFiles(int i)
     gSystematics.reset();
     gSystematics.systematic_energy_offsetsmall = -3.0e-3;
     rebuild_fake_data_systematics(xi_31_covariance_matrix_reweight_value, xi_31_baseline);
-
-    // loop over all channels
-    for(int channel = 0; channel < number1DHists; ++ channel)
-    {
-
-        std::string histname = std::string(channel_histname_1D[channel]);
-        std::string search_object_P1;
-        std::string search_object_P2;
-
-        search_object_P1 = histname + std::string("fakedata") + "_P1";
-        search_object_P2 = histname + std::string("fakedata") + "_P2";
-
-        TH1D *tmpDataHist1D_P1 = nullptr;
-        TH1D *tmpDataHist1D_P2 = nullptr;
-    
-        tmpDataHist1D_P1 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P1.c_str());
-        tmpDataHist1D_P2 = (TH1D*)allFakeDataSamples1D->FindObject(search_object_P2.c_str());
-
-        if(tmpDataHist1D_P1 == nullptr)
-        {
-            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
-            throw "problem";
-        }
-        if(tmpDataHist1D_P2 == nullptr)
-        {
-            std::cout << "ERROR: Could not find object " << search_object_P1 << std::endl;
-            throw "problem";
-        }
-
-        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P1->GetNbinsX(); ++ bin_ix)
-        {
-            Double_t content = tmpDataHist1D_P1->GetBinContent(bin_ix);
-            systematic_offsetsmall_low_1D_P1[channel]->push_back(content);
-        }
-        for(Int_t bin_ix{1}; bin_ix <= tmpDataHist1D_P2->GetNbinsX(); ++ bin_ix)
-        {
-            Double_t content = tmpDataHist1D_P2->GetBinContent(bin_ix);
-            systematic_offsetsmall_low_1D_P2[channel]->push_back(content);
-        }
-
-    }
+    systematic_n_init_helper(systematic_n_low_1D_P1, systematic_n_low_1D_P2, 4);
+    gSystematics.reset();
 
 
-
+    // reset systematics
+    gSystematics.reset();
     rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline);
 
 
@@ -1363,177 +976,61 @@ void loadFiles(int i)
 
     for(int channel = 0; channel < number1DHists; ++ channel)
     {
-        ///////////////////////////////////////////////////////////////////////
-        // energy offset
-
-        for(std::size_t i = 0; i < systematic_nominal_1D_P1[channel]->size(); ++ i)
-        {
-            double up = systematic_offset_high_1D_P1[channel]->at(i);
-            double nominal = systematic_nominal_1D_P1[channel]->at(i);
-            double value_up = up - nominal;
-            double value = value_up;
-            //double value_down = down - nominal;
-            //double value = 0.5 * (value_up + value_down);
-            // TODO
-            //systematic_offset_V_MATRIX_coeff_1D_P1[channel]->operator[](i) = value;
-            systematic_offset_V_MATRIX_coeff_1D_P1[channel]->push_back(value);
-        }
-
-        for(std::size_t i = 0; i < systematic_nominal_1D_P2[channel]->size(); ++ i)
-        {
-            double up = systematic_offset_high_1D_P2[channel]->at(i);
-            double nominal = systematic_nominal_1D_P2[channel]->at(i);
-            double value_up = up - nominal;
-            double value = value_up;
-            //double value_down = down - nominal;
-            //double value = 0.5 * (value_up + value_down);
-            // TODO
-            //systematic_offset_V_MATRIX_coeff_1D_P2[channel]->operator[](i) = value;
-            systematic_offset_V_MATRIX_coeff_1D_P2[channel]->push_back(value);
-        }
-
 
         ///////////////////////////////////////////////////////////////////////
-        // energy scale
-
-        for(std::size_t i = 0; i < systematic_nominal_1D_P1[channel]->size(); ++ i)
+        // SYSTEMATIC N
+        ///////////////////////////////////////////////////////////////////////
+        
+        for(int n = 0; n < N_SYSTEMATICS; ++ n)
         {
-            double up = systematic_scale_high_1D_P1[channel]->at(i);
-            double nominal = systematic_nominal_1D_P1[channel]->at(i);
-            double value_up = up - nominal;
-            double value = value_up;
-            //double value_down = down - nominal;
-            //double value = 0.5 * (value_up + value_down);
-            // TODO
-            //systematic_scale_V_MATRIX_coeff_1D_P1[channel]->operator[](i) = value;
-            systematic_scale_V_MATRIX_coeff_1D_P1[channel]->push_back(value);
 
-            /*
-            if(channel == 1)
+            // PHASE 1
+            for(std::size_t i = 0; i < systematic_nominal_1D_P1[channel]->size(); ++ i)
             {
-                std::cout << "P1: scale: coeff: " << value << std::endl;
+                double up = systematic_n_high_1D_P1[n][channel]->at(i);
+                double nominal = systematic_nominal_1D_P1[channel]->at(i);
+                double down = systematic_n_low_1D_P1[n][channel]->at(i);
+                double value_up = up - nominal;
+                double value_down = nominal - down;
+
+                double value = 0.0;
+                if(std::abs(value_up) >= std::abs(value_down))
+                {
+                    value = value_up;
+                }
+                else
+                {
+                    value = value_down;
+                }
+                //systematic_offset_V_MATRIX_coeff_1D_P1[channel]->operator[](i) = value;
+                systematic_n_V_MATRIX_coeff_1D_P1[n][channel]->push_back(value);
             }
-            */
-        }
 
-        for(std::size_t i = 0; i < systematic_nominal_1D_P2[channel]->size(); ++ i)
-        {
-            double up = systematic_scale_high_1D_P2[channel]->at(i);
-            double nominal = systematic_nominal_1D_P2[channel]->at(i);
-            double value_up = up - nominal;
-            double value = value_up;
-            //double value_down = down - nominal;
-            //double value = 0.5 * (value_up + value_down);
-            // TODO
-            //systematic_scale_V_MATRIX_coeff_1D_P2[channel]->operator[](i) = value;
-            systematic_scale_V_MATRIX_coeff_1D_P2[channel]->push_back(value);
-
-            /*
-            if(channel == 1)
+            // PHASE 2
+            for(std::size_t i = 0; i < systematic_nominal_1D_P2[channel]->size(); ++ i)
             {
-                std::cout << "P2: scale: coeff: " << value << std::endl;
+                double up = systematic_n_high_1D_P2[n][channel]->at(i);
+                double nominal = systematic_nominal_1D_P2[channel]->at(i);
+                double down = systematic_n_low_1D_P2[n][channel]->at(i);
+                double value_up = up - nominal;
+                double value_down = nominal - down;
+
+                double value = 0.0;
+                if(std::abs(value_up) >= std::abs(value_down))
+                {
+                    value = value_up;
+                }
+                else
+                {
+                    value = value_down;
+                }
+                //systematic_offset_V_MATRIX_coeff_1D_P2[channel]->operator[](i) = value;
+                systematic_n_V_MATRIX_coeff_1D_P2[n][channel]->push_back(value);
             }
-            */
-        }
-        /*
-        if(channel == 1)
-        {
-            std::cin.get();
-        }
-        */
 
-        ///////////////////////////////////////////////////////////////////////
-        // energy efficiency
-
-        for(std::size_t i = 0; i < systematic_nominal_1D_P1[channel]->size(); ++ i)
-        {
-            double up = systematic_efficiency_high_1D_P1[channel]->at(i);
-            double nominal = systematic_nominal_1D_P1[channel]->at(i);
-            double value_up = up - nominal;
-            double value = value_up;
-            //double value_down = down - nominal;
-            //double value = 0.5 * (value_up + value_down);
-            // TODO
-            //systematic_efficiency_V_MATRIX_coeff_1D_P1[channel]->operator[](i) = value;
-            systematic_efficiency_V_MATRIX_coeff_1D_P1[channel]->push_back(value);
         }
 
-        for(std::size_t i = 0; i < systematic_nominal_1D_P2[channel]->size(); ++ i)
-        {
-            double up = systematic_efficiency_high_1D_P2[channel]->at(i);
-            double nominal = systematic_nominal_1D_P2[channel]->at(i);
-            double value_up = up - nominal;
-            double value = value_up;
-            //double value_down = down - nominal;
-            //double value = 0.5 * (value_up + value_down);
-            // TODO
-            //systematic_efficiency_V_MATRIX_coeff_1D_P2[channel]->operator[](i) = value;
-            systematic_efficiency_V_MATRIX_coeff_1D_P2[channel]->push_back(value);
-        }
-
-
-        ///////////////////////////////////////////////////////////////////////
-        // energy enrichment
-
-        for(std::size_t i = 0; i < systematic_nominal_1D_P1[channel]->size(); ++ i)
-        {
-            double up = systematic_enrichment_high_1D_P1[channel]->at(i);
-            double nominal = systematic_nominal_1D_P1[channel]->at(i);
-            double value_up = up - nominal;
-            double value = value_up;
-            //double value_down = down - nominal;
-            //double value = 0.5 * (value_up + value_down);
-            // TODO
-            //systematic_enrichment_V_MATRIX_coeff_1D_P1[channel]->operator[](i) = value;
-            systematic_enrichment_V_MATRIX_coeff_1D_P1[channel]->push_back(value);
-        }
-
-        for(std::size_t i = 0; i < systematic_nominal_1D_P2[channel]->size(); ++ i)
-        {
-            double up = systematic_enrichment_high_1D_P2[channel]->at(i);
-            double nominal = systematic_nominal_1D_P2[channel]->at(i);
-            double value_up = up - nominal;
-            double value = value_up;
-            //double value_down = down - nominal;
-            //double value = 0.5 * (value_up + value_down);
-            // TODO
-            //systematic_enrichment_V_MATRIX_coeff_1D_P2[channel]->operator[](i) = value;
-            systematic_enrichment_V_MATRIX_coeff_1D_P2[channel]->push_back(value);
-        }
-
-
-        ///////////////////////////////////////////////////////////////////////
-        // energy offsetsmall
-
-        for(std::size_t i = 0; i < systematic_nominal_1D_P1[channel]->size(); ++ i)
-        {
-            double up = systematic_offsetsmall_high_1D_P1[channel]->at(i);
-            double nominal = systematic_nominal_1D_P1[channel]->at(i);
-            double value_up = up - nominal;
-            double value = value_up;
-            //double value_down = down - nominal;
-            //double value = 0.5 * (value_up + value_down);
-            // TODO
-            //systematic_offsetsmall_V_MATRIX_coeff_1D_P1[channel]->operator[](i) = value;
-            systematic_offsetsmall_V_MATRIX_coeff_1D_P1[channel]->push_back(value);
-        }
-
-        for(std::size_t i = 0; i < systematic_nominal_1D_P2[channel]->size(); ++ i)
-        {
-            double up = systematic_offsetsmall_high_1D_P2[channel]->at(i);
-            double nominal = systematic_nominal_1D_P2[channel]->at(i);
-            double value_up = up - nominal;
-            double value = value_up;
-            //double value_down = down - nominal;
-            //double value = 0.5 * (value_up + value_down);
-            // TODO
-            //systematic_offsetsmall_V_MATRIX_coeff_1D_P2[channel]->operator[](i) = value;
-            systematic_offsetsmall_V_MATRIX_coeff_1D_P2[channel]->push_back(value);
-        }
     }
-
-    // reset systematics
-    gSystematics.reset();
 
 
 
@@ -2051,20 +1548,20 @@ void loadFiles(int i)
     ///////////////////////////////////////////////////////////////////////////
 
     // do not do this in parallel mode
-    if(1 && false) // || (MODE_PARALLEL == 0))
+    if(1 && true) // || (MODE_PARALLEL == 0))
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
-        V_ENABLE_SYS1 = false;
-        V_ENABLE_SYS2 = false;
-        V_ENABLE_SYS3 = false;
-        V_ENABLE_SYS4 = false;
-        V_ENABLE_SYS5 = false;
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            V_ENABLE_SYSn[i] = false;
+        }
 
         bool restore_g_mode_fake_data = g_mode_fake_data;
         g_mode_fake_data = false;
     
         newLogLikFitter_preMPSfitdriver(std::string("All Parameter Fit: NEMO3 Data"), min_point);
+        std::cout << "min_point: " << min_point[0] << " " << min_point[1] << std::endl;
 
         V_ENABLE_SYS_stack_pop();
 
@@ -2276,7 +1773,7 @@ void loadFiles(int i)
 
 
 
-    const bool ENABLE_MIN_POINT_FIT = false;
+    const bool ENABLE_MIN_POINT_FIT = true;
 
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit
@@ -2287,11 +1784,10 @@ void loadFiles(int i)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
-        V_ENABLE_SYS1 = false;
-        V_ENABLE_SYS2 = false;
-        V_ENABLE_SYS3 = false;
-        V_ENABLE_SYS4 = false;
-        V_ENABLE_SYS5 = false;
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            V_ENABLE_SYSn[i] = false;
+        }
 
         bool restore_g_mode_fake_data = g_mode_fake_data;
         g_mode_fake_data = true;
@@ -2310,6 +1806,7 @@ void loadFiles(int i)
         // call helper function
         newLogLikFitter_preMPSfitdriver(std::string("Systematics Fit: Fake Data"),
                                         min_point_fake_data);
+        std::cout << "min_point (fake): " << min_point_fake_data[0] << " " << min_point_fake_data[1] << std::endl;
 
         V_ENABLE_SYS_stack_pop();
 
@@ -2327,11 +1824,10 @@ void loadFiles(int i)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
-        V_ENABLE_SYS1 = false;
-        V_ENABLE_SYS2 = false;
-        V_ENABLE_SYS3 = false;
-        V_ENABLE_SYS4 = false;
-        V_ENABLE_SYS5 = false;
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            V_ENABLE_SYSn[i] = false;
+        }
 
         bool restore_g_mode_fake_data = g_mode_fake_data;
         g_mode_fake_data = true;
@@ -2343,7 +1839,8 @@ void loadFiles(int i)
 
         // call helper function
         newLogLikFitter_preMPSfitdriver(std::string("Systematics Fit: Fake Data"),
-                                        min_point_sys1_l);
+                                        min_point_sysn_l[0]);
+        std::cout << "min_point (sys0 L): " << min_point_sysn_l[0][0] << " " << min_point_sysn_l[0][1] << std::endl;
 
         V_ENABLE_SYS_stack_pop();
 
@@ -2361,11 +1858,10 @@ void loadFiles(int i)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
-        V_ENABLE_SYS1 = false;
-        V_ENABLE_SYS2 = false;
-        V_ENABLE_SYS3 = false;
-        V_ENABLE_SYS4 = false;
-        V_ENABLE_SYS5 = false;
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            V_ENABLE_SYSn[i] = false;
+        }
 
         bool restore_g_mode_fake_data = g_mode_fake_data;
         g_mode_fake_data = true;
@@ -2377,7 +1873,8 @@ void loadFiles(int i)
 
         // call helper function
         newLogLikFitter_preMPSfitdriver(std::string("Systematics Fit: Fake Data"),
-                                        min_point_sys1_h);
+                                        min_point_sysn_h[0]);
+        std::cout << "min_point (sys0 H): " << min_point_sysn_h[0][0] << " " << min_point_sysn_h[0][1] << std::endl;
 
         V_ENABLE_SYS_stack_pop();
 
@@ -2395,11 +1892,10 @@ void loadFiles(int i)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
-        V_ENABLE_SYS1 = false;
-        V_ENABLE_SYS2 = false;
-        V_ENABLE_SYS3 = false;
-        V_ENABLE_SYS4 = false;
-        V_ENABLE_SYS5 = false;
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            V_ENABLE_SYSn[i] = false;
+        }
 
         bool restore_g_mode_fake_data = g_mode_fake_data;
         g_mode_fake_data = true;
@@ -2411,7 +1907,8 @@ void loadFiles(int i)
 
         // call helper function
         newLogLikFitter_preMPSfitdriver(std::string("Systematics Fit: Fake Data"),
-                                        min_point_sys2_l);
+                                        min_point_sysn_l[1]);
+        std::cout << "min_point (sys1 L): " << min_point_sysn_l[1][0] << " " << min_point_sysn_l[1][1] << std::endl;
 
         V_ENABLE_SYS_stack_pop();
 
@@ -2429,11 +1926,10 @@ void loadFiles(int i)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
-        V_ENABLE_SYS1 = false;
-        V_ENABLE_SYS2 = false;
-        V_ENABLE_SYS3 = false;
-        V_ENABLE_SYS4 = false;
-        V_ENABLE_SYS5 = false;
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            V_ENABLE_SYSn[i] = false;
+        }
 
         bool restore_g_mode_fake_data = g_mode_fake_data;
         g_mode_fake_data = true;
@@ -2445,7 +1941,8 @@ void loadFiles(int i)
 
         // call helper function
         newLogLikFitter_preMPSfitdriver(std::string("Systematics Fit: Fake Data"),
-                                        min_point_sys2_h);
+                                        min_point_sysn_h[1]);
+        std::cout << "min_point (sys1 H): " << min_point_sysn_h[1][0] << " " << min_point_sysn_h[1][1] << std::endl;
 
         V_ENABLE_SYS_stack_pop();
 
@@ -2464,11 +1961,10 @@ void loadFiles(int i)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
-        V_ENABLE_SYS1 = false;
-        V_ENABLE_SYS2 = false;
-        V_ENABLE_SYS3 = false;
-        V_ENABLE_SYS4 = false;
-        V_ENABLE_SYS5 = false;
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            V_ENABLE_SYSn[i] = false;
+        }
 
         bool restore_g_mode_fake_data = g_mode_fake_data;
         g_mode_fake_data = true;
@@ -2480,7 +1976,8 @@ void loadFiles(int i)
 
         // call helper function
         newLogLikFitter_preMPSfitdriver(std::string("Systematics Fit: Fake Data"),
-                                        min_point_sys3_l);
+                                        min_point_sysn_l[2]);
+        std::cout << "min_point (sys2 L): " << min_point_sysn_l[2][0] << " " << min_point_sysn_l[2][1] << std::endl;
 
         V_ENABLE_SYS_stack_pop();
 
@@ -2499,11 +1996,10 @@ void loadFiles(int i)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
-        V_ENABLE_SYS1 = false;
-        V_ENABLE_SYS2 = false;
-        V_ENABLE_SYS3 = false;
-        V_ENABLE_SYS4 = false;
-        V_ENABLE_SYS5 = false;
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            V_ENABLE_SYSn[i] = false;
+        }
 
         bool restore_g_mode_fake_data = g_mode_fake_data;
         g_mode_fake_data = true;
@@ -2515,7 +2011,8 @@ void loadFiles(int i)
 
         // call helper function
         newLogLikFitter_preMPSfitdriver(std::string("Systematics Fit: Fake Data"),
-                                        min_point_sys3_h);
+                                        min_point_sysn_h[2]);
+        std::cout << "min_point (sys2 H): " << min_point_sysn_h[2][0] << " " << min_point_sysn_h[2][1] << std::endl;
 
         V_ENABLE_SYS_stack_pop();
 
@@ -2534,11 +2031,10 @@ void loadFiles(int i)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
-        V_ENABLE_SYS1 = false;
-        V_ENABLE_SYS2 = false;
-        V_ENABLE_SYS3 = false;
-        V_ENABLE_SYS4 = false;
-        V_ENABLE_SYS5 = false;
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            V_ENABLE_SYSn[i] = false;
+        }
 
         bool restore_g_mode_fake_data = g_mode_fake_data;
         g_mode_fake_data = true;
@@ -2550,7 +2046,8 @@ void loadFiles(int i)
 
         // call helper function
         newLogLikFitter_preMPSfitdriver(std::string("Systematics Fit: Fake Data"),
-                                        min_point_sys4_l);
+                                        min_point_sysn_l[3]);
+        std::cout << "min_point (sys3 L): " << min_point_sysn_l[3][0] << " " << min_point_sysn_l[3][1] << std::endl;
 
         V_ENABLE_SYS_stack_pop();
 
@@ -2569,11 +2066,10 @@ void loadFiles(int i)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
-        V_ENABLE_SYS1 = false;
-        V_ENABLE_SYS2 = false;
-        V_ENABLE_SYS3 = false;
-        V_ENABLE_SYS4 = false;
-        V_ENABLE_SYS5 = false;
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            V_ENABLE_SYSn[i] = false;
+        }
 
         bool restore_g_mode_fake_data = g_mode_fake_data;
         g_mode_fake_data = true;
@@ -2585,7 +2081,8 @@ void loadFiles(int i)
 
         // call helper function
         newLogLikFitter_preMPSfitdriver(std::string("Systematics Fit: Fake Data"),
-                                        min_point_sys4_h);
+                                        min_point_sysn_h[3]);
+        std::cout << "min_point (sys3 H): " << min_point_sysn_h[3][0] << " " << min_point_sysn_h[3][1] << std::endl;
 
         V_ENABLE_SYS_stack_pop();
 
@@ -2603,11 +2100,10 @@ void loadFiles(int i)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
-        V_ENABLE_SYS1 = false;
-        V_ENABLE_SYS2 = false;
-        V_ENABLE_SYS3 = false;
-        V_ENABLE_SYS4 = false;
-        V_ENABLE_SYS5 = false;
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            V_ENABLE_SYSn[i] = false;
+        }
 
         bool restore_g_mode_fake_data = g_mode_fake_data;
         g_mode_fake_data = true;
@@ -2619,7 +2115,8 @@ void loadFiles(int i)
 
         // call helper function
         newLogLikFitter_preMPSfitdriver(std::string("Systematics Fit: Fake Data"),
-                                        min_point_sys5_l);
+                                        min_point_sysn_l[4]);
+        std::cout << "min_point (sys4 L): " << min_point_sysn_l[4][0] << " " << min_point_sysn_l[4][1] << std::endl;
 
         V_ENABLE_SYS_stack_pop();
 
@@ -2637,11 +2134,10 @@ void loadFiles(int i)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
-        V_ENABLE_SYS1 = false;
-        V_ENABLE_SYS2 = false;
-        V_ENABLE_SYS3 = false;
-        V_ENABLE_SYS4 = false;
-        V_ENABLE_SYS5 = false;
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            V_ENABLE_SYSn[i] = false;
+        }
 
         bool restore_g_mode_fake_data = g_mode_fake_data;
         g_mode_fake_data = true;
@@ -2653,7 +2149,8 @@ void loadFiles(int i)
 
         // call helper function
         newLogLikFitter_preMPSfitdriver(std::string("Systematics Fit: Fake Data"),
-                                        min_point_sys5_h);
+                                        min_point_sysn_h[4]);
+        std::cout << "min_point (sys4 H): " << min_point_sysn_h[4][0] << " " << min_point_sysn_h[4][1] << std::endl;
 
         V_ENABLE_SYS_stack_pop();
 
@@ -2792,12 +2289,17 @@ void loadFiles(int i)
         std::cout << "recalculate_V_PHYS_SYS=" << recalculate_V_PHYS_SYS << std::endl;
 
         std::cout << "V_ENABLE_SYSALL=" << V_ENABLE_SYSALL << std::endl;
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            std::cout << "V_ENABLE_SYS" << i << "=" << V_ENABLE_SYSn[i] << std::endl;
+        }
+        /*
         std::cout << "V_ENABLE_SYS1=" << V_ENABLE_SYS1 << std::endl;
         std::cout << "V_ENABLE_SYS2=" << V_ENABLE_SYS2 << std::endl;
         std::cout << "V_ENABLE_SYS3=" << V_ENABLE_SYS3 << std::endl;
         std::cout << "V_ENABLE_SYS4=" << V_ENABLE_SYS4 << std::endl;
         std::cout << "V_ENABLE_SYS5=" << V_ENABLE_SYS5 << std::endl;
-
+        */
         std::cout << "g_mode_fake_data=" << g_mode_fake_data << std::endl;
 
         gSystematics.reset();
@@ -3036,6 +2538,10 @@ void loadFiles(int i)
     std::chrono::duration<double> runtime_sec = end_time - start_time;
     std::cout << "execution time: " <<  runtime_sec.count() / 3600.0 << " hours" << std::endl;
 }
+
+
+
+
 
 
 
