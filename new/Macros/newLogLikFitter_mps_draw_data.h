@@ -55,14 +55,6 @@ class mpsdrawdata
 
 
         std::string output_name_append;
-        if(enable_sysall_flag == false)
-        {
-            output_name_append += "_STAT";
-        }
-        else if(enable_sysall_flag == true)
-        {
-            output_name_append += "_STATSYS";
-        }
         if(mode_fake_data_flag == false)
         {
             output_name_append += "_data";
@@ -71,6 +63,33 @@ class mpsdrawdata
         {
             output_name_append += "_fake";
         }
+
+        if(enable_sysall_flag == false)
+        {
+            output_name_append += "_STAT";
+        }
+        else if(enable_sysall_flag == true)
+        {
+            output_name_append += "_STATSYS";
+        }
+
+    
+        std::string output_name_append_2;
+        if(mode_fake_data_flag == false)
+        {
+            output_name_append_2 += "_data";
+        }
+        else if(mode_fake_data_flag == true)
+        {
+            output_name_append_2 += "_fake";
+        }
+    
+
+        std::string ifs_min_point_fname =
+            "min_point" + output_name_append_2 + "_";
+        std::ifstream ifs_min_point(ifs_min_point_fname);
+        double d0, d1;
+        ifs_min_point >> d0 >> d1 >> min_fval;
 
         std::string ifs_resultsmatrix_fname =
             output_name + output_name_append + "_" + before_after_flag + "_"
@@ -311,15 +330,15 @@ class mpsdrawdata
         
         Int_t markerstylen[N_SYSTEMATICS] = 
         {
-            21, 22, 23, 20, 33
+            50, 52, 21, 22, 23, 20, 33, 43
         };
         Double_t markersizen[N_SYSTEMATICS] = 
         {
-            0.75, 1.0, 1.0, 1.0, 1.0
+            1.0, 1.0, 0.75, 1.0, 1.0, 1.0, 1.0, 1.0
         };
         Color_t markercolorn[N_SYSTEMATICS] = 
         {
-            kGreen, kMagenta, kMagenta, kMagenta, kMagenta//, kGreen, kWhite
+            kRed, kOrange, kGreen, kBlue, kMagenta, kViolet, kViolet + 10
         };
 
         for(int i = 0; i < N_SYSTEMATICS; ++ i)
@@ -365,6 +384,8 @@ class mpsdrawdata
     std::vector<TMarker *> mark_min_point_sysn_h;
     std::vector<TLine *> line_min_point_sysn_l;
     std::vector<TLine *> line_min_point_sysn_h;
+
+    double min_fval;
 
 };
 

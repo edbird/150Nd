@@ -167,9 +167,20 @@ kOrange,    // 96 Zr
 kOrange     // 96 Zr
 };
 
-Color_t Nd150Colors[1] =
+Color_t Nd150Colors[nNd150Samples] =
 {
 kAzure + 1
+};
+
+Color_t Nd150SystematicColors[nNd150Systematics] =
+{
+kBlack,
+kBlack,
+kBlack,
+kBlack,
+kBlack,
+kBlack,
+kBlack
 };
 
 

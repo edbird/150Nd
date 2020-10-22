@@ -749,7 +749,45 @@ void loadFiles(int i)
 
 
     const double xi_31_systematics_reweight_value = 0.0; //xi_31_SSD;
-    const double xi_31_covariance_matrix_reweight_value = xi_31_SSD;
+    //const double xi_31_covariance_matrix_reweight_value = xi_31_SSD;
+    const double xi_31_covariance_matrix_reweight_value = 0.0;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -964,6 +1002,87 @@ void loadFiles(int i)
     gSystematics.reset();
 
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Construct Systematic Data Objects
+    // Systematic: Foil Thickness
+    // Systematic Value: +
+    ///////////////////////////////////////////////////////////////////////////
+
+    gSystematics.reset();
+    gSystematics.systematic_foil_thickness = +1;
+    //gSystematics.systematic_energy_scale = 0.0;
+    rebuild_fake_data_systematics(xi_31_covariance_matrix_reweight_value, xi_31_baseline);
+    systematic_n_init_helper(systematic_n_high_1D_P1, systematic_n_high_1D_P2, 5);
+    gSystematics.reset();
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Construct Systematic Data Objects
+    // Systematic: Foil Thickness
+    // Systematic Value: -
+    ///////////////////////////////////////////////////////////////////////////
+
+    gSystematics.reset();
+    gSystematics.systematic_foil_thickness = -1;
+    rebuild_fake_data_systematics(xi_31_covariance_matrix_reweight_value, xi_31_baseline);
+    systematic_n_init_helper(systematic_n_low_1D_P1, systematic_n_low_1D_P2, 5);
+    gSystematics.reset();
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Construct Systematic Data Objects
+    // Systematic: dE/dX
+    // Systematic Value: +
+    ///////////////////////////////////////////////////////////////////////////
+
+    gSystematics.reset();
+    gSystematics.systematic_dEdX = +1;
+    //gSystematics.systematic_energy_scale = 0.0;
+    rebuild_fake_data_systematics(xi_31_covariance_matrix_reweight_value, xi_31_baseline);
+    systematic_n_init_helper(systematic_n_high_1D_P1, systematic_n_high_1D_P2, 6);
+    gSystematics.reset();
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Construct Systematic Data Objects
+    // Systematic: dE/dX
+    // Systematic Value: -
+    ///////////////////////////////////////////////////////////////////////////
+
+    gSystematics.reset();
+    gSystematics.systematic_dEdX = -1;
+    rebuild_fake_data_systematics(xi_31_covariance_matrix_reweight_value, xi_31_baseline);
+    systematic_n_init_helper(systematic_n_low_1D_P1, systematic_n_low_1D_P2, 6);
+    gSystematics.reset();
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Construct Systematic Data Objects
+    // Systematic: 
+    // Systematic Value:
+    ///////////////////////////////////////////////////////////////////////////
+
+    gSystematics.reset();
+    gSystematics.systematic_brem = +1;
+    //gSystematics.systematic_energy_scale = 0.0;
+    rebuild_fake_data_systematics(xi_31_covariance_matrix_reweight_value, xi_31_baseline);
+    systematic_n_init_helper(systematic_n_high_1D_P1, systematic_n_high_1D_P2, 7);
+    gSystematics.reset();
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Construct Systematic Data Objects
+    // Systematic:
+    // Systematic Value:
+    ///////////////////////////////////////////////////////////////////////////
+
+    gSystematics.reset();
+    gSystematics.systematic_brem = -1;
+    rebuild_fake_data_systematics(xi_31_covariance_matrix_reweight_value, xi_31_baseline);
+    systematic_n_init_helper(systematic_n_low_1D_P1, systematic_n_low_1D_P2, 7);
+    gSystematics.reset();
+
+
     // reset systematics
     gSystematics.reset();
     rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline);
@@ -994,6 +1113,7 @@ void loadFiles(int i)
                 double value_down = nominal - down;
 
                 double value = 0.0;
+                /*
                 if(std::abs(value_up) >= std::abs(value_down))
                 {
                     value = value_up;
@@ -1001,7 +1121,37 @@ void loadFiles(int i)
                 else
                 {
                     value = value_down;
+                }*/
+
+                /*
+                double mp_fd_x = min_point_fake_data[0];
+                double mp_fd_y = min_point_fake_data[1];
+                double mp_sysn_l_x = min_point_sysn_l[n][0];
+                double mp_sysn_l_y = min_point_sysn_l[n][1];
+                double mp_sysn_h_x = min_point_sysn_h[n][0];
+                double mp_sysn_h_y = min_point_sysn_h[n][1];
+
+                double c_l_x = (mp_sysn_l_x - mp_fd_x);
+                */
+
+                // just do it manually
+                // TODO: choose which values go here
+                if((n == 0) ||
+                   (n == 1) || 
+                   (n == 2) || 
+                   (n == 3) || 
+                   (n == 4) ||
+                   (n == 5) ||
+                   (n == 6) ||
+                   (n == 7))
+                {
+                    value = value_up;
                 }
+                else
+                {
+                    value = value_down;
+                }
+
                 //systematic_offset_V_MATRIX_coeff_1D_P1[channel]->operator[](i) = value;
                 systematic_n_V_MATRIX_coeff_1D_P1[n][channel]->push_back(value);
             }
@@ -1016,6 +1166,7 @@ void loadFiles(int i)
                 double value_down = nominal - down;
 
                 double value = 0.0;
+                /*
                 if(std::abs(value_up) >= std::abs(value_down))
                 {
                     value = value_up;
@@ -1023,7 +1174,26 @@ void loadFiles(int i)
                 else
                 {
                     value = value_down;
+                }*/
+
+                // just do it manually
+                // TODO: choose which values go here
+                if((n == 0) ||
+                   (n == 1) || 
+                   (n == 2) || 
+                   (n == 3) || 
+                   (n == 4) ||
+                   (n == 5) ||
+                   (n == 6) ||
+                   (n == 7))
+                {
+                    value = value_up;
                 }
+                else
+                {
+                    value = value_down;
+                }
+
                 //systematic_offset_V_MATRIX_coeff_1D_P2[channel]->operator[](i) = value;
                 systematic_n_V_MATRIX_coeff_1D_P2[n][channel]->push_back(value);
             }
@@ -1092,10 +1262,6 @@ void loadFiles(int i)
 
 
 
-
-
-    int number_free_params = -1;
-    double *CovMatrix = nullptr;
 
 
 
@@ -1537,36 +1703,6 @@ void loadFiles(int i)
     //
 
 
-    // NOTE: moved from above
-    // NOTE: moved back
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Systematics Enabled: Default
-    // (whatever is set in newLogLikFitter.h)
-    // UPDATE: SYSTEMATICS DISABLED
-    ///////////////////////////////////////////////////////////////////////////
-
-    // do not do this in parallel mode
-    if(1 && true) // || (MODE_PARALLEL == 0))
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = false;
-    
-        newLogLikFitter_preMPSfitdriver(std::string("All Parameter Fit: NEMO3 Data"), min_point);
-        std::cout << "min_point: " << min_point[0] << " " << min_point[1] << std::endl;
-
-        V_ENABLE_SYS_stack_pop();
-
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -1773,393 +1909,6 @@ void loadFiles(int i)
 
 
 
-    const bool ENABLE_MIN_POINT_FIT = true;
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Fake Data
-    // No Systematics
-    ///////////////////////////////////////////////////////////////////////////
-    if(1 && ENABLE_MIN_POINT_FIT)
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = true;
-    
-        // set gSystematic parameters
-        gSystematics.reset();
-
-        // rebuild fake data if g_mode_fake_data == true
-        // only do this in relevant function blocks
-
-        //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itself
-        //rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itself
-        rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // want to check if the fitter can fit itself to itself
-        // just check the output looks sensible
-
-        // call helper function
-        newLogLikFitter_preMPSfitdriver(std::string("Systematics Fit: Fake Data"),
-                                        min_point_fake_data);
-        std::cout << "min_point (fake): " << min_point_fake_data[0] << " " << min_point_fake_data[1] << std::endl;
-
-        V_ENABLE_SYS_stack_pop();
-
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Fake Data
-    // Constant Energy Offset
-    // Low Systematic
-    ///////////////////////////////////////////////////////////////////////////
-    if(1 && ENABLE_MIN_POINT_FIT)
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = true;
-    
-        // set gSystematic parameters
-        gSystematics.reset();
-        gSystematics.systematic_energy_offset = -0.1;
-        rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-
-        // call helper function
-        newLogLikFitter_preMPSfitdriver(std::string("Systematics Fit: Fake Data"),
-                                        min_point_sysn_l[0]);
-        std::cout << "min_point (sys0 L): " << min_point_sysn_l[0][0] << " " << min_point_sysn_l[0][1] << std::endl;
-
-        V_ENABLE_SYS_stack_pop();
-
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Fake Data
-    // Constant Energy Offset
-    // High Systematic
-    ///////////////////////////////////////////////////////////////////////////
-    if(1 && ENABLE_MIN_POINT_FIT)
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = true;
-    
-        // set gSystematic parameters
-        gSystematics.reset();
-        gSystematics.systematic_energy_offset = +0.1;
-        rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-
-        // call helper function
-        newLogLikFitter_preMPSfitdriver(std::string("Systematics Fit: Fake Data"),
-                                        min_point_sysn_h[0]);
-        std::cout << "min_point (sys0 H): " << min_point_sysn_h[0][0] << " " << min_point_sysn_h[0][1] << std::endl;
-
-        V_ENABLE_SYS_stack_pop();
-
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Fake Data
-    // Energy Scale Multiplier
-    // Low Systematic
-    ///////////////////////////////////////////////////////////////////////////
-    if(1 && ENABLE_MIN_POINT_FIT)
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = true;
-    
-        // set gSystematic parameters
-        gSystematics.reset();
-        gSystematics.systematic_energy_scale = -0.012;
-        rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-
-        // call helper function
-        newLogLikFitter_preMPSfitdriver(std::string("Systematics Fit: Fake Data"),
-                                        min_point_sysn_l[1]);
-        std::cout << "min_point (sys1 L): " << min_point_sysn_l[1][0] << " " << min_point_sysn_l[1][1] << std::endl;
-
-        V_ENABLE_SYS_stack_pop();
-
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Fake Data
-    // Energy Scale Multiplier
-    // High Systematic
-    ///////////////////////////////////////////////////////////////////////////
-    if(1 && ENABLE_MIN_POINT_FIT)
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = true;
-    
-        // set gSystematic parameters
-        gSystematics.reset();
-        gSystematics.systematic_energy_scale = +0.012;
-        rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-
-        // call helper function
-        newLogLikFitter_preMPSfitdriver(std::string("Systematics Fit: Fake Data"),
-                                        min_point_sysn_h[1]);
-        std::cout << "min_point (sys1 H): " << min_point_sysn_h[1][0] << " " << min_point_sysn_h[1][1] << std::endl;
-
-        V_ENABLE_SYS_stack_pop();
-
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Fake Data
-    // Efficiency
-    // Low Systematic
-    ///////////////////////////////////////////////////////////////////////////
-
-    if(1 && ENABLE_MIN_POINT_FIT)
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = true;
-    
-        // set gSystematic parameters
-        gSystematics.reset();
-        gSystematics.systematic_efficiency = -5.55e-02;
-        rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-
-        // call helper function
-        newLogLikFitter_preMPSfitdriver(std::string("Systematics Fit: Fake Data"),
-                                        min_point_sysn_l[2]);
-        std::cout << "min_point (sys2 L): " << min_point_sysn_l[2][0] << " " << min_point_sysn_l[2][1] << std::endl;
-
-        V_ENABLE_SYS_stack_pop();
-
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Fake Data
-    // Efficiency
-    // High Systematic
-    ///////////////////////////////////////////////////////////////////////////
-
-    if(1 && ENABLE_MIN_POINT_FIT)
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = true;
-    
-        // set gSystematic parameters
-        gSystematics.reset();
-        gSystematics.systematic_efficiency = +5.55e-02;
-        rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-
-        // call helper function
-        newLogLikFitter_preMPSfitdriver(std::string("Systematics Fit: Fake Data"),
-                                        min_point_sysn_h[2]);
-        std::cout << "min_point (sys2 H): " << min_point_sysn_h[2][0] << " " << min_point_sysn_h[2][1] << std::endl;
-
-        V_ENABLE_SYS_stack_pop();
-
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Fake Data
-    // Enrichment
-    // Low Systematic
-    ///////////////////////////////////////////////////////////////////////////
-
-    if(1 && ENABLE_MIN_POINT_FIT)
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = true;
-    
-        // set gSystematic parameters
-        gSystematics.reset();
-        gSystematics.systematic_enrichment = -0.5e-02;
-        rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-
-        // call helper function
-        newLogLikFitter_preMPSfitdriver(std::string("Systematics Fit: Fake Data"),
-                                        min_point_sysn_l[3]);
-        std::cout << "min_point (sys3 L): " << min_point_sysn_l[3][0] << " " << min_point_sysn_l[3][1] << std::endl;
-
-        V_ENABLE_SYS_stack_pop();
-
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Fake Data
-    // Enrichment
-    // High Systematic
-    ///////////////////////////////////////////////////////////////////////////
-
-    if(1 && ENABLE_MIN_POINT_FIT)
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = true;
-    
-        // set gSystematic parameters
-        gSystematics.reset();
-        gSystematics.systematic_enrichment = +0.5e-02;
-        rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-
-        // call helper function
-        newLogLikFitter_preMPSfitdriver(std::string("Systematics Fit: Fake Data"),
-                                        min_point_sysn_h[3]);
-        std::cout << "min_point (sys3 H): " << min_point_sysn_h[3][0] << " " << min_point_sysn_h[3][1] << std::endl;
-
-        V_ENABLE_SYS_stack_pop();
-
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Fake Data
-    // Constant Energy Offset Small
-    // Low Systematic
-    ///////////////////////////////////////////////////////////////////////////
-    if(1 && ENABLE_MIN_POINT_FIT)
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = true;
-    
-        // set gSystematic parameters
-        gSystematics.reset();
-        gSystematics.systematic_energy_offsetsmall = -3.0e-3;
-        rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-
-        // call helper function
-        newLogLikFitter_preMPSfitdriver(std::string("Systematics Fit: Fake Data"),
-                                        min_point_sysn_l[4]);
-        std::cout << "min_point (sys4 L): " << min_point_sysn_l[4][0] << " " << min_point_sysn_l[4][1] << std::endl;
-
-        V_ENABLE_SYS_stack_pop();
-
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Fake Data
-    // Constant Energy Offset Small
-    // High Systematic
-    ///////////////////////////////////////////////////////////////////////////
-    if(1 && ENABLE_MIN_POINT_FIT)
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = true;
-    
-        // set gSystematic parameters
-        gSystematics.reset();
-        gSystematics.systematic_energy_offsetsmall = +3.0e-3;
-        rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-
-        // call helper function
-        newLogLikFitter_preMPSfitdriver(std::string("Systematics Fit: Fake Data"),
-                                        min_point_sysn_h[4]);
-        std::cout << "min_point (sys4 H): " << min_point_sysn_h[4][0] << " " << min_point_sysn_h[4][1] << std::endl;
-
-        V_ENABLE_SYS_stack_pop();
-
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
-
-    // TODO: ll_walk is saved from the previous fit (call to exec)
-    // which in this case is the high systematic energy offset fit
 
 
     // check repeating works
@@ -2269,6 +2018,1207 @@ void loadFiles(int i)
 
 
 
+    // NOTE: moved from above
+    // NOTE: moved back
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Systematics Enabled: Default
+    // (whatever is set in newLogLikFitter.h)
+    // UPDATE: SYSTEMATICS DISABLED
+    ///////////////////////////////////////////////////////////////////////////
+
+    // do not do this in parallel mode
+    if(1 && true) // || (MODE_PARALLEL == 0))
+    {
+        V_ENABLE_SYS_stack_push();
+        V_ENABLE_SYSALL = false;
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            V_ENABLE_SYSn[i] = false;
+        }
+
+        bool restore_g_mode_fake_data = g_mode_fake_data;
+        g_mode_fake_data = false;
+    
+        std::string min_point_fname = "min_point_";
+        std::string min_point_fname_append;
+        if(g_mode_fake_data == true)
+        {
+            min_point_fname_append += "fake_";
+        }
+        else if(g_mode_fake_data == false)
+        {
+            min_point_fname_append += "data_";
+        }
+        min_point_fname += min_point_fname_append;
+        std::ifstream ifs_min_point(min_point_fname);
+
+        if(ifs_min_point.is_open())
+        {
+            std::cout << "loading min point from file " << min_point_fname << std::endl;
+            ifs_min_point >> min_point[0] >> min_point[1];
+            ifs_min_point >> min_point_fval;
+            ifs_min_point.close();
+        }
+        else
+        {
+            newLogLikFitter_preMPSfitdriver(
+                std::string("All Parameter Fit: NEMO3 Data"),
+                min_point,
+                min_point_fval);
+            std::cout << "min_point: " << min_point[0] << " " << min_point[1] << std::endl;
+
+            std::ofstream ofs_min_point(min_point_fname);
+            ofs_min_point << min_point[0] << " " << min_point[1] << std::endl;
+            ofs_min_point << min_point_fval << std::endl;
+            ofs_min_point.close();
+        }
+
+        V_ENABLE_SYS_stack_pop();
+        g_mode_fake_data = restore_g_mode_fake_data;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    const bool ENABLE_MIN_POINT_FIT = true;
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // No Systematics
+    ///////////////////////////////////////////////////////////////////////////
+    if(1 && ENABLE_MIN_POINT_FIT)
+    {
+        V_ENABLE_SYS_stack_push();
+        V_ENABLE_SYSALL = false;
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            V_ENABLE_SYSn[i] = false;
+        }
+
+        bool restore_g_mode_fake_data = g_mode_fake_data;
+        g_mode_fake_data = true;
+    
+        std::string min_point_fname = "min_point_";
+        std::string min_point_fname_append;
+        if(g_mode_fake_data == true)
+        {
+            min_point_fname_append += "fake_";
+        }
+        else if(g_mode_fake_data == false)
+        {
+            min_point_fname_append += "data_";
+        }
+        min_point_fname += min_point_fname_append;
+        std::ifstream ifs_min_point(min_point_fname);
+
+        if(ifs_min_point.is_open())
+        {
+            std::cout << "loading min point from file " << min_point_fname << std::endl;
+            ifs_min_point >> min_point_fake_data[0] >> min_point_fake_data[1];
+            ifs_min_point >> min_point_fake_data_fval;
+            ifs_min_point.close();
+        }
+        else
+        {
+            // set gSystematic parameters
+            gSystematics.reset();
+
+            // rebuild fake data if g_mode_fake_data == true
+            // only do this in relevant function blocks
+
+            //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itself
+            //rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itself
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // want to check if the fitter can fit itself to itself
+            // just check the output looks sensible
+
+            // call helper function
+            newLogLikFitter_preMPSfitdriver(
+                std::string("Systematics Fit: Fake Data"),
+                min_point_fake_data,
+                min_point_fake_data_fval);
+            std::cout << "min_point (fake): " << min_point_fake_data[0] << " " << min_point_fake_data[1] << std::endl;
+
+            std::ofstream ofs_min_point(min_point_fname);
+            ofs_min_point << min_point_fake_data[0] << " " << min_point_fake_data[1] << std::endl;
+            ofs_min_point << min_point_fake_data_fval << std::endl;
+            ofs_min_point.close();
+        }
+
+        V_ENABLE_SYS_stack_pop();
+        g_mode_fake_data = restore_g_mode_fake_data;
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Constant Energy Offset
+    // Low Systematic
+    ///////////////////////////////////////////////////////////////////////////
+    if(1 && ENABLE_MIN_POINT_FIT)
+    {
+        V_ENABLE_SYS_stack_push();
+        V_ENABLE_SYSALL = false;
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            V_ENABLE_SYSn[i] = false;
+        }
+
+        bool restore_g_mode_fake_data = g_mode_fake_data;
+        g_mode_fake_data = true;
+
+        std::string min_point_fname = "min_point_";
+        std::string min_point_fname_append;
+        if(g_mode_fake_data == true)
+        {
+            min_point_fname_append += "fake_";
+        }
+        else if(g_mode_fake_data == false)
+        {
+            min_point_fname_append += "data_";
+        }
+        min_point_fname_append += "SYS0L";
+        min_point_fname += min_point_fname_append;
+        std::ifstream ifs_min_point(min_point_fname);
+
+        if(ifs_min_point.is_open())
+        {
+            std::cout << "loading min point from file " << min_point_fname << std::endl;
+            ifs_min_point >> min_point_sysn_l[0][0] >> min_point_sysn_l[0][1];
+            ifs_min_point >> min_point_sysn_l_fval[0];
+            ifs_min_point.close();
+        }
+        else
+        {
+            // set gSystematic parameters
+            gSystematics.reset();
+            gSystematics.systematic_energy_offset = -0.1;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+
+            // call helper function
+            newLogLikFitter_preMPSfitdriver(
+                std::string("Systematics Fit: Fake Data"),
+                min_point_sysn_l[0],
+                min_point_sysn_l_fval[0]);
+            std::cout << "min_point (sys0 L): " << min_point_sysn_l[0][0] << " " << min_point_sysn_l[0][1] << std::endl;
+
+            std::ofstream ofs_min_point(min_point_fname);
+            ofs_min_point << min_point_sysn_l[0][0] << " " << min_point_sysn_l[0][1] << std::endl;
+            ofs_min_point << min_point_sysn_l_fval[0] << std::endl;
+            ofs_min_point.close();
+        } 
+
+        V_ENABLE_SYS_stack_pop();
+        g_mode_fake_data = restore_g_mode_fake_data;
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Constant Energy Offset
+    // High Systematic
+    ///////////////////////////////////////////////////////////////////////////
+    if(1 && ENABLE_MIN_POINT_FIT)
+    {
+        V_ENABLE_SYS_stack_push();
+        V_ENABLE_SYSALL = false;
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            V_ENABLE_SYSn[i] = false;
+        }
+
+        bool restore_g_mode_fake_data = g_mode_fake_data;
+        g_mode_fake_data = true;
+
+        std::string min_point_fname = "min_point_";
+        std::string min_point_fname_append;
+        if(g_mode_fake_data == true)
+        {
+            min_point_fname_append += "fake_";
+        }
+        else if(g_mode_fake_data == false)
+        {
+            min_point_fname_append += "data_";
+        }
+        min_point_fname_append += "SYS0H";
+        min_point_fname += min_point_fname_append;
+        std::ifstream ifs_min_point(min_point_fname);
+
+        if(ifs_min_point.is_open())
+        {
+            std::cout << "loading min point from file " << min_point_fname << std::endl;
+            ifs_min_point >> min_point_sysn_h[0][0] >> min_point_sysn_h[0][1];
+            ifs_min_point >> min_point_sysn_h_fval[0];
+            ifs_min_point.close();
+        }
+        else
+        {
+            // set gSystematic parameters
+            gSystematics.reset();
+            gSystematics.systematic_energy_offset = +0.1;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+
+            // call helper function
+            newLogLikFitter_preMPSfitdriver(
+                std::string("Systematics Fit: Fake Data"),
+                min_point_sysn_h[0],
+                min_point_sysn_h_fval[0]);
+            std::cout << "min_point (sys0 H): " << min_point_sysn_h[0][0] << " " << min_point_sysn_h[0][1] << std::endl;
+
+            std::ofstream ofs_min_point(min_point_fname);
+            ofs_min_point << min_point_sysn_h[0][0] << " " << min_point_sysn_h[0][1] << std::endl;
+            ofs_min_point << min_point_sysn_h_fval[0] << std::endl;
+            ofs_min_point.close();
+        } 
+    
+        V_ENABLE_SYS_stack_pop();
+        g_mode_fake_data = restore_g_mode_fake_data;
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Energy Scale Multiplier
+    // Low Systematic
+    ///////////////////////////////////////////////////////////////////////////
+    if(1 && ENABLE_MIN_POINT_FIT)
+    {
+        V_ENABLE_SYS_stack_push();
+        V_ENABLE_SYSALL = false;
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            V_ENABLE_SYSn[i] = false;
+        }
+
+        bool restore_g_mode_fake_data = g_mode_fake_data;
+        g_mode_fake_data = true;
+
+        std::string min_point_fname = "min_point_";
+        std::string min_point_fname_append;
+        if(g_mode_fake_data == true)
+        {
+            min_point_fname_append += "fake_";
+        }
+        else if(g_mode_fake_data == false)
+        {
+            min_point_fname_append += "data_";
+        }
+        min_point_fname_append += "SYS1L";
+        min_point_fname += min_point_fname_append;
+        std::ifstream ifs_min_point(min_point_fname);
+
+        if(ifs_min_point.is_open())
+        {
+            std::cout << "loading min point from file " << min_point_fname << std::endl;
+            ifs_min_point >> min_point_sysn_l[1][0] >> min_point_sysn_l[1][1];
+            ifs_min_point >> min_point_sysn_l_fval[1];
+            ifs_min_point.close();
+        }
+        else
+        {
+            // set gSystematic parameters
+            gSystematics.reset();
+            gSystematics.systematic_energy_scale = -0.012;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+
+            // call helper function
+            newLogLikFitter_preMPSfitdriver(
+                std::string("Systematics Fit: Fake Data"),
+                min_point_sysn_l[1],
+                min_point_sysn_l_fval[1]);
+            std::cout << "min_point (sys1 L): " << min_point_sysn_l[1][0] << " " << min_point_sysn_l[1][1] << std::endl;
+
+            std::ofstream ofs_min_point(min_point_fname);
+            ofs_min_point << min_point_sysn_l[1][0] << " " << min_point_sysn_l[1][1] << std::endl;
+            ofs_min_point << min_point_sysn_l_fval[1] << std::endl;
+            ofs_min_point.close();
+        } 
+    
+        V_ENABLE_SYS_stack_pop();
+        g_mode_fake_data = restore_g_mode_fake_data;
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Energy Scale Multiplier
+    // High Systematic
+    ///////////////////////////////////////////////////////////////////////////
+    if(1 && ENABLE_MIN_POINT_FIT)
+    {
+        V_ENABLE_SYS_stack_push();
+        V_ENABLE_SYSALL = false;
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            V_ENABLE_SYSn[i] = false;
+        }
+
+        bool restore_g_mode_fake_data = g_mode_fake_data;
+        g_mode_fake_data = true;
+
+        std::string min_point_fname = "min_point_";
+        std::string min_point_fname_append;
+        if(g_mode_fake_data == true)
+        {
+            min_point_fname_append += "fake_";
+        }
+        else if(g_mode_fake_data == false)
+        {
+            min_point_fname_append += "data_";
+        }
+        min_point_fname_append += "SYS1H";
+        min_point_fname += min_point_fname_append;
+        std::ifstream ifs_min_point(min_point_fname);
+
+        if(ifs_min_point.is_open())
+        {
+            std::cout << "loading min point from file " << min_point_fname << std::endl;
+            ifs_min_point >> min_point_sysn_h[1][0] >> min_point_sysn_h[1][1];
+            ifs_min_point >> min_point_sysn_h_fval[1];
+            ifs_min_point.close();
+        }
+        else
+        {
+            // set gSystematic parameters
+            gSystematics.reset();
+            gSystematics.systematic_energy_scale = +0.012;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+
+            // call helper function
+            newLogLikFitter_preMPSfitdriver(
+                std::string("Systematics Fit: Fake Data"),
+                min_point_sysn_h[1],
+                min_point_sysn_h_fval[1]);
+            std::cout << "min_point (sys1 H): " << min_point_sysn_h[1][0] << " " << min_point_sysn_h[1][1] << std::endl;
+
+            std::ofstream ofs_min_point(min_point_fname);
+            ofs_min_point << min_point_sysn_h[1][0] << " " << min_point_sysn_h[1][1] << std::endl;
+            ofs_min_point << min_point_sysn_h_fval[1] << std::endl;
+            ofs_min_point.close();
+        }
+
+        V_ENABLE_SYS_stack_pop();
+        g_mode_fake_data = restore_g_mode_fake_data;
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Efficiency
+    // Low Systematic
+    ///////////////////////////////////////////////////////////////////////////
+
+    if(1 && ENABLE_MIN_POINT_FIT)
+    {
+        V_ENABLE_SYS_stack_push();
+        V_ENABLE_SYSALL = false;
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            V_ENABLE_SYSn[i] = false;
+        }
+
+        bool restore_g_mode_fake_data = g_mode_fake_data;
+        g_mode_fake_data = true;
+
+        std::string min_point_fname = "min_point_";
+        std::string min_point_fname_append;
+        if(g_mode_fake_data == true)
+        {
+            min_point_fname_append += "fake_";
+        }
+        else if(g_mode_fake_data == false)
+        {
+            min_point_fname_append += "data_";
+        }
+        min_point_fname_append += "SYS2L";
+        min_point_fname += min_point_fname_append;
+        std::ifstream ifs_min_point(min_point_fname);
+
+        if(ifs_min_point.is_open())
+        {
+            std::cout << "loading min point from file " << min_point_fname << std::endl;
+            ifs_min_point >> min_point_sysn_l[2][0] >> min_point_sysn_l[2][1];
+            ifs_min_point >> min_point_sysn_l_fval[2];
+            ifs_min_point.close();
+        }
+        else
+        {
+            // set gSystematic parameters
+            gSystematics.reset();
+            gSystematics.systematic_efficiency = -5.55e-02;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+
+            // call helper function
+            newLogLikFitter_preMPSfitdriver(
+                std::string("Systematics Fit: Fake Data"),
+                min_point_sysn_l[2],
+                min_point_sysn_l_fval[2]);
+            std::cout << "min_point (sys2 L): " << min_point_sysn_l[2][0] << " " << min_point_sysn_l[2][1] << std::endl;
+
+            std::ofstream ofs_min_point(min_point_fname);
+            ofs_min_point << min_point_sysn_l[2][0] << " " << min_point_sysn_l[2][1] << std::endl;
+            ofs_min_point << min_point_sysn_l_fval[2] << std::endl;
+            ofs_min_point.close();
+        } 
+
+        V_ENABLE_SYS_stack_pop();
+        g_mode_fake_data = restore_g_mode_fake_data;
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Efficiency
+    // High Systematic
+    ///////////////////////////////////////////////////////////////////////////
+
+    if(1 && ENABLE_MIN_POINT_FIT)
+    {
+        V_ENABLE_SYS_stack_push();
+        V_ENABLE_SYSALL = false;
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            V_ENABLE_SYSn[i] = false;
+        }
+
+        bool restore_g_mode_fake_data = g_mode_fake_data;
+        g_mode_fake_data = true;
+
+        std::string min_point_fname = "min_point_";
+        std::string min_point_fname_append;
+        if(g_mode_fake_data == true)
+        {
+            min_point_fname_append += "fake_";
+        }
+        else if(g_mode_fake_data == false)
+        {
+            min_point_fname_append += "data_";
+        }
+        min_point_fname_append += "SYS2H";
+        min_point_fname += min_point_fname_append;
+        std::ifstream ifs_min_point(min_point_fname);
+
+        if(ifs_min_point.is_open())
+        {
+            std::cout << "loading min point from file " << min_point_fname << std::endl;
+            ifs_min_point >> min_point_sysn_h[2][0] >> min_point_sysn_h[2][1];
+            ifs_min_point >> min_point_sysn_h_fval[2];
+            ifs_min_point.close();
+        }
+        else
+        {
+            // set gSystematic parameters
+            gSystematics.reset();
+            gSystematics.systematic_efficiency = +5.55e-02;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+
+            // call helper function
+            newLogLikFitter_preMPSfitdriver(
+                std::string("Systematics Fit: Fake Data"),
+                min_point_sysn_h[2],
+                min_point_sysn_h_fval[2]);
+            std::cout << "min_point (sys2 H): " << min_point_sysn_h[2][0] << " " << min_point_sysn_h[2][1] << std::endl;
+
+            std::ofstream ofs_min_point(min_point_fname);
+            ofs_min_point << min_point_sysn_h[2][0] << " " << min_point_sysn_h[2][1] << std::endl;
+            ofs_min_point << min_point_sysn_h_fval[2] << std::endl;
+            ofs_min_point.close();
+        }
+
+        V_ENABLE_SYS_stack_pop();
+        g_mode_fake_data = restore_g_mode_fake_data;
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Enrichment
+    // Low Systematic
+    ///////////////////////////////////////////////////////////////////////////
+
+    if(1 && ENABLE_MIN_POINT_FIT)
+    {
+        V_ENABLE_SYS_stack_push();
+        V_ENABLE_SYSALL = false;
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            V_ENABLE_SYSn[i] = false;
+        }
+
+        bool restore_g_mode_fake_data = g_mode_fake_data;
+        g_mode_fake_data = true;
+
+        std::string min_point_fname = "min_point_";
+        std::string min_point_fname_append;
+        if(g_mode_fake_data == true)
+        {
+            min_point_fname_append += "fake_";
+        }
+        else if(g_mode_fake_data == false)
+        {
+            min_point_fname_append += "data_";
+        }
+        min_point_fname_append += "SYS3L";
+        min_point_fname += min_point_fname_append;
+        std::ifstream ifs_min_point(min_point_fname);
+
+        if(ifs_min_point.is_open())
+        {
+            std::cout << "loading min point from file " << min_point_fname << std::endl;
+            ifs_min_point >> min_point_sysn_l[3][0] >> min_point_sysn_l[3][1];
+            ifs_min_point >> min_point_sysn_l_fval[3];
+            ifs_min_point.close();
+        }
+        else
+        {
+            // set gSystematic parameters
+            gSystematics.reset();
+            gSystematics.systematic_enrichment = -0.5e-02;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+
+            // call helper function
+            newLogLikFitter_preMPSfitdriver(
+                std::string("Systematics Fit: Fake Data"),
+                min_point_sysn_l[3],
+                min_point_sysn_l_fval[3]);
+            std::cout << "min_point (sys3 L): " << min_point_sysn_l[3][0] << " " << min_point_sysn_l[3][1] << std::endl;
+
+            std::ofstream ofs_min_point(min_point_fname);
+            ofs_min_point << min_point_sysn_l[3][0] << " " << min_point_sysn_l[3][1] << std::endl;
+            ofs_min_point << min_point_sysn_l_fval[3] << std::endl;
+            ofs_min_point.close();
+        } 
+    
+        V_ENABLE_SYS_stack_pop();
+        g_mode_fake_data = restore_g_mode_fake_data;
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Enrichment
+    // High Systematic
+    ///////////////////////////////////////////////////////////////////////////
+
+    if(1 && ENABLE_MIN_POINT_FIT)
+    {
+        V_ENABLE_SYS_stack_push();
+        V_ENABLE_SYSALL = false;
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            V_ENABLE_SYSn[i] = false;
+        }
+
+        bool restore_g_mode_fake_data = g_mode_fake_data;
+        g_mode_fake_data = true;
+
+        std::string min_point_fname = "min_point_";
+        std::string min_point_fname_append;
+        if(g_mode_fake_data == true)
+        {
+            min_point_fname_append += "fake_";
+        }
+        else if(g_mode_fake_data == false)
+        {
+            min_point_fname_append += "data_";
+        }
+        min_point_fname_append += "SYS3H";
+        min_point_fname += min_point_fname_append;
+        std::ifstream ifs_min_point(min_point_fname);
+
+        if(ifs_min_point.is_open())
+        {
+            std::cout << "loading min point from file " << min_point_fname << std::endl;
+            ifs_min_point >> min_point_sysn_h[3][0] >> min_point_sysn_h[3][1];
+            ifs_min_point >> min_point_sysn_h_fval[3];
+            ifs_min_point.close();
+        }
+        else
+        {
+            // set gSystematic parameters
+            gSystematics.reset();
+            gSystematics.systematic_enrichment = +0.5e-02;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+
+            // call helper function
+            newLogLikFitter_preMPSfitdriver(
+                std::string("Systematics Fit: Fake Data"),
+                min_point_sysn_h[3],
+                min_point_sysn_h_fval[3]);
+            std::cout << "min_point (sys3 H): " << min_point_sysn_h[3][0] << " " << min_point_sysn_h[3][1] << std::endl;
+
+            std::ofstream ofs_min_point(min_point_fname);
+            ofs_min_point << min_point_sysn_h[3][0] << " " << min_point_sysn_h[3][1] << std::endl;
+            ofs_min_point << min_point_sysn_h_fval[3] << std::endl;
+            ofs_min_point.close();
+        } 
+    
+        V_ENABLE_SYS_stack_pop();
+        g_mode_fake_data = restore_g_mode_fake_data;
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Constant Energy Offset Small
+    // Low Systematic
+    ///////////////////////////////////////////////////////////////////////////
+    if(1 && ENABLE_MIN_POINT_FIT)
+    {
+        V_ENABLE_SYS_stack_push();
+        V_ENABLE_SYSALL = false;
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            V_ENABLE_SYSn[i] = false;
+        }
+
+        bool restore_g_mode_fake_data = g_mode_fake_data;
+        g_mode_fake_data = true;
+
+        std::string min_point_fname = "min_point_";
+        std::string min_point_fname_append;
+        if(g_mode_fake_data == true)
+        {
+            min_point_fname_append += "fake_";
+        }
+        else if(g_mode_fake_data == false)
+        {
+            min_point_fname_append += "data_";
+        }
+        min_point_fname_append += "SYS4L";
+        min_point_fname += min_point_fname_append;
+        std::ifstream ifs_min_point(min_point_fname);
+
+        if(ifs_min_point.is_open())
+        {
+            std::cout << "loading min point from file " << min_point_fname << std::endl;
+            ifs_min_point >> min_point_sysn_l[4][0] >> min_point_sysn_l[4][1];
+            ifs_min_point >> min_point_sysn_l_fval[4];
+            ifs_min_point.close();
+        }
+        else
+        {
+            // set gSystematic parameters
+            gSystematics.reset();
+            gSystematics.systematic_energy_offsetsmall = -3.0e-3;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+
+            // call helper function
+            newLogLikFitter_preMPSfitdriver(
+                std::string("Systematics Fit: Fake Data"),
+                min_point_sysn_l[4],
+                min_point_sysn_l_fval[4]);
+            std::cout << "min_point (sys4 L): " << min_point_sysn_l[4][0] << " " << min_point_sysn_l[4][1] << std::endl;
+
+            std::ofstream ofs_min_point(min_point_fname);
+            ofs_min_point << min_point_sysn_l[4][0] << " " << min_point_sysn_l[4][1] << std::endl;
+            ofs_min_point << min_point_sysn_l_fval[4] << std::endl;
+            ofs_min_point.close();
+        } 
+    
+        V_ENABLE_SYS_stack_pop();
+        g_mode_fake_data = restore_g_mode_fake_data;
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Constant Energy Offset Small
+    // High Systematic
+    ///////////////////////////////////////////////////////////////////////////
+    if(1 && ENABLE_MIN_POINT_FIT)
+    {
+        V_ENABLE_SYS_stack_push();
+        V_ENABLE_SYSALL = false;
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            V_ENABLE_SYSn[i] = false;
+        }
+
+        bool restore_g_mode_fake_data = g_mode_fake_data;
+        g_mode_fake_data = true;
+
+        std::string min_point_fname = "min_point_";
+        std::string min_point_fname_append;
+        if(g_mode_fake_data == true)
+        {
+            min_point_fname_append += "fake_";
+        }
+        else if(g_mode_fake_data == false)
+        {
+            min_point_fname_append += "data_";
+        }
+        min_point_fname_append += "SYS4H";
+        min_point_fname += min_point_fname_append;
+        std::ifstream ifs_min_point(min_point_fname);
+
+        if(ifs_min_point.is_open())
+        {
+            std::cout << "loading min point from file " << min_point_fname << std::endl;
+            ifs_min_point >> min_point_sysn_h[4][0] >> min_point_sysn_h[4][1];
+            ifs_min_point >> min_point_sysn_h_fval[4];
+            ifs_min_point.close();
+        }
+        else
+        {
+            // set gSystematic parameters
+            gSystematics.reset();
+            gSystematics.systematic_energy_offsetsmall = +3.0e-3;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+
+            // call helper function
+            newLogLikFitter_preMPSfitdriver(
+                std::string("Systematics Fit: Fake Data"),
+                min_point_sysn_h[4],
+                min_point_sysn_h_fval[4]);
+            std::cout << "min_point (sys4 H): " << min_point_sysn_h[4][0] << " " << min_point_sysn_h[4][1] << std::endl;
+
+            std::ofstream ofs_min_point(min_point_fname);
+            ofs_min_point << min_point_sysn_h[4][0] << " " << min_point_sysn_h[4][1] << std::endl;
+            ofs_min_point << min_point_sysn_h_fval[4] << std::endl;
+            ofs_min_point.close();
+        }
+
+        V_ENABLE_SYS_stack_pop();
+        g_mode_fake_data = restore_g_mode_fake_data;
+    }
+
+
+
+
+
+
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Foil Thickness
+    // Low Systematic
+    ///////////////////////////////////////////////////////////////////////////
+    if(1 && ENABLE_MIN_POINT_FIT)
+    {
+        V_ENABLE_SYS_stack_push();
+        V_ENABLE_SYSALL = false;
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            V_ENABLE_SYSn[i] = false;
+        }
+
+        bool restore_g_mode_fake_data = g_mode_fake_data;
+        g_mode_fake_data = true;
+
+        std::string min_point_fname = "min_point_";
+        std::string min_point_fname_append;
+        if(g_mode_fake_data == true)
+        {
+            min_point_fname_append += "fake_";
+        }
+        else if(g_mode_fake_data == false)
+        {
+            min_point_fname_append += "data_";
+        }
+        min_point_fname_append += "SYS5L";
+        min_point_fname += min_point_fname_append;
+        std::ifstream ifs_min_point(min_point_fname);
+
+        if(ifs_min_point.is_open())
+        {
+            std::cout << "loading min point from file " << min_point_fname << std::endl;
+            ifs_min_point >> min_point_sysn_l[5][0] >> min_point_sysn_l[5][1];
+            ifs_min_point >> min_point_sysn_l_fval[5];
+            ifs_min_point.close();
+        }
+        else
+        {
+            // set gSystematic parameters
+            gSystematics.reset();
+            gSystematics.systematic_foil_thickness = -1;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+
+            // call helper function
+            newLogLikFitter_preMPSfitdriver(
+                std::string("Systematics Fit: Fake Data"),
+                min_point_sysn_l[5],
+                min_point_sysn_l_fval[5]);
+            std::cout << "min_point (sys5 L): " << min_point_sysn_l[5][0] << " " << min_point_sysn_l[5][1] << std::endl;
+
+            std::ofstream ofs_min_point(min_point_fname);
+            ofs_min_point << min_point_sysn_l[5][0] << " " << min_point_sysn_l[5][1] << std::endl;
+            ofs_min_point << min_point_sysn_l_fval[5] << std::endl;
+            ofs_min_point.close();
+        } 
+    
+        V_ENABLE_SYS_stack_pop();
+        g_mode_fake_data = restore_g_mode_fake_data;
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Foil Thickness
+    // High Systematic
+    ///////////////////////////////////////////////////////////////////////////
+    if(1 && ENABLE_MIN_POINT_FIT)
+    {
+        V_ENABLE_SYS_stack_push();
+        V_ENABLE_SYSALL = false;
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            V_ENABLE_SYSn[i] = false;
+        }
+
+        bool restore_g_mode_fake_data = g_mode_fake_data;
+        g_mode_fake_data = true;
+
+        std::string min_point_fname = "min_point_";
+        std::string min_point_fname_append;
+        if(g_mode_fake_data == true)
+        {
+            min_point_fname_append += "fake_";
+        }
+        else if(g_mode_fake_data == false)
+        {
+            min_point_fname_append += "data_";
+        }
+        min_point_fname_append += "SYS5H";
+        min_point_fname += min_point_fname_append;
+        std::ifstream ifs_min_point(min_point_fname);
+
+        if(ifs_min_point.is_open())
+        {
+            std::cout << "loading min point from file " << min_point_fname << std::endl;
+            ifs_min_point >> min_point_sysn_h[5][0] >> min_point_sysn_h[5][1];
+            ifs_min_point >> min_point_sysn_h_fval[5];
+            ifs_min_point.close();
+        }
+        else
+        {
+            // set gSystematic parameters
+            gSystematics.reset();
+            gSystematics.systematic_foil_thickness = +1;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+
+            // call helper function
+            newLogLikFitter_preMPSfitdriver(
+                std::string("Systematics Fit: Fake Data"),
+                min_point_sysn_h[5],
+                min_point_sysn_h_fval[5]);
+            std::cout << "min_point (sys5 H): " << min_point_sysn_h[5][0] << " " << min_point_sysn_h[5][1] << std::endl;
+
+            std::ofstream ofs_min_point(min_point_fname);
+            ofs_min_point << min_point_sysn_h[5][0] << " " << min_point_sysn_h[5][1] << std::endl;
+            ofs_min_point << min_point_sysn_h_fval[5] << std::endl;
+            ofs_min_point.close();
+        }
+
+        V_ENABLE_SYS_stack_pop();
+        g_mode_fake_data = restore_g_mode_fake_data;
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // dEdX
+    // Low Systematic
+    ///////////////////////////////////////////////////////////////////////////
+    if(1 && ENABLE_MIN_POINT_FIT)
+    {
+        V_ENABLE_SYS_stack_push();
+        V_ENABLE_SYSALL = false;
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            V_ENABLE_SYSn[i] = false;
+        }
+
+        bool restore_g_mode_fake_data = g_mode_fake_data;
+        g_mode_fake_data = true;
+
+        std::string min_point_fname = "min_point_";
+        std::string min_point_fname_append;
+        if(g_mode_fake_data == true)
+        {
+            min_point_fname_append += "fake_";
+        }
+        else if(g_mode_fake_data == false)
+        {
+            min_point_fname_append += "data_";
+        }
+        min_point_fname_append += "SYS6L";
+        min_point_fname += min_point_fname_append;
+        std::ifstream ifs_min_point(min_point_fname);
+
+        if(ifs_min_point.is_open())
+        {
+            std::cout << "loading min point from file " << min_point_fname << std::endl;
+            ifs_min_point >> min_point_sysn_l[6][0] >> min_point_sysn_l[6][1];
+            ifs_min_point >> min_point_sysn_l_fval[6];
+            ifs_min_point.close();
+        }
+        else
+        {
+            // set gSystematic parameters
+            gSystematics.reset();
+            gSystematics.systematic_dEdX = -1;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+
+            // call helper function
+            newLogLikFitter_preMPSfitdriver(
+                std::string("Systematics Fit: Fake Data"),
+                min_point_sysn_l[6],
+                min_point_sysn_l_fval[6]);
+            std::cout << "min_point (sys6 L): " << min_point_sysn_l[6][0] << " " << min_point_sysn_l[6][1] << std::endl;
+
+            std::ofstream ofs_min_point(min_point_fname);
+            ofs_min_point << min_point_sysn_l[6][0] << " " << min_point_sysn_l[6][1] << std::endl;
+            ofs_min_point << min_point_sysn_l_fval[6] << std::endl;
+            ofs_min_point.close();
+        } 
+    
+        V_ENABLE_SYS_stack_pop();
+        g_mode_fake_data = restore_g_mode_fake_data;
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // dEdX
+    // High Systematic
+    ///////////////////////////////////////////////////////////////////////////
+    if(1 && ENABLE_MIN_POINT_FIT)
+    {
+        V_ENABLE_SYS_stack_push();
+        V_ENABLE_SYSALL = false;
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            V_ENABLE_SYSn[i] = false;
+        }
+
+        bool restore_g_mode_fake_data = g_mode_fake_data;
+        g_mode_fake_data = true;
+
+        std::string min_point_fname = "min_point_";
+        std::string min_point_fname_append;
+        if(g_mode_fake_data == true)
+        {
+            min_point_fname_append += "fake_";
+        }
+        else if(g_mode_fake_data == false)
+        {
+            min_point_fname_append += "data_";
+        }
+        min_point_fname_append += "SYS6H";
+        min_point_fname += min_point_fname_append;
+        std::ifstream ifs_min_point(min_point_fname);
+
+        if(ifs_min_point.is_open())
+        {
+            std::cout << "loading min point from file " << min_point_fname << std::endl;
+            ifs_min_point >> min_point_sysn_h[6][0] >> min_point_sysn_h[6][1];
+            ifs_min_point >> min_point_sysn_h_fval[6];
+            ifs_min_point.close();
+        }
+        else
+        {
+            // set gSystematic parameters
+            gSystematics.reset();
+            gSystematics.systematic_dEdX = +1;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+
+            // call helper function
+            newLogLikFitter_preMPSfitdriver(
+                std::string("Systematics Fit: Fake Data"),
+                min_point_sysn_h[6],
+                min_point_sysn_h_fval[6]);
+            std::cout << "min_point (sys6 H): " << min_point_sysn_h[6][0] << " " << min_point_sysn_h[6][1] << std::endl;
+
+            std::ofstream ofs_min_point(min_point_fname);
+            ofs_min_point << min_point_sysn_h[6][0] << " " << min_point_sysn_h[6][1] << std::endl;
+            ofs_min_point << min_point_sysn_h_fval[6] << std::endl;
+            ofs_min_point.close();
+        }
+
+        V_ENABLE_SYS_stack_pop();
+        g_mode_fake_data = restore_g_mode_fake_data;
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Bremsstrahlung
+    // Low Systematic
+    ///////////////////////////////////////////////////////////////////////////
+    if(1 && ENABLE_MIN_POINT_FIT)
+    {
+        V_ENABLE_SYS_stack_push();
+        V_ENABLE_SYSALL = false;
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            V_ENABLE_SYSn[i] = false;
+        }
+
+        bool restore_g_mode_fake_data = g_mode_fake_data;
+        g_mode_fake_data = true;
+
+        std::string min_point_fname = "min_point_";
+        std::string min_point_fname_append;
+        if(g_mode_fake_data == true)
+        {
+            min_point_fname_append += "fake_";
+        }
+        else if(g_mode_fake_data == false)
+        {
+            min_point_fname_append += "data_";
+        }
+        min_point_fname_append += "SYS7L";
+        min_point_fname += min_point_fname_append;
+        std::ifstream ifs_min_point(min_point_fname);
+
+        if(ifs_min_point.is_open())
+        {
+            std::cout << "loading min point from file " << min_point_fname << std::endl;
+            ifs_min_point >> min_point_sysn_l[7][0] >> min_point_sysn_l[7][1];
+            ifs_min_point >> min_point_sysn_l_fval[7];
+            ifs_min_point.close();
+        }
+        else
+        {
+            // set gSystematic parameters
+            gSystematics.reset();
+            gSystematics.systematic_brem = -1;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+
+            // call helper function
+            newLogLikFitter_preMPSfitdriver(
+                std::string("Systematics Fit: Fake Data"),
+                min_point_sysn_l[7],
+                min_point_sysn_l_fval[7]);
+            std::cout << "min_point (sys7 L): " << min_point_sysn_l[7][0] << " " << min_point_sysn_l[7][1] << std::endl;
+
+            std::ofstream ofs_min_point(min_point_fname);
+            ofs_min_point << min_point_sysn_l[7][0] << " " << min_point_sysn_l[7][1] << std::endl;
+            ofs_min_point << min_point_sysn_l_fval[7] << std::endl;
+            ofs_min_point.close();
+        } 
+    
+        V_ENABLE_SYS_stack_pop();
+        g_mode_fake_data = restore_g_mode_fake_data;
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Bremsstrahlung
+    // High Systematic
+    ///////////////////////////////////////////////////////////////////////////
+    if(1 && ENABLE_MIN_POINT_FIT)
+    {
+        V_ENABLE_SYS_stack_push();
+        V_ENABLE_SYSALL = false;
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            V_ENABLE_SYSn[i] = false;
+        }
+
+        bool restore_g_mode_fake_data = g_mode_fake_data;
+        g_mode_fake_data = true;
+
+        std::string min_point_fname = "min_point_";
+        std::string min_point_fname_append;
+        if(g_mode_fake_data == true)
+        {
+            min_point_fname_append += "fake_";
+        }
+        else if(g_mode_fake_data == false)
+        {
+            min_point_fname_append += "data_";
+        }
+        min_point_fname_append += "SYS7H";
+        min_point_fname += min_point_fname_append;
+        std::ifstream ifs_min_point(min_point_fname);
+
+        if(ifs_min_point.is_open())
+        {
+            std::cout << "loading min point from file " << min_point_fname << std::endl;
+            ifs_min_point >> min_point_sysn_h[7][0] >> min_point_sysn_h[7][1];
+            ifs_min_point >> min_point_sysn_h_fval[7];
+            ifs_min_point.close();
+        }
+        else
+        {
+            // set gSystematic parameters
+            gSystematics.reset();
+            gSystematics.systematic_brem = +1;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+
+            // call helper function
+            newLogLikFitter_preMPSfitdriver(
+                std::string("Systematics Fit: Fake Data"),
+                min_point_sysn_h[7],
+                min_point_sysn_h_fval[7]);
+            std::cout << "min_point (sys7 H): " << min_point_sysn_h[7][0] << " " << min_point_sysn_h[7][1] << std::endl;
+
+            std::ofstream ofs_min_point(min_point_fname);
+            ofs_min_point << min_point_sysn_h[7][0] << " " << min_point_sysn_h[7][1] << std::endl;
+            ofs_min_point << min_point_sysn_h_fval[7] << std::endl;
+            ofs_min_point.close();
+        }
+
+        V_ENABLE_SYS_stack_pop();
+        g_mode_fake_data = restore_g_mode_fake_data;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // TODO: ll_walk is saved from the previous fit (call to exec)
+    // which in this case is the high systematic energy offset fit
 
 
 
@@ -2333,8 +3283,8 @@ void loadFiles(int i)
 
         std::cout << "calling calculate" << std::endl;
         newloglikfitter_mps_calculate(number_job_id, output_name, start_index, stop_index);
-        std::cout << "calling draw" << std::endl;
-        newloglikfitter_mps_draw(number_job_id, output_name, start_index, stop_index);
+        //std::cout << "calling draw" << std::endl;
+        //newloglikfitter_mps_draw(number_job_id, output_name, start_index, stop_index);
         
 
         std::cout << "MPS done" << std::endl;

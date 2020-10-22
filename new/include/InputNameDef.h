@@ -125,6 +125,18 @@ TString Nd150Names[nNd150Samples] =
 };
 
 
+TString Nd150SystematicNames[nNd150Systematics] =
+{
+"^{150}Nd 2#nu#beta#beta nominal thick",
+"^{150}Nd 2#nu#beta#beta double thick",
+"^{150}Nd 2#nu#beta#beta half thick",
+"^{150}Nd 2#nu#beta#beta Hbrem_2vBB",
+"^{150}Nd 2#nu#beta#beta Lbrem_2vBB",
+"^{150}Nd 2#nu#beta#beta LdEdX_2vBB",
+"^{150}Nd 2#nu#beta#beta HdEdX_2vBB"
+};
+
+
 
 TString NeighbourNames[nNeighbours] =
 {

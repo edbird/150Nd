@@ -2,30 +2,30 @@
 #define NEWLOGLIKFITTER_PREMPSFITDRIVER_H
 
 
-void newLogLikFitter_preMPSfitdriver(const std::string &fit_description_string, double *set_min_point)
+void newLogLikFitter_preMPSfitdriver(const std::string &fit_description_string, double *set_min_point, double &set_min_point_fval)
 {
 
     // initialize
-        std::cout << "seo=" << gSystematics.systematic_energy_offset << std::endl;
-        std::cout << "sem=" << gSystematics.systematic_energy_scale << std::endl;
-        std::cout << "sef=" << gSystematics.systematic_efficiency << std::endl;
-        std::cout << "sen=" << gSystematics.systematic_enrichment << std::endl;
-        std::cout << "seos=" << gSystematics.systematic_energy_offsetsmall << std::endl;
-        std::string name_extra_g_mode_fake_data;
-        if(g_mode_fake_data == true)
-        {
-            name_extra_g_mode_fake_data = "fakedata";
-        }
-        else
-        {
-            name_extra_g_mode_fake_data = "data";
-        }
-        std::string name_extra = name_extra_g_mode_fake_data
-                               + "_seo_" + std::to_string(gSystematics.systematic_energy_offset)
-                               + "_sem_" + std::to_string(gSystematics.systematic_energy_scale)
-                               + "_sef_" + std::to_string(gSystematics.systematic_efficiency)
-                               + "_sen_" + std::to_string(gSystematics.systematic_enrichment)
-                               + "_seos_" + std::to_string(gSystematics.systematic_energy_offsetsmall);
+    std::cout << "seo=" << gSystematics.systematic_energy_offset << std::endl;
+    std::cout << "sem=" << gSystematics.systematic_energy_scale << std::endl;
+    std::cout << "sef=" << gSystematics.systematic_efficiency << std::endl;
+    std::cout << "sen=" << gSystematics.systematic_enrichment << std::endl;
+    std::cout << "seos=" << gSystematics.systematic_energy_offsetsmall << std::endl;
+    std::string name_extra_g_mode_fake_data;
+    if(g_mode_fake_data == true)
+    {
+        name_extra_g_mode_fake_data = "fakedata";
+    }
+    else
+    {
+        name_extra_g_mode_fake_data = "data";
+    }
+    std::string name_extra = name_extra_g_mode_fake_data
+                           + "_seo_" + std::to_string(gSystematics.systematic_energy_offset)
+                           + "_sem_" + std::to_string(gSystematics.systematic_energy_scale)
+                           + "_sef_" + std::to_string(gSystematics.systematic_efficiency)
+                           + "_sen_" + std::to_string(gSystematics.systematic_enrichment)
+                           + "_seos_" + std::to_string(gSystematics.systematic_energy_offsetsmall);
 
     // create minimizer
     ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
@@ -130,6 +130,7 @@ void newLogLikFitter_preMPSfitdriver(const std::string &fit_description_string, 
 
     set_min_point[0] = params_after.at(1);
     set_min_point[1] = params_after.at(0);
+    set_min_point_fval = fval_after;
 
     std::cout << fit_description_string << std::endl;
     std::cout << "SYSTEMATICS: CONSTANT OFFSET: " << gSystematics.systematic_energy_offset << " MeV" << std::endl;

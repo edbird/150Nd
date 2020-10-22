@@ -348,32 +348,32 @@ void reweight_apply_fakedata(
             // P1
             if(paramEnabledP1)
             {
-            if(debuglevel >= 8)
-            {
-                std::cout << "P1 deleter helper" << std::endl;
-            }
-            deleter_helper("hTotalE_" + sampleName + name_append + "_P1");
-            deleter_helper("hSingleEnergy_" + sampleName + name_append + "_P1");
-            deleter_helper("hHighEnergy_" + sampleName + name_append + "_P1");
-            deleter_helper("hLowEnergy_" + sampleName + name_append + "_P1");
-            deleter_helper("hEnergySum_" + sampleName + name_append + "_P1");
-            deleter_helper("hEnergyDiff_" + sampleName + name_append + "_P1");
-            deleter_helper("hHighLowEnergy_" + sampleName + name_append + "_P1");
+                if(debuglevel >= 8)
+                {
+                    std::cout << "P1 deleter helper" << std::endl;
+                }
+                deleter_helper("hTotalE_" + sampleName + name_append + "_P1");
+                deleter_helper("hSingleEnergy_" + sampleName + name_append + "_P1");
+                deleter_helper("hHighEnergy_" + sampleName + name_append + "_P1");
+                deleter_helper("hLowEnergy_" + sampleName + name_append + "_P1");
+                deleter_helper("hEnergySum_" + sampleName + name_append + "_P1");
+                deleter_helper("hEnergyDiff_" + sampleName + name_append + "_P1");
+                deleter_helper("hHighLowEnergy_" + sampleName + name_append + "_P1");
             }
             // P2
             if(paramEnabledP2)
             {
-            if(debuglevel >= 8)
-            {
-                std::cout << "P2 deleter helper" << std::endl;
-            }
-            deleter_helper("hTotalE_" + sampleName + name_append + "_P2");
-            deleter_helper("hSingleEnergy_" + sampleName + name_append + "_P2");
-            deleter_helper("hHighEnergy_" + sampleName + name_append + "_P2");
-            deleter_helper("hLowEnergy_" + sampleName + name_append + "_P2");
-            deleter_helper("hEnergySum_" + sampleName + name_append + "_P2");
-            deleter_helper("hEnergyDiff_" + sampleName + name_append + "_P2");
-            deleter_helper("hHighLowEnergy_" + sampleName + name_append + "_P2");
+                if(debuglevel >= 8)
+                {
+                    std::cout << "P2 deleter helper" << std::endl;
+                }
+                deleter_helper("hTotalE_" + sampleName + name_append + "_P2");
+                deleter_helper("hSingleEnergy_" + sampleName + name_append + "_P2");
+                deleter_helper("hHighEnergy_" + sampleName + name_append + "_P2");
+                deleter_helper("hLowEnergy_" + sampleName + name_append + "_P2");
+                deleter_helper("hEnergySum_" + sampleName + name_append + "_P2");
+                deleter_helper("hEnergyDiff_" + sampleName + name_append + "_P2");
+                deleter_helper("hHighLowEnergy_" + sampleName + name_append + "_P2");
             }
 
             
@@ -399,42 +399,42 @@ void reweight_apply_fakedata(
 
             if(paramEnabledP1)
             {
-            if(debuglevel >= 8)
-            {
-                std::cout << "P1 alloc" << std::endl;
-            }
-            hTotalE_P1_tmp          = new TH1D("hTotalE_" + sampleName + name_append + "_P1",
-                                        TString("Phase ") + "P1" + " " + sampleName + name_append + " total energy; Total Energy #SigmaE_{e} (MeV)",
-                                        50, 0.0, 5.0);
+                if(debuglevel >= 8)
+                {
+                    std::cout << "P1 alloc" << std::endl;
+                }
+                hTotalE_P1_tmp          = new TH1D("hTotalE_" + sampleName + name_append + "_P1",
+                                            TString("Phase ") + "P1" + " " + sampleName + name_append + " total energy; Total Energy #SigmaE_{e} (MeV)",
+                                            50, 0.0, 5.0);
 
-            hSingleEnergy_P1_tmp    = new TH1D("hSingleEnergy_" + sampleName + name_append + "_P1",
-                                        TString("Phase ") + "P1" + " " + sampleName  + name_append + " Single Energy",
-                                        50, 0.0, 5.0);
-            
-            //std::cout << "High new" << std::endl;
-            hHighEnergy_P1_tmp     = new TH1D("hHighEnergy_" + sampleName + name_append + "_P1",
-                                        TString("Phase ") + "P1" + " " + sampleName + name_append + " High Energy; Energy (MeV)",
-                                        50, 0.0, 5.0);
+                hSingleEnergy_P1_tmp    = new TH1D("hSingleEnergy_" + sampleName + name_append + "_P1",
+                                            TString("Phase ") + "P1" + " " + sampleName  + name_append + " Single Energy",
+                                            50, 0.0, 5.0);
+                
+                //std::cout << "High new" << std::endl;
+                hHighEnergy_P1_tmp     = new TH1D("hHighEnergy_" + sampleName + name_append + "_P1",
+                                            TString("Phase ") + "P1" + " " + sampleName + name_append + " High Energy; Energy (MeV)",
+                                            50, 0.0, 5.0);
 
-            //std::cout << "Low new" << std::endl;
-            hLowEnergy_P1_tmp     = new TH1D("hLowEnergy_" + sampleName + name_append + "_P1",
-                                        TString("Phase ") + "P1" + " " + sampleName + name_append + " Low Energy",
-                                        50, 0.0, 5.0);
+                //std::cout << "Low new" << std::endl;
+                hLowEnergy_P1_tmp     = new TH1D("hLowEnergy_" + sampleName + name_append + "_P1",
+                                            TString("Phase ") + "P1" + " " + sampleName + name_append + " Low Energy",
+                                            50, 0.0, 5.0);
 
-            //std::cout << "Sum new" << std::endl;
-            hEnergySum_P1_tmp     = new TH1D("hEnergySum_" + sampleName + name_append + "_P1",
-                                        TString("Phase ") + "P1" + " " + sampleName + name_append + " Low Energy",
-                                        50, 0.0, 5.0);
+                //std::cout << "Sum new" << std::endl;
+                hEnergySum_P1_tmp     = new TH1D("hEnergySum_" + sampleName + name_append + "_P1",
+                                            TString("Phase ") + "P1" + " " + sampleName + name_append + " Low Energy",
+                                            50, 0.0, 5.0);
 
-            //std::cout << "Diff new" << std::endl;
-            hEnergyDiff_P1_tmp     = new TH1D("hEnergyDiff_" + sampleName + name_append + "_P1",
-                                        TString("Phase ") + "P1" + " " + sampleName + name_append + " Low Energy",
-                                        50, 0.0, 5.0);
+                //std::cout << "Diff new" << std::endl;
+                hEnergyDiff_P1_tmp     = new TH1D("hEnergyDiff_" + sampleName + name_append + "_P1",
+                                            TString("Phase ") + "P1" + " " + sampleName + name_append + " Low Energy",
+                                            50, 0.0, 5.0);
 
-            //std::cout << "HighLow new" << std::endl;
-            hHighLowEnergy_P1_tmp     = new TH2D("hHighLowEnergy_" + sampleName + name_append + "_P1",
-                                        TString("Phase ") + "P1" + " " + sampleName + name_append + ";Low Energy Electron Energy (MeV);High Energy Electron Energy (MeV)",
-                                        50, 0.0, 5.0, 50, 0.0, 5.0);
+                //std::cout << "HighLow new" << std::endl;
+                hHighLowEnergy_P1_tmp     = new TH2D("hHighLowEnergy_" + sampleName + name_append + "_P1",
+                                            TString("Phase ") + "P1" + " " + sampleName + name_append + ";Low Energy Electron Energy (MeV);High Energy Electron Energy (MeV)",
+                                            50, 0.0, 5.0, 50, 0.0, 5.0);
             }
 
 
@@ -444,45 +444,45 @@ void reweight_apply_fakedata(
 
             if(paramEnabledP2)
             {
-            if(debuglevel >= 8)
-            {
-                std::cout << "P2 alloc" << std::endl;
-            }
-            hTotalE_P2_tmp = new TH1D("hTotalE_" + sampleName + name_append + "_P2",
-                               //"Phase " + Phase + " " + sampleName + name_append + " total energy; #SigmaE_{e} (MeV)",
-                               TString("Phase ") + "P2" + " " + sampleName + name_append + " total energy; Total Energy #SigmaE_{e} (MeV)",
-                               50, 0.0, 5.0);
-                               // TODO: changed from 4
+                if(debuglevel >= 8)
+                {
+                    std::cout << "P2 alloc" << std::endl;
+                }
+                hTotalE_P2_tmp = new TH1D("hTotalE_" + sampleName + name_append + "_P2",
+                                   //"Phase " + Phase + " " + sampleName + name_append + " total energy; #SigmaE_{e} (MeV)",
+                                   TString("Phase ") + "P2" + " " + sampleName + name_append + " total energy; Total Energy #SigmaE_{e} (MeV)",
+                                   50, 0.0, 5.0);
+                                   // TODO: changed from 4
 
-            //std::cout << "Single new" << std::endl;
-            hSingleEnergy_P2_tmp    = new TH1D("hSingleEnergy_" + sampleName + name_append + "_P2",
-                                        TString("Phase ") + "P2" + " " + sampleName  + name_append + " Single Energy",
-                                        50, 0.0, 5.0);
-            
-            //std::cout << "High new" << std::endl;
-            hHighEnergy_P2_tmp     = new TH1D("hHighEnergy_" + sampleName + name_append + "_P2",
-                                        TString("Phase ") + "P2" + " " + sampleName + name_append + " High Energy; Energy (MeV)",
-                                        50, 0.0, 5.0);
+                //std::cout << "Single new" << std::endl;
+                hSingleEnergy_P2_tmp    = new TH1D("hSingleEnergy_" + sampleName + name_append + "_P2",
+                                            TString("Phase ") + "P2" + " " + sampleName  + name_append + " Single Energy",
+                                            50, 0.0, 5.0);
+                
+                //std::cout << "High new" << std::endl;
+                hHighEnergy_P2_tmp     = new TH1D("hHighEnergy_" + sampleName + name_append + "_P2",
+                                            TString("Phase ") + "P2" + " " + sampleName + name_append + " High Energy; Energy (MeV)",
+                                            50, 0.0, 5.0);
 
-            //std::cout << "Low new" << std::endl;
-            hLowEnergy_P2_tmp     = new TH1D("hLowEnergy_" + sampleName + name_append + "_P2",
-                                        TString("Phase ") + "P2" + " " + sampleName + name_append + " Low Energy",
-                                        50, 0.0, 5.0);
+                //std::cout << "Low new" << std::endl;
+                hLowEnergy_P2_tmp     = new TH1D("hLowEnergy_" + sampleName + name_append + "_P2",
+                                            TString("Phase ") + "P2" + " " + sampleName + name_append + " Low Energy",
+                                            50, 0.0, 5.0);
 
-            //std::cout << "Sum new" << std::endl;
-            hEnergySum_P2_tmp     = new TH1D("hEnergySum_" + sampleName + name_append + "_P2",
-                                        TString("Phase ") + "P2" + " " + sampleName + name_append + " Low Energy",
-                                        50, 0.0, 5.0);
+                //std::cout << "Sum new" << std::endl;
+                hEnergySum_P2_tmp     = new TH1D("hEnergySum_" + sampleName + name_append + "_P2",
+                                            TString("Phase ") + "P2" + " " + sampleName + name_append + " Low Energy",
+                                            50, 0.0, 5.0);
 
-            //std::cout << "Diff new" << std::endl;
-            hEnergyDiff_P2_tmp     = new TH1D("hEnergyDiff_" + sampleName + name_append + "_P2",
-                                        TString("Phase ") + "P2" + " " + sampleName + name_append + " Low Energy",
-                                        50, 0.0, 5.0);
+                //std::cout << "Diff new" << std::endl;
+                hEnergyDiff_P2_tmp     = new TH1D("hEnergyDiff_" + sampleName + name_append + "_P2",
+                                            TString("Phase ") + "P2" + " " + sampleName + name_append + " Low Energy",
+                                            50, 0.0, 5.0);
 
-            //std::cout << "HighLow new" << std::endl;
-            hHighLowEnergy_P2_tmp     = new TH2D("hHighLowEnergy_" + sampleName + name_append + "_P2",
-                                        TString("Phase ") + "P2" + " " + sampleName + name_append + ";Low Energy Electron Energy (MeV);High Energy Electron Energy (MeV)",
-                                        50, 0.0, 5.0, 50, 0.0, 5.0);
+                //std::cout << "HighLow new" << std::endl;
+                hHighLowEnergy_P2_tmp     = new TH2D("hHighLowEnergy_" + sampleName + name_append + "_P2",
+                                            TString("Phase ") + "P2" + " " + sampleName + name_append + ";Low Energy Electron Energy (MeV);High Energy Electron Energy (MeV)",
+                                            50, 0.0, 5.0, 50, 0.0, 5.0);
             }
 
             
@@ -719,6 +719,31 @@ void reweight_apply_fakedata(
                 {
                     weight = weight *
                         (1.0 + gSystematics.systematic_efficiency);
+                }
+
+
+                if(gSystematics.systematic_foil_thickness != 0.0)
+                {
+                    Int_t bin_x{gSystematics.h_systematic_foil_thickness_h->GetXaxis()->FindBin(el_energy_0)};
+                    Int_t bin_y{gSystematics.h_systematic_foil_thickness_h->GetYaxis()->FindBin(el_energy_1)};
+                    Double_t content{gSystematics.h_systematic_foil_thickness_h->GetBinContent(bin_x, bin_y)};
+                    weight = weight * (1.0 + gSystematics.systematic_foil_thickness * content);
+                }
+
+                if(gSystematics.systematic_dEdX != 0.0)
+                {
+                    Int_t bin_x{gSystematics.h_systematic_dEdX->GetXaxis()->FindBin(el_energy_0)};
+                    Int_t bin_y{gSystematics.h_systematic_dEdX->GetYaxis()->FindBin(el_energy_1)};
+                    Double_t content{gSystematics.h_systematic_dEdX->GetBinContent(bin_x, bin_y)};
+                    weight = weight * (1.0 + gSystematics.systematic_dEdX * content);
+                }
+
+                if(gSystematics.systematic_brem != 0.0)
+                {
+                    Int_t bin_x{gSystematics.h_systematic_brem->GetXaxis()->FindBin(el_energy_0)};
+                    Int_t bin_y{gSystematics.h_systematic_brem->GetYaxis()->FindBin(el_energy_1)};
+                    Double_t content{gSystematics.h_systematic_brem->GetBinContent(bin_x, bin_y)};
+                    weight = weight * (1.0 + gSystematics.systematic_brem * content);
                 }
 
                 ///////////////////////////////////////////////////////////////

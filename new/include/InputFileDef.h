@@ -179,6 +179,16 @@ TString Nd150Files[nNd150Samples] =
 ////TString Nd150Files[nNd150Samples] = {"nd150_rot_2n2b_m4"};
 //#endif
 
+TString Nd150Systematics[nNd150Systematics] =
+{
+"nd150_nominalThick",
+"nd150_doubleThick",
+"nd150_halfThick",
+"Hbrem_2vBB",
+"Lbrem_2vBB",
+"LdEdX_2vBB",
+"HdEdX_2vBB"
+};
 
 TString NeighbourFiles[nNeighbours] =
 {

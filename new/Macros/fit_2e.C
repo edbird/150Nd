@@ -99,7 +99,6 @@ void loadFiles()
     // which is slow
     // instead, store results into a file
 
-
     // Read in all files and make the cuts you want.
     //First we will read in the data
     std::cout << ">>>>> Reading in data file...";
@@ -240,6 +239,16 @@ void loadFiles()
         makeHistograms("nd150/", Nd150Files[i], ofile_cutcount, 1);
     }
     std::cout << "... DONE." << std::endl;
+
+    std::cout << std::endl;
+    std::cout << ">>>>> Reading in Nd150 systematics..." << std::endl;
+    for(int i = 0; i < nNd150Systematics; i++)
+    {
+        makeHistograms("nd150/", Nd150Systematics[i], ofile_cutcount, 0);
+        //makeHistograms("nd150/", Nd150Systematics[i], ofile_cutcount, 1);
+    }
+    std::cout << "... DONE." << std::endl;
+    
 
 
     ofile_cutcount.close();

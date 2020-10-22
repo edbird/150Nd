@@ -41,6 +41,51 @@ void newloglikfitter_mps_draw_helper
 
         TH2D *h_mps = mps_draw_data_sysnone.h_mps;
         
+        /*
+        TH2D *h_mps_both = new TH2D("h_mps_both", "h_mps_both",
+                                    2 * h_mps->GetNbinsX(),
+                                    h_mps->GetXaxis()->GetBinLowEdge(1),
+                                    h_mps->GetXaxis()->GetBinUpEdge(h_mps->GetNbinsX()),
+                                    h_mps->GetNbinsY(),
+                                    h_mps->GetYaxis()->GetBinLowEdge(1),
+                                    h_mps->GetYaxis()->GetBinUpEdge(h_mps->GetNbinsY()));
+        h_mps_both->SetStats(0);
+        h_mps_both->SetTitle(0);
+        h_mps_both->SetContour(1000);
+        c_mps->SetLogz();
+        h_mps_both->SetTitle("");
+        h_mps_both->SetStats(0);
+        h_mps_both->GetZaxis()->SetLabelOffset(0.005);
+        h_mps_both->GetXaxis()->SetLabelSize(17.0);
+        h_mps_both->GetXaxis()->SetLabelFont(43);
+        h_mps_both->GetYaxis()->SetLabelSize(17.0);
+        h_mps_both->GetYaxis()->SetLabelFont(43);
+        h_mps_both->GetZaxis()->SetLabelSize(17.0);
+        h_mps_both->GetZaxis()->SetLabelFont(43);
+        h_mps_both->GetXaxis()->SetTitleSize(18.0);
+        h_mps_both->GetXaxis()->SetTitleFont(43);
+        h_mps_both->GetYaxis()->SetTitleSize(18.0);
+        h_mps_both->GetYaxis()->SetTitleFont(43);
+        h_mps_both->GetYaxis()->SetTitle("^{150}Nd Amplitude Scale Factor");
+        h_mps_both->GetXaxis()->SetTitle("#xi^{2#nu#beta#beta}_{31}");
+        h_mps_both->GetXaxis()->SetTitleOffset(1.5);
+        h_mps_both->GetYaxis()->SetTitleOffset(1.2);
+        h_mps_both->GetXaxis()->SetLabelOffset(0.01);
+        h_mps_both->GetYaxis()->SetLabelOffset(0.01);
+
+        for(Int_t j = 1; j <= h_mps->GetNbinsY(); ++ j)
+        {
+            for(Int_t i = 1; i <= h_mps->GetNbinsX(); ++ i)
+            {
+                TH2D *h_mps_sysall = mps_draw_data_sysall.h_mps;
+                Double_t content_sysnone = h_mps->GetBinContent(i, j);
+                Double_t content_sysall = h_mps_sysall->GetBinContent(i, j);
+                h_mps_both->SetBinContent(2 * (i - 1) + 0 + 1, j, content_sysnone);
+                h_mps_both->SetBinContent(2 * (i - 1) + 1 + 1, j, content_sysall);
+            }
+        }
+        h_mps_both->Draw("colz");
+        */
 
         double min = mps_draw_data_sysnone.min;
         double min_x = mps_draw_data_sysnone.min_x;
@@ -52,6 +97,8 @@ void newloglikfitter_mps_draw_helper
         double param_2_min = mps_draw_data_sysnone.param_2_min;
         double param_2_max = mps_draw_data_sysnone.param_2_max;
 
+        double min_fval = mps_draw_data_sysnone.min_fval;
+        std::cout << "min_fval=" << min_fval << std::endl;
 
         h_mps->SetTitle("");
         h_mps->SetStats(0);
@@ -73,29 +120,32 @@ void newloglikfitter_mps_draw_helper
         h_mps->GetXaxis()->SetLabelOffset(0.01);
         h_mps->GetYaxis()->SetLabelOffset(0.01);
         TH2D *h_mps_contour = (TH2D*)h_mps->Clone("h_mps_1_0_clone");
-        h_mps->Draw("colz");
+        //h_mps->Draw("colz");
+        h_mps->Draw("AXIS");
 
 
         std::cout << "min=" << min << " min_x=" << min_x << " min_y=" << min_y << std::endl;
         //double clevels[3] = {min + 1.0, min + 2.0, min + 3.0};
-        double clevels[3] = {min + 2.30, min + 4.61, min + 9.21};
+        double clevels[3] = {min_fval + 2.30, min_fval + 4.61, min_fval + 9.21};
         //double clevels[3] = {2.30, 4.61, 9.21}; // true minimum is 0.0 for HSD
         //h_mps_contour->SetLineColor(kGreen); //kRed
-        h_mps_contour->SetLineColor(kCyan); //kRed
+        //h_mps_contour->SetLineColor(kCyan); //kRed
+        h_mps_contour->SetLineColor(kBlue); //kRed
+        h_mps_contour->SetLineWidth(2);
 //        h_mps_contour->SetLineStyle(0); // in drawmps.C but not used
         h_mps_contour->SetContour(3, clevels);
 
         c_mps->Update();
         TPaletteAxis *palette = (TPaletteAxis*)h_mps->GetListOfFunctions()->FindObject("palette");
-        palette->SetX1NDC(0.88 + 0.03);
+        //TPaletteAxis *palette = (TPaletteAxis*)h_mps_both->GetListOfFunctions()->FindObject("palette");
+/*        palette->SetX1NDC(0.88 + 0.03);
         palette->SetX2NDC(0.92 + 0.03);
         palette->SetY1NDC(0.15);
         palette->SetY2NDC(0.9);
-        palette->Draw();
+        palette->Draw();*/
         gPad->Modified();
         gPad->Update();
         c_mps->Modified();
-        
 
         TLine *lineHSD = new TLine(0.0, param_2_min, 0.0, param_2_max);
         TLine *lineSSD = new TLine(0.296, param_2_min, 0.296, param_2_max);
@@ -142,7 +192,9 @@ void newloglikfitter_mps_draw_helper
         // draw sysall contour
         TH2D *h_mps_sysall = mps_draw_data_sysall.h_mps;
         TH2D *h_mps_contour_sysall = (TH2D*)h_mps_sysall->Clone("h_mps_1_0_clone_sysall");
-        h_mps_contour_sysall->SetLineColor(kGreen);
+        //h_mps_contour_sysall->SetLineColor(kGreen);
+        h_mps_contour_sysall->SetLineColor(kRed);
+        h_mps_contour_sysall->SetLineWidth(2);
         h_mps_contour_sysall->SetContour(3, clevels);
         h_mps_contour_sysall->Draw("cont3same");
 
@@ -163,6 +215,7 @@ void newloglikfitter_mps_draw_helper
                               << mps_draw_data_sysall.min_point_sysn_l[i][0] << " "
                               << mps_draw_data_sysall.min_point_sysn_l[i][1]
                               << std::endl;
+//                    mps_draw_data_sysall.mark_min_point_sysn_l[i]->SetMarkerColor(kRed);
                     mps_draw_data_sysall.mark_min_point_sysn_l[i]->Draw();
                     if(false)
                     {
@@ -177,16 +230,19 @@ void newloglikfitter_mps_draw_helper
                               << mps_draw_data_sysall.min_point_sysn_h[i][0] << " "
                               << mps_draw_data_sysall.min_point_sysn_h[i][1]
                               << std::endl;
+//                    mps_draw_data_sysall.mark_min_point_sysn_h[i]->SetMarkerColor(kRed);
                     mps_draw_data_sysall.mark_min_point_sysn_h[i]->Draw();
                     if(false)
                     {
                         mps_draw_data_sysall.line_min_point_sysn_h[i]->Draw();
                     }
                 }
+                std::cout << std::endl;
             }
             else
             {
-                std::cout << "MIN_POINT: i=" << i << " enabled" << std::endl;
+                std::cout << "MIN_POINT: i=" << i << " disabled" << std::endl;
+                std::cout << std::endl;
             }
         }
 

@@ -64,15 +64,6 @@ void newloglikfitter_mps_draw_loader
 
     std::string output_name_append;
 
-    // SYS / STATSYS
-    if(filename_enable_sysall == false)
-    {
-        output_name_append += "_STAT";
-    }
-    else if(filename_enable_sysall == true)
-    {
-        output_name_append += "_STATSYS";
-    }
 
     // fakedata / data
     if(filename_mode_fake_data == false)
@@ -83,6 +74,17 @@ void newloglikfitter_mps_draw_loader
     {
         output_name_append += "_fake";
     }
+
+    // SYS / STATSYS
+    if(filename_enable_sysall == false)
+    {
+        output_name_append += "_STAT";
+    }
+    else if(filename_enable_sysall == true)
+    {
+        output_name_append += "_STATSYS";
+    }
+
 
 
     std::string ofs_resultsmatrix_fname =
@@ -595,10 +597,14 @@ void newloglikfitter_mps_draw(
         nullptr,
         nullptr,
         nullptr,
+        nullptr,
+        nullptr,
         nullptr
     };
     TMarker *mark_min_point_sysn_h_before[N_SYSTEMATICS] = 
     {
+        nullptr,
+        nullptr,
         nullptr,
         nullptr,
         nullptr,
@@ -611,10 +617,14 @@ void newloglikfitter_mps_draw(
         nullptr,
         nullptr,
         nullptr,
+        nullptr,
+        nullptr,
         nullptr
     };
     TLine *line_min_point_sysn_h_before[N_SYSTEMATICS] = 
     {
+        nullptr,
+        nullptr,
         nullptr,
         nullptr,
         nullptr,
@@ -648,10 +658,14 @@ void newloglikfitter_mps_draw(
         nullptr,
         nullptr,
         nullptr,
+        nullptr,
+        nullptr,
         nullptr
     };
     TMarker *mark_min_point_sysn_h_after[N_SYSTEMATICS] = 
     {
+        nullptr,
+        nullptr,
         nullptr,
         nullptr,
         nullptr,
@@ -664,10 +678,14 @@ void newloglikfitter_mps_draw(
         nullptr,
         nullptr,
         nullptr,
+        nullptr,
+        nullptr,
         nullptr
     };
     TLine *line_min_point_sysn_h_after[N_SYSTEMATICS] = 
     {
+        nullptr,
+        nullptr,
         nullptr,
         nullptr,
         nullptr,

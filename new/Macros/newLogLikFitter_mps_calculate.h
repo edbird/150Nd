@@ -59,6 +59,8 @@ void newloglikfitter_mps_calculate
     {
         param_1_min = -0.5;
         param_1_max = 0.7;
+        param_1_min = -0.7;
+        param_1_max = 0.8;
     }
 //    }
 
@@ -102,6 +104,8 @@ void newloglikfitter_mps_calculate
     {
         param_2_min = 0.75;
         param_2_max = 1.25;
+        param_2_min = 0.65;
+        param_2_max = 1.45;
     }
 
     // hack to get HSD
@@ -155,14 +159,6 @@ void newloglikfitter_mps_calculate
     // TODO: other systematics should be able to be saved in different
     // combinations without overwriting
     std::string output_name_append;
-    if(V_ENABLE_SYSALL == false)
-    {
-        output_name_append += "_STAT";
-    }
-    else if(V_ENABLE_SYSALL == true)
-    {
-        output_name_append += "_STATSYS";
-    }
     if(g_mode_fake_data == false)
     {
         output_name_append += "_data";
@@ -170,6 +166,14 @@ void newloglikfitter_mps_calculate
     else if(g_mode_fake_data == true)
     {
         output_name_append += "_fake";
+    }
+    if(V_ENABLE_SYSALL == false)
+    {
+        output_name_append += "_STAT";
+    }
+    else if(V_ENABLE_SYSALL == true)
+    {
+        output_name_append += "_STATSYS";
     }
 
     std::string ofs_resultsmatrix_before_fname =
