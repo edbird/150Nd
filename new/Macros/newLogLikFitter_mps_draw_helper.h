@@ -113,7 +113,7 @@ void newloglikfitter_mps_draw_helper
         h_mps->GetXaxis()->SetTitleFont(43);
         h_mps->GetYaxis()->SetTitleSize(18.0);
         h_mps->GetYaxis()->SetTitleFont(43);
-        h_mps->GetYaxis()->SetTitle("^{150}Nd Amplitude Scale Factor");
+        h_mps->GetYaxis()->SetTitle("^{150}Nd Amplitude Scale Factor                    ");
         h_mps->GetXaxis()->SetTitle("#xi^{2#nu#beta#beta}_{31}");
         h_mps->GetXaxis()->SetTitleOffset(1.5);
         h_mps->GetYaxis()->SetTitleOffset(1.2);
@@ -279,7 +279,7 @@ void newloglikfitter_mps_draw_helper
             "Energy Loss dE/dX",
             "ignore"
         };
-        TLegend *leg = new TLegend(0.12, 0.5, 0.3, 0.88);
+        TLegend *leg = new TLegend(0.03, 0.72, 0.31, 0.96);
         for(int i = 0; i < N_SYSTEMATICS; ++ i)
         {
             if(ENABLE_MIN_POINT_SYSn[i] == true)
@@ -290,10 +290,12 @@ void newloglikfitter_mps_draw_helper
                               texts[i], "P");
             }
         }
-        leg->SetBorderSize(0);
+        leg->SetMargin(0.12);
+        leg->SetBorderSize(5);
+        leg->SetShadowColor(kGray + 2);
         leg->SetTextFont(63);
         leg->SetTextSize(15);
-        leg->Draw();
+        leg->Draw("BR");
 
 
     }
