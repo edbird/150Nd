@@ -268,6 +268,20 @@ void newloglikfitter_mps_draw_helper
         }
 */
 
+        TLegend *leg = new TLegend(0.1, 0.5, 0.1, 0.9);
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            if(ENABLE_MIN_POINT_SYSn[i] == true)
+            {
+                TString text;
+                text.Form("%i", i);
+                leg->AddEntry(mps_draw_data_sysall.mark_min_point_sysn_h[i],
+                              text, "P");
+            }
+        }
+        leg->Draw();
+
+
     }
 }
 

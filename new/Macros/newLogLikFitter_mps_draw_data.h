@@ -349,12 +349,12 @@ class mpsdrawdata
         };
         Double_t markersizen[N_SYSTEMATICS] = 
         {
-            2.0, 2.0, 2.0, 2.0, 1.5, 2.0, 2.0, 2.0
+            2.0, 1.5, 2.0, 2.0, 1.0, 2.0, 1.5, 2.0
         };
         Color_t markercolorn[N_SYSTEMATICS] = 
         {
             //kRed, kOrange, kGreen, kBlue, kMagenta, kViolet, kViolet + 10
-            kBlack, kRed, kGreen, kBlack, kBlue, kViolet + 1, kMagenta, kBlack
+            kBlack, kRed, kMagenta, kBlack, kBlue, kViolet + 1, kGreen, kBlack
         };
 
         for(int i = 0; i < N_SYSTEMATICS; ++ i)
