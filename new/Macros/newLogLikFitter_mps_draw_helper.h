@@ -130,7 +130,7 @@ void newloglikfitter_mps_draw_helper
         //double clevels[3] = {2.30, 4.61, 9.21}; // true minimum is 0.0 for HSD
         //h_mps_contour->SetLineColor(kGreen); //kRed
         //h_mps_contour->SetLineColor(kCyan); //kRed
-        h_mps_contour->SetLineColor(kBlue); //kRed
+        h_mps_contour->SetLineColor(kGray + 2); //kRed
         h_mps_contour->SetLineWidth(2);
 //        h_mps_contour->SetLineStyle(0); // in drawmps.C but not used
         h_mps_contour->SetContour(3, clevels);
@@ -193,7 +193,7 @@ void newloglikfitter_mps_draw_helper
         TH2D *h_mps_sysall = mps_draw_data_sysall.h_mps;
         TH2D *h_mps_contour_sysall = (TH2D*)h_mps_sysall->Clone("h_mps_1_0_clone_sysall");
         //h_mps_contour_sysall->SetLineColor(kGreen);
-        h_mps_contour_sysall->SetLineColor(kRed);
+        h_mps_contour_sysall->SetLineColor(kGray);
         h_mps_contour_sysall->SetLineWidth(2);
         h_mps_contour_sysall->SetContour(3, clevels);
         h_mps_contour_sysall->Draw("cont3same");
