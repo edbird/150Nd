@@ -268,7 +268,18 @@ void newloglikfitter_mps_draw_helper
         }
 */
 
-        TLegend *leg = new TLegend(0.1, 0.5, 0.5, 0.9);
+        TString texts[N_SYSTEMATICS] = 
+        {
+            "ignore",
+            "Energy Calibration 1.2 %",
+            "Efficiency",
+            "ignore",
+            "Energy Calibration 3 keV",
+            "Foil Thickness",
+            "Energy Loss dE/dX",
+            "ignore"
+        };
+        TLegend *leg = new TLegend(0.12, 0.5, 0.3, 0.88);
         for(int i = 0; i < N_SYSTEMATICS; ++ i)
         {
             if(ENABLE_MIN_POINT_SYSn[i] == true)
@@ -276,9 +287,12 @@ void newloglikfitter_mps_draw_helper
                 TString text;
                 text.Form("%i", i);
                 leg->AddEntry(mps_draw_data_sysall.mark_min_point_sysn_h[i],
-                              "some text", "P");
+                              texts[i], "P");
             }
         }
+        leg->SetBorderSize(0);
+        leg->SetTextFont(63);
+        leg->SetTextSize(15);
         leg->Draw();
 
 
