@@ -338,11 +338,18 @@ class mpsdrawdata
         
         Int_t markerstylen[N_SYSTEMATICS] = 
         {
-            50, 22, 23, 52, 20, 33, 43, 21
+            50, // "+"
+            22, // triangle up
+            43, // star
+            52, // "x"
+            20, // circle
+            33, // diamond
+            23, // triangle down
+            21  // square
         };
         Double_t markersizen[N_SYSTEMATICS] = 
         {
-            1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0
+            3.0, 3.0, 3.0, 3.0, 1.5, 3.0, 3.0, 3.0
         };
         Color_t markercolorn[N_SYSTEMATICS] = 
         {
