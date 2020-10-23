@@ -24,7 +24,7 @@ void newloglikfitter_mps_draw_helper
 
         /*TCanvas **/c_mps = new TCanvas(c_mps_name, c_mps_name);
         c_mps->SetTicks(2, 2);
-        c_mps->SetRightMargin(0.15);
+        //c_mps->SetRightMargin(0.15);
         c_mps->SetBottomMargin(0.15);
         //c_mps->SetLogz();
         TVirtualPad *padret = c_mps->cd();
