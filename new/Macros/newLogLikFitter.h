@@ -429,10 +429,10 @@ const bool ENABLE_MIN_POINT_SYSn[N_SYSTEMATICS] =
     false, // +- 0.1 MeV
     true, // +- 1.2 % scale
     true, // +- 5.55 % efficiency
-    true, // +- 0.50 % enrichment
+    false, // +- 0.50 % enrichment (overlays 3 keV)
     true, // +- 3 keV
     true, // foil thickness
-    true, // energy loss
+    false, // energy loss (overlays bremsstrahlung)
     true  // bremsstrahlung
 };
 // enable/disable drawing of minimum points for each systematic fit

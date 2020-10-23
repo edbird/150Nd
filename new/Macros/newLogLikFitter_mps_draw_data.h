@@ -327,18 +327,27 @@ class mpsdrawdata
         // init min point markers
         ///////////////////////////////////////////////////////////////////////
 
+        // 0.1 MeV (ignore)
+        // 1.2 %
+        // 5.55 %
+        // 0.5 % (ignore)
+        // 3 keV 
+        // foil thickness
+        // energy loss
+        // brem (ignore)
         
         Int_t markerstylen[N_SYSTEMATICS] = 
         {
-            50, 52, 21, 22, 23, 20, 33, 43
+            50, 22, 23, 52, 20, 33, 43, 21
         };
         Double_t markersizen[N_SYSTEMATICS] = 
         {
-            1.0, 1.0, 0.75, 1.0, 1.0, 1.0, 1.0, 1.0
+            1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0
         };
         Color_t markercolorn[N_SYSTEMATICS] = 
         {
-            kRed, kOrange, kGreen, kBlue, kMagenta, kViolet, kViolet + 10
+            //kRed, kOrange, kGreen, kBlue, kMagenta, kViolet, kViolet + 10
+            kBlack, kRed, kGreen, kBlack, kBlue, kViolet + 1, kMagenta, kBlack
         };
 
         for(int i = 0; i < N_SYSTEMATICS; ++ i)
