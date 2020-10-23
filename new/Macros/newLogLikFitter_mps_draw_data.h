@@ -349,7 +349,7 @@ class mpsdrawdata
         };
         Double_t markersizen[N_SYSTEMATICS] = 
         {
-            3.0, 3.0, 3.0, 3.0, 1.5, 3.0, 3.0, 3.0
+            2.0, 2.0, 2.0, 2.0, 1.5, 2.0, 2.0, 2.0
         };
         Color_t markercolorn[N_SYSTEMATICS] = 
         {
