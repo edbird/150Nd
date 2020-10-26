@@ -395,7 +395,7 @@ bool V_ENABLE_STAT = true; // leave on
 // enable/disable systematics
 bool V_ENABLE_SYSALL = true;
 
-const int N_SYSTEMATICS = 8;
+const int N_SYSTEMATICS = 11;
 bool V_ENABLE_SYSn[N_SYSTEMATICS] =
 {
     false, // constant 1.0 MeV shift
@@ -403,9 +403,12 @@ bool V_ENABLE_SYSn[N_SYSTEMATICS] =
     true, // +- 5.55 % efficiency
     true, // +- 0.50 % enrichment
     true, // +- 3 keV
-    true,
-    true,
-    true
+    true, // foil thickness
+    true, // dE/dX
+    true, // brem
+    true, // foil thickness (nominal)
+    true, // dE/dX (nominal)
+    true  // brem (nominal)
 };
 
 //bool V_ENABLE_SYS1 = false; // constant 1.0 MeV shift
@@ -433,7 +436,10 @@ const bool ENABLE_MIN_POINT_SYSn[N_SYSTEMATICS] =
     true, // +- 3 keV
     true, // foil thickness
     true, // energy loss (overlays bremsstrahlung)
-    false // bremsstrahlung
+    true, // bremsstrahlung
+    true, // foil thickness (nominal)
+    true, // dE/dX (nominal)
+    true  // brem (nominal)
 };
 // enable/disable drawing of minimum points for each systematic fit
 //const bool ENABLE_MIN_POINT_SYS1 = true; // +- 0.1 MeV
@@ -574,16 +580,22 @@ double min_point_sysn_h[N_SYSTEMATICS][2] =
     {0.0, 0.0},
     {0.0, 0.0},
     {0.0, 0.0},
+    {0.0, 0.0},
+    {0.0, 0.0},
+    {0.0, 0.0},
     {0.0, 0.0}
 };
 
 double min_point_sysn_h_fval[N_SYSTEMATICS] =
 {
-    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
 };
 
 double min_point_sysn_l[N_SYSTEMATICS][2] =
 {
+    {0.0, 0.0},
+    {0.0, 0.0},
+    {0.0, 0.0},
     {0.0, 0.0},
     {0.0, 0.0},
     {0.0, 0.0},
@@ -596,7 +608,7 @@ double min_point_sysn_l[N_SYSTEMATICS][2] =
 
 double min_point_sysn_l_fval[N_SYSTEMATICS] =
 {
-    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
 };
 
 
@@ -626,6 +638,9 @@ std::vector<double> *systematic_n_low_1D_P1[N_SYSTEMATICS][number1DHists] =
     {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
     {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
     {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
+    {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
+    {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
+    {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
     {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr}
 };
 
@@ -638,11 +653,17 @@ std::vector<double> *systematic_n_high_1D_P1[N_SYSTEMATICS][number1DHists] =
     {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
     {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
     {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
+    {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
+    {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
+    {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
     {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr}
 };
 
 std::vector<double> *systematic_n_V_MATRIX_coeff_1D_P1[N_SYSTEMATICS][number1DHists] = 
 {
+    {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
+    {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
+    {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
     {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
     {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
     {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
@@ -680,6 +701,9 @@ std::vector<double> *systematic_n_low_1D_P2[N_SYSTEMATICS][number1DHists] =
     {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
     {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
     {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
+    {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
+    {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
+    {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
     {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr}
 };
 
@@ -692,11 +716,17 @@ std::vector<double> *systematic_n_high_1D_P2[N_SYSTEMATICS][number1DHists] =
     {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
     {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
     {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
+    {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
+    {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
+    {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
     {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr}
 };
 
 std::vector<double> *systematic_n_V_MATRIX_coeff_1D_P2[N_SYSTEMATICS][number1DHists] = 
 {
+    {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
+    {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
+    {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
     {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
     {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
     {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
@@ -759,6 +789,9 @@ std::vector<double> *V_PHYS_STAT_1D_P1_data[number1DHists] =
 
 std::vector<double> *V_PHYS_SYSn_1D_P1_data[N_SYSTEMATICS][number1DHists] =
 {
+    {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
+    {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
+    {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
     {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
     {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
     {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
@@ -857,6 +890,9 @@ std::vector<double> *V_PHYS_STAT_1D_P2_data[number1DHists] =
 
 std::vector<double> *V_PHYS_SYSn_1D_P2_data[N_SYSTEMATICS][number1DHists] =
 {
+    {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
+    {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
+    {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
     {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
     {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
     {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},

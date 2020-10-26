@@ -26,9 +26,12 @@ void rebuild_fake_data_systematics(const double xi_31, const double xi_31_baseli
     std::cout << "systematic_energy_scale=" << gSystematics.systematic_energy_scale << std::endl;
     std::cout << "systematic_efficiency=" << gSystematics.systematic_efficiency << std::endl;
     std::cout << "systematic_enrichment=" << gSystematics.systematic_enrichment << std::endl;
-    std::cout << "systematic_foil_thickness=" << gSystematics.systematic_foil_thickness << std::endl;
-    std::cout << "systematic_dEdX=" << gSystematics.systematic_dEdX << std::endl;
-    std::cout << "systematic_bremsstrahlung=" << gSystematics.systematic_brem << std::endl;
+    std::cout << "systematic_foil_thickness_virtual=" << gSystematics.systematic_foil_thickness_virtual << std::endl;
+    std::cout << "systematic_dEdX_virtual=" << gSystematics.systematic_dEdX_virtual << std::endl;
+    std::cout << "systematic_bremsstrahlung_virtual=" << gSystematics.systematic_brem_virtual << std::endl;
+    std::cout << "systematic_foil_thickness_nominal=" << gSystematics.systematic_foil_thickness_nominal << std::endl;
+    std::cout << "systematic_dEdX_nominal=" << gSystematics.systematic_dEdX_nominal << std::endl;
+    std::cout << "systematic_bremsstrahlung_nominal=" << gSystematics.systematic_brem_nominal << std::endl;
     std::cout << "systematic_optical_correction=" << gSystematics.systematic_optical_correction << std::endl;
 
 
