@@ -57,10 +57,12 @@ void newloglikfitter_mps_calculate
     }
     else if(g_mode_fake_data == true)
     {
+        //param_1_min = -0.5;
+        //param_1_max = 0.7;
+        //param_1_min = -0.6;
+        //param_1_max = 0.8;
         param_1_min = -0.5;
         param_1_max = 0.7;
-        param_1_min = -0.6;
-        param_1_max = 0.8;
     }
 //    }
 
@@ -102,10 +104,12 @@ void newloglikfitter_mps_calculate
     }
     else if(g_mode_fake_data == true)
     {
+        //param_2_min = 0.75;
+        //param_2_max = 1.25;
+        //param_2_min = 0.65;
+        //param_2_max = 1.40;
         param_2_min = 0.75;
         param_2_max = 1.25;
-        param_2_min = 0.65;
-        param_2_max = 1.40;
     }
 
     // hack to get HSD
