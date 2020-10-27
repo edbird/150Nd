@@ -733,9 +733,9 @@ void reweight_apply_fakedata(
                     }
                     else if(gSystematics.systematic_foil_thickness_virtual < 0.0)
                     {
-                        Int_t bin_x{gSystematics.h_systematic_foil_thickness_virtual_h->GetXaxis()->FindBin(el_energy_0)};
-                        Int_t bin_y{gSystematics.h_systematic_foil_thickness_virtual_h->GetYaxis()->FindBin(el_energy_1)};
-                        Double_t content{gSystematics.h_systematic_foil_thickness_virtual_h->GetBinContent(bin_x, bin_y)};
+                        Int_t bin_x{gSystematics.h_systematic_foil_thickness_virtual_l->GetXaxis()->FindBin(el_energy_0)};
+                        Int_t bin_y{gSystematics.h_systematic_foil_thickness_virtual_l->GetYaxis()->FindBin(el_energy_1)};
+                        Double_t content{gSystematics.h_systematic_foil_thickness_virtual_l->GetBinContent(bin_x, bin_y)};
                         weight = weight * (std::abs(gSystematics.systematic_foil_thickness_virtual) * content);
                     }
                 }
@@ -787,9 +787,9 @@ void reweight_apply_fakedata(
                     }
                     else if(gSystematics.systematic_foil_thickness_nominal < 0.0)
                     {
-                        Int_t bin_x{gSystematics.h_systematic_foil_thickness_nominal_h->GetXaxis()->FindBin(el_energy_0)};
-                        Int_t bin_y{gSystematics.h_systematic_foil_thickness_nominal_h->GetYaxis()->FindBin(el_energy_1)};
-                        Double_t content{gSystematics.h_systematic_foil_thickness_nominal_h->GetBinContent(bin_x, bin_y)};
+                        Int_t bin_x{gSystematics.h_systematic_foil_thickness_nominal_l->GetXaxis()->FindBin(el_energy_0)};
+                        Int_t bin_y{gSystematics.h_systematic_foil_thickness_nominal_l->GetYaxis()->FindBin(el_energy_1)};
+                        Double_t content{gSystematics.h_systematic_foil_thickness_nominal_l->GetBinContent(bin_x, bin_y)};
                         weight = weight * (std::abs(gSystematics.systematic_foil_thickness_nominal) * content);
                     }
                 }
