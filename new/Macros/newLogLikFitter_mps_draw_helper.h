@@ -270,14 +270,17 @@ void newloglikfitter_mps_draw_helper
 
         TString texts[N_SYSTEMATICS] = 
         {
-            "ignore",
+            "ignore 0.1 MeV",
             "Energy Calibration 1.2 %",
             "Efficiency",
-            "ignore",
+            "ignore enrichment",
             "Energy Calibration 3 keV",
-            "Foil Thickness",
-            "Energy Loss dE/dX",
-            "ignore"
+            "Foil Thickness virtual",
+            "Energy Loss dE/dX virtual",
+            "ignore Brem virtual",
+            "Foil Thickness nominal",
+            "Energy Loss dE/dX nominal",
+            "ignore Brem nominal"
         };
         TLegend *leg = new TLegend(0.03, 0.72, 0.31, 0.96);
         for(int i = 0; i < N_SYSTEMATICS; ++ i)

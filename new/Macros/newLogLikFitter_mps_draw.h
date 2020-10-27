@@ -599,10 +599,16 @@ void newloglikfitter_mps_draw(
         nullptr,
         nullptr,
         nullptr,
+        nullptr,
+        nullptr,
+        nullptr,
         nullptr
     };
     TMarker *mark_min_point_sysn_h_before[N_SYSTEMATICS] = 
     {
+        nullptr,
+        nullptr,
+        nullptr,
         nullptr,
         nullptr,
         nullptr,
@@ -619,10 +625,16 @@ void newloglikfitter_mps_draw(
         nullptr,
         nullptr,
         nullptr,
+        nullptr,
+        nullptr,
+        nullptr,
         nullptr
     };
     TLine *line_min_point_sysn_h_before[N_SYSTEMATICS] = 
     {
+        nullptr,
+        nullptr,
+        nullptr,
         nullptr,
         nullptr,
         nullptr,
@@ -660,10 +672,16 @@ void newloglikfitter_mps_draw(
         nullptr,
         nullptr,
         nullptr,
+        nullptr,
+        nullptr,
+        nullptr,
         nullptr
     };
     TMarker *mark_min_point_sysn_h_after[N_SYSTEMATICS] = 
     {
+        nullptr,
+        nullptr,
+        nullptr,
         nullptr,
         nullptr,
         nullptr,
@@ -680,10 +698,16 @@ void newloglikfitter_mps_draw(
         nullptr,
         nullptr,
         nullptr,
+        nullptr,
+        nullptr,
+        nullptr,
         nullptr
     };
     TLine *line_min_point_sysn_h_after[N_SYSTEMATICS] = 
     {
+        nullptr,
+        nullptr,
+        nullptr,
         nullptr,
         nullptr,
         nullptr,
