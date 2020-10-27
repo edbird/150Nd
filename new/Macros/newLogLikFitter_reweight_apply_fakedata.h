@@ -729,14 +729,14 @@ void reweight_apply_fakedata(
                         Int_t bin_x{gSystematics.h_systematic_foil_thickness_virtual_h->GetXaxis()->FindBin(el_energy_0)};
                         Int_t bin_y{gSystematics.h_systematic_foil_thickness_virtual_h->GetYaxis()->FindBin(el_energy_1)};
                         Double_t content{gSystematics.h_systematic_foil_thickness_virtual_h->GetBinContent(bin_x, bin_y)};
-                        weight = weight * (1.0 + gSystematics.systematic_foil_thickness_virtual * content);
+                        weight = weight * (gSystematics.systematic_foil_thickness_virtual * content);
                     }
                     else if(gSystematics.systematic_foil_thickness_virtual < 0.0)
                     {
                         Int_t bin_x{gSystematics.h_systematic_foil_thickness_virtual_h->GetXaxis()->FindBin(el_energy_0)};
                         Int_t bin_y{gSystematics.h_systematic_foil_thickness_virtual_h->GetYaxis()->FindBin(el_energy_1)};
                         Double_t content{gSystematics.h_systematic_foil_thickness_virtual_h->GetBinContent(bin_x, bin_y)};
-                        weight = weight * (1.0 + std::abs(gSystematics.systematic_foil_thickness_virtual) * content);
+                        weight = weight * (std::abs(gSystematics.systematic_foil_thickness_virtual) * content);
                     }
                 }
 
@@ -747,14 +747,14 @@ void reweight_apply_fakedata(
                         Int_t bin_x{gSystematics.h_systematic_dEdX_virtual_h->GetXaxis()->FindBin(el_energy_0)};
                         Int_t bin_y{gSystematics.h_systematic_dEdX_virtual_h->GetYaxis()->FindBin(el_energy_1)};
                         Double_t content{gSystematics.h_systematic_dEdX_virtual_h->GetBinContent(bin_x, bin_y)};
-                        weight = weight * (1.0 + gSystematics.systematic_dEdX_virtual * content);
+                        weight = weight * (gSystematics.systematic_dEdX_virtual * content);
                     }
                     else if(gSystematics.systematic_dEdX_virtual < 0.0)
                     {
                         Int_t bin_x{gSystematics.h_systematic_dEdX_virtual_l->GetXaxis()->FindBin(el_energy_0)};
                         Int_t bin_y{gSystematics.h_systematic_dEdX_virtual_l->GetYaxis()->FindBin(el_energy_1)};
                         Double_t content{gSystematics.h_systematic_dEdX_virtual_l->GetBinContent(bin_x, bin_y)};
-                        weight = weight * (1.0 + std::abs(gSystematics.systematic_dEdX_virtual) * content);
+                        weight = weight * (std::abs(gSystematics.systematic_dEdX_virtual) * content);
                     }
                 }
 
@@ -765,14 +765,14 @@ void reweight_apply_fakedata(
                         Int_t bin_x{gSystematics.h_systematic_brem_virtual_h->GetXaxis()->FindBin(el_energy_0)};
                         Int_t bin_y{gSystematics.h_systematic_brem_virtual_h->GetYaxis()->FindBin(el_energy_1)};
                         Double_t content{gSystematics.h_systematic_brem_virtual_h->GetBinContent(bin_x, bin_y)};
-                        weight = weight * (1.0 + gSystematics.systematic_brem_virtual * content);
+                        weight = weight * (gSystematics.systematic_brem_virtual * content);
                     }
                     else if(gSystematics.systematic_brem_virtual < 0.0)
                     {
                         Int_t bin_x{gSystematics.h_systematic_brem_virtual_l->GetXaxis()->FindBin(el_energy_0)};
                         Int_t bin_y{gSystematics.h_systematic_brem_virtual_l->GetYaxis()->FindBin(el_energy_1)};
                         Double_t content{gSystematics.h_systematic_brem_virtual_l->GetBinContent(bin_x, bin_y)};
-                        weight = weight * (1.0 + std::abs(gSystematics.systematic_brem_virtual) * content);
+                        weight = weight * (std::abs(gSystematics.systematic_brem_virtual) * content);
                     }
                 }
 
@@ -783,14 +783,14 @@ void reweight_apply_fakedata(
                         Int_t bin_x{gSystematics.h_systematic_foil_thickness_nominal_h->GetXaxis()->FindBin(el_energy_0)};
                         Int_t bin_y{gSystematics.h_systematic_foil_thickness_nominal_h->GetYaxis()->FindBin(el_energy_1)};
                         Double_t content{gSystematics.h_systematic_foil_thickness_nominal_h->GetBinContent(bin_x, bin_y)};
-                        weight = weight * (1.0 + gSystematics.systematic_foil_thickness_nominal * content);
+                        weight = weight * (gSystematics.systematic_foil_thickness_nominal * content);
                     }
                     else if(gSystematics.systematic_foil_thickness_nominal < 0.0)
                     {
                         Int_t bin_x{gSystematics.h_systematic_foil_thickness_nominal_h->GetXaxis()->FindBin(el_energy_0)};
                         Int_t bin_y{gSystematics.h_systematic_foil_thickness_nominal_h->GetYaxis()->FindBin(el_energy_1)};
                         Double_t content{gSystematics.h_systematic_foil_thickness_nominal_h->GetBinContent(bin_x, bin_y)};
-                        weight = weight * (1.0 + std::abs(gSystematics.systematic_foil_thickness_nominal) * content);
+                        weight = weight * (std::abs(gSystematics.systematic_foil_thickness_nominal) * content);
                     }
                 }
 
@@ -801,14 +801,14 @@ void reweight_apply_fakedata(
                         Int_t bin_x{gSystematics.h_systematic_dEdX_nominal_h->GetXaxis()->FindBin(el_energy_0)};
                         Int_t bin_y{gSystematics.h_systematic_dEdX_nominal_h->GetYaxis()->FindBin(el_energy_1)};
                         Double_t content{gSystematics.h_systematic_dEdX_nominal_h->GetBinContent(bin_x, bin_y)};
-                        weight = weight * (1.0 + gSystematics.systematic_dEdX_nominal * content);
+                        weight = weight * (gSystematics.systematic_dEdX_nominal * content);
                     }
                     else if(gSystematics.systematic_dEdX_nominal < 0.0)
                     {
                         Int_t bin_x{gSystematics.h_systematic_dEdX_nominal_l->GetXaxis()->FindBin(el_energy_0)};
                         Int_t bin_y{gSystematics.h_systematic_dEdX_nominal_l->GetYaxis()->FindBin(el_energy_1)};
                         Double_t content{gSystematics.h_systematic_dEdX_nominal_l->GetBinContent(bin_x, bin_y)};
-                        weight = weight * (1.0 + std::abs(gSystematics.systematic_dEdX_nominal) * content);
+                        weight = weight * (std::abs(gSystematics.systematic_dEdX_nominal) * content);
                     }
                 }
 
@@ -819,14 +819,14 @@ void reweight_apply_fakedata(
                         Int_t bin_x{gSystematics.h_systematic_brem_nominal_h->GetXaxis()->FindBin(el_energy_0)};
                         Int_t bin_y{gSystematics.h_systematic_brem_nominal_h->GetYaxis()->FindBin(el_energy_1)};
                         Double_t content{gSystematics.h_systematic_brem_nominal_h->GetBinContent(bin_x, bin_y)};
-                        weight = weight * (1.0 + gSystematics.systematic_brem_nominal * content);
+                        weight = weight * (gSystematics.systematic_brem_nominal * content);
                     }
                     else if(gSystematics.systematic_brem_nominal < 0.0)
                     {
                         Int_t bin_x{gSystematics.h_systematic_brem_nominal_l->GetXaxis()->FindBin(el_energy_0)};
                         Int_t bin_y{gSystematics.h_systematic_brem_nominal_l->GetYaxis()->FindBin(el_energy_1)};
                         Double_t content{gSystematics.h_systematic_brem_nominal_l->GetBinContent(bin_x, bin_y)};
-                        weight = weight * (1.0 + std::abs(gSystematics.systematic_brem_nominal) * content);
+                        weight = weight * (std::abs(gSystematics.systematic_brem_nominal) * content);
                     }
                 }
 
