@@ -296,6 +296,28 @@ void final_mps_draw()
 
 
 
+void final_mps_draw_colz()
+{
+    std::cout << "calling draw (colz)" << std::endl;
+
+    
+    int number_job_id = 0;
+    std::string output_name = "noparallel";
+    int start_index = 0;
+    int stop_index = 51;
+
+    gROOT->SetStyle("Plain");
+    gStyle->SetOptStat(0);
+    gStyle->SetPalette(1);
+    //gStyle->SetPalette(kBird);
+    //gStyle->SetPalette(kBrownCyan);
+    gStyle->SetPalette(kLightTemperature);
+    //gStyle->SetNumberContours(1000);
+
+    newloglikfitter_mps_draw_systematics_colz(number_job_id, output_name, start_index, stop_index);
+}
+
+
 
 bool load_from_script(
     int i,
@@ -3318,7 +3340,7 @@ void loadFiles(int i)
         {
             std::cout << "loading min point from file " << min_point_fname << std::endl;
             ifs_min_point >> min_point_sysn_l[8][0] >> min_point_sysn_l[8][1];
-            ifs_min_point >> min_point_sysn_l_fval[5];
+            ifs_min_point >> min_point_sysn_l_fval[8];
             ifs_min_point.close();
         }
         else

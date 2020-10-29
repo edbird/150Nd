@@ -489,6 +489,100 @@ void newloglikfitter_mps_draw_systematics
 }
 
 
+void newloglikfitter_mps_draw_systematics_colz
+(
+    const int number_job_id,
+    const std::string &output_name,
+    const int start_index,
+    const int stop_index  // TODO: these may no longer make sense
+)
+{
+
+    const bool mode_fake_data_flag = true;
+
+    TString c_mps_name_base = "c_mps_final_colz_after";
+    // fakedata / data
+    if(mode_fake_data_flag == false)
+    {
+        c_mps_name_base += "_data";
+    }
+    else if(mode_fake_data_flag == true)
+    {
+        c_mps_name_base += "_fake";
+    }
+    TString c_mps_name = c_mps_name_base;
+    
+    std::cout << "rendering: " << c_mps_name << std::endl;
+
+    // TODO: NOTE: have to change value of "stop_index" as well
+    int c_param = 0;
+
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // OPEN FILE
+    ///////////////////////////////////////////////////////////////////////////
+
+    std::string after_string = "after";
+
+    mpsdrawdata mps_draw_data_after_sysall;
+    mps_draw_data_after_sysall.read(output_name, after_string, true, mode_fake_data_flag);
+
+    mpsdrawdata mps_draw_data_after_sysnone;
+    mps_draw_data_after_sysnone.read(output_name, after_string, false, mode_fake_data_flag);
+
+
+
+    TCanvas *c_mps_after = nullptr;
+    TString after_string_TString = TString(after_string);
+    newloglikfitter_mps_draw_helper_colz
+    (
+        c_mps_after,
+        mps_draw_data_after_sysall,
+        mps_draw_data_after_sysnone
+    );
+
+
+/*
+    double min = min_after_sysnone;
+    double min_x = min_x_after_sysnone;
+    double min_y = min_y_after_sysnone;
+
+    c_mps_after->cd();
+    std::cout << "min=" << min << " min_x=" << min_x << " min_y=" << min_y << std::endl;
+    //double clevels[3] = {min + 1.0, min + 2.0, min + 3.0};
+    double clevels[3] = {min + 2.30, min + 4.61, min + 9.21};
+    //double clevels[3] = {2.30, 4.61, 9.21}; // true minimum is 0.0 for HSD
+    h_mps_after_sysnone->SetLineColor(kCyan); //kCyan/kGreen
+//        h_mps_after_sysnone->SetLineStyle(0); // in drawmps.C but not used
+    h_mps_after_sysnone->SetContour(3, clevels);
+    h_mps_after_sysnone->Draw("cont3same");
+*/
+
+
+    //TString c_fname_png = c_mps_name + datetimestamp_TString + ".png";
+    //TString c_fname_pdf = c_mps_name + datetimestamp_TString + ".pdf";
+    TString c_fname = c_mps_name + "_"
+                   + "JID" + std::to_string(number_job_id);// + "_"
+                   //+ datetimestamp_TString;
+    TString c_fname_png = c_fname + ".png";
+    TString c_fname_pdf = c_fname + ".pdf";
+    TString c_fname_eps = c_fname + ".eps";
+    std::cout << "*****************************************************" << std::endl;
+    std::cout << "c_fname=" << c_fname << std::endl;
+    std::cout << "is the filename legal?" << std::endl;
+    std::cout << "*****************************************************" << std::endl;
+    c_mps_after->SaveAs(c_fname_png);
+    c_mps_after->SaveAs(c_fname_pdf);
+    c_mps_after->SaveAs(c_fname_eps);
+    //h_mps = nullptr;
+    
+}
+
+
+
+
+
 
 void newloglikfitter_mps_draw(
     //ROOT::Minuit2::MnUserParameterState &theParameterState,
