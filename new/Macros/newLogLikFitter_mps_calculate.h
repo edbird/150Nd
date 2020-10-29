@@ -298,11 +298,15 @@ void newloglikfitter_mps_calculate
     {
         std::cout << "START_INDEX=" << start_index << " STOP_INDEX=" << stop_index << std::endl;
         std::cout << "n_param_1=" << n_param_1 << " n_param_2=" << n_param_2 << std::endl;
+        
+        std::chrono::system_clock::time_point master_start_time = std::chrono::high_resolution_clock::now();
 
         // modify parameters
         //for(int n_1 = 0; n_1 <= n_param_1; ++ n_1)
         for(int n_1 = 0; n_1 < n_param_1; ++ n_1)
         {
+            
+            std::chrono::system_clock::time_point outloop_start_time = std::chrono::high_resolution_clock::now();
 
             std::cout << "n_1=" << n_1 << std::endl;
 
@@ -505,6 +509,18 @@ void newloglikfitter_mps_calculate
 
             std::cout << c_param << " / " << n_param_max << std::endl;
             std::cout << "min_stripe=" << min_stripe << " min_stripe_x=" << t_param_1 << " min_stripe_y=" << min_stripe_y << std::endl;
+
+            std::chrono::system_clock::time_point outloop_end_time = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> outloop_runtime_sec = outloop_end_time - outloop_start_time;
+            std::cout << "Outer loop exec time: " << outloop_runtime_sec.count() << " s" << std::endl;
+
+            std::chrono::duration<double> total_runtime_sec = outloop_end_time - master_start_time;
+            //double fraction_complete = (double)n_1 / (double)n_param_1;
+            //double fraction_togo = 1.0 - fraction_complete;
+            double remaining_runtime_sec = total_runtime_sec.count() / (double)n_1 * (double)(n_param_1 - n_1);
+            double remaining_runtime_hr = remaining_runtime_sec / 3600.0;
+            std::cout << "ETA: " << remaining_runtime_hr << " h" << std::endl;
+
 
         } // for n_1
 
