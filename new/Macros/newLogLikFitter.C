@@ -417,6 +417,7 @@ bool load_from_script(
                         }
                         else if(token2 == "true")
                         {
+                            ifs.close();
                             break;
                         }
                         else
@@ -572,8 +573,8 @@ void loadFiles(int i)
         if(i != 0) return;
         number_job_id = 0;
         output_name = "noparallel";
-        start_index = 0;
-        stop_index = 51;
+        start_index = 51;
+        stop_index = 301;
     }
 
 
@@ -773,40 +774,6 @@ void loadFiles(int i)
     const double xi_31_systematics_reweight_value = 0.0; //xi_31_SSD;
     //const double xi_31_covariance_matrix_reweight_value = xi_31_SSD;
     const double xi_31_covariance_matrix_reweight_value = 0.0;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

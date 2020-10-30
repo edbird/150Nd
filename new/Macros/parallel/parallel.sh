@@ -4,10 +4,10 @@ evalcmd="eval $(~/snemo-sdk/bin/brew shellenv)"
 command="root"
 arguments="-b ../newLogLikFitter.C"
 numcores=11
-for i in {0..301}
+for i in {0..12}
 do
 
-    sleep 1
+    sleep 10
     while [ $( pgrep -c -x "$command" ) -ge "$numcores" ]
     do
         kill -SIGSTOP $$
