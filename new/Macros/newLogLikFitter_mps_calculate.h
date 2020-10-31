@@ -280,7 +280,7 @@ void newloglikfitter_mps_calculate
                                 << " " << min_point_sysn_l[i][0]
                                 << " " << min_point_sysn_l[i][1] << std::endl;
         ofs_resultsmatrix_after << "[ min_point_sys" << i << "_h ]"
-                                << " " min_point_sysn_h[i][0]
+                                << " " << min_point_sysn_h[i][0]
                                 << " " << min_point_sysn_h[i][1] << std::endl;
     }
 

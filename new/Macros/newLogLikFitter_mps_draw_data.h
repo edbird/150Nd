@@ -131,7 +131,7 @@ class mpsdrawdata
         got_V_ENABLE_SYSn = false;
         got_enable_min_point_sysn = false;
         got_min_point = false;
-        got min_point_fake_data = false;
+        got_min_point_fake_data = false;
         for(int i = 0; i < N_SYSTEMATICS; ++ i)
         {
             got_min_point_sysn_l[i] = false;
@@ -646,7 +646,7 @@ class mpsdrawdata
     bool got_V_ENABLE_SYSn;
     bool got_enable_min_point_sysn;
     bool got_min_point;
-    bool got min_point_fake_data;
+    bool got_min_point_fake_data;
     bool got_min_point_sysn_l[N_SYSTEMATICS];
     bool got_min_point_sysn_h[N_SYSTEMATICS];
     bool got_n_param_1;
