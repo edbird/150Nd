@@ -15,6 +15,7 @@ do
         kill -SIGCONT $$
     ) &
     ((i = i + 1))
+    sleep 5
 done
 #for i in {0..12}
 #do
