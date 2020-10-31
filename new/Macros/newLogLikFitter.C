@@ -3683,7 +3683,7 @@ void loadFiles(int i)
     if(1)
     {
         
-        DRAW_V_PHYS_MATRIX = true;
+        DRAW_V_PHYS_MATRIX = false;
 
         std::cout << "recalculate_V_PHYS_MATHMORE=" << recalculate_V_PHYS_MATHMORE << std::endl;
         std::cout << "recalculate_V_PHYS_SYS=" << recalculate_V_PHYS_SYS << std::endl;
