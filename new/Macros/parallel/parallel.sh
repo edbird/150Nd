@@ -5,11 +5,15 @@ command="root"
 arguments="-b ../newLogLikFitter.C"
 numcores=12
 i=1 # parallel jobs start from 1
-eval $(~/snemo-sdk/bin/brew shellenv)
+#eval $(~/snemo-sdk/bin/brew shellenv)
 while [[ $i -lt $numcores ]]
 do
     echo "EXEC $i"
-    root -b "newLogLikFitter.C($i)"
+    (
+        eval $(~/snemo-sdk/bin/brew shellenv)
+        root -b "newLogLikFitter.C($i)" > "cout_$i.txt"
+        kill -SIGCONT $$
+    ) &
     ((i = i + 1))
 done
 #for i in {0..12}
