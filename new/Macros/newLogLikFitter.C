@@ -268,10 +268,6 @@
 void loadFiles(int);
 
 
-//void fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double*& CovMatrix, int& number_free_params, Int_t thePhase);
-TMinuit * fitBackgrounds(double *AdjustActs, double *AdjustActs_Err, double*& CovMatrix, int& number_free_params, Int_t thePhase);
-
-
 
 
 void final_mps_draw()
@@ -327,7 +323,7 @@ bool load_from_script(
     int &stop_index
     )
 {
-    int script_index = 0;
+    int script_index = 1; // NOTE: zero reserved for concatinated JID files
     for(;; ++ script_index)
     {
         if(script_index != i) continue;

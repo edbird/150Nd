@@ -2,6 +2,10 @@
 #define NEWLOGLIKFITTER_MPS_DRAW_DATA_H
 
 
+
+// NOTE: this always reads from JID0 file
+// JID0 now reserved for concatinated output
+// script index starts from 1 when in parallel mode
 class mpsdrawdata
 {
 
@@ -116,6 +120,28 @@ class mpsdrawdata
         // READ "BEFORE" / "AFTER"
         ///////////////////////////////////////////////////////////////////////////
 
+
+        // new header reading code
+        // is inside the line-by-line loop 
+
+
+        // set to "uninit" values
+        got_file_read_mode_fake_data = false;
+        got_V_ENABLE_SYSALL = false;
+        got_V_ENABLE_SYSn = false;
+        got_enable_min_point_sysn = false;
+        got_min_point = false;
+        got min_point_fake_data = false;
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            got_min_point_sysn_l[i] = false;
+            got_min_point_sysn_h[i] = false;
+        }
+        got_n_param_1 = false;
+        got_n_param_2 = false;
+
+
+    #if 0
         // read file header data
 
         // read statemachine mode (data/fakedata)
@@ -150,7 +176,7 @@ class mpsdrawdata
         // read mps parameters
         ifs_resultsmatrix >> n_param_1 >> param_1_min >> param_1_max;
         ifs_resultsmatrix >> n_param_2 >> param_2_min >> param_2_max;
-
+    #endif
         ///////////////////////////////////////////////////////////////////////
         // end of header
         ///////////////////////////////////////////////////////////////////////
@@ -215,99 +241,313 @@ class mpsdrawdata
         double t_param_1, t_param_2;
         while(!ifs_resultsmatrix.eof())
         {
+
             ++ line_count;
 
-            int n_1, n_2;
-            double fval;
-            std::vector<double> params;
-            std::vector<double> param_errs;
-            std::size_t params_size = 0;
 
-            // read head of line
-            ifs_resultsmatrix >> n_1 >> n_2;
-            ifs_resultsmatrix >> t_param_1 >> t_param_2;
-            ifs_resultsmatrix >> fval;
-            ifs_resultsmatrix >> params_size;
-            params.reserve(params_size);
-            param_errs.reserve(params_size);
+            ///////////////////////////////////////////////////////////////////
+            // new code to read file header
+            // the file header can appear anywhere in the file due to the
+            // concatination process
+            //
+            ///////////////////////////////////////////////////////////////////
 
-            // read remainder of line
-            for(std::size_t i = 0; i < params_size; ++ i)
+            std::string token;
+            ifs_resultsmatrix >> token;
+            if(token == "[")
             {
-                double tmp1, tmp2;
-                ifs_resultsmatrix >> tmp1 >> tmp2;
-                params.push_back(tmp1);
-                param_errs.push_back(tmp2);
-            }
-            
-            //std::cout << "n_1=" << n_1 << " n_2=" << n_2 << std::endl;
-            //std::cout << "t_param_1=" << t_param_1 << " t_param_2=" << t_param_2 << std::endl;
-            //std::cout << "fval=" << fval << std::endl;
-            //std::cout << "params_size=" << params_size << std::endl;
-            //std::cout << std::endl;
-            //for(;;)
-            //{
-                /*
-                try
+                const std::string TOKEN1 = "min_point_sys";
+                ifs_resultsmatrix >> token;
+                if(token == "g_mode_fake_data")
                 {
-                    if(ss.peek() == std::char_traits<wchar_t>::eof())
+                    ifs_resultsmatrix >> token;
+                    if(token == "]")
                     {
-                        break;
+                        // read statemachine mode (data/fakedata)
+                        if(got_file_read_mode_fake_data == false)
+                        {
+                            ifs_resultsmatrix >> file_read_mode_fake_data;
+                            got_file_read_mode_fake_data = true;
+                        }
                     }
+                    else
+                    {
+                        std::cout << "ERROR: EXPECTED \"]\"" << std::endl;
+                    }
+                }
+                else if(token == "V_ENABLE_SYSALL")
+                {
+                    ifs_resultsmatrix >> token;
+                    if(token == "]")
+                    {
+                        // read statemachine mode (systematics)
+                        if(got_V_ENABLE_SYSALL == false)
+                        {
+                            ifs_resultsmatrix >> V_ENABLE_SYSALL;
+                            for(int i = 0; i < N_SYSTEMATICS; ++ i)
+                            {
+                                ifs_resultsmatrix >> V_ENABLE_SYSn[i];
+                            }
+                            got_V_ENABLE_SYSALL = true;
+                        }
+                    }
+                    else
+                    {
+                        std::cout << "ERROR: EXPECTED \"]\"" << std::endl;
+                    }
+                }
+                else if(token == "ENABLE_MIN_POINT_SYSn")
+                {
+                    ifs_resultsmatrix >> token;
+                    if(token == "]")
+                    {
+                        // read min point enable flags
+                        if(got_enable_min_point_sysn == false)
+                        {
+                            for(int i = 0; i < N_SYSTEMATICS; ++ i)
+                            {
+                                bool tmp;
+                                ifs_resultsmatrix >> tmp;
+                                enable_min_point_sysn[i] = tmp;
+                            }
+                            got_enable_min_point_sysn = true;
+                        }
+                    }
+                    else
+                    {
+                        std::cout << "ERROR: EXPECTED \"]\"" << std::endl;
+                    }
+                }
+                else if(token == "min_point")
+                {
+                    ifs_resultsmatrix >> token;
+                    if(token == "]")
+                    {
+                        // read min point
+                        if(got_min_point == false)
+                        {
+                            ifs_resultsmatrix >> min_point[0] >> min_point[1];
+                            got_min_point = true;
+                        }
+                    }
+                    else
+                    {
+                        std::cout << "ERROR: EXPECTED \"]\"" << std::endl;
+                    }
+                }
+                else if(token == "min_point_fake_data")
+                {
+                    ifs_resultsmatrix >> token;
+                    if(token == "]")
+                    {
+                        // read min point fakedata
+                        if(got_min_point_fake_data == false)
+                        {
+                            ifs_resultsmatrix >> min_point_fake_data[0] >> min_point_fake_data[1];
+                            got_min_point_fake_data = true;
+                        }
+                    }
+                    else
+                    {
+                        std::cout << "ERROR: EXPECTED \"]\"" << std::endl;
+                    }
+                }
+                else if(token.substr(0, TOKEN1.size()) == TOKEN1)
+                {
+                    std::size_t find_pos = token.rfind("_"); // find last underscore position
+                    std::string number_str = token.substr(TOKEN1.size(), find_pos - TOKEN1.size());
+                    std::string underscore_to_end = token.substr(find_pos);
+                    int index = std::stoi(number_str);
+                    ifs_resultsmatrix >> token;
+                    if(token == "]")
+                    {
+                        if(underscore_to_end == "_l")
+                        {
+                            if(got_min_point_sysn_l[index] == false)
+                            {
+                                ifs_resultsmatrix >> min_point_sysn_l[index][0] >> min_point_sysn_l[index][1];
+                                got_min_point_sysn_l[index] = true;
+                            }
+                        }
+                        else if(underscore_to_end == "_h")
+                        {
+                            if(got_min_point_sysn_h[index] == false)
+                            {
+                                ifs_resultsmatrix >> min_point_sysn_h[index][0] >> min_point_sysn_h[index][1];
+                                got_min_point_sysn_h[index] = true;
+                            }
+                        }
+                        else
+                        {
+                            std::cout << "ERROR: underscore_to_end=" << underscore_to_end << " NOT RECOGNIZED" << std::endl;
+                            std::cout << "waiting for user input" << std::endl;
+                            std::cin.get();
+                        }
+                    }
+                    else
+                    {
+                        std::cout << "ERROR: EXPECTED \"]\"" << std::endl;
+                    }
+                }
+                else if(token == "n_param_1")
+                {
+                    ifs_resultsmatrix >> token;
+                    if(token == "]")
+                    {
+                        // read min point fakedata
+                        if(got_n_param_1 == false)
+                        {
+                            // read mps parameters
+                            ifs_resultsmatrix >> n_param_1 >> param_1_min >> param_1_max;
+                            got_n_param_1 = true;
+                        }
+                    }
+                    else
+                    {
+                        std::cout << "ERROR: EXPECTED \"]\"" << std::endl;
+                    }
+
+                }
+                else if(token == "n_param_2")
+                {
+                    ifs_resultsmatrix >> token;
+                    if(token == "]")
+                    {
+                        // read min point fakedata
+                        if(got_n_param_2 == false)
+                        {
+                            // read mps parameters
+                            ifs_resultsmatrix >> n_param_2 >> param_2_min >> param_2_max;
+                            got_n_param_2 = true;
+                        }
+                    }
+                    else
+                    {
+                        std::cout << "ERROR: EXPECTED \"]\"" << std::endl;
+                    }
+                }
+                else
+                {
+                    std::cout << "ERROR: token=" << token << " NOT RECOGNIZED" << std::endl;
+                    std::cout << "waiting for user input" << std::endl;
+                    std::cin.get();
+                }
+
+            }
+            else
+            {
+                int n_1;
+                n_1 = std::stoi(token);
+            
+                //int n_1, n_2;
+                int n_2;
+                double fval;
+                std::vector<double> params;
+                std::vector<double> param_errs;
+                std::size_t params_size = 0;
+
+                // read head of line
+                //ifs_resultsmatrix >> n_1 >> n_2;
+                ifs_resultsmatrix >> n_2;
+                ifs_resultsmatrix >> t_param_1 >> t_param_2;
+                ifs_resultsmatrix >> fval;
+                ifs_resultsmatrix >> params_size;
+                params.reserve(params_size);
+                param_errs.reserve(params_size);
+
+                // read remainder of line
+                for(std::size_t i = 0; i < params_size; ++ i)
+                {
                     double tmp1, tmp2;
-                    ss >> tmp1 >> tmp2;
+                    ifs_resultsmatrix >> tmp1 >> tmp2;
                     params.push_back(tmp1);
                     param_errs.push_back(tmp2);
                 }
-                catch(...)
+                
+                //std::cout << "n_1=" << n_1 << " n_2=" << n_2 << std::endl;
+                //std::cout << "t_param_1=" << t_param_1 << " t_param_2=" << t_param_2 << std::endl;
+                //std::cout << "fval=" << fval << std::endl;
+                //std::cout << "params_size=" << params_size << std::endl;
+                //std::cout << std::endl;
+                //for(;;)
+                //{
+                    /*
+                    try
+                    {
+                        if(ss.peek() == std::char_traits<wchar_t>::eof())
+                        {
+                            break;
+                        }
+                        double tmp1, tmp2;
+                        ss >> tmp1 >> tmp2;
+                        params.push_back(tmp1);
+                        param_errs.push_back(tmp2);
+                    }
+                    catch(...)
+                    {
+                        break;
+                    }
+                    */
+                //}
+                //std::cout << "line: " << line_count << " params.size()=" << params.size() << " param_errs.size()=" << param_errs.size() << std::endl;
+
+                // This detects n_1 changing (loop of outer for loop)
+                if(n_1 != n_1_last)
                 {
-                    break;
-                }
-                */
-            //}
-            //std::cout << "line: " << line_count << " params.size()=" << params.size() << " param_errs.size()=" << param_errs.size() << std::endl;
+                    if(n_1_last != -1)
+                    {
+                        std::cout << "min_stripe=" << min_stripe << " min_stripe_x=" << t_param_1 << " min_stripe_y=" << min_stripe_y << std::endl;
 
-            // This detects n_1 changing (loop of outer for loop)
-            if(n_1 != n_1_last)
-            {
-                if(n_1_last != -1)
+                        min_stripe = std::numeric_limits<double>::infinity();
+                        min_stripe_y = 0.0;
+                    }
+
+                    n_1_last = n_1;
+                }
+
+                if(n_2 != n_2_last)
                 {
-                    std::cout << "min_stripe=" << min_stripe << " min_stripe_x=" << t_param_1 << " min_stripe_y=" << min_stripe_y << std::endl;
-
-                    min_stripe = std::numeric_limits<double>::infinity();
-                    min_stripe_y = 0.0;
+                    n_2_last = n_2;
                 }
 
-                n_1_last = n_1;
+                int bin_ix = n_1 + 1;
+                int bin_iy = n_2 + 1;
+
+                if(fval < min_stripe)
+                {
+                    min_stripe = fval;
+                    min_stripe_y = t_param_2;
+                }
+
+                if(fval < min)
+                {
+                    min = fval;
+                    min_x = t_param_1;
+                    min_y = t_param_2;
+                }
+
+                Double_t content_check = h_mps->GetBinContent(bin_ix, bin_iy);
+                if(content_check == 0.0)
+                {
+                    //std::cout << "ix=" << bin_ix << " iy=" << bin_iy << " fval=" << fval << std::endl;
+                    h_mps->SetBinContent(bin_ix, bin_iy, fval);
+                    //std::cout << std::endl;
+
+                    // have to hope that 0.0 does not appear as a real value
+                    // in the mps or the error message in below block will not
+                    // be triggered
+                }
+                else
+                {
+                    std::cout << "line_count=" << line_count << " - ERROR: " << "mps already contains non-zero value at bin_ix=" << bin_ix << " bin_iy=" << bin_iy << " value=" << content_check << " new value=" << fval << std::endl;
+                }
+
+                // duplicated?
+                //++ line_count;
+                //std::cout << "line_count=" << line_count << std::endl;
+
             }
 
-            if(n_2 != n_2_last)
-            {
-                n_2_last = n_2;
-            }
-
-            int bin_ix = n_1 + 1;
-            int bin_iy = n_2 + 1;
-
-            if(fval < min_stripe)
-            {
-                min_stripe = fval;
-                min_stripe_y = t_param_2;
-            }
-
-            if(fval < min)
-            {
-                min = fval;
-                min_x = t_param_1;
-                min_y = t_param_2;
-            }
-
-            //std::cout << "ix=" << bin_ix << " iy=" << bin_iy << " fval=" << fval << std::endl;
-            h_mps->SetBinContent(bin_ix, bin_iy, fval);
-            //std::cout << std::endl;
-
-            ++ line_count;
-            //std::cout << "line_count=" << line_count << std::endl;
         }
         std::cout << "min_stripe=" << min_stripe << " min_stripe_x=" << t_param_1 << " min_stripe_y=" << min_stripe_y << std::endl;
         std::cout << "read: " << ifs_resultsmatrix_fname << " -> done" << std::endl;
@@ -357,7 +597,7 @@ class mpsdrawdata
         Color_t markercolorn[N_SYSTEMATICS] = 
         {
             //kRed, kOrange, kGreen, kBlue, kMagenta, kViolet, kViolet + 10
-            kBlack, kRed, kMagenta, kBlack, kBlue, kViolet + 1, kGreen, kBlack, kAzure + 1, kViolet + 10, kGray + 3
+            kBlack, kRed, kMagenta, kBlack, kBlue, kViolet + 1, kGreen, kBlack, kAzure + 1, kViolet + 10, kGray + 2
         };
 
         for(int i = 0; i < N_SYSTEMATICS; ++ i)
@@ -398,6 +638,19 @@ class mpsdrawdata
     bool file_read_mode_fake_data;
     bool file_read_enable_sysall;
     double min; double min_x; double min_y;
+
+    // track whether each line of "header" has been read
+    // (header can appear multiple times)
+    bool got_file_read_mode_fake_data;
+    bool got_V_ENABLE_SYSALL;
+    bool got_V_ENABLE_SYSn;
+    bool got_enable_min_point_sysn;
+    bool got_min_point;
+    bool got min_point_fake_data;
+    bool got_min_point_sysn_l[N_SYSTEMATICS];
+    bool got_min_point_sysn_h[N_SYSTEMATICS];
+    bool got_n_param_1;
+    bool got_n_param_2;
 
     std::vector<TMarker *> mark_min_point_sysn_l;
     std::vector<TMarker *> mark_min_point_sysn_h;

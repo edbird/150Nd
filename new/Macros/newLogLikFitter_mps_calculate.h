@@ -13,6 +13,9 @@ void newloglikfitter_mps_calculate
 {
 
     // TODO: NOTE: have to change value of "stop_index" as well
+    // TODO: this should be part of the scriptX.txt file
+    // the script files should contain all data about how the experiment
+    // should be run
     const int n_param_xy = 301; //51;//301; // 1001
     int n_param_1 = n_param_xy;
     int n_param_2 = n_param_xy;
@@ -212,13 +215,17 @@ void newloglikfitter_mps_calculate
         return;
     }
 
-    // before
-    ofs_resultsmatrix_before << g_mode_fake_data << std::endl;
-    // after
-    ofs_resultsmatrix_after << g_mode_fake_data << std::endl;
+    ///////////////////////////////////////////////////////////////////////////
+    // start of header
+    ///////////////////////////////////////////////////////////////////////////
 
     // before
-    ofs_resultsmatrix_before << V_ENABLE_SYSALL << " ";
+    ofs_resultsmatrix_before << "[ g_mode_fake_data ] " << g_mode_fake_data << std::endl;
+    // after
+    ofs_resultsmatrix_after << "[ g_mode_fake_data ] " << g_mode_fake_data << std::endl;
+
+    // before
+    ofs_resultsmatrix_before << "[ V_ENABLE_SYSALL ] " << V_ENABLE_SYSALL << " ";
     for(int i = 0; i < N_SYSTEMATICS; ++ i)
     {
         ofs_resultsmatrix_before << V_ENABLE_SYSn[i] << " ";
@@ -226,15 +233,15 @@ void newloglikfitter_mps_calculate
     ofs_resultsmatrix_before << std::endl;
 
     // after
-    ofs_resultsmatrix_after << V_ENABLE_SYSALL << " ";
+    ofs_resultsmatrix_after << "[ V_ENABLE_SYSALL ] " << V_ENABLE_SYSALL << " ";
     for(int i = 0; i < N_SYSTEMATICS; ++ i)
     {
         ofs_resultsmatrix_after << V_ENABLE_SYSn[i] << " ";
     }
     ofs_resultsmatrix_after << std::endl;
 
-
     // before: save minimum systematic fit points
+    ofs_resultsmatrix_before << "[ ENABLE_MIN_POINT_SYSn ] ";
     for(int i = 0; i < N_SYSTEMATICS; ++ i)
     {
         ofs_resultsmatrix_before << ENABLE_MIN_POINT_SYSn[i] << " ";
@@ -243,6 +250,7 @@ void newloglikfitter_mps_calculate
 
 
     // after: save minimum systematic fit points
+    ofs_resultsmatrix_after << "[ ENABLE_MIN_POINT_SYSn ] ";
     for(int i = 0; i < N_SYSTEMATICS; ++ i)
     {
         ofs_resultsmatrix_after << ENABLE_MIN_POINT_SYSn[i] << " ";
@@ -251,31 +259,39 @@ void newloglikfitter_mps_calculate
     
 
     // before 
-    ofs_resultsmatrix_before << min_point[0] << " " << min_point[1] << std::endl;
-    ofs_resultsmatrix_before << min_point_fake_data[0] << " " << min_point_fake_data[1] << std::endl;
+    ofs_resultsmatrix_before << "[ min_point ] " << min_point[0] << " " << min_point[1] << std::endl;
+    ofs_resultsmatrix_before << "[ min_point_fake_data ] " << min_point_fake_data[0] << " " << min_point_fake_data[1] << std::endl;
     for(int i = 0; i < N_SYSTEMATICS; ++ i)
     {
-        ofs_resultsmatrix_before << min_point_sysn_l[i][0] << " " << min_point_sysn_l[i][1] << std::endl;
-        ofs_resultsmatrix_before << min_point_sysn_h[i][0] << " " << min_point_sysn_h[i][1] << std::endl;
+        ofs_resultsmatrix_before << "[ min_point_sys" << i << "_l ]"
+                                 << " " << min_point_sysn_l[i][0]
+                                 << " " << min_point_sysn_l[i][1] << std::endl;
+        ofs_resultsmatrix_before << "[ min_point_sys" << i << "_h ]"
+                                 << " " << min_point_sysn_h[i][0]
+                                 << " " << min_point_sysn_h[i][1] << std::endl;
     }
 
     // after
-    ofs_resultsmatrix_after << min_point[0] << " " << min_point[1] << std::endl;
-    ofs_resultsmatrix_after << min_point_fake_data[0] << " " << min_point_fake_data[1] << std::endl;
+    ofs_resultsmatrix_after << "[ min_point] " << min_point[0] << " " << min_point[1] << std::endl;
+    ofs_resultsmatrix_after << "[ min_point_fake_data ] " << min_point_fake_data[0] << " " << min_point_fake_data[1] << std::endl;
     for(int i = 0; i < N_SYSTEMATICS; ++ i)
     {
-        ofs_resultsmatrix_after << min_point_sysn_l[i][0] << " " << min_point_sysn_l[i][1] << std::endl;
-        ofs_resultsmatrix_after << min_point_sysn_h[i][0] << " " << min_point_sysn_h[i][1] << std::endl;
+        ofs_resultsmatrix_after << "[ min_point_sys" << i << "_l ]"
+                                << " " << min_point_sysn_l[i][0]
+                                << " " << min_point_sysn_l[i][1] << std::endl;
+        ofs_resultsmatrix_after << "[ min_point_sys" << i << "_h ]"
+                                << " " min_point_sysn_h[i][0]
+                                << " " << min_point_sysn_h[i][1] << std::endl;
     }
 
 
     // before
-    ofs_resultsmatrix_before << n_param_1 << " " << param_1_min << " " << param_1_max << std::endl;
-    ofs_resultsmatrix_before << n_param_2 << " " << param_2_min << " " << param_2_max << std::endl;
+    ofs_resultsmatrix_before << "[ n_param_1 ] " << n_param_1 << " " << param_1_min << " " << param_1_max << std::endl;
+    ofs_resultsmatrix_before << "[ n_param_2 ] " << n_param_2 << " " << param_2_min << " " << param_2_max << std::endl;
 
     // after
-    ofs_resultsmatrix_after << n_param_1 << " " << param_1_min << " " << param_1_max << std::endl;
-    ofs_resultsmatrix_after << n_param_2 << " " << param_2_min << " " << param_2_max << std::endl;
+    ofs_resultsmatrix_after << "[ n_param_1 ] " << n_param_1 << " " << param_1_min << " " << param_1_max << std::endl;
+    ofs_resultsmatrix_after << "[ n_param_2 ] " << n_param_2 << " " << param_2_min << " " << param_2_max << std::endl;
 
     ///////////////////////////////////////////////////////////////////////////
     // end of header
@@ -517,7 +533,10 @@ void newloglikfitter_mps_calculate
             std::chrono::duration<double> total_runtime_sec = outloop_end_time - master_start_time;
             //double fraction_complete = (double)n_1 / (double)n_param_1;
             //double fraction_togo = 1.0 - fraction_complete;
-            double remaining_runtime_sec = total_runtime_sec.count() / (double)n_1 * (double)(n_param_1 - n_1);
+            // remaining time = run time / number of runs completed * number of runs remaining
+            int number_of_runs_completed = n_1 - start_index;
+            int number_of_runs_remaining = stop_index - start_index;
+            double remaining_runtime_sec = total_runtime_sec.count() / (double)number_of_runs_completed * (double)(number_of_runs_remaining);
             double remaining_runtime_hr = remaining_runtime_sec / 3600.0;
             std::cout << "ETA: " << remaining_runtime_hr << " h" << std::endl;
 

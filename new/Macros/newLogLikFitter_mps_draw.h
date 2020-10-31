@@ -20,7 +20,7 @@
 // - before_after_string: switches between "before" and "after"
 // - mode_fake_data: switches between "data" and "fakedata"
 // - V_ENABLE_SYSALL: switches between "STAT" and "STATSYS"
-#if 1
+#if 0
 void newloglikfitter_mps_draw_loader
 (
     const int number_job_id,
@@ -396,7 +396,9 @@ void newloglikfitter_mps_draw_loader
 
 
 
-
+///////////////////////////////////////////////////////////////////////////////
+// new drawing function, without colz or z-axis
+///////////////////////////////////////////////////////////////////////////////
 
 void newloglikfitter_mps_draw_systematics
 (
@@ -488,6 +490,12 @@ void newloglikfitter_mps_draw_systematics
     
 }
 
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+// new drawing function, draws with colz corresponding to STATSYS data
+///////////////////////////////////////////////////////////////////////////////
 
 void newloglikfitter_mps_draw_systematics_colz
 (
@@ -583,7 +591,7 @@ void newloglikfitter_mps_draw_systematics_colz
 
 
 
-
+#if 0
 void newloglikfitter_mps_draw(
     //ROOT::Minuit2::MnUserParameterState &theParameterState,
     //MinimizeFCNAxialVector &theFCN//,
@@ -950,6 +958,7 @@ void newloglikfitter_mps_draw(
     }
     #endif
 }
+#endif
 
 
 
