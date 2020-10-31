@@ -405,9 +405,9 @@ bool V_ENABLE_SYSn[N_SYSTEMATICS] =
     true, // +- 3 keV
     true, // foil thickness
     true, // dE/dX
-    true, // brem
-    true, // foil thickness (nominal)
-    true, // dE/dX (nominal)
+    false, // brem
+    false, // foil thickness (nominal)
+    false, // dE/dX (nominal)
     true  // brem (nominal)
 };
 
