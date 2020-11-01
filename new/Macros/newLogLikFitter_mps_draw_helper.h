@@ -326,7 +326,7 @@ void newloglikfitter_mps_draw_helper
     // c_mps before/after
     ///////////////////////////////////////////////////////////////////
 
-    if(0 || (MODE_PARALLEL == 0))
+    //if(0 || (MODE_PARALLEL == 0))
     {
         TString c_mps_name_base = "c_mps";
         TString c_mps_name = c_mps_name_base + "_" + "after";
