@@ -1665,8 +1665,8 @@ void loadFiles(int i)
     
     if(1)// || (MODE_PARALLEL == 0))
     {
-        channel_enable_1D[0] = 1;
-        channel_enable_1D[1] = 0;
+        //channel_enable_1D[0] = 1;
+        //channel_enable_1D[1] = 0;
         //bool restore_V_ENABLE_SYSALL = V_ENABLE_SYSALL;
         //V_ENABLE_SYSALL = false;
         //V_ENABLE_SYSALL = true;
@@ -1830,8 +1830,8 @@ void loadFiles(int i)
         //V_ENABLE_SYSALL = restore_V_ENABLE_SYSALL;
         //g_mode_fake_data = restore_g_mode_fake_data;
         //return 0;
-        channel_enable_1D[0] = 0;
-        channel_enable_1D[1] = 1;
+        //channel_enable_1D[0] = 0;
+        //channel_enable_1D[1] = 1;
     }
 
 
@@ -1846,8 +1846,8 @@ void loadFiles(int i)
     // do not do this in parallel mode
     if(1)// || (MODE_PARALLEL == 0))
     {
-        channel_enable_1D[0] = 1;
-        channel_enable_1D[1] = 0;
+        //channel_enable_1D[0] = 1;
+        //channel_enable_1D[1] = 0;
 
         //bool restore_V_ENABLE_SYSALL = V_ENABLE_SYSALL;
         //V_ENABLE_SYSALL = false;
@@ -2016,8 +2016,8 @@ void loadFiles(int i)
         //V_ENABLE_SYSALL = restore_V_ENABLE_SYSALL;
         //g_mode_fake_data = restore_g_mode_fake_data;
         //return 0;
-        channel_enable_1D[0] = 0;
-        channel_enable_1D[1] = 1;
+        //channel_enable_1D[0] = 0;
+        //channel_enable_1D[1] = 1;
     }
 
 

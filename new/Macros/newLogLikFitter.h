@@ -64,7 +64,7 @@ parameter_group g_pg;
 // fit is done using MinimizeFCNAxialVector
 // the exact fit mode / choice of algorithm is set elsewhere
 //bool g_mode_fit_fake_data = false;
-bool g_mode_fake_data = true;
+bool g_mode_fake_data = false;
 // this might change during program execution
 // for example, it is necessary to set this to true to fit the fake data
 // to measure systematic effects, before switching back to false to fit
@@ -298,7 +298,7 @@ const int number2DHists = 1; //number2DHists_perphase * numberPhases;
 ///////////////////////////////////////////////////////////////////////////////
 // channel enable flags
 
-const double channel_enable_1D[number1DHists] =
+int channel_enable_1D[number1DHists] =
 {
 0, // ch  0 = hTotalE        (P1&2)
 1, // ch  1 = hSingleEnergy  (P1&2)
@@ -308,7 +308,7 @@ const double channel_enable_1D[number1DHists] =
 0  // ch  5 = hEnergyDiff    (P1&2)
 };
 
-const double channel_enable_2D[number2DHists] =
+int channel_enable_2D[number2DHists] =
 {
 0  // ch  0 = hHighLowEnergy    (P1&2)
 };
