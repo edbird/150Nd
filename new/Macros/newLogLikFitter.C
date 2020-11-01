@@ -277,7 +277,32 @@ void final_mps_draw()
     int number_job_id = 0;
     std::string output_name = "noparallel";
     int start_index = 0;
-    int stop_index = 51;
+    int stop_index = 301;
+    if(MODE_PARALLEL == 1)
+    {
+        //bool success = load_from_script(i, number_job_id, output_name, start_index, stop_index);
+        //if(success == true)
+        //{
+        //    std::cout << "Job Init: ID=" << number_job_id << std::endl;
+        //    std::cout << "output_name=" << output_name << std::endl;
+        //    std::cout << "START_INDEX=" << start_index << std::endl;
+        //    std::cout << "STOP_INDEX=" << stop_index << std::endl;
+        //    // do nothing = continue
+        //}
+        //else
+        //{
+        //    std::cout << "fail" << std::endl;
+        //    return;
+        //}
+        output_name = "mps_resultsmatrix";
+    }
+    else
+    {
+        number_job_id = 0;
+        output_name = "noparallel";
+        start_index = 0;
+        stop_index = 301;
+    }
 
     gROOT->SetStyle("Plain");
     gStyle->SetOptStat(0);
@@ -300,7 +325,7 @@ void final_mps_draw_colz()
     int number_job_id = 0;
     std::string output_name = "noparallel";
     int start_index = 0;
-    int stop_index = 51;
+    int stop_index = 301;
 
     gROOT->SetStyle("Plain");
     gStyle->SetOptStat(0);
@@ -569,7 +594,7 @@ void loadFiles(int i)
         if(i != 0) return;
         number_job_id = 0;
         output_name = "noparallel";
-        start_index = 51;
+        start_index = 0;
         stop_index = 301;
     }
 
