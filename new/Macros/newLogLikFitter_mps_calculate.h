@@ -19,7 +19,8 @@ void newloglikfitter_mps_calculate
     const int n_param_xy = 301; //51;//301; // 1001
     int n_param_1 = n_param_xy;
     int n_param_2 = n_param_xy;
-    int n_param_max = n_param_1 * n_param_2;
+    //int n_param_max = n_param_1 * n_param_2;
+    const int n_param_max = (start_index - stop_index) * n_param_2;
     int c_param = 0;
 
 
