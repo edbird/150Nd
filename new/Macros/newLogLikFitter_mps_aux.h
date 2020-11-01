@@ -73,7 +73,7 @@ void min_point_marker_helper
             std::cout << "MIN_POINT FAKE DATA: " << min_point_fake_data[0] << " " << min_point_fake_data[1] << std::endl;
             std::cout << "DRAWING: " << x_min_point << " " << y_min_point << std::endl;
             mark_min_point_sysx_h = new TMarker(x_min_point, y_min_point, markstyle);
-            mark_min_point_sysx_h->SetMarkerColorAlpha(markcolor, 0.0);
+            mark_min_point_sysx_h->SetMarkerColorAlpha(markcolor, 1.0);
             mark_min_point_sysx_h->SetMarkerSize(marksize);
 
             line_min_point_sysx_h = new TLine(x_orig, y_orig, x_min_point, y_min_point);
