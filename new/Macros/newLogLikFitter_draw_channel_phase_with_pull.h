@@ -1426,9 +1426,9 @@ std::cout << "hALLMC1D->Draw()" << std::endl;
         h_pull->GetXaxis()->SetLabelFont(43);
         h_pull->GetXaxis()->SetLabelSize(15);
         h_pull->GetXaxis()->SetTitleFont(43);
-        h_pull->GetXaxis()->SetTitleSize(0);
-        h_pull->GetXaxis()->SetTitleOffset(1.0);
-        h_pull->GetXaxis()->SetTitle(0);
+        h_pull->GetXaxis()->SetTitleSize(20);
+        h_pull->GetXaxis()->SetTitleOffset(3.0);
+        //h_pull->GetXaxis()->SetTitle(0);
 
         h_pull->GetYaxis()->SetLabelFont(43);
         h_pull->GetYaxis()->SetLabelSize(0 * 15);
