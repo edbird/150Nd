@@ -6,7 +6,7 @@ arguments="-b ../newLogLikFitter.C"
 numcores=12
 i=1 # parallel jobs start from 1
 #eval $(~/snemo-sdk/bin/brew shellenv)
-while [[ $i -leq $numcores ]]
+while [[ $i -le $numcores ]]
 do
     echo "EXEC $i"
     (
