@@ -2,7 +2,12 @@
 #define NEWLOGLIKFITTER_PREMPSFITDRIVER_H
 
 
-void newLogLikFitter_preMPSfitdriver(const std::string &fit_description_string, double *set_min_point, double &set_min_point_fval)
+void newLogLikFitter_preMPSfitdriver(
+    const std::string &fit_description_string,
+    const std::string &oname_prepend,
+    const std::string &oname_append,
+    const std::string &odir,
+    double *set_min_point, double &set_min_point_fval)
 {
 
     // initialize
@@ -11,6 +16,12 @@ void newLogLikFitter_preMPSfitdriver(const std::string &fit_description_string, 
     std::cout << "sef=" << gSystematics.systematic_efficiency << std::endl;
     std::cout << "sen=" << gSystematics.systematic_enrichment << std::endl;
     std::cout << "seos=" << gSystematics.systematic_energy_offsetsmall << std::endl;
+    std::cout << "sftV=" << gSystematics.systematic_foil_thickness_virtual << std::endl;
+    std::cout << "selV=" << gSystematics.systematic_dEdX_virtual << std::endl;
+    std::cout << "sbV=" << gSystematics.systematic_brem_virtual << std::endl;
+    std::cout << "sftN=" << gSystematics.systematic_foil_thickness_nominal << std::endl;
+    std::cout << "selN=" << gSystematics.systematic_dEdX_nominal << std::endl;
+    std::cout << "sbN=" << gSystematics.systematic_brem_nominal << std::endl;
     std::string name_extra_g_mode_fake_data;
     if(g_mode_fake_data == true)
     {
@@ -25,7 +36,13 @@ void newLogLikFitter_preMPSfitdriver(const std::string &fit_description_string, 
                            + "_sem_" + std::to_string(gSystematics.systematic_energy_scale)
                            + "_sef_" + std::to_string(gSystematics.systematic_efficiency)
                            + "_sen_" + std::to_string(gSystematics.systematic_enrichment)
-                           + "_seos_" + std::to_string(gSystematics.systematic_energy_offsetsmall);
+                           + "_seos_" + std::to_string(gSystematics.systematic_energy_offsetsmall)
+                           + "_sftV_" + std::to_string(gSystematics.systematic_foil_thickness_virtual)
+                           + "_selV_" + std::to_string(gSystematics.systematic_dEdX_virtual)
+                           + "_sbV_" + std::to_string(gSystematics.systematic_brem_virtual)
+                           + "_sftN_" + std::to_string(gSystematics.systematic_foil_thickness_nominal)
+                           + "_selN_" + std::to_string(gSystematics.systematic_dEdX_nominal)
+                           + "_sbN_" + std::to_string(gSystematics.systematic_brem_nominal);
 
     // create minimizer
     ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
@@ -66,8 +83,10 @@ void newLogLikFitter_preMPSfitdriver(const std::string &fit_description_string, 
     drawinputdata.chi2 = fval_before;
     drawinputdata.nch = nch;
     drawinputdata.nfp = nfp;
-    drawinputdata.serial_dir = "xifree";
-    drawinputdata.saveas_filename = std::string("xifree_before") + "_" + name_extra;
+    //drawinputdata.serial_dir = "xifree";
+    drawinputdata.serial_dir = odir;
+    //drawinputdata.saveas_filename = std::string("xifree_before") + "_" + name_extra;
+    drawinputdata.saveas_filename = oname_prepend + "before" + oname_append;
     drawinputdata.saveas_png = true;
    
     draw(drawinputdata,
@@ -107,7 +126,9 @@ void newLogLikFitter_preMPSfitdriver(const std::string &fit_description_string, 
     drawinputdata.nfp = nfp;
         //drawinputdata.nch = nch; // this could probably change in theory
         //drawinputdata.nfp = nfp; // these probably do not change
-    drawinputdata.saveas_filename = std::string("xifree_after") + "_" + name_extra;
+    drawinputdata.serial_dir = odir;
+    //drawinputdata.saveas_filename = std::string("xifree_after") + "_" + name_extra;
+    drawinputdata.saveas_filename = oname_prepend + "after" + oname_append;
    
     draw(drawinputdata,
          params_after,
@@ -138,9 +159,17 @@ void newLogLikFitter_preMPSfitdriver(const std::string &fit_description_string, 
     std::cout << "SYSTEMATICS: EFFICIENCY: " << gSystematics.systematic_efficiency << "" << std::endl;
     std::cout << "SYSTEMATICS: ENRICHMENT: " << gSystematics.systematic_enrichment << "" << std::endl;
     std::cout << "SYSTEMATICS: OFFSETSMALL: " << gSystematics.systematic_energy_offsetsmall << " MeV" << std::endl;
+    std::cout << "SYSTEMATICS: FOIL THICKNESS (V): " << gSystematics.systematic_foil_thickness_virtual << " " << std::endl;
+    std::cout << "SYSTEMATICS: ENERGY LOSS (V): " << gSystematics.systematic_dEdX_virtual << " " << std::endl;
+    std::cout << "SYSTEMATICS: BREMSSTRAHLUNG (V): " << gSystematics.systematic_brem_virtual << " " << std::endl;
+    std::cout << "SYSTEMATICS: FOIL THICKNESS (N): " << gSystematics.systematic_foil_thickness_nominal << " " << std::endl;
+    std::cout << "SYSTEMATICS: ENERGY LOSS (N): " << gSystematics.systematic_dEdX_nominal << " " << std::endl;
+    std::cout << "SYSTEMATICS: BREMSSTRAHLUNG (N): " << gSystematics.systematic_brem_nominal << " " << std::endl;
     std::cout << "Result: " << std::endl;
     std::cout << "fval_before=" << fval_before << std::endl;
-    std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
+    std::cout << "fval_after=" << fval_after
+              << " for params_after[0]=" << params_after[0] << " +- " << param_errs_after[0]
+              << " params_after[1]=" << params_after[1] << " +- " << param_errs_after[1] << std::endl;
     std::cout << std::endl;
 }
 
