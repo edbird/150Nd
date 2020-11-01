@@ -53,7 +53,7 @@ void min_point_marker_helper
             std::cout << "DRAWING: " << x_min_point << " " << y_min_point << std::endl;
 
             mark_min_point_sysx_l = new TMarker(x_min_point, y_min_point, markstyle);
-            mark_min_point_sysx_l->SetMarkerColorAlpha(markcolor, 0.0);
+            mark_min_point_sysx_l->SetMarkerColorAlpha(markcolor, 1.0);
             mark_min_point_sysx_l->SetMarkerSize(marksize);
 
             line_min_point_sysx_l = new TLine(x_orig, y_orig, x_min_point, y_min_point);

@@ -609,7 +609,9 @@ void newloglikfitter_mps_draw_helper
         leg->SetTextSize(15);
         leg->Draw("BR");
 
-        c_mps->SaveAs("test.pdf");
+        //TMarker *testmark = new TMarker(0.2, 0.8, 71);
+        //testmark->SetMarkerColorAlpha(
+        //c_mps->SaveAs("test.pdf");
     }
 }
 
