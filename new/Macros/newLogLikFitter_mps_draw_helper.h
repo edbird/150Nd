@@ -277,12 +277,12 @@ void newloglikfitter_mps_draw_helper_colz
             "Efficiency",
             "ignore enrichment",
             "Energy Calibration 3 keV",
-            "Foil Thickness virtual",
-            "Energy Loss dE/dX virtual",
-            "ignore Brem virtual",
-            "Foil Thickness nominal",
-            "Energy Loss dE/dX nominal",
-            "ignore Brem nominal"
+            "Foil Thickness (V)",
+            "Energy Loss dE/dX (V)",
+            "ignore Brem (V)",
+            "Foil Thickness (N)",
+            "Energy Loss dE/dX (N)",
+            "Brem (N)"
         };
         TLegend *leg = new TLegend(0.03, 0.72, 0.31, 0.96);
         for(int i = 0; i < N_SYSTEMATICS; ++ i)
@@ -584,12 +584,12 @@ void newloglikfitter_mps_draw_helper
             "Efficiency",
             "ignore enrichment",
             "Energy Calibration 3 keV",
-            "Foil Thickness virtual",
-            "Energy Loss dE/dX virtual",
-            "ignore Brem virtual",
-            "Foil Thickness nominal",
-            "Energy Loss dE/dX nominal",
-            "ignore Brem nominal"
+            "Foil Thickness (V)",
+            "Energy Loss dE/dX (V)",
+            "ignore Brem (V)",
+            "Foil Thickness (N)",
+            "Energy Loss dE/dX (N)",
+            "Brem (N)"
         };
         TLegend *leg = new TLegend(0.03, 0.72, 0.31, 0.96);
         for(int i = 0; i < N_SYSTEMATICS; ++ i)

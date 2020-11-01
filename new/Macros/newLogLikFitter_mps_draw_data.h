@@ -625,16 +625,26 @@ class mpsdrawdata
             21, // square
             33, // diamond
             23, // triangle down
-            21  // square
+            34  // plus
         };
         Double_t markersizen[N_SYSTEMATICS] = 
         {
-            2.0, 1.5, 2.0, 2.0, 1.0, 2.0, 1.5, 2.0, 2.0, 1.5, 2.0
+            2.0, 1.5, 2.0, 2.0, 1.0, 2.0, 1.5, 1.0, 2.0, 1.5, 1.0
         };
         Color_t markercolorn[N_SYSTEMATICS] = 
         {
             //kRed, kOrange, kGreen, kBlue, kMagenta, kViolet, kViolet + 10
-            kBlack, kRed, kMagenta, kBlack, kBlue, kViolet + 1, kGreen, kBlack, kAzure + 1, kViolet + 10, kGray + 2
+            kBlack,         // "+"
+            kRed,           // triangle up
+            kMagenta,       // star
+            kBlack,         // "x"
+            kBlue,          // circle
+            kViolet + 1,    // diamond
+            kGreen,         // triangle down
+            kBlack,         // square
+            kAzure + 1,     // diamond
+            kViolet + 10,   // triangle down
+            kAzure + 1      // plus
         };
 
         for(int i = 0; i < N_SYSTEMATICS; ++ i)
