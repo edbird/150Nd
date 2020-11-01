@@ -459,8 +459,14 @@ class mpsdrawdata
             else
             {
                 int n_1;
-                n_1 = std::stoi(token);
-            
+                try
+                {
+                    n_1 = std::stoi(token);
+                }
+                catch(...)
+                {
+                    std::cout << "stoi ERROR line: " << line_count << std::endl;
+                }
                 //int n_1, n_2;
                 int n_2;
                 double fval;
