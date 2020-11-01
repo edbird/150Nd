@@ -40,7 +40,7 @@ void scriptwrite()
     {
         std::string name = std::string("script") + std::to_string(i + 1) + ".txt";
         std::ofstream ofs(name);
-        ofs << "NUMBER=" << std::to_string(i) << std::endl;
+        ofs << "NUMBER=" << std::to_string(i + 1) << std::endl;
         //#ofs << "OUTPUT_NAME=batch" << std::to_string(i) << ".txt" << std::endl;
         ofs << "OUTPUT_NAME=mps_resultsmatrix" << std::endl;
         //ofs << "START_INDEX=" << std::to_string(i) << std::endl;
