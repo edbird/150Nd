@@ -210,13 +210,13 @@ class mpsdrawdata
         }
         TString h_mps_name = h_mps_name_base + "_" + before_after_flag;
 
-        h_mps = new TH2D(h_mps_name, h_mps_name,
-                               n_param_1, param_1_min, param_1_max,
-                               n_param_2, param_2_min, param_2_max); 
+        //h_mps = new TH2D(h_mps_name, h_mps_name,
+        //                       n_param_1, param_1_min, param_1_max,
+        //                       n_param_2, param_2_min, param_2_max); 
 
-        h_mps->SetContour(1000);
-        h_mps->GetXaxis()->SetTitle("^{150}Nd Amplitude Scale Factor");
-        h_mps->GetYaxis()->SetTitle("#xi_{31}^{2#nu#beta#beta}");
+        //h_mps->SetContour(1000);
+        //h_mps->GetXaxis()->SetTitle("^{150}Nd Amplitude Scale Factor");
+        //h_mps->GetYaxis()->SetTitle("#xi_{31}^{2#nu#beta#beta}");
 
 
         ///////////////////////////////////////////////////////////////////////
@@ -400,6 +400,17 @@ class mpsdrawdata
                             // read mps parameters
                             ifs_resultsmatrix >> n_param_1 >> param_1_min >> param_1_max;
                             got_n_param_1 = true;
+
+                            if(got_n_param_1 && got_n_param_2 && (h_mps == nullptr))
+                            {
+                                h_mps = new TH2D(h_mps_name, h_mps_name,
+                                                       n_param_1, param_1_min, param_1_max,
+                                                       n_param_2, param_2_min, param_2_max); 
+
+                                h_mps->SetContour(1000);
+                                h_mps->GetXaxis()->SetTitle("^{150}Nd Amplitude Scale Factor");
+                                h_mps->GetYaxis()->SetTitle("#xi_{31}^{2#nu#beta#beta}");
+                            }
                         }
                     }
                     else
@@ -419,6 +430,17 @@ class mpsdrawdata
                             // read mps parameters
                             ifs_resultsmatrix >> n_param_2 >> param_2_min >> param_2_max;
                             got_n_param_2 = true;
+
+                            if(got_n_param_1 && got_n_param_2 && (h_mps == nullptr))
+                            {
+                                h_mps = new TH2D(h_mps_name, h_mps_name,
+                                                       n_param_1, param_1_min, param_1_max,
+                                                       n_param_2, param_2_min, param_2_max); 
+
+                                h_mps->SetContour(1000);
+                                h_mps->GetXaxis()->SetTitle("^{150}Nd Amplitude Scale Factor");
+                                h_mps->GetYaxis()->SetTitle("#xi_{31}^{2#nu#beta#beta}");
+                            }
                         }
                     }
                     else
