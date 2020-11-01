@@ -235,14 +235,14 @@ class mpsdrawdata
 
 
         // reading
-        std::size_t line_count = 1;
+        std::size_t line_count = 0;
         int n_1_last = -1;
         int n_2_last = -1;
         double t_param_1, t_param_2;
         while(!ifs_resultsmatrix.eof())
         {
 
-            ++ line_count;
+            //++ line_count;
 
 
             ///////////////////////////////////////////////////////////////////
@@ -467,6 +467,11 @@ class mpsdrawdata
                 {
                     std::cout << "stoi ERROR line: " << line_count << std::endl;
                     std::cout << "token=" << token << std::endl;
+                    std::cout << "token.size()=" << token.size() << std::endl;
+                    for(int i = 0; i < token.size(); ++ i)
+                    {
+                        std::cout << "(int)token[" << i << "]=" << (int)token[i] << std::endl;
+                    }
                     std::cout << "cin.get()" << std::endl;
                     break;
                     std::cin.get();
@@ -575,7 +580,7 @@ class mpsdrawdata
                 }
 
                 // duplicated?
-                //++ line_count;
+                ++ line_count;
                 //std::cout << "line_count=" << line_count << std::endl;
 
             }
