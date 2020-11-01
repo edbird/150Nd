@@ -466,6 +466,7 @@ class mpsdrawdata
                 catch(...)
                 {
                     std::cout << "stoi ERROR line: " << line_count << std::endl;
+                    std::cout << "token=" << token << std::endl;
                     std::cout << "cin.get()" << std::endl;
                     std::cin.get();
                 }
