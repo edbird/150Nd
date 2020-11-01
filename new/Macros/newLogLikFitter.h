@@ -64,7 +64,7 @@ parameter_group g_pg;
 // fit is done using MinimizeFCNAxialVector
 // the exact fit mode / choice of algorithm is set elsewhere
 //bool g_mode_fit_fake_data = false;
-bool g_mode_fake_data = true;
+bool g_mode_fake_data = false;
 // this might change during program execution
 // for example, it is necessary to set this to true to fit the fake data
 // to measure systematic effects, before switching back to false to fit
@@ -393,7 +393,7 @@ bool V_ENABLE_STAT = true; // leave on
 // now that SYS are included
 
 // enable/disable systematics
-bool V_ENABLE_SYSALL = false;
+bool V_ENABLE_SYSALL = true;
 
 const int N_SYSTEMATICS = 11;
 bool V_ENABLE_SYSn[N_SYSTEMATICS] =
