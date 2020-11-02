@@ -242,6 +242,9 @@ class mpsdrawdata
         while(!ifs_resultsmatrix.eof())
         {
 
+            // lines start from 1
+            ++ line_count;
+
             //++ line_count;
 
 
@@ -329,7 +332,6 @@ class mpsdrawdata
                         else
                         {
                             std::string dummy;
-                            ifs_resultsmatrix >> dummy;
                             for(int i = 0; i < N_SYSTEMATICS; ++ i)
                             {
                                 ifs_resultsmatrix >> dummy;
@@ -639,7 +641,6 @@ class mpsdrawdata
             }
 
 
-            ++ line_count;
 
         }
         std::cout << "min_stripe=" << min_stripe << " min_stripe_x=" << t_param_1 << " min_stripe_y=" << min_stripe_y << std::endl;
