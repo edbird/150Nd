@@ -328,6 +328,7 @@ class mpsdrawdata
                         }
                         else
                         {
+                            std::string dummy;
                             ifs_resultsmatrix >> dummy;
                             for(int i = 0; i < N_SYSTEMATICS; ++ i)
                             {
