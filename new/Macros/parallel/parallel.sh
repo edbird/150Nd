@@ -12,7 +12,7 @@ do
     (
         eval $(~/snemo-sdk/bin/brew shellenv)
         root -b "newLogLikFitter.C($i)" > "cout_$i.txt"
-        kill -SIGCONT $$
+        #kill -SIGCONT $$
     ) &
     ((i = i + 1))
     sleep 5
