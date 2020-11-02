@@ -269,6 +269,11 @@ class mpsdrawdata
                             ifs_resultsmatrix >> file_read_mode_fake_data;
                             got_file_read_mode_fake_data = true;
                         }
+                        else
+                        {
+                            std::string dummy;
+                            ifs_resultsmatrix >> dummy;
+                        }
                     }
                     else
                     {
@@ -289,6 +294,15 @@ class mpsdrawdata
                                 ifs_resultsmatrix >> V_ENABLE_SYSn[i];
                             }
                             got_V_ENABLE_SYSALL = true;
+                        }
+                        else
+                        {
+                            std::string dummy;
+                            ifs_resultsmatrix >> dummy;
+                            for(int i = 0; i < N_SYSTEMATICS; ++ i)
+                            {
+                                ifs_resultsmatrix >> dummy;
+                            }
                         }
                     }
                     else
@@ -312,6 +326,14 @@ class mpsdrawdata
                             }
                             got_enable_min_point_sysn = true;
                         }
+                        else
+                        {
+                            ifs_resultsmatrix >> dummy;
+                            for(int i = 0; i < N_SYSTEMATICS; ++ i)
+                            {
+                                ifs_resultsmatrix >> dummy;
+                            }
+                        }
                     }
                     else
                     {
@@ -329,6 +351,11 @@ class mpsdrawdata
                             ifs_resultsmatrix >> min_point[0] >> min_point[1];
                             got_min_point = true;
                         }
+                        else
+                        {
+                            std::string dummy;
+                            ifs_resultsmatrix >> dummy >> dummy;
+                        }
                     }
                     else
                     {
@@ -345,6 +372,11 @@ class mpsdrawdata
                         {
                             ifs_resultsmatrix >> min_point_fake_data[0] >> min_point_fake_data[1];
                             got_min_point_fake_data = true;
+                        }
+                        else
+                        {
+                            std::string dummy;
+                            ifs_resultsmatrix >> dummy >> dummy;
                         }
                     }
                     else
@@ -368,6 +400,11 @@ class mpsdrawdata
                                 ifs_resultsmatrix >> min_point_sysn_l[index][0] >> min_point_sysn_l[index][1];
                                 got_min_point_sysn_l[index] = true;
                             }
+                            else
+                            {
+                                std::string dummy;
+                                ifs_resultsmatrix >> dummy >> dummy;
+                            }
                         }
                         else if(underscore_to_end == "_h")
                         {
@@ -375,6 +412,11 @@ class mpsdrawdata
                             {
                                 ifs_resultsmatrix >> min_point_sysn_h[index][0] >> min_point_sysn_h[index][1];
                                 got_min_point_sysn_h[index] = true;
+                            }
+                            else
+                            {
+                                std::string dummy;
+                                ifs_resultsmatrix >> dummy >> dummy;
                             }
                         }
                         else
@@ -412,6 +454,11 @@ class mpsdrawdata
                                 h_mps->GetYaxis()->SetTitle("#xi_{31}^{2#nu#beta#beta}");
                             }
                         }
+                        else
+                        {
+                            std::string dummy;
+                            ifs_resultsmatrix >> dummy >> dummy >> dummy;
+                        }
                     }
                     else
                     {
@@ -441,6 +488,11 @@ class mpsdrawdata
                                 h_mps->GetXaxis()->SetTitle("^{150}Nd Amplitude Scale Factor");
                                 h_mps->GetYaxis()->SetTitle("#xi_{31}^{2#nu#beta#beta}");
                             }
+                        }
+                        else
+                        {
+                            std::string dummy;
+                            ifs_resultsmatrix >> dummy >> dummy >> dummy;
                         }
                     }
                     else
@@ -580,10 +632,13 @@ class mpsdrawdata
                 }
 
                 // duplicated?
-                ++ line_count;
+                //++ line_count;
                 //std::cout << "line_count=" << line_count << std::endl;
 
             }
+
+
+            ++ line_count;
 
         }
         std::cout << "min_stripe=" << min_stripe << " min_stripe_x=" << t_param_1 << " min_stripe_y=" << min_stripe_y << std::endl;
