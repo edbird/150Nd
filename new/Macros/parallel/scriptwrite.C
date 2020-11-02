@@ -29,11 +29,11 @@ void scriptwrite()
         int sf = ((i + 1) * RES) / NUM_CORES;
         start[i] = si;
         stop[i] = sf;
-        //std::cout << "si=" << si << std::endl;
-        //std::cout << "sf=" << sf << std::endl;
+        std::cout << "si=" << si << std::endl;
+        std::cout << "sf=" << sf << std::endl;
         //std::cout << std::endl;
     }
-
+#if 0
     // NOTE: use script index starting from 1 so that JID0 is reserved
     // for concatinated output
     for(int i = 0; i < NUM_CORES; ++ i)
@@ -50,7 +50,7 @@ void scriptwrite()
         ofs << "RUNNING=false" << std::endl;
         ofs.close();
     }
-
+#endif
     /*
     for(int i = 0; i < 12; ++ i)
     {

@@ -57,7 +57,7 @@ void newloglikfitter_mps_calculate
     if(g_mode_fake_data == false)
     {
         param_1_min = -0.1;
-        param_1_max = 2.0;
+        param_1_max = 2.5;
     }
     else if(g_mode_fake_data == true)
     {
@@ -104,7 +104,7 @@ void newloglikfitter_mps_calculate
     if(g_mode_fake_data == false)
     {
         param_2_min = 0.9;
-        param_2_max = 1.4;
+        param_2_max = 1.7;
     }
     else if(g_mode_fake_data == true)
     {
