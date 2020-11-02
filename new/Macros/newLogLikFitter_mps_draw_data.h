@@ -533,7 +533,7 @@ class mpsdrawdata
                 {
                     if(n_1_last != -1)
                     {
-                        std::cout << "min_stripe=" << min_stripe << " min_stripe_x=" << t_param_1 << " min_stripe_y=" << min_stripe_y << std::endl;
+                        std::cout << "n_1=" << n_1 << " min_stripe=" << min_stripe << " min_stripe_x=" << t_param_1 << " min_stripe_y=" << min_stripe_y << std::endl;
 
                         min_stripe = std::numeric_limits<double>::infinity();
                         min_stripe_y = 0.0;
