@@ -56,8 +56,8 @@ void newloglikfitter_mps_calculate
     // NOTE: no longer do this because both contours on single plot
     if(g_mode_fake_data == false)
     {
-        param_1_min = -0.2;
-        param_1_max = 1.0;
+        param_1_min = -0.1;
+        param_1_max = 2.0;
     }
     else if(g_mode_fake_data == true)
     {
@@ -103,8 +103,8 @@ void newloglikfitter_mps_calculate
     // with systematics
     if(g_mode_fake_data == false)
     {
-        param_2_min = 0.75;
-        param_2_max = 1.25;
+        param_2_min = 0.9;
+        param_2_max = 1.4;
     }
     else if(g_mode_fake_data == true)
     {
