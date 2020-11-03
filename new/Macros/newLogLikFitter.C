@@ -1744,6 +1744,7 @@ void loadFiles(int i)
             draw_input_data drawinputdata;
             drawinputdata.chi2 = fval_before;
             drawinputdata.nch = nch;
+            drawinputdata.nfp = nfp;
             drawinputdata.serial_dir = "HSD";
             drawinputdata.saveas_filename = "HSD_data_before";
             drawinputdata.saveas_png = true;
@@ -1776,6 +1777,7 @@ void loadFiles(int i)
             // draw result
             drawinputdata.chi2 = fval_after;
             drawinputdata.nch = nch;
+            drawinputdata.nfp = nfp;
             drawinputdata.saveas_filename = "HSD_data_after";
            
             draw(drawinputdata,
@@ -1932,6 +1934,7 @@ void loadFiles(int i)
             draw_input_data drawinputdata;
             drawinputdata.chi2 = fval_before;
             drawinputdata.nch = nch;
+            drawinputdata.nfp = nfp;
             drawinputdata.serial_dir = "SSD";
             drawinputdata.saveas_filename = "SSD_data_before";
             drawinputdata.saveas_png = true;
@@ -2445,7 +2448,7 @@ void loadFiles(int i)
 
 
 
-    return 0;
+    //return 0;
 
 
 
@@ -4028,6 +4031,7 @@ void loadFiles(int i)
 
 
 
+    //return 0;
 
 
 
