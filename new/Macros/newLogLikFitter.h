@@ -42,7 +42,7 @@
 #include "../include/InputNameDef.h"
 #include "../include/InputColorDef.h"
 
-const Int_t MODE_PARALLEL = 1;
+const Int_t MODE_PARALLEL = 0;
 
 // the phase, as string either "1" for Phase 1 or "2" for Phase 2
 //Int_t thePhase = -1;
@@ -312,6 +312,22 @@ int channel_enable_2D[number2DHists] =
 {
 0  // ch  0 = hHighLowEnergy    (P1&2)
 };
+
+
+///////////////////////////////////////////////////////////////////////////////
+// number of free params
+// this is used in the draw code
+// must be updated manually
+// it is a combination of two things
+// in the gParameterGroup, params can be HARD/SOFT constrained or FREE
+// they are only free parameters if this mode is FREE
+// then some code blocks call Fix() on MnUserParameterState which effectively
+// sets the mode to HARD
+// i could find a way to do this automatically but it isn't worth the time
+// at this late stage
+// 2020-11-03
+int gNumberFreeParams = 0;
+
 
 
 ///////////////////////////////////////////////////////////////////////////////
