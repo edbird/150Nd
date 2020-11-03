@@ -356,6 +356,10 @@ void newloglikfitter_mps_calculate
 
                 double t_param_2 = (((double)n_2 + 0.5) / (double)n_param_2) * (param_2_max - param_2_min) + param_2_min;
 
+                // assuming that xi31 and 150Nd amplitude are free
+                // this may break if the parameter_names.lst file is changed
+                gNumberFreeParams = 0;
+
                 // do this for test with no additional minimization
                 ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
                 ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
@@ -381,7 +385,8 @@ void newloglikfitter_mps_calculate
 
                 // these do not change between before/after
                 int nch = theFCN.nch;
-                int nfp = g_pg.get_number_free_params();
+                //int nfp = g_pg.get_number_free_params();
+                int nfp = gNumberFreeParams;
                 int ndf = nch - nfp;
  
                 // do minuit2 fit
@@ -399,7 +404,8 @@ void newloglikfitter_mps_calculate
                 
                 // these do not change between before/after
                 nch = theFCN.nch;
-                nfp = g_pg.get_number_free_params();
+                //nfp = g_pg.get_number_free_params();
+                nfp = gNumberFreeParams;
                 ndf = nch - nfp;
 
 
