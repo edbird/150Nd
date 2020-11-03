@@ -16,7 +16,7 @@ void newloglikfitter_mps_calculate
     // TODO: this should be part of the scriptX.txt file
     // the script files should contain all data about how the experiment
     // should be run
-    const int n_param_xy = 51; //51;//301; // 1001
+    const int n_param_xy = 301; //51;//301; // 1001
     int n_param_1 = n_param_xy;
     int n_param_2 = n_param_xy;
     //int n_param_max = n_param_1 * n_param_2;

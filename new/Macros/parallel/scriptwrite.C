@@ -8,7 +8,7 @@ void scriptwrite()
 {
 
     const int NUM_CORES = 12;
-    const int RES = 51;
+    const int RES = 301;
 
     int start[NUM_CORES] = 
     {
