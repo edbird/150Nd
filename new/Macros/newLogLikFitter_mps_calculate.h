@@ -20,7 +20,7 @@ void newloglikfitter_mps_calculate
     int n_param_1 = n_param_xy;
     int n_param_2 = n_param_xy;
     //int n_param_max = n_param_1 * n_param_2;
-    const int n_param_max = (start_index - stop_index) * n_param_2;
+    const int n_param_max = (stop_index - start_index) * n_param_2;
     int c_param = 0;
 
 
@@ -535,8 +535,8 @@ void newloglikfitter_mps_calculate
             //double fraction_complete = (double)n_1 / (double)n_param_1;
             //double fraction_togo = 1.0 - fraction_complete;
             // remaining time = run time / number of runs completed * number of runs remaining
-            int number_of_runs_completed = n_1 - start_index;
-            int number_of_runs_remaining = stop_index - start_index;
+            int number_of_runs_completed = (n_1 + 1) - start_index;
+            int number_of_runs_remaining = stop_index - (n_1 + 1);
             double remaining_runtime_sec = total_runtime_sec.count() / (double)number_of_runs_completed * (double)(number_of_runs_remaining);
             double remaining_runtime_hr = remaining_runtime_sec / 3600.0;
             std::cout << "ETA: " << remaining_runtime_hr << " h" << std::endl;
