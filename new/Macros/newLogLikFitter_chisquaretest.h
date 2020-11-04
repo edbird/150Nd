@@ -662,7 +662,8 @@ void newloglikfitter_testmyphasespace_newversion(
                 double fval_before = theFCN.operator()(params_before);
                 //int ndf = theFCN.ndf - theParameterStateBefore.VariableParameters();
                 int nch = theFCN.nch;
-                int nfp = g_pg.get_number_free_params();
+                //int nfp = g_pg.get_number_free_params();
+                int nfp = gNumberFreeParams;
                 int ndf = nch - nfp;
  
             /*
@@ -694,7 +695,7 @@ void newloglikfitter_testmyphasespace_newversion(
                 double fval_after = theFCN.operator()(params_after);
                 //ndf = theFCN.ndf - theParameterStateAfter.VariableParameters();
                 nch = theFCN.nch;
-                nfp = g_pg.get_number_free_params();
+                nfp = gNumberFreeParams;
                 ndf = nch - nfp;
 
             /*

@@ -29,8 +29,8 @@ void scriptwrite()
         int sf = ((i + 1) * RES) / NUM_CORES;
         start[i] = si;
         stop[i] = sf;
-        //std::cout << "si=" << si << std::endl;
-        //std::cout << "sf=" << sf << std::endl;
+        std::cout << "si=" << si << std::endl;
+        std::cout << "sf=" << sf << std::endl;
         //std::cout << std::endl;
     }
 

@@ -1426,9 +1426,9 @@ std::cout << "hALLMC1D->Draw()" << std::endl;
         h_pull->GetXaxis()->SetLabelFont(43);
         h_pull->GetXaxis()->SetLabelSize(15);
         h_pull->GetXaxis()->SetTitleFont(43);
-        h_pull->GetXaxis()->SetTitleSize(0);
-        h_pull->GetXaxis()->SetTitleOffset(1.0);
-        h_pull->GetXaxis()->SetTitle(0);
+        h_pull->GetXaxis()->SetTitleSize(20);
+        h_pull->GetXaxis()->SetTitleOffset(3.0);
+        //h_pull->GetXaxis()->SetTitle(0);
 
         h_pull->GetYaxis()->SetLabelFont(43);
         h_pull->GetYaxis()->SetLabelSize(0 * 15);
@@ -1559,10 +1559,10 @@ std::cout << "sigdraw" << std::endl;
         }
         leg->AddEntry(h_stack_total_MC, "Total MC (" + Nmc_Px_str + ")", "L");
         leg->AddEntry(h_stack_2nubb, "2#nu#beta#beta", "F");
-        leg->AddEntry(h_stack_tl208_int, "^{208}Tl Int", "F");
-        leg->AddEntry(h_stack_bi214_int, "^{214}Bi Int", "F");
-        leg->AddEntry(h_stack_bi207_int, "^{207}Bi Int", "F");
-        leg->AddEntry(h_stack_internal, "Internal", "F");
+        leg->AddEntry(h_stack_tl208_int, "^{208}Tl ^{150}Nd Foil", "F");
+        leg->AddEntry(h_stack_bi214_int, "^{214}Bi ^{150}Nd Foil", "F");
+        leg->AddEntry(h_stack_bi207_int, "^{207}Bi ^{150}Nd Foil", "F");
+        leg->AddEntry(h_stack_internal, "Internal Foil", "F");
         leg->AddEntry(h_stack_neighbour, "Neighbour Foil", "F");
         leg->AddEntry(h_stack_radon, "Radon", "F");
         leg->AddEntry(h_stack_external, "External", "F");

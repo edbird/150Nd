@@ -298,7 +298,7 @@ const int number2DHists = 1; //number2DHists_perphase * numberPhases;
 ///////////////////////////////////////////////////////////////////////////////
 // channel enable flags
 
-const double channel_enable_1D[number1DHists] =
+int channel_enable_1D[number1DHists] =
 {
 0, // ch  0 = hTotalE        (P1&2)
 1, // ch  1 = hSingleEnergy  (P1&2)
@@ -308,10 +308,26 @@ const double channel_enable_1D[number1DHists] =
 0  // ch  5 = hEnergyDiff    (P1&2)
 };
 
-const double channel_enable_2D[number2DHists] =
+int channel_enable_2D[number2DHists] =
 {
 0  // ch  0 = hHighLowEnergy    (P1&2)
 };
+
+
+///////////////////////////////////////////////////////////////////////////////
+// number of free params
+// this is used in the draw code
+// must be updated manually
+// it is a combination of two things
+// in the gParameterGroup, params can be HARD/SOFT constrained or FREE
+// they are only free parameters if this mode is FREE
+// then some code blocks call Fix() on MnUserParameterState which effectively
+// sets the mode to HARD
+// i could find a way to do this automatically but it isn't worth the time
+// at this late stage
+// 2020-11-03
+int gNumberFreeParams = 0;
+
 
 
 ///////////////////////////////////////////////////////////////////////////////

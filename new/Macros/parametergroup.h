@@ -214,6 +214,7 @@ class parameter_group
     }
 
 
+    /*
     int get_number_free_params() const
     {
         int sum = 0;
@@ -225,8 +226,10 @@ class parameter_group
                 ++ sum;
             }
         }
+        std::cout << "parameter_group.get_number_free_params()=" << sum << std::endl;
         return sum;
     }
+    */
 
 
     int get_xi_31_int_param_number()

@@ -320,12 +320,22 @@ void final_mps_draw()
 void final_mps_draw_colz()
 {
     std::cout << "calling draw (colz)" << std::endl;
-
     
     int number_job_id = 0;
     std::string output_name = "noparallel";
     int start_index = 0;
     int stop_index = 301;
+    if(MODE_PARALLEL == 1)
+    {
+        output_name = "mps_resultsmatrix";
+    }
+    else
+    {
+        number_job_id = 0;
+        output_name = "noparallel";
+        start_index = 0;
+        stop_index = 301;
+    }
 
     gROOT->SetStyle("Plain");
     gStyle->SetOptStat(0);
@@ -1227,6 +1237,7 @@ void loadFiles(int i)
 
                 // just do it manually
                 // TODO: choose which values go here
+                /*
                 if((n == 0) ||
                    (n == 1) || 
                    (n == 2) || 
@@ -1244,7 +1255,8 @@ void loadFiles(int i)
                 else
                 {
                     value = value_down;
-                }
+                }*/
+                value = value_up;
 
                 //systematic_offset_V_MATRIX_coeff_1D_P1[channel]->operator[](i) = value;
                 systematic_n_V_MATRIX_coeff_1D_P1[n][channel]->push_back(value);
@@ -1272,6 +1284,7 @@ void loadFiles(int i)
 
                 // just do it manually
                 // TODO: choose which values go here
+                /*
                 if((n == 0) ||
                    (n == 1) || 
                    (n == 2) || 
@@ -1279,14 +1292,18 @@ void loadFiles(int i)
                    (n == 4) ||
                    (n == 5) ||
                    (n == 6) ||
-                   (n == 7))
+                   (n == 7) ||
+                   (n == 8) ||
+                   (n == 9) ||
+                   (n == 10))
                 {
                     value = value_up;
                 }
                 else
                 {
                     value = value_down;
-                }
+                }*/
+                value = value_up;
 
                 //systematic_offset_V_MATRIX_coeff_1D_P2[channel]->operator[](i) = value;
                 systematic_n_V_MATRIX_coeff_1D_P2[n][channel]->push_back(value);
@@ -1359,7 +1376,7 @@ void loadFiles(int i)
 
 
 
-
+#if 0
     ///////////////////////////////////////////////////////////////////////////
     // Reproduce Summers Fit (only when xi_31 parameter is disabled)
     ///////////////////////////////////////////////////////////////////////////
@@ -1518,15 +1535,16 @@ void loadFiles(int i)
         // rest of analysis does not make sense
         return 0;
     }
+#endif
 
 
-
+#if 0
     ///////////////////////////////////////////////////////////////////////////
     // HSD fixed xi_31 = HSD fit
     ///////////////////////////////////////////////////////////////////////////
 
     // do not do this in parallel mode
-    if(0)// || (MODE_PARALLEL == 0))
+    if(1)// || (MODE_PARALLEL == 0))
     {
         bool restore_V_ENABLE_SYSALL = V_ENABLE_SYSALL;
         V_ENABLE_SYSALL = false;
@@ -1649,6 +1667,191 @@ void loadFiles(int i)
 
         return 0;
     }
+#endif
+
+    ///////////////////////////////////////////////////////////////////////////
+    // HSD fixed xi_31 = HSD fit
+    ///////////////////////////////////////////////////////////////////////////
+    
+    if(1)// || (MODE_PARALLEL == 0))
+    {
+        //channel_enable_1D[0] = 1;
+        //channel_enable_1D[1] = 0;
+        //bool restore_V_ENABLE_SYSALL = V_ENABLE_SYSALL;
+        //V_ENABLE_SYSALL = false;
+        //V_ENABLE_SYSALL = true;
+
+        V_ENABLE_SYS_stack_push();
+        V_ENABLE_SYSALL = false;
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            V_ENABLE_SYSn[i] = false;
+        }
+
+        bool restore_g_mode_fake_data = g_mode_fake_data;
+        g_mode_fake_data = false;
+
+        std::string min_point_fname = "min_point_";
+        std::string min_point_fname_append;
+        if(g_mode_fake_data == true)
+        {
+            min_point_fname_append += "fake_";
+        }
+        else if(g_mode_fake_data == false)
+        {
+            min_point_fname_append += "data_";
+        }
+        min_point_fname += min_point_fname_append + "_HSD";
+        std::ifstream ifs_min_point(min_point_fname);
+
+        if(ifs_min_point.is_open())
+        {
+            std::cout << "loading min point from file " << min_point_fname << std::endl;
+            ifs_min_point >> min_point[0] >> min_point[1];
+            ifs_min_point >> min_point_fval;
+            ifs_min_point.close();
+        }
+        else
+        {
+            // assuming that xi31 and 150Nd amplitude are free
+            // this may break if the parameter_names.lst file is changed
+            gNumberFreeParams = 1;
+
+            // create minimizer
+            ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
+            ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
+            MinimizeFCNAxialVector theFCN;
+
+            // initialize fit
+            //fitBackgrounds_init(theParameterState, theMinimizer, AdjustActs, AdjustActs_Err);
+            const int xi_31_param_number = g_pg.get_xi_31_ext_param_number();
+            const double xi_31_value = g_pg.file_params.at(xi_31_param_number).paramInitValue;
+            const double xi_31_error = g_pg.file_params.at(xi_31_param_number).paramInitError;
+            std::cout << "xi_31_param_number=" << xi_31_param_number
+                      << " xi_31=" << xi_31_value << " +- " << xi_31_error << std::endl;
+            fitBackgrounds_init(theParameterStateBefore, theMinimizer, xi_31_value, xi_31_error);
+
+            // fix xi_31 parameter
+            TString i_str;
+            i_str.Form("%i", 1);
+            TString minuit_param_number_str;
+            minuit_param_number_str.Form("%i", 1);
+            TString minuit_param_name = "_" + i_str + "_" + minuit_param_number_str + "_";
+            theParameterStateBefore.Fix(std::string(minuit_param_name));
+            theParameterStateBefore.SetValue(std::string(minuit_param_name), 0.0); // HSD
+
+            // get parameters and chi2 value before fit
+            std::vector<double> params_before = theParameterStateBefore.Params();
+            std::vector<double> param_errs_before = theParameterStateBefore.Errors();
+            double fval_before = theFCN.operator()(params_before);
+            //int ndf = theFCN.ndf - theParameterStateBefore.VariableParameters();
+            int nch = theFCN.nch;
+            //int nfp = g_pg.get_number_free_params();
+            int nfp = gNumberFreeParams;
+            int ndf = nch - nfp;
+
+            // draw before fit
+            draw_input_data drawinputdata;
+            drawinputdata.chi2 = fval_before;
+            drawinputdata.nch = nch;
+            drawinputdata.nfp = nfp;
+            drawinputdata.serial_dir = "HSD";
+            drawinputdata.saveas_filename = "HSD_data_before";
+            drawinputdata.saveas_png = true;
+           
+            draw(drawinputdata,
+                 params_before,
+                 param_errs_before);
+            
+            // exec fit
+            // this will fit backgrounds and the 150Nd amplitude parameter
+            // but xi_31 is fixed
+            ROOT::Minuit2::FunctionMinimum FCN_min =
+                fitBackgrounds_exec(
+                    theParameterStateBefore,
+                    theMinimizer,
+                    theFCN);
+
+            // get result
+            ROOT::Minuit2::MnUserParameterState theParameterStateAfter = FCN_min.UserParameters();
+            std::vector<double> params_after = theParameterStateAfter.Params();
+            std::vector<double> param_errs_after = theParameterStateAfter.Errors();
+
+            double fval_after = theFCN.operator()(params_after);
+            //ndf = theFCN.ndf - theParameterStateAfter.VariableParameters();
+            nch = theFCN.nch;
+            //nfp = g_pg.get_number_free_params();
+            nfp = gNumberFreeParams;
+            ndf = nch - nfp;
+
+            // draw result
+            drawinputdata.chi2 = fval_after;
+            drawinputdata.nch = nch;
+            drawinputdata.nfp = nfp;
+            drawinputdata.saveas_filename = "HSD_data_after";
+           
+            draw(drawinputdata,
+                 params_after,
+                 param_errs_after);
+
+            theParameterStateBefore.Release(std::string(minuit_param_name));
+            /*
+            newLogLikFitter_preMPSfitdriver(
+                std::string("All Parameter Fit: NEMO3 Data"),
+                "xifree_",
+                "_data",
+                "xifree",
+                min_point,
+                min_point_fval);
+                */
+            std::cout << "min_point: " << min_point[0] << " " << min_point[1] << std::endl;
+
+            std::ofstream ofs_min_point(min_point_fname);
+            ofs_min_point << min_point[0] << " " << min_point[1] << std::endl;
+            ofs_min_point << min_point_fval << std::endl;
+            ofs_min_point.close();
+
+            std::cout << "HSD Fit: NEMO3 Data" << std::endl;
+            /*std::cout << "SYSTEMATICS: CONSTANT OFFSET DISABLED: " << gSystematics.systematic_energy_offset << " MeV" << std::endl;
+            std::cout << "SYSTEMATICS: CONSTANT SCALE DISABLED: " << gSystematics.systematic_energy_scale << " MeV" << std::endl;
+            std::cout << "SYSTEMATICS: EFFICIENCY DISABLED: " << gSystematics.systematic_efficiency << "" << std::endl;
+            std::cout << "SYSTEMATICS: ENRICHMENT DISABLED: " << gSystematics.systematic_enrichment << "" << std::endl;
+            std::cout << "SYSTEMATICS: CONSTANT OFFSETSMALL DISABLED: " << gSystematics.systematic_energy_offsetsmall << " MeV" << std::endl;*/
+            std::cout << "SYSTEMATICS: CONSTANT OFFSET: " << gSystematics.systematic_energy_offset << " MeV" << std::endl;
+            std::cout << "SYSTEMATICS: CONSTANT SCALE: " << gSystematics.systematic_energy_scale << " MeV" << std::endl;
+            std::cout << "SYSTEMATICS: EFFICIENCY: " << gSystematics.systematic_efficiency << "" << std::endl;
+            std::cout << "SYSTEMATICS: ENRICHMENT: " << gSystematics.systematic_enrichment << "" << std::endl;
+            std::cout << "SYSTEMATICS: OFFSETSMALL: " << gSystematics.systematic_energy_offsetsmall << " MeV" << std::endl;
+            std::cout << "SYSTEMATICS: FOIL THICKNESS (V): " << gSystematics.systematic_foil_thickness_virtual << " " << std::endl;
+            std::cout << "SYSTEMATICS: ENERGY LOSS (V): " << gSystematics.systematic_dEdX_virtual << " " << std::endl;
+            std::cout << "SYSTEMATICS: BREMSSTRAHLUNG (V): " << gSystematics.systematic_brem_virtual << " " << std::endl;
+            std::cout << "SYSTEMATICS: FOIL THICKNESS (N): " << gSystematics.systematic_foil_thickness_nominal << " " << std::endl;
+            std::cout << "SYSTEMATICS: ENERGY LOSS (N): " << gSystematics.systematic_dEdX_nominal << " " << std::endl;
+            std::cout << "SYSTEMATICS: BREMSSTRAHLUNG (N): " << gSystematics.systematic_brem_nominal << " " << std::endl;
+            //std::cout << "Result: " << std::endl;
+            //std::cout << "fval_before=" << fval_before << std::endl;
+            //std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
+            std::cout << "Result: " << std::endl;
+            std::cout << "fval_before=" << fval_before << std::endl;
+            std::cout << "fval_after=" << fval_after
+                      << " for params_after[0]=" << params_after[0]
+                      << " +- " << param_errs_after[0]
+                      << " params_after[1]=" << params_after[1]
+                      << " +- " << param_errs_after[1]
+                      << std::endl;
+            std::cout << std::endl;
+        }
+
+        V_ENABLE_SYS_stack_pop();
+        g_mode_fake_data = restore_g_mode_fake_data;
+
+        //V_ENABLE_SYSALL = restore_V_ENABLE_SYSALL;
+        //g_mode_fake_data = restore_g_mode_fake_data;
+        //return 0;
+        //channel_enable_1D[0] = 0;
+        //channel_enable_1D[1] = 1;
+    }
+
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -1659,111 +1862,187 @@ void loadFiles(int i)
     // TODO: this block doesn't really make sense, unless we fit
     // for xi_31 = SSD with xi_31 fixed
     // do not do this in parallel mode
-    if(0)// || (MODE_PARALLEL == 0))
+    if(1)// || (MODE_PARALLEL == 0))
     {
-        bool restore_V_ENABLE_SYSALL = V_ENABLE_SYSALL;
-        V_ENABLE_SYSALL = false;
+        //channel_enable_1D[0] = 1;
+        //channel_enable_1D[1] = 0;
+
+        //bool restore_V_ENABLE_SYSALL = V_ENABLE_SYSALL;
+        //V_ENABLE_SYSALL = false;
         //V_ENABLE_SYSALL = true;
+
+        V_ENABLE_SYS_stack_push();
+        V_ENABLE_SYSALL = false;
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            V_ENABLE_SYSn[i] = false;
+        }
 
         bool restore_g_mode_fake_data = g_mode_fake_data;
         g_mode_fake_data = false;
 
-        // create minimizer
-        ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
-        ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
-        MinimizeFCNAxialVector theFCN;
+        std::string min_point_fname = "min_point_";
+        std::string min_point_fname_append;
+        if(g_mode_fake_data == true)
+        {
+            min_point_fname_append += "fake_";
+        }
+        else if(g_mode_fake_data == false)
+        {
+            min_point_fname_append += "data_";
+        }
+        min_point_fname += min_point_fname_append + "_SSD";
+        std::ifstream ifs_min_point(min_point_fname);
 
-        // initialize fit
-        //fitBackgrounds_init(theParameterState, theMinimizer, AdjustActs, AdjustActs_Err);
-        const int xi_31_param_number = g_pg.get_xi_31_ext_param_number();
-        const double xi_31_value = g_pg.file_params.at(xi_31_param_number).paramInitValue;
-        const double xi_31_error = g_pg.file_params.at(xi_31_param_number).paramInitError;
-        std::cout << "xi_31_param_number=" << xi_31_param_number
-                  << " xi_31=" << xi_31_value << " +- " << xi_31_error << std::endl;
-        fitBackgrounds_init(theParameterStateBefore, theMinimizer, xi_31_value, xi_31_error);
+        if(ifs_min_point.is_open())
+        {
+            std::cout << "loading min point from file " << min_point_fname << std::endl;
+            ifs_min_point >> min_point[0] >> min_point[1];
+            ifs_min_point >> min_point_fval;
+            ifs_min_point.close();
+        }
+        else
+        {
+            // assuming that xi31 and 150Nd amplitude are free
+            // this may break if the parameter_names.lst file is changed
+            gNumberFreeParams = 1;
 
-        // fix xi_31 parameter
-        TString i_str;
-        i_str.Form("%i", 1);
-        TString minuit_param_number_str;
-        minuit_param_number_str.Form("%i", 1);
-        TString minuit_param_name = "_" + i_str + "_" + minuit_param_number_str + "_";
-        theParameterStateBefore.Fix(std::string(minuit_param_name));
-        theParameterStateBefore.SetValue(std::string(minuit_param_name), 0.296); // SSD
+            // create minimizer
+            ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
+            ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
+            MinimizeFCNAxialVector theFCN;
 
-        // get parameters and chi2 value before fit
-        std::vector<double> params_before = theParameterStateBefore.Params();
-        std::vector<double> param_errs_before = theParameterStateBefore.Errors();
-        double fval_before = theFCN.operator()(params_before);
-        //int ndf = theFCN.ndf - theParameterStateBefore.VariableParameters();
-        int nch = theFCN.nch;
-        int nfp = g_pg.get_number_free_params();
-        int ndf = nch - nfp;
+            // initialize fit
+            //fitBackgrounds_init(theParameterState, theMinimizer, AdjustActs, AdjustActs_Err);
+            const int xi_31_param_number = g_pg.get_xi_31_ext_param_number();
+            const double xi_31_value = g_pg.file_params.at(xi_31_param_number).paramInitValue;
+            const double xi_31_error = g_pg.file_params.at(xi_31_param_number).paramInitError;
+            std::cout << "xi_31_param_number=" << xi_31_param_number
+                      << " xi_31=" << xi_31_value << " +- " << xi_31_error << std::endl;
+            fitBackgrounds_init(theParameterStateBefore, theMinimizer, xi_31_value, xi_31_error);
 
-        // draw before fit
-        draw_input_data drawinputdata;
-        drawinputdata.chi2 = fval_before;
-        drawinputdata.nch = nch;
-        drawinputdata.serial_dir = "SSD";
-        drawinputdata.saveas_filename = "SSD_before";
-        drawinputdata.saveas_png = true;
-       
-        draw(drawinputdata,
-             params_before,
-             param_errs_before);
-        
-        // exec fit
-        // this will fit backgrounds and the 150Nd amplitude parameter
-        // but xi_31 is fixed
-        ROOT::Minuit2::FunctionMinimum FCN_min =
-            fitBackgrounds_exec(
-                theParameterStateBefore,
-                theMinimizer,
-                theFCN);
+            // fix xi_31 parameter
+            TString i_str;
+            i_str.Form("%i", 1);
+            TString minuit_param_number_str;
+            minuit_param_number_str.Form("%i", 1);
+            TString minuit_param_name = "_" + i_str + "_" + minuit_param_number_str + "_";
+            theParameterStateBefore.Fix(std::string(minuit_param_name));
+            theParameterStateBefore.SetValue(std::string(minuit_param_name), 0.296); // SSD
 
-        // get result
-        ROOT::Minuit2::MnUserParameterState theParameterStateAfter = FCN_min.UserParameters();
-        std::vector<double> params_after = theParameterStateAfter.Params();
-        std::vector<double> param_errs_after = theParameterStateAfter.Errors();
+            // get parameters and chi2 value before fit
+            std::vector<double> params_before = theParameterStateBefore.Params();
+            std::vector<double> param_errs_before = theParameterStateBefore.Errors();
+            double fval_before = theFCN.operator()(params_before);
+            //int ndf = theFCN.ndf - theParameterStateBefore.VariableParameters();
+            int nch = theFCN.nch;
+            //int nfp = g_pg.get_number_free_params();
+            int nfp = gNumberFreeParams;
+            int ndf = nch - nfp;
 
-        double fval_after = theFCN.operator()(params_after);
-        //ndf = theFCN.ndf - theParameterStateAfter.VariableParameters();
-        nch = theFCN.nch;
-        nfp = g_pg.get_number_free_params();
-        ndf = nch - nfp;
+            // draw before fit
+            draw_input_data drawinputdata;
+            drawinputdata.chi2 = fval_before;
+            drawinputdata.nch = nch;
+            drawinputdata.nfp = nfp;
+            drawinputdata.serial_dir = "SSD";
+            drawinputdata.saveas_filename = "SSD_data_before";
+            drawinputdata.saveas_png = true;
+           
+            draw(drawinputdata,
+                 params_before,
+                 param_errs_before);
+            
+            // exec fit
+            // this will fit backgrounds and the 150Nd amplitude parameter
+            // but xi_31 is fixed
+            ROOT::Minuit2::FunctionMinimum FCN_min =
+                fitBackgrounds_exec(
+                    theParameterStateBefore,
+                    theMinimizer,
+                    theFCN);
 
-        // draw result
-        drawinputdata.chi2 = fval_after;
-        drawinputdata.nch = nch;
-        drawinputdata.saveas_filename = "SSD_after";
-       
-        draw(drawinputdata,
-             params_after,
-             param_errs_after);
+            // get result
+            ROOT::Minuit2::MnUserParameterState theParameterStateAfter = FCN_min.UserParameters();
+            std::vector<double> params_after = theParameterStateAfter.Params();
+            std::vector<double> param_errs_after = theParameterStateAfter.Errors();
 
-        theParameterStateBefore.Release(std::string(minuit_param_name));
+            double fval_after = theFCN.operator()(params_after);
+            //ndf = theFCN.ndf - theParameterStateAfter.VariableParameters();
+            nch = theFCN.nch;
+            //nfp = g_pg.get_number_free_params();
+            nfp = gNumberFreeParams;
+            ndf = nch - nfp;
 
-        std::cout << "SSD Fit: NEMO3 Data" << std::endl;
-        std::cout << "SYSTEMATICS: CONSTANT OFFSET DISABLED: " << gSystematics.systematic_energy_offset << " MeV" << std::endl;
-        std::cout << "SYSTEMATICS: CONSTANT SCALE DISABLED: " << gSystematics.systematic_energy_scale << " MeV" << std::endl;
-        std::cout << "SYSTEMATICS: EFFICIENCY DISABLED: " << gSystematics.systematic_efficiency << "" << std::endl;
-        std::cout << "SYSTEMATICS: ENRICHMENT DISABLED: " << gSystematics.systematic_enrichment << "" << std::endl;
-        std::cout << "SYSTEMATICS: CONSTANT OFFSETSMALL DISABLED: " << gSystematics.systematic_energy_offsetsmall << " MeV" << std::endl;
-        std::cout << "Result: " << std::endl;
-        std::cout << "fval_before=" << fval_before << std::endl;
-        std::cout << "fval_after=" << fval_after
-                  << " for params_after[0]=" << params_after[0]
-                  << " +- " << param_errs_after[0]
-                  << " params_after[1]=" << params_after[1]
-                  << " +- " << param_errs_after[1]
-                  << std::endl;
-        std::cout << std::endl;
+            // draw result
+            drawinputdata.chi2 = fval_after;
+            drawinputdata.nch = nch;
+            drawinputdata.saveas_filename = "SSD_data_after";
+           
+            draw(drawinputdata,
+                 params_after,
+                 param_errs_after);
 
-        V_ENABLE_SYSALL = restore_V_ENABLE_SYSALL;
+            theParameterStateBefore.Release(std::string(minuit_param_name));
+            /*
+            newLogLikFitter_preMPSfitdriver(
+                std::string("All Parameter Fit: NEMO3 Data"),
+                "xifree_",
+                "_data",
+                "xifree",
+                min_point,
+                min_point_fval);
+                */
+            std::cout << "min_point: " << min_point[0] << " " << min_point[1] << std::endl;
 
+            std::ofstream ofs_min_point(min_point_fname);
+            ofs_min_point << min_point[0] << " " << min_point[1] << std::endl;
+            ofs_min_point << min_point_fval << std::endl;
+            ofs_min_point.close();
+
+            std::cout << "SSD Fit: NEMO3 Data" << std::endl;
+            /*std::cout << "SYSTEMATICS: CONSTANT OFFSET DISABLED: " << gSystematics.systematic_energy_offset << " MeV" << std::endl;
+            std::cout << "SYSTEMATICS: CONSTANT SCALE DISABLED: " << gSystematics.systematic_energy_scale << " MeV" << std::endl;
+            std::cout << "SYSTEMATICS: EFFICIENCY DISABLED: " << gSystematics.systematic_efficiency << "" << std::endl;
+            std::cout << "SYSTEMATICS: ENRICHMENT DISABLED: " << gSystematics.systematic_enrichment << "" << std::endl;
+            std::cout << "SYSTEMATICS: CONSTANT OFFSETSMALL DISABLED: " << gSystematics.systematic_energy_offsetsmall << " MeV" << std::endl;*/
+            std::cout << "SYSTEMATICS: CONSTANT OFFSET: " << gSystematics.systematic_energy_offset << " MeV" << std::endl;
+            std::cout << "SYSTEMATICS: CONSTANT SCALE: " << gSystematics.systematic_energy_scale << " MeV" << std::endl;
+            std::cout << "SYSTEMATICS: EFFICIENCY: " << gSystematics.systematic_efficiency << "" << std::endl;
+            std::cout << "SYSTEMATICS: ENRICHMENT: " << gSystematics.systematic_enrichment << "" << std::endl;
+            std::cout << "SYSTEMATICS: OFFSETSMALL: " << gSystematics.systematic_energy_offsetsmall << " MeV" << std::endl;
+            std::cout << "SYSTEMATICS: FOIL THICKNESS (V): " << gSystematics.systematic_foil_thickness_virtual << " " << std::endl;
+            std::cout << "SYSTEMATICS: ENERGY LOSS (V): " << gSystematics.systematic_dEdX_virtual << " " << std::endl;
+            std::cout << "SYSTEMATICS: BREMSSTRAHLUNG (V): " << gSystematics.systematic_brem_virtual << " " << std::endl;
+            std::cout << "SYSTEMATICS: FOIL THICKNESS (N): " << gSystematics.systematic_foil_thickness_nominal << " " << std::endl;
+            std::cout << "SYSTEMATICS: ENERGY LOSS (N): " << gSystematics.systematic_dEdX_nominal << " " << std::endl;
+            std::cout << "SYSTEMATICS: BREMSSTRAHLUNG (N): " << gSystematics.systematic_brem_nominal << " " << std::endl;
+            //std::cout << "Result: " << std::endl;
+            //std::cout << "fval_before=" << fval_before << std::endl;
+            //std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
+            std::cout << "Result: " << std::endl;
+            std::cout << "fval_before=" << fval_before << std::endl;
+            std::cout << "fval_after=" << fval_after
+                      << " for params_after[0]=" << params_after[0]
+                      << " +- " << param_errs_after[0]
+                      << " params_after[1]=" << params_after[1]
+                      << " +- " << param_errs_after[1]
+                      << std::endl;
+            //for(int i = 0; i < params_after.size(); ++ i)
+            //{
+            //    std::cout << params_after[i] << ", " << std::endl;
+            //}
+            std::cout << std::endl;
+        }
+
+        V_ENABLE_SYS_stack_pop();
         g_mode_fake_data = restore_g_mode_fake_data;
 
-        return 0;
+        //V_ENABLE_SYSALL = restore_V_ENABLE_SYSALL;
+        //g_mode_fake_data = restore_g_mode_fake_data;
+        //return 0;
+        //channel_enable_1D[0] = 0;
+        //channel_enable_1D[1] = 1;
     }
 
 
@@ -2159,6 +2438,9 @@ void loadFiles(int i)
         {
             newLogLikFitter_preMPSfitdriver(
                 std::string("All Parameter Fit: NEMO3 Data"),
+                "xifree_",
+                "_data",
+                "xifree",
                 min_point,
                 min_point_fval);
             std::cout << "min_point: " << min_point[0] << " " << min_point[1] << std::endl;
@@ -2176,7 +2458,7 @@ void loadFiles(int i)
 
 
 
-
+    //return 0;
 
 
 
@@ -2242,6 +2524,9 @@ void loadFiles(int i)
             // call helper function
             newLogLikFitter_preMPSfitdriver(
                 std::string("Systematics Fit: Fake Data"),
+                "xifree_",
+                "_fake_data",
+                "xifree",
                 min_point_fake_data,
                 min_point_fake_data_fval);
             std::cout << "min_point (fake): " << min_point_fake_data[0] << " " << min_point_fake_data[1] << std::endl;
@@ -2306,6 +2591,9 @@ void loadFiles(int i)
             // call helper function
             newLogLikFitter_preMPSfitdriver(
                 std::string("Systematics Fit: Fake Data"),
+                "xifree_",
+                "_fake_data_SYS0L",
+                "xifree",
                 min_point_sysn_l[0],
                 min_point_sysn_l_fval[0]);
             std::cout << "min_point (sys0 L): " << min_point_sysn_l[0][0] << " " << min_point_sysn_l[0][1] << std::endl;
@@ -2370,6 +2658,9 @@ void loadFiles(int i)
             // call helper function
             newLogLikFitter_preMPSfitdriver(
                 std::string("Systematics Fit: Fake Data"),
+                "xifree_",
+                "_fake_data_SYS0H",
+                "xifree",
                 min_point_sysn_h[0],
                 min_point_sysn_h_fval[0]);
             std::cout << "min_point (sys0 H): " << min_point_sysn_h[0][0] << " " << min_point_sysn_h[0][1] << std::endl;
@@ -2434,6 +2725,9 @@ void loadFiles(int i)
             // call helper function
             newLogLikFitter_preMPSfitdriver(
                 std::string("Systematics Fit: Fake Data"),
+                "xifree_",
+                "_fake_data_SYS1L",
+                "xifree",
                 min_point_sysn_l[1],
                 min_point_sysn_l_fval[1]);
             std::cout << "min_point (sys1 L): " << min_point_sysn_l[1][0] << " " << min_point_sysn_l[1][1] << std::endl;
@@ -2498,6 +2792,9 @@ void loadFiles(int i)
             // call helper function
             newLogLikFitter_preMPSfitdriver(
                 std::string("Systematics Fit: Fake Data"),
+                "xifree_",
+                "_fake_data_SYS1H",
+                "xifree",
                 min_point_sysn_h[1],
                 min_point_sysn_h_fval[1]);
             std::cout << "min_point (sys1 H): " << min_point_sysn_h[1][0] << " " << min_point_sysn_h[1][1] << std::endl;
@@ -2563,6 +2860,9 @@ void loadFiles(int i)
             // call helper function
             newLogLikFitter_preMPSfitdriver(
                 std::string("Systematics Fit: Fake Data"),
+                "xifree_",
+                "_fake_data_SYS2L",
+                "xifree",
                 min_point_sysn_l[2],
                 min_point_sysn_l_fval[2]);
             std::cout << "min_point (sys2 L): " << min_point_sysn_l[2][0] << " " << min_point_sysn_l[2][1] << std::endl;
@@ -2628,6 +2928,9 @@ void loadFiles(int i)
             // call helper function
             newLogLikFitter_preMPSfitdriver(
                 std::string("Systematics Fit: Fake Data"),
+                "xifree_",
+                "_fake_data_SYS2H",
+                "xifree",
                 min_point_sysn_h[2],
                 min_point_sysn_h_fval[2]);
             std::cout << "min_point (sys2 H): " << min_point_sysn_h[2][0] << " " << min_point_sysn_h[2][1] << std::endl;
@@ -2693,6 +2996,9 @@ void loadFiles(int i)
             // call helper function
             newLogLikFitter_preMPSfitdriver(
                 std::string("Systematics Fit: Fake Data"),
+                "xifree_",
+                "_fake_data_SYS3L",
+                "xifree",
                 min_point_sysn_l[3],
                 min_point_sysn_l_fval[3]);
             std::cout << "min_point (sys3 L): " << min_point_sysn_l[3][0] << " " << min_point_sysn_l[3][1] << std::endl;
@@ -2758,6 +3064,9 @@ void loadFiles(int i)
             // call helper function
             newLogLikFitter_preMPSfitdriver(
                 std::string("Systematics Fit: Fake Data"),
+                "xifree_",
+                "_fake_data_SYS3H",
+                "xifree",
                 min_point_sysn_h[3],
                 min_point_sysn_h_fval[3]);
             std::cout << "min_point (sys3 H): " << min_point_sysn_h[3][0] << " " << min_point_sysn_h[3][1] << std::endl;
@@ -2822,6 +3131,9 @@ void loadFiles(int i)
             // call helper function
             newLogLikFitter_preMPSfitdriver(
                 std::string("Systematics Fit: Fake Data"),
+                "xifree_",
+                "_fake_data_SYS4L",
+                "xifree",
                 min_point_sysn_l[4],
                 min_point_sysn_l_fval[4]);
             std::cout << "min_point (sys4 L): " << min_point_sysn_l[4][0] << " " << min_point_sysn_l[4][1] << std::endl;
@@ -2886,6 +3198,9 @@ void loadFiles(int i)
             // call helper function
             newLogLikFitter_preMPSfitdriver(
                 std::string("Systematics Fit: Fake Data"),
+                "xifree_",
+                "_fake_data_SYS4H",
+                "xifree",
                 min_point_sysn_h[4],
                 min_point_sysn_h_fval[4]);
             std::cout << "min_point (sys4 H): " << min_point_sysn_h[4][0] << " " << min_point_sysn_h[4][1] << std::endl;
@@ -2956,6 +3271,9 @@ void loadFiles(int i)
             // call helper function
             newLogLikFitter_preMPSfitdriver(
                 std::string("Systematics Fit: Fake Data"),
+                "xifree_",
+                "_fake_data_SYS5L",
+                "xifree",
                 min_point_sysn_l[5],
                 min_point_sysn_l_fval[5]);
             std::cout << "min_point (sys5 L): " << min_point_sysn_l[5][0] << " " << min_point_sysn_l[5][1] << std::endl;
@@ -3020,6 +3338,9 @@ void loadFiles(int i)
             // call helper function
             newLogLikFitter_preMPSfitdriver(
                 std::string("Systematics Fit: Fake Data"),
+                "xifree_",
+                "_fake_data_SYS5H",
+                "xifree",
                 min_point_sysn_h[5],
                 min_point_sysn_h_fval[5]);
             std::cout << "min_point (sys5 H): " << min_point_sysn_h[5][0] << " " << min_point_sysn_h[5][1] << std::endl;
@@ -3084,6 +3405,9 @@ void loadFiles(int i)
             // call helper function
             newLogLikFitter_preMPSfitdriver(
                 std::string("Systematics Fit: Fake Data"),
+                "xifree_",
+                "_fake_data_SYS6L",
+                "xifree",
                 min_point_sysn_l[6],
                 min_point_sysn_l_fval[6]);
             std::cout << "min_point (sys6 L): " << min_point_sysn_l[6][0] << " " << min_point_sysn_l[6][1] << std::endl;
@@ -3148,6 +3472,9 @@ void loadFiles(int i)
             // call helper function
             newLogLikFitter_preMPSfitdriver(
                 std::string("Systematics Fit: Fake Data"),
+                "xifree_",
+                "_fake_data_SYS6H",
+                "xifree",
                 min_point_sysn_h[6],
                 min_point_sysn_h_fval[6]);
             std::cout << "min_point (sys6 H): " << min_point_sysn_h[6][0] << " " << min_point_sysn_h[6][1] << std::endl;
@@ -3212,6 +3539,9 @@ void loadFiles(int i)
             // call helper function
             newLogLikFitter_preMPSfitdriver(
                 std::string("Systematics Fit: Fake Data"),
+                "xifree_",
+                "_fake_data_SYS7L",
+                "xifree",
                 min_point_sysn_l[7],
                 min_point_sysn_l_fval[7]);
             std::cout << "min_point (sys7 L): " << min_point_sysn_l[7][0] << " " << min_point_sysn_l[7][1] << std::endl;
@@ -3276,6 +3606,9 @@ void loadFiles(int i)
             // call helper function
             newLogLikFitter_preMPSfitdriver(
                 std::string("Systematics Fit: Fake Data"),
+                "xifree_",
+                "_fake_data_SYS7H",
+                "xifree",
                 min_point_sysn_h[7],
                 min_point_sysn_h_fval[7]);
             std::cout << "min_point (sys7 H): " << min_point_sysn_h[7][0] << " " << min_point_sysn_h[7][1] << std::endl;
@@ -3344,6 +3677,9 @@ void loadFiles(int i)
             // call helper function
             newLogLikFitter_preMPSfitdriver(
                 std::string("Systematics Fit: Fake Data"),
+                "xifree_",
+                "_fake_data_SYS8L",
+                "xifree",
                 min_point_sysn_l[8],
                 min_point_sysn_l_fval[8]);
             std::cout << "min_point (sys8 L): " << min_point_sysn_l[8][0] << " " << min_point_sysn_l[8][1] << std::endl;
@@ -3408,6 +3744,9 @@ void loadFiles(int i)
             // call helper function
             newLogLikFitter_preMPSfitdriver(
                 std::string("Systematics Fit: Fake Data"),
+                "xifree_",
+                "_fake_data_SYS8H",
+                "xifree",
                 min_point_sysn_h[8],
                 min_point_sysn_h_fval[8]);
             std::cout << "min_point (sys8 H): " << min_point_sysn_h[8][0] << " " << min_point_sysn_h[8][1] << std::endl;
@@ -3472,6 +3811,9 @@ void loadFiles(int i)
             // call helper function
             newLogLikFitter_preMPSfitdriver(
                 std::string("Systematics Fit: Fake Data"),
+                "xifree_",
+                "_fake_data_SYS9L",
+                "xifree",
                 min_point_sysn_l[9],
                 min_point_sysn_l_fval[9]);
             std::cout << "min_point (sys9 L): " << min_point_sysn_l[9][0] << " " << min_point_sysn_l[9][1] << std::endl;
@@ -3536,6 +3878,9 @@ void loadFiles(int i)
             // call helper function
             newLogLikFitter_preMPSfitdriver(
                 std::string("Systematics Fit: Fake Data"),
+                "xifree_",
+                "_fake_data_SYS9H",
+                "xifree",
                 min_point_sysn_h[9],
                 min_point_sysn_h_fval[9]);
             std::cout << "min_point (sys9 H): " << min_point_sysn_h[9][0] << " " << min_point_sysn_h[9][1] << std::endl;
@@ -3600,6 +3945,9 @@ void loadFiles(int i)
             // call helper function
             newLogLikFitter_preMPSfitdriver(
                 std::string("Systematics Fit: Fake Data"),
+                "xifree_",
+                "_fake_data_SYS10L",
+                "xifree",
                 min_point_sysn_l[10],
                 min_point_sysn_l_fval[10]);
             std::cout << "min_point (sys10 L): " << min_point_sysn_l[10][0] << " " << min_point_sysn_l[10][1] << std::endl;
@@ -3664,6 +4012,9 @@ void loadFiles(int i)
             // call helper function
             newLogLikFitter_preMPSfitdriver(
                 std::string("Systematics Fit: Fake Data"),
+                "xifree_",
+                "_fake_data_SYS10H",
+                "xifree",
                 min_point_sysn_h[10],
                 min_point_sysn_h_fval[10]);
             std::cout << "min_point (sys10 H): " << min_point_sysn_h[10][0] << " " << min_point_sysn_h[10][1] << std::endl;
@@ -3690,6 +4041,7 @@ void loadFiles(int i)
 
 
 
+    //return 0;
 
 
 

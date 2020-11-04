@@ -18,7 +18,7 @@ void newloglikfitter_mps_draw_helper_colz
     // c_mps before/after
     ///////////////////////////////////////////////////////////////////
 
-    if(0 || (MODE_PARALLEL == 0))
+    //if(0 || (MODE_PARALLEL == 0))
     {
         TString c_mps_name_base = "c_mps";
         TString c_mps_name = c_mps_name_base + "_" + "after";
@@ -284,7 +284,7 @@ void newloglikfitter_mps_draw_helper_colz
             "Energy Loss dE/dX (N)",
             "Brem (N)"
         };
-        TLegend *leg = new TLegend(0.03, 0.72, 0.31, 0.96);
+        TLegend *leg = new TLegend(0.03, 0.70, 0.32, 0.96);
         for(int i = 0; i < N_SYSTEMATICS; ++ i)
         {
             if(ENABLE_MIN_POINT_SYSn[i] == true)
@@ -591,7 +591,7 @@ void newloglikfitter_mps_draw_helper
             "Energy Loss dE/dX (N)",
             "Brem (N)"
         };
-        TLegend *leg = new TLegend(0.03, 0.72, 0.31, 0.96);
+        TLegend *leg = new TLegend(0.03, 0.70, 0.32, 0.96);
         for(int i = 0; i < N_SYSTEMATICS; ++ i)
         {
             if(ENABLE_MIN_POINT_SYSn[i] == true)
@@ -609,7 +609,9 @@ void newloglikfitter_mps_draw_helper
         leg->SetTextSize(15);
         leg->Draw("BR");
 
-
+        //TMarker *testmark = new TMarker(0.2, 0.8, 71);
+        //testmark->SetMarkerColorAlpha(
+        //c_mps->SaveAs("test.pdf");
     }
 }
 

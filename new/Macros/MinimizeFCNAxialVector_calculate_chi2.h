@@ -118,6 +118,8 @@ MinimizeFCNAxialVector::calculate_chi2_P1(double &chi2_P1, int &nch_P1) const
 
     }
 
+    //std::cout << "nch_P1=" << nch_P1 << std::endl;
+
 }
 
 
@@ -235,6 +237,8 @@ MinimizeFCNAxialVector::calculate_chi2_P2(double &chi2_P2, int &nch_P2) const
             //std::cout << "chi2_1D_P2=" << chi2_1D_P2 << std::endl;
         }
     }
+
+    //std::cout << "nch_P2=" << nch_P2 << std::endl;
 
 }
 
