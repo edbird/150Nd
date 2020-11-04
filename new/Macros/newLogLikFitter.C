@@ -320,12 +320,22 @@ void final_mps_draw()
 void final_mps_draw_colz()
 {
     std::cout << "calling draw (colz)" << std::endl;
-
     
     int number_job_id = 0;
     std::string output_name = "noparallel";
     int start_index = 0;
     int stop_index = 301;
+    if(MODE_PARALLEL == 1)
+    {
+        output_name = "mps_resultsmatrix";
+    }
+    else
+    {
+        number_job_id = 0;
+        output_name = "noparallel";
+        start_index = 0;
+        stop_index = 301;
+    }
 
     gROOT->SetStyle("Plain");
     gStyle->SetOptStat(0);
