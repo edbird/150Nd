@@ -1713,6 +1713,10 @@ void loadFiles(int i)
         }
         else
         {
+            // assuming that xi31 and 150Nd amplitude are free
+            // this may break if the parameter_names.lst file is changed
+            gNumberFreeParams = 1;
+
             // create minimizer
             ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
             ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
@@ -1742,13 +1746,15 @@ void loadFiles(int i)
             double fval_before = theFCN.operator()(params_before);
             //int ndf = theFCN.ndf - theParameterStateBefore.VariableParameters();
             int nch = theFCN.nch;
-            int nfp = g_pg.get_number_free_params();
+            //int nfp = g_pg.get_number_free_params();
+            int nfp = gNumberFreeParams;
             int ndf = nch - nfp;
 
             // draw before fit
             draw_input_data drawinputdata;
             drawinputdata.chi2 = fval_before;
             drawinputdata.nch = nch;
+            drawinputdata.nfp = nfp;
             drawinputdata.serial_dir = "HSD";
             drawinputdata.saveas_filename = "HSD_data_before";
             drawinputdata.saveas_png = true;
@@ -1774,12 +1780,14 @@ void loadFiles(int i)
             double fval_after = theFCN.operator()(params_after);
             //ndf = theFCN.ndf - theParameterStateAfter.VariableParameters();
             nch = theFCN.nch;
-            nfp = g_pg.get_number_free_params();
+            //nfp = g_pg.get_number_free_params();
+            nfp = gNumberFreeParams;
             ndf = nch - nfp;
 
             // draw result
             drawinputdata.chi2 = fval_after;
             drawinputdata.nch = nch;
+            drawinputdata.nfp = nfp;
             drawinputdata.saveas_filename = "HSD_data_after";
            
             draw(drawinputdata,
@@ -1895,6 +1903,10 @@ void loadFiles(int i)
         }
         else
         {
+            // assuming that xi31 and 150Nd amplitude are free
+            // this may break if the parameter_names.lst file is changed
+            gNumberFreeParams = 1;
+
             // create minimizer
             ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
             ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
@@ -1924,13 +1936,15 @@ void loadFiles(int i)
             double fval_before = theFCN.operator()(params_before);
             //int ndf = theFCN.ndf - theParameterStateBefore.VariableParameters();
             int nch = theFCN.nch;
-            int nfp = g_pg.get_number_free_params();
+            //int nfp = g_pg.get_number_free_params();
+            int nfp = gNumberFreeParams;
             int ndf = nch - nfp;
 
             // draw before fit
             draw_input_data drawinputdata;
             drawinputdata.chi2 = fval_before;
             drawinputdata.nch = nch;
+            drawinputdata.nfp = nfp;
             drawinputdata.serial_dir = "SSD";
             drawinputdata.saveas_filename = "SSD_data_before";
             drawinputdata.saveas_png = true;
@@ -1956,7 +1970,8 @@ void loadFiles(int i)
             double fval_after = theFCN.operator()(params_after);
             //ndf = theFCN.ndf - theParameterStateAfter.VariableParameters();
             nch = theFCN.nch;
-            nfp = g_pg.get_number_free_params();
+            //nfp = g_pg.get_number_free_params();
+            nfp = gNumberFreeParams;
             ndf = nch - nfp;
 
             // draw result
@@ -4026,6 +4041,7 @@ void loadFiles(int i)
 
 
 
+    //return 0;
 
 
 

@@ -44,6 +44,10 @@ void newLogLikFitter_preMPSfitdriver(
                            + "_selN_" + std::to_string(gSystematics.systematic_dEdX_nominal)
                            + "_sbN_" + std::to_string(gSystematics.systematic_brem_nominal);
 
+    // assuming that xi31 and 150Nd amplitude are free
+    // this may break if the parameter_names.lst file is changed
+    gNumberFreeParams = 2;
+
     // create minimizer
     ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
     ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
@@ -65,10 +69,13 @@ void newLogLikFitter_preMPSfitdriver(
     //int ndf = theFCN.ndf - theParameterStateBefore.VariableParameters();
     //int ndf = theFCN.nch - g_pg.get_number_free_params();
     int nch = theFCN.nch;
-    int nfp = g_pg.get_number_free_params();
+    //int nfp = g_pg.get_number_free_params();
+    int nfp = gNumberFreeParams;
     int ndf = nch - nfp;
-        std::cout << "nch=" << theFCN.nch << std::endl;
-        std::cout << "g_pg.get_number_free_params()=" << g_pg.get_number_free_params() << std::endl;
+
+    std::cout << "nch=" << theFCN.nch << std::endl;
+    std::cout << "gNumberFreeParams=" << gNumberFreeParams << std::endl;
+    //std::cout << "g_pg.get_number_free_params()=" << g_pg.get_number_free_params() << std::endl;
 
 /*
     std::cout << "fval=" << fval_before << std::endl;
@@ -110,7 +117,7 @@ void newLogLikFitter_preMPSfitdriver(
     //ndf = theFCN.ndf - theParameterStateAfter.VariableParameters();
     //ndf = theFCN.ndf - g_pg.get_number_free_params();
     nch = theFCN.nch;
-    nfp = g_pg.get_number_free_params();
+    nfp = gNumberFreeParams;
     ndf = nch - nfp;
 
 /*
