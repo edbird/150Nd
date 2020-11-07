@@ -16,11 +16,19 @@ void newloglikfitter_mps_calculate
     // TODO: this should be part of the scriptX.txt file
     // the script files should contain all data about how the experiment
     // should be run
-    const int n_param_xy = 301; //51;//301; // 1001
+    const int n_param_xy = 21; //51;//301; // 1001
     int n_param_1 = n_param_xy;
     int n_param_2 = n_param_xy;
     //int n_param_max = n_param_1 * n_param_2;
-    const int n_param_max = (stop_index - start_index) * n_param_2;
+    int n_param_max = 0;
+    if(MODE_PARALLEL == 1)
+    {
+        n_param_max = (stop_index - start_index) * n_param_2;
+    }
+    else
+    {
+        n_param_max = n_param_1 * n_param_2;
+    }
     int c_param = 0;
 
 
@@ -57,7 +65,7 @@ void newloglikfitter_mps_calculate
     if(g_mode_fake_data == false)
     {
         param_1_min = -0.1;
-        param_1_max = 2.3;
+        param_1_max = 1.9;
     }
     else if(g_mode_fake_data == true)
     {
@@ -67,6 +75,10 @@ void newloglikfitter_mps_calculate
         //param_1_max = 0.8;
         param_1_min = -0.5;
         param_1_max = 0.7;
+
+        // fit about xi_31=0.7
+        param_1_min = -0.1;
+        param_1_max = 1.9;
     }
 //    }
 
@@ -104,7 +116,7 @@ void newloglikfitter_mps_calculate
     if(g_mode_fake_data == false)
     {
         param_2_min = 0.9;
-        param_2_max = 1.5;
+        param_2_max = 1.4;
     }
     else if(g_mode_fake_data == true)
     {
@@ -114,6 +126,10 @@ void newloglikfitter_mps_calculate
         //param_2_max = 1.40;
         param_2_min = 0.75;
         param_2_max = 1.25;
+
+        // fit about xi31=0.7
+        param_2_min = 0.9;
+        param_2_max = 1.4;
     }
 
     // hack to get HSD
@@ -400,7 +416,52 @@ void newloglikfitter_mps_calculate
                 ROOT::Minuit2::MnUserParameterState theParameterStateAfter = FCN_min.UserParameters();
                 std::vector<double> params_after = theParameterStateAfter.Params(); // TODO this overwrites params
                 std::vector<double> param_errs_after = theParameterStateAfter.Errors();
+
+                // hack - trigger when min point is inside of current bin
+                const double Nd150_A_width = (param_2_max - param_2_min) / (double)(n_param_2);
+                const double xi_31_width = (param_1_max - param_1_min) / (double)(n_param_1);
+                const double Nd150_A_bin_low_edge = Nd150_A_value - 0.5 * Nd150_A_width;
+                const double Nd150_A_bin_high_edge = Nd150_A_value + 0.5 * Nd150_A_width;
+                const double xi_31_bin_low_edge = xi_31_value - 0.5 * xi_31_width;
+                const double xi_31_bin_high_edge = xi_31_value + 0.5 * xi_31_width;
+                double Nd150_A_min_point = 1.3;
+                double xi_31_min_point = 0.5;
+                /*
+                if(g_mode_fake_data == true)
+                {
+                    Nd150_A_min_point = min_point_fake_data[1];
+                    xi_31_min_point = min_point_fake_data[0];
+                }
+                else
+                {
+                    Nd150_A_min_point = min_point[1];
+                    xi_31_min_point = min_point[0];
+                }
+                */
+                if((Nd150_A_bin_low_edge <= Nd150_A_min_point) &&
+                   (Nd150_A_min_point < Nd150_A_bin_high_edge) &&
+                   (xi_31_bin_low_edge <= xi_31_min_point) &&
+                   (xi_31_min_point < xi_31_bin_high_edge))
+                {
+                    std::cout << "n_1=" << n_1 << " n_2=" << n_2 << std::endl;
+                    std::cout << "Nd150_A_min_point=" << Nd150_A_min_point << std::endl;
+                    std::cout << "xi_31_min_point=" << xi_31_min_point << std::endl;
+                    std::cout << "Nd150_A_bin_low_edge=" << Nd150_A_bin_low_edge << std::endl;
+                    std::cout << "Nd150_A_bin_high_edge=" << Nd150_A_bin_high_edge << std::endl;
+                    std::cout << "xi_31_bin_low_edge=" << xi_31_bin_low_edge << std::endl;
+                    std::cout << "xi_31_bin_high_edge=" << xi_31_bin_high_edge << std::endl;
+                    DRAW_V_PHYS_ = true;
+                    draw_V_PHYS_(".");
+                    DRAW_V_PHYS_ = false;
+                }
                 double fval_after = theFCN.operator()(params_after);
+                if((Nd150_A_bin_low_edge <= Nd150_A_min_point) &&
+                   (Nd150_A_min_point < Nd150_A_bin_high_edge) &&
+                   (xi_31_bin_low_edge <= xi_31_min_point) &&
+                   (xi_31_min_point < xi_31_bin_high_edge))
+                {
+                    std::cout << "fval=" << fval_after << std::endl;
+                }
                 
                 // these do not change between before/after
                 nch = theFCN.nch;
@@ -541,8 +602,18 @@ void newloglikfitter_mps_calculate
             //double fraction_complete = (double)n_1 / (double)n_param_1;
             //double fraction_togo = 1.0 - fraction_complete;
             // remaining time = run time / number of runs completed * number of runs remaining
-            int number_of_runs_completed = (n_1 + 1) - start_index;
-            int number_of_runs_remaining = stop_index - (n_1 + 1);
+            int number_of_runs_completed = 0;
+            int number_of_runs_remaining = 0;
+            if(MODE_PARALLEL == 1)
+            {
+                number_of_runs_completed = (n_1 + 1) - start_index;
+                number_of_runs_remaining = stop_index - (n_1 + 1);
+            }
+            else
+            {
+                number_of_runs_completed = (n_1 + 1);
+                number_of_runs_remaining = n_param_1 - (n_1 + 1);
+            }
             double remaining_runtime_sec = total_runtime_sec.count() / (double)number_of_runs_completed * (double)(number_of_runs_remaining);
             double remaining_runtime_hr = remaining_runtime_sec / 3600.0;
             std::cout << "ETA: " << remaining_runtime_hr << " h" << std::endl;
