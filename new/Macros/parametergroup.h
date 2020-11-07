@@ -335,15 +335,23 @@ class parameter_group
 
     void init_maps()
     {
-        std::cout << __func__ << std::endl;
-        print_map(ExtToIntParamNumberMap, "ExtToIntParamNumberMap");
-        print_map(IntToExtParamNumberMap, "IntToExtParamNumberMap");
+        const int debug_level = 1;
+
+        if(debug_level >= 2)
+        {
+            std::cout << __func__ << std::endl;
+            print_map(ExtToIntParamNumberMap, "ExtToIntParamNumberMap");
+            print_map(IntToExtParamNumberMap, "IntToExtParamNumberMap");
+        }
 
         std::map<int, file_parameter>::iterator it{file_params.begin()};
         int minuit_param_number_counter = 0;
         for(; it != file_params.end(); ++ it)
         {
-            std::cout << "minuit_param_number_counter=" << minuit_param_number_counter << std::endl;
+            if(debug_level >= 3)
+            {
+                std::cout << "minuit_param_number_counter=" << minuit_param_number_counter << std::endl;
+            }
 
             if(it->second.paramEnabled)
             {
@@ -413,11 +421,13 @@ class parameter_group
         }
         std::cout << "done initializing maps" << std::endl;
 
-        print_map(ExtToIntParamNumberMap, "ExtToIntParamNumberMap");
-        print_map(IntToExtParamNumberMap, "IntToExtParamNumberMap");
-        print_map(MCNameToExtParamNumberMap, "MCNameToExtParamNumberMap");
-        print_map(ParamNameToExtParamNumberMap, "ParamNameToExtParamNumberMap");
-
+        if(debug_level >= 2)
+        {
+            print_map(ExtToIntParamNumberMap, "ExtToIntParamNumberMap");
+            print_map(IntToExtParamNumberMap, "IntToExtParamNumberMap");
+            print_map(MCNameToExtParamNumberMap, "MCNameToExtParamNumberMap");
+            print_map(ParamNameToExtParamNumberMap, "ParamNameToExtParamNumberMap");
+        }
     }
 
 
