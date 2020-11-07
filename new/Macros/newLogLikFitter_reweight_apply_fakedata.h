@@ -900,8 +900,108 @@ void reweight_apply_fakedata(
             {
                 std::cout << "read tree done" << std::endl;
             }
-
             //std::cout << hSingleEnergy_P2_tmp->GetName() << " -> " << hSingleEnergy_P2_tmp->GetBinContent(10) << std::endl;
+
+            /* 
+            if(REWEIGHT_ADD_RANDOM_VARIANCE_150ND == 1)
+            {
+                if(sampleName.Contains("nd150"))
+                {
+                    std::cout << "ADD VARIANCE TO 150ND MC" << std::endl;
+
+                    TRandom3 rng;
+                    for(Int_t bin_ix = 1; bin_ix <= hTotalE_P1_tmp->GetNbinsX(); ++ bin_ix)
+                    {
+                        Double_t content = hTotalE_P1_tmp->GetBinContent(bin_ix);
+                        if(content != 0.0)
+                        {
+                            Double_t error = std::sqrt(content);
+                            Double_t rgauss = rng.Gaus(0.0, 1.0);
+                            Double_t content_out = content + 5.0 * error * rgauss;
+                            hTotalE_P1_tmp->SetBinContent(bin_ix, content_out);
+                        }
+                    }
+
+                    for(Int_t bin_ix = 1; bin_ix <= hTotalE_P1_tmp->GetNbinsX(); ++ bin_ix)
+                    {
+                        Double_t content = hTotalE_P2_tmp->GetBinContent(bin_ix);
+                        if(content != 0.0)
+                        {
+                            Double_t error = std::sqrt(content);
+                            Double_t rgauss = rng.Gaus(0.0, 1.0);
+                            Double_t content_out = content + 5.0 * error * rgauss;
+                            hTotalE_P2_tmp->SetBinContent(bin_ix, content_out);
+                        }
+                    }
+
+                    for(Int_t bin_ix = 1; bin_ix <= hSingleEnergy_P1_tmp->GetNbinsX(); ++ bin_ix)
+                    {
+                        Double_t content = hSingleEnergy_P1_tmp->GetBinContent(bin_ix);
+                        if(content != 0.0)
+                        {
+                            Double_t error = std::sqrt(content);
+                            Double_t rgauss = rng.Gaus(0.0, 1.0);
+                            Double_t content_out = content + 5.0 * error * rgauss;
+                            hSingleEnergy_P1_tmp->SetBinContent(bin_ix, content_out);
+                        }
+                    }
+
+                    for(Int_t bin_ix = 1; bin_ix <= hSingleEnergy_P1_tmp->GetNbinsX(); ++ bin_ix)
+                    {
+                        Double_t content = hSingleEnergy_P2_tmp->GetBinContent(bin_ix);
+                        if(content != 0.0)
+                        {
+                            Double_t error = std::sqrt(content);
+                            Double_t rgauss = rng.Gaus(0.0, 1.0);
+                            Double_t content_out = content + 5.0 * error * rgauss;
+                            hSingleEnergy_P2_tmp->SetBinContent(bin_ix, content_out);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if(sampleName.Contains("nd150"))
+                {
+                    std::cout << "DO NOT ADD VARIANCE TO 150ND MC" << std::endl;
+                }
+            }
+            */
+
+
+
+            // tests
+            if(sampleName.Contains("nd150"))
+            {
+                const double scale_factor = ND150_FAKEDATA_SCALE_FACTOR;
+
+                // P1
+                if(paramEnabledP1)
+                {
+                    hTotalE_P1_tmp->Scale(scale_factor);
+                    hSingleEnergy_P1_tmp->Scale(scale_factor);
+                    hHighEnergy_P1_tmp->Scale(scale_factor);
+                    hLowEnergy_P1_tmp->Scale(scale_factor);
+                    hHighLowEnergy_P1_tmp->Scale(scale_factor);
+                    hEnergySum_P1_tmp->Scale(scale_factor);
+                    hEnergyDiff_P1_tmp->Scale(scale_factor);
+                }
+                // P2
+                if(paramEnabledP2)
+                {
+                    hTotalE_P2_tmp->Scale(scale_factor);
+                    hSingleEnergy_P2_tmp->Scale(scale_factor);
+                    hHighEnergy_P2_tmp->Scale(scale_factor);
+                    hLowEnergy_P2_tmp->Scale(scale_factor);
+                    hHighLowEnergy_P2_tmp->Scale(scale_factor);
+                    hEnergySum_P2_tmp->Scale(scale_factor);
+                    hEnergyDiff_P2_tmp->Scale(scale_factor);
+                }
+            }
+
+
+
+
 
             // scale
             std::ifstream inFile;
