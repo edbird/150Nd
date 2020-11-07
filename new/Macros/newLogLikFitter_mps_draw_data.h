@@ -94,6 +94,14 @@ class mpsdrawdata
         std::ifstream ifs_min_point(ifs_min_point_fname);
         double d0, d1;
         ifs_min_point >> d0 >> d1 >> min_fval;
+        ifs_min_point.close();
+
+        std::string ifs_min_point_SYSALL_fname =
+            "min_point_SYSALL" + output_name_append_2 + "_";
+        std::ifstream ifs_min_point_SYSALL(ifs_min_point_SYSALL_fname);
+        /*double*/ d0, d1;
+        ifs_min_point_SYSALL >> d0 >> d1 >> min_fval_SYSALL;
+        ifs_min_point_SYSALL.close();
 
         std::string ifs_resultsmatrix_fname =
             output_name + output_name_append + "_" + before_after_flag + "_"
@@ -762,6 +770,7 @@ class mpsdrawdata
     std::vector<TLine *> line_min_point_sysn_h;
 
     double min_fval;
+    double min_fval_SYSALL;
 
 };
 
