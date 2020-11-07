@@ -22,17 +22,50 @@ void rebuild_fake_data_systematics(const double xi_31, const double xi_31_baseli
     std::cout << "Rebuilding fake data with systematics. Parameters:" << std::endl;
     std::cout << "xi_31=" << xi_31 << std::endl;
     std::cout << "xi_31_baseline=" << xi_31_baseline << std::endl;
-    std::cout << "systematic_energy_offset=" << gSystematics.systematic_energy_offset << std::endl;
-    std::cout << "systematic_energy_scale=" << gSystematics.systematic_energy_scale << std::endl;
-    std::cout << "systematic_efficiency=" << gSystematics.systematic_efficiency << std::endl;
-    std::cout << "systematic_enrichment=" << gSystematics.systematic_enrichment << std::endl;
-    std::cout << "systematic_foil_thickness_virtual=" << gSystematics.systematic_foil_thickness_virtual << std::endl;
-    std::cout << "systematic_dEdX_virtual=" << gSystematics.systematic_dEdX_virtual << std::endl;
-    std::cout << "systematic_bremsstrahlung_virtual=" << gSystematics.systematic_brem_virtual << std::endl;
-    std::cout << "systematic_foil_thickness_nominal=" << gSystematics.systematic_foil_thickness_nominal << std::endl;
-    std::cout << "systematic_dEdX_nominal=" << gSystematics.systematic_dEdX_nominal << std::endl;
-    std::cout << "systematic_bremsstrahlung_nominal=" << gSystematics.systematic_brem_nominal << std::endl;
-    std::cout << "systematic_optical_correction=" << gSystematics.systematic_optical_correction << std::endl;
+    if(gSystematics.systematic_energy_offset != 0.0)
+    {
+        std::cout << "systematic_energy_offset=" << gSystematics.systematic_energy_offset << std::endl;
+    }
+    if(gSystematics.systematic_energy_scale != 0.0)
+    {
+        std::cout << "systematic_energy_scale=" << gSystematics.systematic_energy_scale << std::endl;
+    }
+    if(gSystematics.systematic_efficiency != 0.0)
+    {
+        std::cout << "systematic_efficiency=" << gSystematics.systematic_efficiency << std::endl;
+    }
+    if(gSystematics.systematic_enrichment != 0.0)
+    {
+        std::cout << "systematic_enrichment=" << gSystematics.systematic_enrichment << std::endl;
+    }
+    if(gSystematics.systematic_foil_thickness_virtual != 0.0)
+    {
+        std::cout << "systematic_foil_thickness_virtual=" << gSystematics.systematic_foil_thickness_virtual << std::endl;
+    }
+    if(gSystematics.systematic_dEdX_virtual != 0.0)
+    {
+        std::cout << "systematic_dEdX_virtual=" << gSystematics.systematic_dEdX_virtual << std::endl;
+    }
+    if(gSystematics.systematic_brem_virtual != 0.0)
+    {
+        std::cout << "systematic_bremsstrahlung_virtual=" << gSystematics.systematic_brem_virtual << std::endl;
+    }
+    if(gSystematics.systematic_foil_thickness_nominal != 0.0)
+    {
+        std::cout << "systematic_foil_thickness_nominal=" << gSystematics.systematic_foil_thickness_nominal << std::endl;
+    }
+    if(gSystematics.systematic_dEdX_nominal != 0.0)
+    {
+        std::cout << "systematic_dEdX_nominal=" << gSystematics.systematic_dEdX_nominal << std::endl;
+    }
+    if(gSystematics.systematic_brem_nominal != 0.0)
+    {
+        std::cout << "systematic_bremsstrahlung_nominal=" << gSystematics.systematic_brem_nominal << std::endl;
+    }
+    if(gSystematics.systematic_optical_correction != 0.0)
+    {
+        std::cout << "systematic_optical_correction=" << gSystematics.systematic_optical_correction << std::endl;
+    }
 
 
     int debuglevel = 1;
