@@ -41,7 +41,7 @@ void newloglikfitter_mps_draw_helper_colz
 
 
         //TH2D *h_mps = mps_draw_data_sysnone.h_mps;
-        TH2D *h_mps = mps_draw_data_sysall.h_mps;
+        TH2D *h_mps_sysall = mps_draw_data_sysall.h_mps;
         
         /*
         TH2D *h_mps_both = new TH2D("h_mps_both", "h_mps_both",
@@ -100,45 +100,47 @@ void newloglikfitter_mps_draw_helper_colz
         double param_2_max = mps_draw_data_sysnone.param_2_max;
 
         double min_fval = mps_draw_data_sysnone.min_fval;
+        double min_fval_SYSALL = mps_draw_data_sysnone.min_fval_SYSALL;
         std::cout << "min_fval=" << min_fval << std::endl;
+        std::cout << "min_fval_SYSALL=" << min_fval_SYSALL << std::endl;
 
-        h_mps->SetTitle("");
-        h_mps->SetStats(0);
-        h_mps->GetZaxis()->SetLabelOffset(0.005);
-        h_mps->GetXaxis()->SetLabelSize(17.0);
-        h_mps->GetXaxis()->SetLabelFont(43);
-        h_mps->GetYaxis()->SetLabelSize(17.0);
-        h_mps->GetYaxis()->SetLabelFont(43);
-        h_mps->GetZaxis()->SetLabelSize(17.0);
-        h_mps->GetZaxis()->SetLabelFont(43);
-        h_mps->GetXaxis()->SetTitleSize(18.0);
-        h_mps->GetXaxis()->SetTitleFont(43);
-        h_mps->GetYaxis()->SetTitleSize(18.0);
-        h_mps->GetYaxis()->SetTitleFont(43);
-        h_mps->GetYaxis()->SetTitle("^{150}Nd Amplitude Scale Factor                    ");
-        h_mps->GetXaxis()->SetTitle("#xi^{2#nu#beta#beta}_{31}");
-        h_mps->GetXaxis()->SetTitleOffset(1.5);
-        h_mps->GetYaxis()->SetTitleOffset(1.2);
-        h_mps->GetXaxis()->SetLabelOffset(0.01);
-        h_mps->GetYaxis()->SetLabelOffset(0.01);
-        TH2D *h_mps_contour = (TH2D*)h_mps->Clone("h_mps_1_0_clone");
-        h_mps->Draw("colz");
+        h_mps_sysall->SetTitle("");
+        h_mps_sysall->SetStats(0);
+        h_mps_sysall->GetZaxis()->SetLabelOffset(0.005);
+        h_mps_sysall->GetXaxis()->SetLabelSize(17.0);
+        h_mps_sysall->GetXaxis()->SetLabelFont(43);
+        h_mps_sysall->GetYaxis()->SetLabelSize(17.0);
+        h_mps_sysall->GetYaxis()->SetLabelFont(43);
+        h_mps_sysall->GetZaxis()->SetLabelSize(17.0);
+        h_mps_sysall->GetZaxis()->SetLabelFont(43);
+        h_mps_sysall->GetXaxis()->SetTitleSize(18.0);
+        h_mps_sysall->GetXaxis()->SetTitleFont(43);
+        h_mps_sysall->GetYaxis()->SetTitleSize(18.0);
+        h_mps_sysall->GetYaxis()->SetTitleFont(43);
+        h_mps_sysall->GetYaxis()->SetTitle("^{150}Nd Amplitude Scale Factor                    ");
+        h_mps_sysall->GetXaxis()->SetTitle("#xi^{2#nu#beta#beta}_{31}");
+        h_mps_sysall->GetXaxis()->SetTitleOffset(1.5);
+        h_mps_sysall->GetYaxis()->SetTitleOffset(1.2);
+        h_mps_sysall->GetXaxis()->SetLabelOffset(0.01);
+        h_mps_sysall->GetYaxis()->SetLabelOffset(0.01);
+        TH2D *h_mps_sysall_contour = (TH2D*)h_mps_sysall->Clone("h_mps_1_0_clone_sysall");
+        h_mps_sysall->Draw("colz");
         //h_mps->Draw("AXIS");
 
 
         std::cout << "min=" << min << " min_x=" << min_x << " min_y=" << min_y << std::endl;
         //double clevels[3] = {min + 1.0, min + 2.0, min + 3.0};
-        double clevels[3] = {min_fval + 2.30, min_fval + 4.61, min_fval + 9.21};
+        double clevels_SYSALL[3] = {min_fval_SYSALL + 2.30, min_fval_SYSALL + 4.61, min_fval_SYSALL + 9.21};
         //double clevels[3] = {2.30, 4.61, 9.21}; // true minimum is 0.0 for HSD
         //h_mps_contour->SetLineColor(kGreen); //kRed
-        h_mps_contour->SetLineColor(kCyan); //kRed
+        h_mps_sysall_contour->SetLineColor(kCyan); //kRed
         //h_mps_contour->SetLineColor(kGray + 2); //kRed
-        h_mps_contour->SetLineWidth(2);
+        h_mps_sysall_contour->SetLineWidth(2);
 //        h_mps_contour->SetLineStyle(0); // in drawmps.C but not used
-        h_mps_contour->SetContour(3, clevels);
+        h_mps_sysall_contour->SetContour(3, clevels_SYSALL);
 
         c_mps->Update();
-        TPaletteAxis *palette = (TPaletteAxis*)h_mps->GetListOfFunctions()->FindObject("palette");
+        TPaletteAxis *palette = (TPaletteAxis*)h_mps_sysall->GetListOfFunctions()->FindObject("palette");
         //TPaletteAxis *palette = (TPaletteAxis*)h_mps_both->GetListOfFunctions()->FindObject("palette");
         palette->SetX1NDC(0.88 + 0.03);
         palette->SetX2NDC(0.92 + 0.03);
@@ -166,10 +168,10 @@ void newloglikfitter_mps_draw_helper_colz
         lineY->SetLineColorAlpha(kBlack, 1.1);
         lineXc->SetLineColorAlpha(kMagenta, 1.0);
         lineYc->SetLineColorAlpha(kMagenta, 1.0);
-        Int_t min_ix = h_mps->GetXaxis()->FindBin(min_x);
-        Int_t min_iy = h_mps->GetXaxis()->FindBin(min_y);
-        Int_t ix_0 = h_mps->GetXaxis()->FindBin(0.0);
-        Int_t iy_1 = h_mps->GetXaxis()->FindBin(1.0);
+        Int_t min_ix = h_mps_sysall->GetXaxis()->FindBin(min_x);
+        Int_t min_iy = h_mps_sysall->GetXaxis()->FindBin(min_y);
+        Int_t ix_0 = h_mps_sysall->GetXaxis()->FindBin(0.0);
+        Int_t iy_1 = h_mps_sysall->GetXaxis()->FindBin(1.0);
         if(mps_draw_data_sysnone.mode_fake_data_flag == false)
         {
             lineXc->Draw();
@@ -189,16 +191,17 @@ void newloglikfitter_mps_draw_helper_colz
         }
 
         // draw sysnone contour
-        h_mps_contour->Draw("cont3same");
+        h_mps_sysall_contour->Draw("cont3same");
 
         // draw sysnone contour
         TH2D *h_mps_sysnone = mps_draw_data_sysnone.h_mps;
-        TH2D *h_mps_contour_sysnone = (TH2D*)h_mps_sysnone->Clone("h_mps_1_0_clone_sysnone");
-        h_mps_contour_sysnone->SetLineColor(kGreen);
-        //h_mps_contour_sysnone->SetLineColor(kGray);
-        h_mps_contour_sysnone->SetLineWidth(2);
-        h_mps_contour_sysnone->SetContour(3, clevels);
-        h_mps_contour_sysnone->Draw("cont3same");
+        TH2D *h_mps_sysnone_contour = (TH2D*)h_mps_sysnone->Clone("h_mps_1_0_clone_sysnone");
+        h_mps_sysnone_contour->SetLineColor(kGreen);
+        //h_mps_sysnone_contour->SetLineColor(kGray);
+        h_mps_sysnone_contour->SetLineWidth(2);
+        double clevels[3] = {min_fval + 2.30, min_fval + 4.61, min_fval + 9.21};
+        h_mps_sysnone_contour->SetContour(3, clevels);
+        h_mps_sysnone_contour->Draw("cont3same");
 
 
         ///////////////////////////////////////////////////////////////////////
@@ -348,7 +351,7 @@ void newloglikfitter_mps_draw_helper
         //c_mps->cd();
 
 
-        TH2D *h_mps = mps_draw_data_sysnone.h_mps;
+        TH2D *h_mps_sysall = mps_draw_data_sysall.h_mps;
         
         /*
         TH2D *h_mps_both = new TH2D("h_mps_both", "h_mps_both",
@@ -407,45 +410,47 @@ void newloglikfitter_mps_draw_helper
         double param_2_max = mps_draw_data_sysnone.param_2_max;
 
         double min_fval = mps_draw_data_sysnone.min_fval;
+        double min_fval_SYSALL = mps_draw_data_sysnone.min_fval_SYSALL;
         std::cout << "min_fval=" << min_fval << std::endl;
+        std::cout << "min_fval_SYSALL=" << min_fval_SYSALL << std::endl;
 
-        h_mps->SetTitle("");
-        h_mps->SetStats(0);
-        h_mps->GetZaxis()->SetLabelOffset(0.005);
-        h_mps->GetXaxis()->SetLabelSize(17.0);
-        h_mps->GetXaxis()->SetLabelFont(43);
-        h_mps->GetYaxis()->SetLabelSize(17.0);
-        h_mps->GetYaxis()->SetLabelFont(43);
-        h_mps->GetZaxis()->SetLabelSize(17.0);
-        h_mps->GetZaxis()->SetLabelFont(43);
-        h_mps->GetXaxis()->SetTitleSize(18.0);
-        h_mps->GetXaxis()->SetTitleFont(43);
-        h_mps->GetYaxis()->SetTitleSize(18.0);
-        h_mps->GetYaxis()->SetTitleFont(43);
-        h_mps->GetYaxis()->SetTitle("^{150}Nd Amplitude Scale Factor                    ");
-        h_mps->GetXaxis()->SetTitle("#xi^{2#nu#beta#beta}_{31}");
-        h_mps->GetXaxis()->SetTitleOffset(1.5);
-        h_mps->GetYaxis()->SetTitleOffset(1.2);
-        h_mps->GetXaxis()->SetLabelOffset(0.01);
-        h_mps->GetYaxis()->SetLabelOffset(0.01);
-        TH2D *h_mps_contour = (TH2D*)h_mps->Clone("h_mps_1_0_clone");
-        //h_mps->Draw("colz");
-        h_mps->Draw("AXIS");
+        h_mps_sysall->SetTitle("");
+        h_mps_sysall->SetStats(0);
+        h_mps_sysall->GetZaxis()->SetLabelOffset(0.005);
+        h_mps_sysall->GetXaxis()->SetLabelSize(17.0);
+        h_mps_sysall->GetXaxis()->SetLabelFont(43);
+        h_mps_sysall->GetYaxis()->SetLabelSize(17.0);
+        h_mps_sysall->GetYaxis()->SetLabelFont(43);
+        h_mps_sysall->GetZaxis()->SetLabelSize(17.0);
+        h_mps_sysall->GetZaxis()->SetLabelFont(43);
+        h_mps_sysall->GetXaxis()->SetTitleSize(18.0);
+        h_mps_sysall->GetXaxis()->SetTitleFont(43);
+        h_mps_sysall->GetYaxis()->SetTitleSize(18.0);
+        h_mps_sysall->GetYaxis()->SetTitleFont(43);
+        h_mps_sysall->GetYaxis()->SetTitle("^{150}Nd Amplitude Scale Factor                    ");
+        h_mps_sysall->GetXaxis()->SetTitle("#xi^{2#nu#beta#beta}_{31}");
+        h_mps_sysall->GetXaxis()->SetTitleOffset(1.5);
+        h_mps_sysall->GetYaxis()->SetTitleOffset(1.2);
+        h_mps_sysall->GetXaxis()->SetLabelOffset(0.01);
+        h_mps_sysall->GetYaxis()->SetLabelOffset(0.01);
+        TH2D *h_mps_sysall_contour = (TH2D*)h_mps_sysall->Clone("h_mps_1_0_clone_sysall");
+        //h_mps_sysall->Draw("colz");
+        h_mps_sysall->Draw("AXIS");
 
 
         std::cout << "min=" << min << " min_x=" << min_x << " min_y=" << min_y << std::endl;
         //double clevels[3] = {min + 1.0, min + 2.0, min + 3.0};
-        double clevels[3] = {min_fval + 2.30, min_fval + 4.61, min_fval + 9.21};
+        double clevels_sysall[3] = {min_fval_SYSALL + 2.30, min_fval_SYSALL + 4.61, min_fval_SYSALL + 9.21};
         //double clevels[3] = {2.30, 4.61, 9.21}; // true minimum is 0.0 for HSD
         //h_mps_contour->SetLineColor(kGreen); //kRed
         //h_mps_contour->SetLineColor(kCyan); //kRed
-        h_mps_contour->SetLineColor(kGray + 2); //kRed
-        h_mps_contour->SetLineWidth(2);
+        h_mps_sysall_contour->SetLineColor(kGray); //kRed
+        h_mps_sysall_contour->SetLineWidth(2);
 //        h_mps_contour->SetLineStyle(0); // in drawmps.C but not used
-        h_mps_contour->SetContour(3, clevels);
+        h_mps_sysall_contour->SetContour(3, clevels_sysall);
 
         c_mps->Update();
-        TPaletteAxis *palette = (TPaletteAxis*)h_mps->GetListOfFunctions()->FindObject("palette");
+        TPaletteAxis *palette = (TPaletteAxis*)h_mps_sysall->GetListOfFunctions()->FindObject("palette");
         //TPaletteAxis *palette = (TPaletteAxis*)h_mps_both->GetListOfFunctions()->FindObject("palette");
 /*        palette->SetX1NDC(0.88 + 0.03);
         palette->SetX2NDC(0.92 + 0.03);
@@ -470,13 +475,13 @@ void newloglikfitter_mps_draw_helper
         lineSSD->SetLineColorAlpha(kBlack, 1.0);
         lineSSD->SetLineStyle(1);
 
-        lineY->SetLineColorAlpha(kBlack, 1.1);
+        lineY->SetLineColorAlpha(kBlack, 1.0);
         lineXc->SetLineColorAlpha(kMagenta, 1.0);
         lineYc->SetLineColorAlpha(kMagenta, 1.0);
-        Int_t min_ix = h_mps->GetXaxis()->FindBin(min_x);
-        Int_t min_iy = h_mps->GetXaxis()->FindBin(min_y);
-        Int_t ix_0 = h_mps->GetXaxis()->FindBin(0.0);
-        Int_t iy_1 = h_mps->GetXaxis()->FindBin(1.0);
+        Int_t min_ix = h_mps_sysall->GetXaxis()->FindBin(min_x);
+        Int_t min_iy = h_mps_sysall->GetXaxis()->FindBin(min_y);
+        Int_t ix_0 = h_mps_sysall->GetXaxis()->FindBin(0.0);
+        Int_t iy_1 = h_mps_sysall->GetXaxis()->FindBin(1.0);
         if(mps_draw_data_sysnone.mode_fake_data_flag == false)
         {
             lineXc->Draw();
@@ -495,17 +500,18 @@ void newloglikfitter_mps_draw_helper
             lineY->Draw();
         }
 
-        // draw sysnone contour
-        h_mps_contour->Draw("cont3same");
+        // draw sysall contour
+        h_mps_sysall_contour->Draw("cont3same");
 
         // draw sysall contour
-        TH2D *h_mps_sysall = mps_draw_data_sysall.h_mps;
-        TH2D *h_mps_contour_sysall = (TH2D*)h_mps_sysall->Clone("h_mps_1_0_clone_sysall");
-        //h_mps_contour_sysall->SetLineColor(kGreen);
-        h_mps_contour_sysall->SetLineColor(kGray);
-        h_mps_contour_sysall->SetLineWidth(2);
-        h_mps_contour_sysall->SetContour(3, clevels);
-        h_mps_contour_sysall->Draw("cont3same");
+        TH2D *h_mps_sysnone = mps_draw_data_sysnone.h_mps;
+        TH2D *h_mps_sysnone_contour = (TH2D*)h_mps_sysnone->Clone("h_mps_1_0_clone_sysnone");
+        //h_mps_sysnone_contour->SetLineColor(kGreen);
+        h_mps_sysnone_contour->SetLineColor(kGray + 2);
+        h_mps_sysnone_contour->SetLineWidth(2);
+        double clevels[3] = {min_fval + 2.30, min_fval + 4.61, min_fval + 9.21};
+        h_mps_sysnone_contour->SetContour(3, clevels);
+        h_mps_sysnone_contour->Draw("cont3same");
 
 
         ///////////////////////////////////////////////////////////////////////
