@@ -337,58 +337,6 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
             }
 
 
-        #if 0
-            #if MEASURE_FUNCTION_CALL_TIME 
-            std::chrono::system_clock::time_point start_time_A = std::chrono::high_resolution_clock::now();
-            #endif 
-            check_alloc_V_PHYS_SYS1_data();
-            set_V_PHYS_SYS1_data();
-            #if MEASURE_FUNCTION_CALL_TIME 
-            std::chrono::system_clock::time_point end_time_A = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<double> runtime_microsec_A = end_time_A - start_time_A;
-            std::cout << "Done init V_PHYS_SYS1, time=" << 1.0e+06 * runtime_microsec_A.count() << " microsecond" << std::endl;
-            #endif 
-
-            #if MEASURE_FUNCTION_CALL_TIME 
-            std::chrono::system_clock::time_point start_time_B = std::chrono::high_resolution_clock::now();
-            #endif 
-            check_alloc_V_PHYS_SYS2_data();
-            set_V_PHYS_SYS2_data();
-            #if MEASURE_FUNCTION_CALL_TIME 
-            std::chrono::system_clock::time_point end_time_B = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<double> runtime_microsec_B = end_time_B - start_time_B;
-            std::cout << "Done init V_PHYS_SYS2, time=" << 1.0e+06 * runtime_microsec_B.count() << " microsecond" << std::endl;
-            #endif 
-            
-            #if MEASURE_FUNCTION_CALL_TIME 
-            std::chrono::system_clock::time_point start_time_C = std::chrono::high_resolution_clock::now();
-            #endif 
-            check_alloc_V_PHYS_SYS3_data();
-            set_V_PHYS_SYS3_data();
-            #if MEASURE_FUNCTION_CALL_TIME 
-            std::chrono::system_clock::time_point end_time_C = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<double> runtime_microsec_C = end_time_C - start_time_C;
-            std::cout << "Done init V_PHYS_SYS3, time=" << 1.0e+06 * runtime_microsec_C.count() << " microsecond" << std::endl;
-            #endif 
-            
-            #if MEASURE_FUNCTION_CALL_TIME 
-            std::chrono::system_clock::time_point start_time_D = std::chrono::high_resolution_clock::now();
-            #endif 
-            check_alloc_V_PHYS_SYS4_data();
-            set_V_PHYS_SYS4_data();
-            #if MEASURE_FUNCTION_CALL_TIME 
-            std::chrono::system_clock::time_point end_time_D = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<double> runtime_microsec_D = end_time_D - start_time_D;
-            std::cout << "Done init V_PHYS_SYS4, time=" << 1.0e+06 * runtime_microsec_D.count() << " microsecond" << std::endl;
-            #endif
-        #endif
-
-            
-            /*check_alloc_V_PHYS_SYSx_data_helper(V_PHYS_SYS1_1D_P1_data, V_PHYS_SYS1_1D_P2_data);
-            check_alloc_V_PHYS_SYSx_data_helper(V_PHYS_SYS2_1D_P1_data, V_PHYS_SYS2_1D_P2_data);
-            check_alloc_V_PHYS_SYSx_data_helper(V_PHYS_SYS3_1D_P1_data, V_PHYS_SYS3_1D_P2_data);
-            check_alloc_V_PHYS_SYSx_data_helper(V_PHYS_SYS4_1D_P1_data, V_PHYS_SYS4_1D_P2_data);
-            check_alloc_V_PHYS_SYSx_data_helper(V_PHYS_SYS5_1D_P1_data, V_PHYS_SYS5_1D_P2_data);*/
             for(int i = 0; i < N_SYSTEMATICS; ++ i)
             {
                 // SYSn
@@ -401,46 +349,10 @@ class MinimizeFCNAxialVector : public ROOT::Minuit2::FCNBase
                                             systematic_n_V_MATRIX_coeff_1D_P2[i]);
             }
            
-            /*
-            // SYS1
-            set_V_PHYS_SYSx_data_helper(V_PHYS_SYS1_1D_P1_data,
-                                        V_PHYS_SYS1_1D_P2_data,
-                                        systematic_offset_V_MATRIX_coeff_1D_P1,
-                                        systematic_offset_V_MATRIX_coeff_1D_P2);
-
-            // SYS2
-            set_V_PHYS_SYSx_data_helper(V_PHYS_SYS2_1D_P1_data,
-                                        V_PHYS_SYS2_1D_P2_data,
-                                        systematic_scale_V_MATRIX_coeff_1D_P1,
-                                        systematic_scale_V_MATRIX_coeff_1D_P2);
-
-            // SYS3
-            set_V_PHYS_SYSx_data_helper(V_PHYS_SYS3_1D_P1_data,
-                                        V_PHYS_SYS3_1D_P2_data,
-                                        systematic_efficiency_V_MATRIX_coeff_1D_P1,
-                                        systematic_efficiency_V_MATRIX_coeff_1D_P2);
-
-            // SYS4
-            set_V_PHYS_SYSx_data_helper(V_PHYS_SYS4_1D_P1_data,
-                                        V_PHYS_SYS4_1D_P2_data,
-                                        systematic_enrichment_V_MATRIX_coeff_1D_P1,
-                                        systematic_enrichment_V_MATRIX_coeff_1D_P2);
-
-            // SYS5
-            set_V_PHYS_SYSx_data_helper(V_PHYS_SYS5_1D_P1_data,
-                                        V_PHYS_SYS5_1D_P2_data,
-                                        systematic_offsetsmall_V_MATRIX_coeff_1D_P1,
-                                        systematic_offsetsmall_V_MATRIX_coeff_1D_P2);
-            */
-
 
             check_alloc_V_PHYS_SYSALL_data();
             set_V_PHYS_SYSALL_data();
-    
-
-
             // TODO: move if statements from set functions to here
-
 
 
             #if MEASURE_FUNCTION_CALL_TIME 
