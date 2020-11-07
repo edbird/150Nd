@@ -3,7 +3,7 @@
 #evalcmd="eval $(~/snemo-sdk/bin/brew shellenv)"
 command="root"
 arguments="-b ../newLogLikFitter.C"
-numcores=12
+numcores=10
 i=1 # parallel jobs start from 1
 #eval $(~/snemo-sdk/bin/brew shellenv)
 while [[ $i -le $numcores ]]

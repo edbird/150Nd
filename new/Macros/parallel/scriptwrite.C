@@ -7,20 +7,20 @@
 void scriptwrite()
 {
 
-    const int NUM_CORES = 12;
-    const int RES = 301;
+    const int NUM_CORES = 10;
+    const int RES = 21;
 
     int start[NUM_CORES] = 
     {
         0,  0,  0,  0,
         0,  0,  0,  0,
-        0,  0,  0,  0
+        0,  0//,  0,  0
     };
     int stop[NUM_CORES] = 
     {
         0,  0,  0,  0,
         0,  0,  0,  0,
-        0,  0,  0,  0
+        0,  0//,  0,  0
     };
 
     for(int i = 0; i < NUM_CORES; ++ i)
