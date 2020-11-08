@@ -1670,6 +1670,198 @@ void loadFiles(int i)
     }
 #endif
 
+
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // HSD fixed xi_31 = HSD fit
+    // CHANNEL 0 VERSION
+    ///////////////////////////////////////////////////////////////////////////
+
+    if(1)// || (MODE_PARALLEL == 0))
+    {
+        channel_enable_1D[0] = 1;
+        channel_enable_1D[1] = 0;
+
+        V_ENABLE_SYS_stack_push();
+        V_ENABLE_SYSALL = false;
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            V_ENABLE_SYSn[i] = false;
+        }
+
+        bool restore_g_mode_fake_data = g_mode_fake_data;
+        g_mode_fake_data = false;
+
+        std::string min_point_fname = "min_point_";
+        std::string min_point_fname_append;
+        if(g_mode_fake_data == true)
+        {
+            min_point_fname_append += "fake_";
+        }
+        else if(g_mode_fake_data == false)
+        {
+            min_point_fname_append += "data_";
+        }
+        min_point_fname += min_point_fname_append + "_CH0";
+        std::ifstream ifs_min_point(min_point_fname);
+
+        if(ifs_min_point.is_open())
+        {
+            std::cout << "loading min point from file " << min_point_fname << std::endl;
+            ifs_min_point >> min_point_CH0[0] >> min_point_CH0[1];
+            ifs_min_point >> min_point_CH0_fval;
+            ifs_min_point.close();
+        }
+        else
+        {
+            // assuming that xi31 and 150Nd amplitude are free
+            // this may break if the parameter_names.lst file is changed
+            gNumberFreeParams = 1;
+
+            // create minimizer
+            ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
+            ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
+            MinimizeFCNAxialVector theFCN;
+
+            // initialize fit
+            //fitBackgrounds_init(theParameterState, theMinimizer, AdjustActs, AdjustActs_Err);
+            const int xi_31_param_number = g_pg.get_xi_31_ext_param_number();
+            const double xi_31_value = g_pg.file_params.at(xi_31_param_number).paramInitValue;
+            const double xi_31_error = g_pg.file_params.at(xi_31_param_number).paramInitError;
+            std::cout << "xi_31_param_number=" << xi_31_param_number
+                      << " xi_31=" << xi_31_value << " +- " << xi_31_error << std::endl;
+            fitBackgrounds_init(theParameterStateBefore, theMinimizer, xi_31_value, xi_31_error);
+
+            // fix xi_31 parameter
+            TString i_str;
+            i_str.Form("%i", 1);
+            TString minuit_param_number_str;
+            minuit_param_number_str.Form("%i", 1);
+            TString minuit_param_name = "_" + i_str + "_" + minuit_param_number_str + "_";
+            theParameterStateBefore.Fix(std::string(minuit_param_name));
+            theParameterStateBefore.SetValue(std::string(minuit_param_name), 0.0); // HSD
+
+            // get parameters and chi2 value before fit
+            std::vector<double> params_before = theParameterStateBefore.Params();
+            std::vector<double> param_errs_before = theParameterStateBefore.Errors();
+            double fval_before = theFCN.operator()(params_before);
+            //int ndf = theFCN.ndf - theParameterStateBefore.VariableParameters();
+            int nch = theFCN.nch;
+            //int nfp = g_pg.get_number_free_params();
+            int nfp = gNumberFreeParams;
+            int ndf = nch - nfp;
+
+            // draw before fit
+            draw_input_data drawinputdata;
+            drawinputdata.chi2 = fval_before;
+            drawinputdata.nch = nch;
+            drawinputdata.nfp = nfp;
+            drawinputdata.serial_dir = "HSD_CH0";
+            drawinputdata.saveas_filename = "HSD_CH0_data_before";
+            drawinputdata.saveas_png = true;
+           
+            draw(drawinputdata,
+                 params_before,
+                 param_errs_before);
+            
+            // exec fit
+            // this will fit backgrounds and the 150Nd amplitude parameter
+            // but xi_31 is fixed
+            ROOT::Minuit2::FunctionMinimum FCN_min =
+                fitBackgrounds_exec(
+                    theParameterStateBefore,
+                    theMinimizer,
+                    theFCN);
+
+            // get result
+            ROOT::Minuit2::MnUserParameterState theParameterStateAfter = FCN_min.UserParameters();
+            std::vector<double> params_after = theParameterStateAfter.Params();
+            std::vector<double> param_errs_after = theParameterStateAfter.Errors();
+
+            double fval_after = theFCN.operator()(params_after);
+            //ndf = theFCN.ndf - theParameterStateAfter.VariableParameters();
+            nch = theFCN.nch;
+            //nfp = g_pg.get_number_free_params();
+            nfp = gNumberFreeParams;
+            ndf = nch - nfp;
+
+            // draw result
+            drawinputdata.chi2 = fval_after;
+            drawinputdata.nch = nch;
+            drawinputdata.nfp = nfp;
+            drawinputdata.saveas_filename = "HSD_CH0_data_after";
+           
+            draw(drawinputdata,
+                 params_after,
+                 param_errs_after);
+
+            theParameterStateBefore.Release(std::string(minuit_param_name));
+            /*
+            newLogLikFitter_preMPSfitdriver(
+                std::string("All Parameter Fit: NEMO3 Data"),
+                "xifree_",
+                "_data",
+                "xifree",
+                min_point,
+                min_point_fval);
+                */
+
+            min_point_CH0[0] = params_after.at(1);
+            min_point_CH0[1] = params_after.at(0);
+            min_point_CH0_fval = fval_after;
+
+            std::cout << "min_point_CH0: " << min_point_CH0[0] << " " << min_point_CH0[1] << std::endl;
+
+            std::ofstream ofs_min_point(min_point_fname);
+            ofs_min_point << min_point_CH0[0] << " " << min_point_CH0[1] << std::endl;
+            ofs_min_point << min_point_CH0_fval << std::endl;
+            ofs_min_point.close();
+
+            std::cout << "HSD Fit: NEMO3 Data (CH0)" << std::endl;
+            /*std::cout << "SYSTEMATICS: CONSTANT OFFSET DISABLED: " << gSystematics.systematic_energy_offset << " MeV" << std::endl;
+            std::cout << "SYSTEMATICS: CONSTANT SCALE DISABLED: " << gSystematics.systematic_energy_scale << " MeV" << std::endl;
+            std::cout << "SYSTEMATICS: EFFICIENCY DISABLED: " << gSystematics.systematic_efficiency << "" << std::endl;
+            std::cout << "SYSTEMATICS: ENRICHMENT DISABLED: " << gSystematics.systematic_enrichment << "" << std::endl;
+            std::cout << "SYSTEMATICS: CONSTANT OFFSETSMALL DISABLED: " << gSystematics.systematic_energy_offsetsmall << " MeV" << std::endl;*/
+            std::cout << "SYSTEMATICS: CONSTANT OFFSET: " << gSystematics.systematic_energy_offset << " MeV" << std::endl;
+            std::cout << "SYSTEMATICS: CONSTANT SCALE: " << gSystematics.systematic_energy_scale << " MeV" << std::endl;
+            std::cout << "SYSTEMATICS: EFFICIENCY: " << gSystematics.systematic_efficiency << "" << std::endl;
+            std::cout << "SYSTEMATICS: ENRICHMENT: " << gSystematics.systematic_enrichment << "" << std::endl;
+            std::cout << "SYSTEMATICS: OFFSETSMALL: " << gSystematics.systematic_energy_offsetsmall << " MeV" << std::endl;
+            std::cout << "SYSTEMATICS: FOIL THICKNESS (V): " << gSystematics.systematic_foil_thickness_virtual << " " << std::endl;
+            std::cout << "SYSTEMATICS: ENERGY LOSS (V): " << gSystematics.systematic_dEdX_virtual << " " << std::endl;
+            std::cout << "SYSTEMATICS: BREMSSTRAHLUNG (V): " << gSystematics.systematic_brem_virtual << " " << std::endl;
+            std::cout << "SYSTEMATICS: FOIL THICKNESS (N): " << gSystematics.systematic_foil_thickness_nominal << " " << std::endl;
+            std::cout << "SYSTEMATICS: ENERGY LOSS (N): " << gSystematics.systematic_dEdX_nominal << " " << std::endl;
+            std::cout << "SYSTEMATICS: BREMSSTRAHLUNG (N): " << gSystematics.systematic_brem_nominal << " " << std::endl;
+            //std::cout << "Result: " << std::endl;
+            //std::cout << "fval_before=" << fval_before << std::endl;
+            //std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
+            std::cout << "Result: " << std::endl;
+            std::cout << "fval_before=" << fval_before << std::endl;
+            std::cout << "fval_after=" << fval_after
+                      << " for params_after[0]=" << params_after[0]
+                      << " +- " << param_errs_after[0]
+                      << " params_after[1]=" << params_after[1]
+                      << " +- " << param_errs_after[1]
+                      << std::endl;
+            std::cout << std::endl;
+        }
+
+        V_ENABLE_SYS_stack_pop();
+        g_mode_fake_data = restore_g_mode_fake_data;
+
+        channel_enable_1D[0] = 0;
+        channel_enable_1D[1] = 1;
+    }
+
+
+
+
+
+
+
     ///////////////////////////////////////////////////////////////////////////
     // HSD fixed xi_31 = HSD fit
     ///////////////////////////////////////////////////////////////////////////
@@ -1708,8 +1900,8 @@ void loadFiles(int i)
         if(ifs_min_point.is_open())
         {
             std::cout << "loading min point from file " << min_point_fname << std::endl;
-            ifs_min_point >> min_point[0] >> min_point[1];
-            ifs_min_point >> min_point_fval;
+            ifs_min_point >> min_point_HSD[0] >> min_point_HSD[1];
+            ifs_min_point >> min_point_HSD_fval;
             ifs_min_point.close();
         }
         else
@@ -1805,11 +1997,16 @@ void loadFiles(int i)
                 min_point,
                 min_point_fval);
                 */
-            std::cout << "min_point: " << min_point[0] << " " << min_point[1] << std::endl;
+            
+            min_point_HSD[0] = params_after.at(1);
+            min_point_HSD[1] = params_after.at(0);
+            min_point_HSD_fval = fval_after;
+
+            std::cout << "min_point_HSD: " << min_point_HSD[0] << " " << min_point_HSD[1] << std::endl;
 
             std::ofstream ofs_min_point(min_point_fname);
-            ofs_min_point << min_point[0] << " " << min_point[1] << std::endl;
-            ofs_min_point << min_point_fval << std::endl;
+            ofs_min_point << min_point_HSD[0] << " " << min_point_HSD[1] << std::endl;
+            ofs_min_point << min_point_HSD_fval << std::endl;
             ofs_min_point.close();
 
             std::cout << "HSD Fit: NEMO3 Data" << std::endl;
@@ -1898,8 +2095,8 @@ void loadFiles(int i)
         if(ifs_min_point.is_open())
         {
             std::cout << "loading min point from file " << min_point_fname << std::endl;
-            ifs_min_point >> min_point[0] >> min_point[1];
-            ifs_min_point >> min_point_fval;
+            ifs_min_point >> min_point_SSD[0] >> min_point_SSD[1];
+            ifs_min_point >> min_point_SSD_fval;
             ifs_min_point.close();
         }
         else
@@ -1994,11 +2191,16 @@ void loadFiles(int i)
                 min_point,
                 min_point_fval);
                 */
-            std::cout << "min_point: " << min_point[0] << " " << min_point[1] << std::endl;
+
+            min_point_SSD[0] = params_after.at(1);
+            min_point_SSD[1] = params_after.at(0);
+            min_point_SSD_fval = fval_after;
+
+            std::cout << "min_point_SSD: " << min_point_SSD[0] << " " << min_point_SSD[1] << std::endl;
 
             std::ofstream ofs_min_point(min_point_fname);
-            ofs_min_point << min_point[0] << " " << min_point[1] << std::endl;
-            ofs_min_point << min_point_fval << std::endl;
+            ofs_min_point << min_point_SSD[0] << " " << min_point_SSD[1] << std::endl;
+            ofs_min_point << min_point_SSD_fval << std::endl;
             ofs_min_point.close();
 
             std::cout << "SSD Fit: NEMO3 Data" << std::endl;
@@ -2575,8 +2777,8 @@ void loadFiles(int i)
         if(ifs_min_point.is_open())
         {
             std::cout << "loading min point from file " << min_point_fname << std::endl;
-            ifs_min_point >> min_point_fake_data[0] >> min_point_fake_data[1];
-            ifs_min_point >> min_point_fake_data_fval;
+            ifs_min_point >> min_point_fake_data_SYSALL[0] >> min_point_fake_data_SYSALL[1];
+            ifs_min_point >> min_point_fake_data_SYSALL_fval;
             ifs_min_point.close();
         }
         else
@@ -4262,7 +4464,7 @@ void loadFiles(int i)
 
 
 
-    //return 0;
+    return 0;
 
 
 

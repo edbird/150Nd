@@ -42,7 +42,7 @@
 #include "../include/InputNameDef.h"
 #include "../include/InputColorDef.h"
 
-const Int_t MODE_PARALLEL = 1;
+const Int_t MODE_PARALLEL = 0;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -595,6 +595,13 @@ double min_point_SYSALL[2] = {0.0, 0.0}; // minimum point found, all parameter f
 double min_point_SYSALL_fval = 0.0;
 double min_point_fake_data_SYSALL[2] = {0.0, 0.0};
 double min_point_fake_data_SYSALL_fval = 0.0;
+
+double min_point_CH0[2] = {0.0, 0.0}; // minimum point found, all parameter fit, CHANNEL=0
+double min_point_CH0_fval = 0.0;
+double min_point_HSD[2] = {0.0, 0.0}; // minimum point found, all parameter fit, CHANNEL=0
+double min_point_HSD_fval = 0.0;
+double min_point_SSD[2] = {0.0, 0.0}; // minimum point found, all parameter fit, CHANNEL=0
+double min_point_SSD_fval = 0.0;
 
 // +- 0.1 MeV
 // +- 1.2 % scale
