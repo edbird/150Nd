@@ -115,8 +115,8 @@ void newloglikfitter_mps_calculate
     // with systematics
     if(g_mode_fake_data == false)
     {
-        param_2_min = 0.9;
-        param_2_max = 1.4;
+        param_2_min = 0.95;
+        param_2_max = 1.45;
     }
     else if(g_mode_fake_data == true)
     {
