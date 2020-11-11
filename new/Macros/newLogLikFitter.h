@@ -42,7 +42,7 @@
 #include "../include/InputNameDef.h"
 #include "../include/InputColorDef.h"
 
-const Int_t MODE_PARALLEL = 0;
+const Int_t MODE_PARALLEL = 1;
 
 
 ///////////////////////////////////////////////////////////////////////////////

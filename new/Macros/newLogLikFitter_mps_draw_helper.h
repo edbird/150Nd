@@ -94,6 +94,8 @@ void newloglikfitter_mps_draw_helper_colz
         double min_y = mps_draw_data_sysnone.min_y;
         double min_point[2] = {mps_draw_data_sysnone.min_point[0],
                                mps_draw_data_sysnone.min_point[1]};
+        double min_point_fake_data[2] = {mps_draw_data_sysnone.min_point_fake_data[0],
+                               mps_draw_data_sysnone.min_point_fake_data[1]};
         double param_1_min = mps_draw_data_sysnone.param_1_min;
         double param_1_max = mps_draw_data_sysnone.param_1_max;
         double param_2_min = mps_draw_data_sysnone.param_2_min;
@@ -156,8 +158,8 @@ void newloglikfitter_mps_draw_helper_colz
         TLine *lineY = new TLine(param_1_min, 1.0, param_1_max, 1.0);
         //TLine *lineXc = new TLine(param_1_min, min_y, param_1_max, min_y);
         //TLine *lineYc = new TLine(min_x, param_2_min, min_x, param_2_max);
-        TLine *lineXc = new TLine(param_1_min, min_point[1], param_1_max, min_point[1]);
-        TLine *lineYc = new TLine(min_point[0], param_2_min, min_point[0], param_2_max);
+        TLine *lineXc = nullptr; //new TLine(param_1_min, min_point[1], param_1_max, min_point[1]);
+        TLine *lineYc = nullptr; //new TLine(min_point[0], param_2_min, min_point[0], param_2_max);
         //lineHSD->SetLineColor(kWhite);
         //lineSSD->SetLineColor(kWhite);
         //lineY->SetLineColor(kWhite);
@@ -166,17 +168,12 @@ void newloglikfitter_mps_draw_helper_colz
         lineSSD->SetLineStyle(1);
 
         lineY->SetLineColorAlpha(kBlack, 1.1);
-        lineXc->SetLineColorAlpha(kMagenta, 1.0);
-        lineYc->SetLineColorAlpha(kMagenta, 1.0);
+        //lineXc->SetLineColorAlpha(kMagenta, 1.0);
+        //lineYc->SetLineColorAlpha(kMagenta, 1.0);
         Int_t min_ix = h_mps_sysall->GetXaxis()->FindBin(min_x);
         Int_t min_iy = h_mps_sysall->GetXaxis()->FindBin(min_y);
         Int_t ix_0 = h_mps_sysall->GetXaxis()->FindBin(0.0);
         Int_t iy_1 = h_mps_sysall->GetXaxis()->FindBin(1.0);
-        if(mps_draw_data_sysnone.mode_fake_data_flag == false)
-        {
-            lineXc->Draw();
-            lineYc->Draw();
-        }
         if(std::abs(0.0 - min_point[0]) > 1.0e-2)
         {
             lineHSD->Draw();
@@ -188,6 +185,30 @@ void newloglikfitter_mps_draw_helper_colz
         if(std::abs(1.0 - min_point[1]) > 1.0e-2)
         {
             lineY->Draw();
+        }
+        if(mps_draw_data_sysnone.mode_fake_data_flag == false)
+        {
+            lineXc = new TLine(param_1_min, min_point[1], param_1_max, min_point[1]);
+            lineYc = new TLine(min_point[0], param_2_min, min_point[0], param_2_max);
+            lineXc->SetLineColorAlpha(kMagenta, 1.0);
+            lineYc->SetLineColorAlpha(kMagenta, 1.0);
+            lineXc->SetLineWidth(2.0);
+            lineYc->SetLineWidth(2.0);
+
+            lineXc->Draw();
+            lineYc->Draw();
+        }
+        else
+        {
+            lineXc = new TLine(param_1_min, min_point_fake_data[1], param_1_max, min_point_fake_data[1]);
+            lineYc = new TLine(min_point_fake_data[0], param_2_min, min_point_fake_data[0], param_2_max);
+            lineXc->SetLineColorAlpha(kBlue, 1.0);
+            lineYc->SetLineColorAlpha(kBlue, 1.0);
+            lineXc->SetLineWidth(2.0);
+            lineYc->SetLineWidth(2.0);
+
+            lineXc->Draw();
+            lineYc->Draw();
         }
 
         // draw sysnone contour
@@ -303,7 +324,8 @@ void newloglikfitter_mps_draw_helper_colz
         leg->SetShadowColor(kGray + 2);
         leg->SetTextFont(63);
         leg->SetTextSize(15);
-        leg->Draw("BR");
+        //leg->Draw("BR");
+        // do not draw legend for COLZ
 
 
     }
@@ -404,6 +426,8 @@ void newloglikfitter_mps_draw_helper
         double min_y = mps_draw_data_sysnone.min_y;
         double min_point[2] = {mps_draw_data_sysnone.min_point[0],
                                mps_draw_data_sysnone.min_point[1]};
+        double min_point_fake_data[2] = {mps_draw_data_sysnone.min_point_fake_data[0],
+                               mps_draw_data_sysnone.min_point_fake_data[1]};
         double param_1_min = mps_draw_data_sysnone.param_1_min;
         double param_1_max = mps_draw_data_sysnone.param_1_max;
         double param_2_min = mps_draw_data_sysnone.param_2_min;
@@ -466,8 +490,8 @@ void newloglikfitter_mps_draw_helper
         TLine *lineY = new TLine(param_1_min, 1.0, param_1_max, 1.0);
         //TLine *lineXc = new TLine(param_1_min, min_y, param_1_max, min_y);
         //TLine *lineYc = new TLine(min_x, param_2_min, min_x, param_2_max);
-        TLine *lineXc = new TLine(param_1_min, min_point[1], param_1_max, min_point[1]);
-        TLine *lineYc = new TLine(min_point[0], param_2_min, min_point[0], param_2_max);
+        TLine *lineXc = nullptr;
+        TLine *lineYc = nullptr;
         //lineHSD->SetLineColor(kWhite);
         //lineSSD->SetLineColor(kWhite);
         //lineY->SetLineColor(kWhite);
@@ -476,17 +500,10 @@ void newloglikfitter_mps_draw_helper
         lineSSD->SetLineStyle(1);
 
         lineY->SetLineColorAlpha(kBlack, 1.0);
-        lineXc->SetLineColorAlpha(kMagenta, 1.0);
-        lineYc->SetLineColorAlpha(kMagenta, 1.0);
         Int_t min_ix = h_mps_sysall->GetXaxis()->FindBin(min_x);
         Int_t min_iy = h_mps_sysall->GetXaxis()->FindBin(min_y);
         Int_t ix_0 = h_mps_sysall->GetXaxis()->FindBin(0.0);
         Int_t iy_1 = h_mps_sysall->GetXaxis()->FindBin(1.0);
-        if(mps_draw_data_sysnone.mode_fake_data_flag == false)
-        {
-            lineXc->Draw();
-            lineYc->Draw();
-        }
         if(std::abs(0.0 - min_point[0]) > 1.0e-2)
         {
             lineHSD->Draw();
@@ -498,6 +515,30 @@ void newloglikfitter_mps_draw_helper
         if(std::abs(1.0 - min_point[1]) > 1.0e-2)
         {
             lineY->Draw();
+        }
+        if(mps_draw_data_sysnone.mode_fake_data_flag == false)
+        {
+            lineXc = new TLine(param_1_min, min_point[1], param_1_max, min_point[1]);
+            lineYc = new TLine(min_point[0], param_2_min, min_point[0], param_2_max);
+            lineXc->SetLineColorAlpha(kMagenta, 1.0);
+            lineYc->SetLineColorAlpha(kMagenta, 1.0);
+            lineXc->SetLineWidth(2.0);
+            lineYc->SetLineWidth(2.0);
+
+            lineXc->Draw();
+            lineYc->Draw();
+        }
+        else
+        {
+            lineXc = new TLine(param_1_min, min_point_fake_data[1], param_1_max, min_point_fake_data[1]);
+            lineYc = new TLine(min_point_fake_data[0], param_2_min, min_point_fake_data[0], param_2_max);
+            lineXc->SetLineColorAlpha(kBlue, 1.0);
+            lineYc->SetLineColorAlpha(kBlue, 1.0);
+            lineXc->SetLineWidth(2.0);
+            lineYc->SetLineWidth(2.0);
+
+            lineXc->Draw();
+            lineYc->Draw();
         }
 
         // draw sysall contour
