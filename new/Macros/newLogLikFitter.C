@@ -656,21 +656,7 @@ void loadFiles(int i)
     const Double_t G2_ps_integral_MeV = 0.429791E-45; //0.420438E-45;
     const Double_t G2_ps_integral_yrinv = 0.206061E-16; //0.201577E-16;
 
-    // TODO: what is the value for the basline for Nd150? is this for 100Mo
-    //const Double_t xi_31_baseline{0.296}; // TODO: this is WRONG change it
-//    const Double_t xi_31_baseline{0.0}; // TODO: this is WRONG change it
     xi_31_baseline = 0.0;
-    // TODO: multiple instances, move to header file
-    // TODO: also change in parameter list file
-    //Double_t xi_31_init = 0.8;
-    //Double_t xi_31_init = 0.0; //1.13; //0.296; // change to baseline value for testing purposes
-    // TODO: remove xi_31_init variable and replace with paramInitValuePXMap[1]
-    // and then change index 1 for a sensible way of looking up the index
-//    Double_t xi_31_init = 2.63e-01; //1.13; //0.296; // change to baseline value for testing purposes
-//    last_xi_31_parameter_value = 0.0;
-
-
-
 
     ///*const Double_t*/ bb_Q = 3.368;
     double count = 0;
@@ -802,7 +788,7 @@ void loadFiles(int i)
     //rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline); // want to check if the fitter can fit itself to itsel
 
 
-    const double xi_31_systematics_reweight_value = 0.0; //xi_31_SSD;
+    const double xi_31_systematics_reweight_value = 0.7; //xi_31_SSD;
     //const double xi_31_covariance_matrix_reweight_value = xi_31_SSD;
     //const double xi_31_covariance_matrix_reweight_value = 0.0;
     const double xi_31_covariance_matrix_reweight_value = 0.7;
@@ -1187,7 +1173,8 @@ void loadFiles(int i)
 
     // reset systematics
     gSystematics.reset();
-    rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline);
+    //rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline);
+    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -1330,45 +1317,6 @@ void loadFiles(int i)
     book2DHistograms(1, "2e_", "P2", "hHighLowEnergy_");
     map_2d_channel_to_phase[1] = 1;
 #endif
-    // Array to hold activity adjustment parameters
-    //Double_t AdjustActs[numberParams];
-    //Double_t AdjustActs_Err[numberParams];
-    //for(Int_t ix{0}; ix < numberParams; ++ ix)
-    /*
-    Double_t AdjustActs[numberEnabledParams];
-    Double_t AdjustActs_Err[numberEnabledParams];
-    for(Int_t ix{0}; ix < numberEnabledParams; ++ ix)
-    {
-        AdjustActs[ix] = 1.0;
-        AdjustActs_Err[ix] = 0.5; // TODO: set using parameter_names.list
-    }
-    */
-    // TODO: fix this
-    //xi_31_init_value = 0.0;
-    //xi_31_init_error = 0.0;
-    //get_paramInitValueError(thePhase, 1, xi_31_init_value, xi_31_init_error);
-    //AdjustActs[1] = xi_31_init_value;
-
-    /*
-    std::cout << "initial value is set to " << xi_31_init_value << std::endl;
-
-    std::vector<double> init_par;
-    std::vector<double> init_err;
-    for(Int_t ix{0}; ix < numberEnabledParams; ++ ix)
-    {
-        init_par.push_back(AdjustActs[ix]);
-        init_err.push_back(AdjustActs_Err[ix]);
-    }
-    */
-
-    /*
-    Int_t number_free_params = minuit->GetNumFreePars();
-    Double_t *CovMatrix = new Double_t[number_free_params * number_free_params];
-    for(int ix{0}; ix < number_free_params * number_free_params; ++ ix)
-    {
-        CovMatrix[ix] = 0.;
-    }
-    */
     
 
 
@@ -1715,6 +1663,8 @@ void loadFiles(int i)
         }
         else
         {
+            recalculate_V_PHYS_SYS = true;
+
             // assuming that xi31 and 150Nd amplitude are free
             // this may break if the parameter_names.lst file is changed
             gNumberFreeParams = 1;
@@ -1819,25 +1769,8 @@ void loadFiles(int i)
             ofs_min_point.close();
 
             std::cout << "HSD Fit: NEMO3 Data (CH0)" << std::endl;
-            /*std::cout << "SYSTEMATICS: CONSTANT OFFSET DISABLED: " << gSystematics.systematic_energy_offset << " MeV" << std::endl;
-            std::cout << "SYSTEMATICS: CONSTANT SCALE DISABLED: " << gSystematics.systematic_energy_scale << " MeV" << std::endl;
-            std::cout << "SYSTEMATICS: EFFICIENCY DISABLED: " << gSystematics.systematic_efficiency << "" << std::endl;
-            std::cout << "SYSTEMATICS: ENRICHMENT DISABLED: " << gSystematics.systematic_enrichment << "" << std::endl;
-            std::cout << "SYSTEMATICS: CONSTANT OFFSETSMALL DISABLED: " << gSystematics.systematic_energy_offsetsmall << " MeV" << std::endl;*/
-            std::cout << "SYSTEMATICS: CONSTANT OFFSET: " << gSystematics.systematic_energy_offset << " MeV" << std::endl;
-            std::cout << "SYSTEMATICS: CONSTANT SCALE: " << gSystematics.systematic_energy_scale << " MeV" << std::endl;
-            std::cout << "SYSTEMATICS: EFFICIENCY: " << gSystematics.systematic_efficiency << "" << std::endl;
-            std::cout << "SYSTEMATICS: ENRICHMENT: " << gSystematics.systematic_enrichment << "" << std::endl;
-            std::cout << "SYSTEMATICS: OFFSETSMALL: " << gSystematics.systematic_energy_offsetsmall << " MeV" << std::endl;
-            std::cout << "SYSTEMATICS: FOIL THICKNESS (V): " << gSystematics.systematic_foil_thickness_virtual << " " << std::endl;
-            std::cout << "SYSTEMATICS: ENERGY LOSS (V): " << gSystematics.systematic_dEdX_virtual << " " << std::endl;
-            std::cout << "SYSTEMATICS: BREMSSTRAHLUNG (V): " << gSystematics.systematic_brem_virtual << " " << std::endl;
-            std::cout << "SYSTEMATICS: FOIL THICKNESS (N): " << gSystematics.systematic_foil_thickness_nominal << " " << std::endl;
-            std::cout << "SYSTEMATICS: ENERGY LOSS (N): " << gSystematics.systematic_dEdX_nominal << " " << std::endl;
-            std::cout << "SYSTEMATICS: BREMSSTRAHLUNG (N): " << gSystematics.systematic_brem_nominal << " " << std::endl;
-            //std::cout << "Result: " << std::endl;
-            //std::cout << "fval_before=" << fval_before << std::endl;
-            //std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
+            gSystematics_print();
+
             std::cout << "Result: " << std::endl;
             std::cout << "fval_before=" << fval_before << std::endl;
             std::cout << "fval_after=" << fval_after
@@ -1868,12 +1801,6 @@ void loadFiles(int i)
     
     if(1)// || (MODE_PARALLEL == 0))
     {
-        //channel_enable_1D[0] = 1;
-        //channel_enable_1D[1] = 0;
-        //bool restore_V_ENABLE_SYSALL = V_ENABLE_SYSALL;
-        //V_ENABLE_SYSALL = false;
-        //V_ENABLE_SYSALL = true;
-
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
         for(int i = 0; i < N_SYSTEMATICS; ++ i)
@@ -1906,6 +1833,8 @@ void loadFiles(int i)
         }
         else
         {
+            recalculate_V_PHYS_SYS = true;
+
             // assuming that xi31 and 150Nd amplitude are free
             // this may break if the parameter_names.lst file is changed
             gNumberFreeParams = 1;
@@ -2010,25 +1939,8 @@ void loadFiles(int i)
             ofs_min_point.close();
 
             std::cout << "HSD Fit: NEMO3 Data" << std::endl;
-            /*std::cout << "SYSTEMATICS: CONSTANT OFFSET DISABLED: " << gSystematics.systematic_energy_offset << " MeV" << std::endl;
-            std::cout << "SYSTEMATICS: CONSTANT SCALE DISABLED: " << gSystematics.systematic_energy_scale << " MeV" << std::endl;
-            std::cout << "SYSTEMATICS: EFFICIENCY DISABLED: " << gSystematics.systematic_efficiency << "" << std::endl;
-            std::cout << "SYSTEMATICS: ENRICHMENT DISABLED: " << gSystematics.systematic_enrichment << "" << std::endl;
-            std::cout << "SYSTEMATICS: CONSTANT OFFSETSMALL DISABLED: " << gSystematics.systematic_energy_offsetsmall << " MeV" << std::endl;*/
-            std::cout << "SYSTEMATICS: CONSTANT OFFSET: " << gSystematics.systematic_energy_offset << " MeV" << std::endl;
-            std::cout << "SYSTEMATICS: CONSTANT SCALE: " << gSystematics.systematic_energy_scale << " MeV" << std::endl;
-            std::cout << "SYSTEMATICS: EFFICIENCY: " << gSystematics.systematic_efficiency << "" << std::endl;
-            std::cout << "SYSTEMATICS: ENRICHMENT: " << gSystematics.systematic_enrichment << "" << std::endl;
-            std::cout << "SYSTEMATICS: OFFSETSMALL: " << gSystematics.systematic_energy_offsetsmall << " MeV" << std::endl;
-            std::cout << "SYSTEMATICS: FOIL THICKNESS (V): " << gSystematics.systematic_foil_thickness_virtual << " " << std::endl;
-            std::cout << "SYSTEMATICS: ENERGY LOSS (V): " << gSystematics.systematic_dEdX_virtual << " " << std::endl;
-            std::cout << "SYSTEMATICS: BREMSSTRAHLUNG (V): " << gSystematics.systematic_brem_virtual << " " << std::endl;
-            std::cout << "SYSTEMATICS: FOIL THICKNESS (N): " << gSystematics.systematic_foil_thickness_nominal << " " << std::endl;
-            std::cout << "SYSTEMATICS: ENERGY LOSS (N): " << gSystematics.systematic_dEdX_nominal << " " << std::endl;
-            std::cout << "SYSTEMATICS: BREMSSTRAHLUNG (N): " << gSystematics.systematic_brem_nominal << " " << std::endl;
-            //std::cout << "Result: " << std::endl;
-            //std::cout << "fval_before=" << fval_before << std::endl;
-            //std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
+            gSystematics_print();
+
             std::cout << "Result: " << std::endl;
             std::cout << "fval_before=" << fval_before << std::endl;
             std::cout << "fval_after=" << fval_after
@@ -2042,12 +1954,6 @@ void loadFiles(int i)
 
         V_ENABLE_SYS_stack_pop();
         g_mode_fake_data = restore_g_mode_fake_data;
-
-        //V_ENABLE_SYSALL = restore_V_ENABLE_SYSALL;
-        //g_mode_fake_data = restore_g_mode_fake_data;
-        //return 0;
-        //channel_enable_1D[0] = 0;
-        //channel_enable_1D[1] = 1;
     }
 
 
@@ -2062,13 +1968,6 @@ void loadFiles(int i)
     // do not do this in parallel mode
     if(1)// || (MODE_PARALLEL == 0))
     {
-        //channel_enable_1D[0] = 1;
-        //channel_enable_1D[1] = 0;
-
-        //bool restore_V_ENABLE_SYSALL = V_ENABLE_SYSALL;
-        //V_ENABLE_SYSALL = false;
-        //V_ENABLE_SYSALL = true;
-
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = false;
         for(int i = 0; i < N_SYSTEMATICS; ++ i)
@@ -2101,6 +2000,8 @@ void loadFiles(int i)
         }
         else
         {
+            recalculate_V_PHYS_SYS = true;
+
             // assuming that xi31 and 150Nd amplitude are free
             // this may break if the parameter_names.lst file is changed
             gNumberFreeParams = 1;
@@ -2204,25 +2105,8 @@ void loadFiles(int i)
             ofs_min_point.close();
 
             std::cout << "SSD Fit: NEMO3 Data" << std::endl;
-            /*std::cout << "SYSTEMATICS: CONSTANT OFFSET DISABLED: " << gSystematics.systematic_energy_offset << " MeV" << std::endl;
-            std::cout << "SYSTEMATICS: CONSTANT SCALE DISABLED: " << gSystematics.systematic_energy_scale << " MeV" << std::endl;
-            std::cout << "SYSTEMATICS: EFFICIENCY DISABLED: " << gSystematics.systematic_efficiency << "" << std::endl;
-            std::cout << "SYSTEMATICS: ENRICHMENT DISABLED: " << gSystematics.systematic_enrichment << "" << std::endl;
-            std::cout << "SYSTEMATICS: CONSTANT OFFSETSMALL DISABLED: " << gSystematics.systematic_energy_offsetsmall << " MeV" << std::endl;*/
-            std::cout << "SYSTEMATICS: CONSTANT OFFSET: " << gSystematics.systematic_energy_offset << " MeV" << std::endl;
-            std::cout << "SYSTEMATICS: CONSTANT SCALE: " << gSystematics.systematic_energy_scale << " MeV" << std::endl;
-            std::cout << "SYSTEMATICS: EFFICIENCY: " << gSystematics.systematic_efficiency << "" << std::endl;
-            std::cout << "SYSTEMATICS: ENRICHMENT: " << gSystematics.systematic_enrichment << "" << std::endl;
-            std::cout << "SYSTEMATICS: OFFSETSMALL: " << gSystematics.systematic_energy_offsetsmall << " MeV" << std::endl;
-            std::cout << "SYSTEMATICS: FOIL THICKNESS (V): " << gSystematics.systematic_foil_thickness_virtual << " " << std::endl;
-            std::cout << "SYSTEMATICS: ENERGY LOSS (V): " << gSystematics.systematic_dEdX_virtual << " " << std::endl;
-            std::cout << "SYSTEMATICS: BREMSSTRAHLUNG (V): " << gSystematics.systematic_brem_virtual << " " << std::endl;
-            std::cout << "SYSTEMATICS: FOIL THICKNESS (N): " << gSystematics.systematic_foil_thickness_nominal << " " << std::endl;
-            std::cout << "SYSTEMATICS: ENERGY LOSS (N): " << gSystematics.systematic_dEdX_nominal << " " << std::endl;
-            std::cout << "SYSTEMATICS: BREMSSTRAHLUNG (N): " << gSystematics.systematic_brem_nominal << " " << std::endl;
-            //std::cout << "Result: " << std::endl;
-            //std::cout << "fval_before=" << fval_before << std::endl;
-            //std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
+            gSystematics_print();
+
             std::cout << "Result: " << std::endl;
             std::cout << "fval_before=" << fval_before << std::endl;
             std::cout << "fval_after=" << fval_after
@@ -2231,21 +2115,11 @@ void loadFiles(int i)
                       << " params_after[1]=" << params_after[1]
                       << " +- " << param_errs_after[1]
                       << std::endl;
-            //for(int i = 0; i < params_after.size(); ++ i)
-            //{
-            //    std::cout << params_after[i] << ", " << std::endl;
-            //}
             std::cout << std::endl;
         }
 
         V_ENABLE_SYS_stack_pop();
         g_mode_fake_data = restore_g_mode_fake_data;
-
-        //V_ENABLE_SYSALL = restore_V_ENABLE_SYSALL;
-        //g_mode_fake_data = restore_g_mode_fake_data;
-        //return 0;
-        //channel_enable_1D[0] = 0;
-        //channel_enable_1D[1] = 1;
     }
 
 
@@ -2281,315 +2155,10 @@ void loadFiles(int i)
 
 
 
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Fake Data
-    // Variable Systematic Parameter
-    ///////////////////////////////////////////////////////////////////////////
-
-#if 0
-    
-    bool g_mode_fake_data_restore_value = g_mode_fake_data;
-    g_mode_fake_data = true;
-    
-    TCanvas *results_c_xi_31 = nullptr;
-    TCanvas *results_c_A = nullptr;
-    TCanvas *results_c_chi2_before = nullptr;
-    TCanvas *results_c_chi2_after = nullptr;
-
-    std::vector<TCanvas*> results_c_allparams;
-
-    // do not do this in parallel mode
-    if(0) // || (MODE_PARALLEL == 0))
-    {
-        // TODO: enable/disable SYSX?
-
-        std::vector<double> results_x_xi_31;
-        std::vector<double> results_y_xi_31;
-        std::vector<double> results_x_A;
-        std::vector<double> results_y_A;
-        std::vector<double> results_x_chi2_before;
-        std::vector<double> results_y_chi2_before;
-        std::vector<double> results_x_chi2_after;
-        std::vector<double> results_y_chi2_after;
-
-        std::vector<std::vector<double>> results_y_allparams;
-
-        const int i_max = 0; //10; //0;
-        for(int i = 0; i <= i_max; ++ i)
-        {
-
-            const double min = -0.01;
-            const double max = +0.01;
-            const double diff = max - min;
-            const double fr = (double)i / (double)i_max;
-            //gSystematics.systematic_energy_offset = fr * diff + min;
-            gSystematics.systematic_energy_offset = 0.0;
-            gSystematics.systematic_energy_scale = 0.0;
-            double systematic_energy_offset = gSystematics.systematic_energy_offset;
-            double systematic_energy_scale = gSystematics.systematic_energy_scale;
-            std::cout << "seo=" << systematic_energy_offset << std::endl;
-            std::cout << "sem=" << systematic_energy_scale << std::endl;
-            //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itself
-            rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itself
-            // just check the output looks sensible
-
-            std::string name_extra = "seo_" + std::to_string(systematic_energy_offset)
-                                   + "_sem_" + std::to_string(systematic_energy_scale);
-
-            // create minimizer
-            ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
-            ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
-            MinimizeFCNAxialVector theFCN;
-
-            // initialize fit
-            //fitBackgrounds_init(theParameterState, theMinimizer, AdjustActs, AdjustActs_Err);
-            const int xi_31_param_number = g_pg.get_xi_31_ext_param_number();
-            const double xi_31_value = g_pg.file_params.at(xi_31_param_number).paramInitValue;
-            const double xi_31_error = g_pg.file_params.at(xi_31_param_number).paramInitError;
-            std::cout << "xi_31_param_number=" << xi_31_param_number
-                      << " xi_31=" << xi_31_value << " +- " << xi_31_error << std::endl;
-            fitBackgrounds_init(theParameterStateBefore, theMinimizer, xi_31_value, xi_31_error);
-
-            // get parameters and chi2 value before fit
-            std::vector<double> params_before = theParameterStateBefore.Params();
-            std::vector<double> param_errs_before = theParameterStateBefore.Errors();
-            double fval_before = theFCN.operator()(params_before);
-            //int ndf = theFCN.ndf - theParameterStateBefore.VariableParameters();
-            int nch = theFCN.nch;
-            int nfp = g_pg.get_number_free_params();
-            int ndf = nch - nfp;
-
-            // initilize output vectors
-            if(i == 0)
-            {
-                for(int i = 0; i < g_pg.file_params.size(); ++ i)
-                {
-                    std::vector<double> blankvector;
-                    results_y_allparams.push_back(blankvector);
-                }
-            }
-
-            // draw before fit
-            draw_input_data drawinputdata;
-            drawinputdata.chi2 = fval_before;
-            drawinputdata.nch = nch;
-            drawinputdata.nfp = nfp;
-            drawinputdata.serial_dir = "xifree";
-            drawinputdata.saveas_filename = std::string("xifree_before") + "_" + name_extra;
-            drawinputdata.saveas_png = true;
-           
-            draw(drawinputdata,
-                 params_before,
-                 param_errs_before);
-
-            // exec fit
-            // do fit with all parameters free
-            ROOT::Minuit2::FunctionMinimum FCN_min =
-                fitBackgrounds_exec(
-                    theParameterStateBefore,
-                    theMinimizer,
-                    theFCN);
-
-            // get result
-            ROOT::Minuit2::MnUserParameterState theParameterStateAfter = FCN_min.UserParameters();
-            std::vector<double> params_after = theParameterStateAfter.Params();
-            std::vector<double> param_errs_after = theParameterStateAfter.Errors();
-
-            double fval_after = theFCN.operator()(params_after);
-            //ndf = theFCN.ndf - theParameterStateAfter.VariableParameters();
-            nch = theFCN.nch;
-            nfp = g_pg.get_number_free_params();
-            ndf = nch - nfp;
-
-            // draw result
-            drawinputdata.chi2 = fval_after;
-            drawinputdata.nch = nch;
-            drawinputdata.saveas_filename = std::string("xifree_after") + "_" + name_extra;
-           
-            draw(drawinputdata,
-                 params_after,
-                 param_errs_after);
-
-            
-            // minimize
-            //ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, init_par, init_err);
-            //ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, init_par, init_err);
-            /*
-            std::cout << "Minimization finished" << std::endl;
-            std::cout << "minimum: " << FCN_min << std::endl;
-            std::cout << "chi2: " << FCN_min.Fval() << std::endl;
-            std::cout << "edm: " << FCN_min.Edm() << std::endl;
-            */
-
-
-            std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
-            std::cout << "fval_before=" << fval_before << std::endl;
-
-            results_x_xi_31.push_back(systematic_energy_offset);
-            results_y_xi_31.push_back(params_after.at(1));
-
-            results_x_A.push_back(systematic_energy_offset);
-            results_y_A.push_back(params_after.at(0));
-            
-            results_x_chi2_before.push_back(systematic_energy_offset);
-            results_y_chi2_before.push_back(fval_before);
-
-            results_x_chi2_after.push_back(systematic_energy_offset);
-            results_y_chi2_after.push_back(fval_after);
-
-            for(int i = 0; i < g_pg.file_params.size(); ++ i)
-            {
-                results_y_allparams.at(i).push_back(params_after.at(i));
-            }
-        }
-
-        TGraph *results_g_xi_31 = new TGraph(results_x_xi_31.size(), results_x_xi_31.data(), results_y_xi_31.data());
-        TGraph *results_g_A = new TGraph(results_x_A.size(), results_x_A.data(), results_y_A.data());
-        TGraph *results_g_chi2_before = new TGraph(results_x_chi2_before.size(), results_x_chi2_before.data(), results_y_chi2_before.data());
-        TGraph *results_g_chi2_after = new TGraph(results_x_chi2_after.size(), results_x_chi2_after.data(), results_y_chi2_after.data());
-
-        
-        for(int i = 0; i < g_pg.file_params.size(); ++ i)
-        {
-            std::cout << "i=" << i << std::endl;
-
-            TGraph *results_g_allparams =
-                new TGraph(results_x_xi_31.size(),
-                           results_x_xi_31.data(),
-                           results_y_allparams.at(i).data());
-
-            TString cname;
-            cname.Form("results_P%d", i);
-            std::cout << "cname=" << cname << std::endl;
-            results_c_allparams.push_back(new TCanvas(cname, cname));
-            results_g_allparams->Draw();
-        }
-
-
-        results_c_xi_31 = new TCanvas("results_xi_31", "results_xi_31");
-        results_g_xi_31->Draw();
-
-        results_c_A = new TCanvas("results_A", "results_A");
-        results_g_A->Draw();
-
-        results_c_chi2_before = new TCanvas("results_chi2_before", "results_chi2_before");
-        results_g_chi2_before->Draw();
-
-        results_c_chi2_after = new TCanvas("results_chi2_after", "results_chi2_after");
-        results_g_chi2_after->Draw();
-    }
-
-    g_mode_fake_data = g_mode_fake_data_restore_value;
-#endif
 
 
 
 
-
-    // check repeating works
-    #if 0
-    {
-        bool g_mode_fake_data_restore_value = g_mode_fake_data;
-        g_mode_fake_data = true;
-
-        gSystematics.systematic_energy_offset = 0.0;
-        double systematic_energy_offset = gSystematics.systematic_energy_offset;
-        std::cout << "seo=" << systematic_energy_offset << std::endl;
-        //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itself
-        //rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itself
-        rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline); // want to check if the fitter can fit itself to itself
-        // just check the output looks sensible
-
-        std::string name_extra = "seo_" + std::to_string(systematic_energy_offset);
-
-        // create minimizer
-        ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
-        ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
-        MinimizeFCNAxialVector theFCN;
-
-        // initialize fit
-        //fitBackgrounds_init(theParameterState, theMinimizer, AdjustActs, AdjustActs_Err);
-        const int xi_31_param_number = g_pg.get_xi_31_ext_param_number();
-        const double xi_31_value = g_pg.file_params.at(xi_31_param_number).paramInitValue;
-        const double xi_31_error = g_pg.file_params.at(xi_31_param_number).paramInitError;
-        std::cout << "xi_31_param_number=" << xi_31_param_number
-                  << " xi_31=" << xi_31_value << " +- " << xi_31_error << std::endl;
-        fitBackgrounds_init(theParameterStateBefore, theMinimizer, xi_31_value, xi_31_error);
-
-        // get parameters and chi2 value before fit
-        std::vector<double> params_before = theParameterStateBefore.Params();
-        std::vector<double> param_errs_before = theParameterStateBefore.Errors();
-        double fval_before = theFCN.operator()(params_before);
-        //int ndf = theFCN.ndf - theParameterStateBefore.VariableParameters();
-        int nch = theFCN.nch;
-        int nfp = g_pg.get_number_free_params();
-        int ndf = nch - nfp;
-        std::cout << "nch=" << theFCN.nch << std::endl;
-        std::cout << "g_pg.get_number_free_params()=" << g_pg.get_number_free_params() << std::endl;
-
-        // draw before fit
-        draw_input_data drawinputdata;
-        drawinputdata.chi2 = fval_before;
-        drawinputdata.nch = nch;
-        drawinputdata.nfp = nfp;
-        drawinputdata.serial_dir = "xifree";
-        drawinputdata.saveas_filename = std::string("xifree_before") + "_" + name_extra;
-        drawinputdata.saveas_png = true;
-       
-        draw(drawinputdata,
-             params_before,
-             param_errs_before);
-        //std::cin.get();
-
-        // exec fit
-        // do fit with all parameters free
-        ROOT::Minuit2::FunctionMinimum FCN_min =
-            fitBackgrounds_exec(
-                theParameterStateBefore,
-                theMinimizer,
-                theFCN);
-
-        // get result
-        ROOT::Minuit2::MnUserParameterState theParameterStateAfter = FCN_min.UserParameters();
-        std::vector<double> params_after = theParameterStateAfter.Params();
-        std::vector<double> param_errs_after = theParameterStateAfter.Errors();
-
-        double fval_after = theFCN.operator()(params_after);
-        //ndf = theFCN.ndf - theParameterStateAfter.VariableParameters();
-        nch = theFCN.nch;
-        nfp = g_pg.get_number_free_params();
-
-        // draw result
-        drawinputdata.chi2 = fval_after;
-        //drawinputdata.nch = nch; // this could probably change in theory
-        //drawinputdata.nfp = nfp; // these probably do not change
-        drawinputdata.saveas_filename = std::string("xifree_after") + "_" + name_extra;
-       
-        draw(drawinputdata,
-             params_after,
-             param_errs_after);
-
-        
-        // minimize
-        //ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, init_par, init_err);
-        //ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, init_par, init_err);
-        /*
-        std::cout << "Minimization finished" << std::endl;
-        std::cout << "minimum: " << FCN_min << std::endl;
-        std::cout << "chi2: " << FCN_min.Fval() << std::endl;
-        std::cout << "edm: " << FCN_min.Edm() << std::endl;
-        */
-
-
-        std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
-        std::cout << "fval_before=" << fval_before << std::endl;
-
-
-        g_mode_fake_ata = g_mode_fake_data_restore_value;
-    }
-    #endif
-    //std::cin.get();
 
 
 
@@ -2597,7 +2166,8 @@ void loadFiles(int i)
 
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit
-    // Systematics Enabled: Disabled
+    // Data
+    // Systematics Disabled
     ///////////////////////////////////////////////////////////////////////////
 
     // do not do this in parallel mode
@@ -2635,6 +2205,8 @@ void loadFiles(int i)
         }
         else
         {
+            recalculate_V_PHYS_SYS = true;
+
             newLogLikFitter_preMPSfitdriver(
                 std::string("All Parameter Fit: NEMO3 Data"),
                 "xifree_",
@@ -2657,7 +2229,7 @@ void loadFiles(int i)
 
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit
-    // Systematics Enabled: Enabled
+    // Systematics Enabled
     ///////////////////////////////////////////////////////////////////////////
 
     // do not do this in parallel mode
@@ -2665,10 +2237,11 @@ void loadFiles(int i)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = true;
-        //for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        //{
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
         //    V_ENABLE_SYSn[i] = false;
-        //}
+            std::cout << "V_ENABLE_SYSn[" << i << "]=" << V_ENABLE_SYSn[i] << std::endl;
+        }
 
         bool restore_g_mode_fake_data = g_mode_fake_data;
         g_mode_fake_data = false;
@@ -2695,9 +2268,11 @@ void loadFiles(int i)
         }
         else
         {
+            recalculate_V_PHYS_SYS = true;
+
             newLogLikFitter_preMPSfitdriver(
                 std::string("All Parameter Fit: NEMO3 Data SYSALL"),
-                "xifree",
+                "xifree_",
                 "_data_SYSALL",
                 "xifree",
                 min_point_SYSALL,
@@ -2716,7 +2291,6 @@ void loadFiles(int i)
 
 
 
-    //return 0;
 
 
 
@@ -2753,10 +2327,11 @@ void loadFiles(int i)
     {
         V_ENABLE_SYS_stack_push();
         V_ENABLE_SYSALL = true;
-        //for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        //{
-        //    V_ENABLE_SYSn[i] = true;
-        //}
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            //V_ENABLE_SYSn[i] = true;
+            std::cout << "V_ENABLE_SYSn[" << i << "]=" << V_ENABLE_SYSn[i] << std::endl;
+        }
 
         bool restore_g_mode_fake_data = g_mode_fake_data;
         g_mode_fake_data = true;
@@ -2783,6 +2358,8 @@ void loadFiles(int i)
         }
         else
         {
+            recalculate_V_PHYS_SYS = true;
+
             // set gSystematic parameters
             gSystematics.reset();
 
@@ -2791,11 +2368,11 @@ void loadFiles(int i)
 
             //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itself
             //rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itself
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // want to check if the fitter can fit itself to itself
+            //rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // want to check if the fitter can fit itself to itself
             // just check the output looks sensible
-        ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-        rebuild_fake_data_systematics(0.7, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-        ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
+            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
             // call helper function
             newLogLikFitter_preMPSfitdriver(
@@ -2864,6 +2441,8 @@ void loadFiles(int i)
         }
         else
         {
+            recalculate_V_PHYS_SYS = true;
+
             // set gSystematic parameters
             gSystematics.reset();
 
@@ -2872,11 +2451,11 @@ void loadFiles(int i)
 
             //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itself
             //rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itself
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // want to check if the fitter can fit itself to itself
+            //rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // want to check if the fitter can fit itself to itself
             // just check the output looks sensible
-        ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-        rebuild_fake_data_systematics(0.7, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-        ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
+            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
             // call helper function
             newLogLikFitter_preMPSfitdriver(
@@ -2940,13 +2519,15 @@ void loadFiles(int i)
         }
         else
         {
+            recalculate_V_PHYS_SYS = true;
+
             // set gSystematic parameters
             gSystematics.reset();
             gSystematics.systematic_energy_offset = -0.1;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-        ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-        rebuild_fake_data_systematics(0.7, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-        ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+            //rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
+            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
             // call helper function
             newLogLikFitter_preMPSfitdriver(
@@ -3010,13 +2591,15 @@ void loadFiles(int i)
         }
         else
         {
+            recalculate_V_PHYS_SYS = true;
+
             // set gSystematic parameters
             gSystematics.reset();
             gSystematics.systematic_energy_offset = +0.1;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-        ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-        rebuild_fake_data_systematics(0.7, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-        ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+            //rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
+            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
             // call helper function
             newLogLikFitter_preMPSfitdriver(
@@ -3080,13 +2663,15 @@ void loadFiles(int i)
         }
         else
         {
+            recalculate_V_PHYS_SYS = true;
+
             // set gSystematic parameters
             gSystematics.reset();
             gSystematics.systematic_energy_scale = -0.012;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-        ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-        rebuild_fake_data_systematics(0.7, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-        ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+            //rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
+            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
             // call helper function
             newLogLikFitter_preMPSfitdriver(
@@ -3150,13 +2735,15 @@ void loadFiles(int i)
         }
         else
         {
+            recalculate_V_PHYS_SYS = true;
+
             // set gSystematic parameters
             gSystematics.reset();
             gSystematics.systematic_energy_scale = +0.012;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-        ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-        rebuild_fake_data_systematics(0.7, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-        ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+            //rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
+            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
             // call helper function
             newLogLikFitter_preMPSfitdriver(
@@ -3221,13 +2808,15 @@ void loadFiles(int i)
         }
         else
         {
+            recalculate_V_PHYS_SYS = true;
+
             // set gSystematic parameters
             gSystematics.reset();
             gSystematics.systematic_efficiency = -5.55e-02;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-        ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-        rebuild_fake_data_systematics(0.7, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-        ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+            //rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
+            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
             // call helper function
             newLogLikFitter_preMPSfitdriver(
@@ -3292,13 +2881,15 @@ void loadFiles(int i)
         }
         else
         {
+            recalculate_V_PHYS_SYS = true;
+
             // set gSystematic parameters
             gSystematics.reset();
             gSystematics.systematic_efficiency = +5.55e-02;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-        ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-        rebuild_fake_data_systematics(0.7, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-        ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+            //rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
+            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
             // call helper function
             newLogLikFitter_preMPSfitdriver(
@@ -3363,13 +2954,15 @@ void loadFiles(int i)
         }
         else
         {
+            recalculate_V_PHYS_SYS = true;
+
             // set gSystematic parameters
             gSystematics.reset();
             gSystematics.systematic_enrichment = -0.5e-02;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-        ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-        rebuild_fake_data_systematics(0.7, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-        ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+//            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
+            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
             // call helper function
             newLogLikFitter_preMPSfitdriver(
@@ -3434,13 +3027,15 @@ void loadFiles(int i)
         }
         else
         {
+            recalculate_V_PHYS_SYS = true;
+
             // set gSystematic parameters
             gSystematics.reset();
             gSystematics.systematic_enrichment = +0.5e-02;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-        ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-        rebuild_fake_data_systematics(0.7, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-        ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+//            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
+            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
             // call helper function
             newLogLikFitter_preMPSfitdriver(
@@ -3504,13 +3099,15 @@ void loadFiles(int i)
         }
         else
         {
+            recalculate_V_PHYS_SYS = true;
+
             // set gSystematic parameters
             gSystematics.reset();
             gSystematics.systematic_energy_offsetsmall = -3.0e-3;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-        ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-        rebuild_fake_data_systematics(0.7, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-        ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+//            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
+            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
             // call helper function
             newLogLikFitter_preMPSfitdriver(
@@ -3574,13 +3171,15 @@ void loadFiles(int i)
         }
         else
         {
+            recalculate_V_PHYS_SYS = true;
+
             // set gSystematic parameters
             gSystematics.reset();
             gSystematics.systematic_energy_offsetsmall = +3.0e-3;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-        ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-        rebuild_fake_data_systematics(0.7, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-        ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+//            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
+            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
             // call helper function
             newLogLikFitter_preMPSfitdriver(
@@ -3650,13 +3249,15 @@ void loadFiles(int i)
         }
         else
         {
+            recalculate_V_PHYS_SYS = true;
+
             // set gSystematic parameters
             gSystematics.reset();
             gSystematics.systematic_foil_thickness_virtual = -1;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-        ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-        rebuild_fake_data_systematics(0.7, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-        ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+//            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
+            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
             // call helper function
             newLogLikFitter_preMPSfitdriver(
@@ -3720,13 +3321,15 @@ void loadFiles(int i)
         }
         else
         {
+            recalculate_V_PHYS_SYS = true;
+
             // set gSystematic parameters
             gSystematics.reset();
             gSystematics.systematic_foil_thickness_virtual = +1;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-        ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-        rebuild_fake_data_systematics(0.7, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-        ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+//            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
+            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
             // call helper function
             newLogLikFitter_preMPSfitdriver(
@@ -3790,13 +3393,15 @@ void loadFiles(int i)
         }
         else
         {
+            recalculate_V_PHYS_SYS = true;
+
             // set gSystematic parameters
             gSystematics.reset();
             gSystematics.systematic_dEdX_virtual = -1;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-        ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-        rebuild_fake_data_systematics(0.7, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-        ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+//            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
+            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
             // call helper function
             newLogLikFitter_preMPSfitdriver(
@@ -3860,13 +3465,15 @@ void loadFiles(int i)
         }
         else
         {
+            recalculate_V_PHYS_SYS = true;
+
             // set gSystematic parameters
             gSystematics.reset();
             gSystematics.systematic_dEdX_virtual = +1;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-        ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-        rebuild_fake_data_systematics(0.7, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-        ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+//            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
+            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
             // call helper function
             newLogLikFitter_preMPSfitdriver(
@@ -3930,13 +3537,15 @@ void loadFiles(int i)
         }
         else
         {
+            recalculate_V_PHYS_SYS = true;
+
             // set gSystematic parameters
             gSystematics.reset();
             gSystematics.systematic_brem_virtual = -1;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-        ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-        rebuild_fake_data_systematics(0.7, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-        ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+//            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
+            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
             // call helper function
             newLogLikFitter_preMPSfitdriver(
@@ -4000,13 +3609,15 @@ void loadFiles(int i)
         }
         else
         {
+            recalculate_V_PHYS_SYS = true;
+
             // set gSystematic parameters
             gSystematics.reset();
             gSystematics.systematic_brem_virtual = +1;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-        ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-        rebuild_fake_data_systematics(0.7, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-        ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+//            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
+            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
             // call helper function
             newLogLikFitter_preMPSfitdriver(
@@ -4074,13 +3685,15 @@ void loadFiles(int i)
         }
         else
         {
+            recalculate_V_PHYS_SYS = true;
+
             // set gSystematic parameters
             gSystematics.reset();
             gSystematics.systematic_foil_thickness_nominal = -1;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-        ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-        rebuild_fake_data_systematics(0.7, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-        ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+//            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
+            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
             // call helper function
             newLogLikFitter_preMPSfitdriver(
@@ -4144,13 +3757,15 @@ void loadFiles(int i)
         }
         else
         {
+            recalculate_V_PHYS_SYS = true;
+
             // set gSystematic parameters
             gSystematics.reset();
             gSystematics.systematic_foil_thickness_nominal = +1;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-        ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-        rebuild_fake_data_systematics(0.7, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-        ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+//            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
+            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
             // call helper function
             newLogLikFitter_preMPSfitdriver(
@@ -4214,13 +3829,15 @@ void loadFiles(int i)
         }
         else
         {
+            recalculate_V_PHYS_SYS = true;
+
             // set gSystematic parameters
             gSystematics.reset();
             gSystematics.systematic_dEdX_nominal = -1;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-        ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-        rebuild_fake_data_systematics(0.7, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-        ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+//            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
+            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
             // call helper function
             newLogLikFitter_preMPSfitdriver(
@@ -4284,13 +3901,15 @@ void loadFiles(int i)
         }
         else
         {
+            recalculate_V_PHYS_SYS = true;
+
             // set gSystematic parameters
             gSystematics.reset();
             gSystematics.systematic_dEdX_nominal = +1;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-        ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-        rebuild_fake_data_systematics(0.7, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-        ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+//            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
+            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
             // call helper function
             newLogLikFitter_preMPSfitdriver(
@@ -4354,13 +3973,15 @@ void loadFiles(int i)
         }
         else
         {
+            recalculate_V_PHYS_SYS = true;
+
             // set gSystematic parameters
             gSystematics.reset();
             gSystematics.systematic_brem_nominal = -1;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-        ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-        rebuild_fake_data_systematics(0.7, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-        ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+//            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
+            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
             // call helper function
             newLogLikFitter_preMPSfitdriver(
@@ -4424,13 +4045,15 @@ void loadFiles(int i)
         }
         else
         {
+            recalculate_V_PHYS_SYS = true;
+
             // set gSystematic parameters
             gSystematics.reset();
             gSystematics.systematic_brem_nominal = +1;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-        ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-        rebuild_fake_data_systematics(0.7, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-        ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+//            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
+            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
             // call helper function
             newLogLikFitter_preMPSfitdriver(
@@ -4464,7 +4087,7 @@ void loadFiles(int i)
 
 
 
-    //return 0;
+    return 0;
 
 
 
@@ -4485,74 +4108,39 @@ void loadFiles(int i)
         
         //DRAW_V_PHYS_MATRIX = false;
 
-        std::cout << "recalculate_V_PHYS_MATHMORE=" << recalculate_V_PHYS_MATHMORE << std::endl;
-        std::cout << "recalculate_V_PHYS_SYS=" << recalculate_V_PHYS_SYS << std::endl;
-        recalculate_V_PHYS_MATHMORE = true;
+        //std::cout << "recalculate_V_PHYS_MATHMORE=" << recalculate_V_PHYS_MATHMORE << std::endl;
+        //std::cout << "recalculate_V_PHYS_SYS=" << recalculate_V_PHYS_SYS << std::endl;
+        //recalculate_V_PHYS_MATHMORE = true;
         recalculate_V_PHYS_SYS = true;
-        std::cout << "recalculate_V_PHYS_MATHMORE=" << recalculate_V_PHYS_MATHMORE << std::endl;
-        std::cout << "recalculate_V_PHYS_SYS=" << recalculate_V_PHYS_SYS << std::endl;
+        //std::cout << "recalculate_V_PHYS_MATHMORE=" << recalculate_V_PHYS_MATHMORE << std::endl;
+        //std::cout << "recalculate_V_PHYS_SYS=" << recalculate_V_PHYS_SYS << std::endl;
 
         std::cout << "V_ENABLE_SYSALL=" << V_ENABLE_SYSALL << std::endl;
         for(int i = 0; i < N_SYSTEMATICS; ++ i)
         {
             std::cout << "V_ENABLE_SYS" << i << "=" << V_ENABLE_SYSn[i] << std::endl;
         }
-        /*
-        std::cout << "V_ENABLE_SYS1=" << V_ENABLE_SYS1 << std::endl;
-        std::cout << "V_ENABLE_SYS2=" << V_ENABLE_SYS2 << std::endl;
-        std::cout << "V_ENABLE_SYS3=" << V_ENABLE_SYS3 << std::endl;
-        std::cout << "V_ENABLE_SYS4=" << V_ENABLE_SYS4 << std::endl;
-        std::cout << "V_ENABLE_SYS5=" << V_ENABLE_SYS5 << std::endl;
-        */
         std::cout << "g_mode_fake_data=" << g_mode_fake_data << std::endl;
 
         gSystematics.reset();
-        std::cout << "seo=" << gSystematics.systematic_energy_offset << std::endl;
-        std::cout << "sem=" << gSystematics.systematic_energy_scale << std::endl;
-        std::cout << "sef=" << gSystematics.systematic_efficiency << std::endl;
-        std::cout << "sen=" << gSystematics.systematic_enrichment << std::endl;
-        std::cout << "seos=" << gSystematics.systematic_energy_offsetsmall << std::endl;
-        //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itsel
-        rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itsel
+        gSystematics_print();
+
         ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-        rebuild_fake_data_systematics(0.7, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
+        rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
         ND150_FAKEDATA_SCALE_FACTOR = 1.0;
-
-        // create minimizer
-        //ROOT::Minuit2::MnUserParameterState theParameterState;
-        //ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
-        //MinimizeFCNAxialVector theFCN;
-
-        // initialize fit
-        //fitBackgrounds_init(theParameterState, theMinimizer, AdjustActs, AdjustActs_Err);
-        //const double xi_31_value = xi_31_init_value;
-        //const double xi_31_error = xi_31_init_error;
-        // TODO: this function does not work as expected with the testmps function below
-        //fitBackgrounds_phasespace_init(theParameterState, theMinimizer, 1.0, xi_31_value);
 
         std::cout << "ready to test MPS" << std::endl;
         std::cout << "output_name=" << output_name << std::endl;
         std::cout << "start_index=" << start_index << std::endl;
         std::cout << "stop_index=" << stop_index << std::endl;
-        //std::cin.get();
-        //newloglikfitter_testmyphasespace(theParameterState, theFCN); //, FCN_min);
-        //newloglikfitter_testmyphasespace_newversion(number_job_id, output_name, start_index, stop_index);
-
         std::cout << "calling calculate" << std::endl;
         newloglikfitter_mps_calculate(number_job_id, output_name, start_index, stop_index);
-        //std::cout << "calling draw" << std::endl;
-        //newloglikfitter_mps_draw(number_job_id, output_name, start_index, stop_index);
-        
 
         std::cout << "MPS done" << std::endl;
     }
    
-/*
-    if(0)
-    {
-        //newloglikfitter_gA_chisquaretest(minuit, AdjustActs, AdjustActs_Err);
-    }
-*/
+
+
     ///////////////////////////////////////////////////////////////////////////
 #if 0
     print_adjustacts(std::cout, params, param_errs);
@@ -4764,4 +4352,209 @@ void loadFiles(int i)
 
 
 
+
+
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Variable Systematic Parameter
+    ///////////////////////////////////////////////////////////////////////////
+
+#if 0
+    
+    bool g_mode_fake_data_restore_value = g_mode_fake_data;
+    g_mode_fake_data = true;
+    
+    TCanvas *results_c_xi_31 = nullptr;
+    TCanvas *results_c_A = nullptr;
+    TCanvas *results_c_chi2_before = nullptr;
+    TCanvas *results_c_chi2_after = nullptr;
+
+    std::vector<TCanvas*> results_c_allparams;
+
+    // do not do this in parallel mode
+    if(0) // || (MODE_PARALLEL == 0))
+    {
+        // TODO: enable/disable SYSX?
+
+        std::vector<double> results_x_xi_31;
+        std::vector<double> results_y_xi_31;
+        std::vector<double> results_x_A;
+        std::vector<double> results_y_A;
+        std::vector<double> results_x_chi2_before;
+        std::vector<double> results_y_chi2_before;
+        std::vector<double> results_x_chi2_after;
+        std::vector<double> results_y_chi2_after;
+
+        std::vector<std::vector<double>> results_y_allparams;
+
+        const int i_max = 0; //10; //0;
+        for(int i = 0; i <= i_max; ++ i)
+        {
+
+            const double min = -0.01;
+            const double max = +0.01;
+            const double diff = max - min;
+            const double fr = (double)i / (double)i_max;
+            //gSystematics.systematic_energy_offset = fr * diff + min;
+            gSystematics.systematic_energy_offset = 0.0;
+            gSystematics.systematic_energy_scale = 0.0;
+            double systematic_energy_offset = gSystematics.systematic_energy_offset;
+            double systematic_energy_scale = gSystematics.systematic_energy_scale;
+            std::cout << "seo=" << systematic_energy_offset << std::endl;
+            std::cout << "sem=" << systematic_energy_scale << std::endl;
+            //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itself
+            rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itself
+            // just check the output looks sensible
+
+            std::string name_extra = "seo_" + std::to_string(systematic_energy_offset)
+                                   + "_sem_" + std::to_string(systematic_energy_scale);
+
+            // create minimizer
+            ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
+            ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
+            MinimizeFCNAxialVector theFCN;
+
+            // initialize fit
+            //fitBackgrounds_init(theParameterState, theMinimizer, AdjustActs, AdjustActs_Err);
+            const int xi_31_param_number = g_pg.get_xi_31_ext_param_number();
+            const double xi_31_value = g_pg.file_params.at(xi_31_param_number).paramInitValue;
+            const double xi_31_error = g_pg.file_params.at(xi_31_param_number).paramInitError;
+            std::cout << "xi_31_param_number=" << xi_31_param_number
+                      << " xi_31=" << xi_31_value << " +- " << xi_31_error << std::endl;
+            fitBackgrounds_init(theParameterStateBefore, theMinimizer, xi_31_value, xi_31_error);
+
+            // get parameters and chi2 value before fit
+            std::vector<double> params_before = theParameterStateBefore.Params();
+            std::vector<double> param_errs_before = theParameterStateBefore.Errors();
+            double fval_before = theFCN.operator()(params_before);
+            //int ndf = theFCN.ndf - theParameterStateBefore.VariableParameters();
+            int nch = theFCN.nch;
+            int nfp = g_pg.get_number_free_params();
+            int ndf = nch - nfp;
+
+            // initilize output vectors
+            if(i == 0)
+            {
+                for(int i = 0; i < g_pg.file_params.size(); ++ i)
+                {
+                    std::vector<double> blankvector;
+                    results_y_allparams.push_back(blankvector);
+                }
+            }
+
+            // draw before fit
+            draw_input_data drawinputdata;
+            drawinputdata.chi2 = fval_before;
+            drawinputdata.nch = nch;
+            drawinputdata.nfp = nfp;
+            drawinputdata.serial_dir = "xifree";
+            drawinputdata.saveas_filename = std::string("xifree_before") + "_" + name_extra;
+            drawinputdata.saveas_png = true;
+           
+            draw(drawinputdata,
+                 params_before,
+                 param_errs_before);
+
+            // exec fit
+            // do fit with all parameters free
+            ROOT::Minuit2::FunctionMinimum FCN_min =
+                fitBackgrounds_exec(
+                    theParameterStateBefore,
+                    theMinimizer,
+                    theFCN);
+
+            // get result
+            ROOT::Minuit2::MnUserParameterState theParameterStateAfter = FCN_min.UserParameters();
+            std::vector<double> params_after = theParameterStateAfter.Params();
+            std::vector<double> param_errs_after = theParameterStateAfter.Errors();
+
+            double fval_after = theFCN.operator()(params_after);
+            //ndf = theFCN.ndf - theParameterStateAfter.VariableParameters();
+            nch = theFCN.nch;
+            nfp = g_pg.get_number_free_params();
+            ndf = nch - nfp;
+
+            // draw result
+            drawinputdata.chi2 = fval_after;
+            drawinputdata.nch = nch;
+            drawinputdata.saveas_filename = std::string("xifree_after") + "_" + name_extra;
+           
+            draw(drawinputdata,
+                 params_after,
+                 param_errs_after);
+
+            
+            // minimize
+            //ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, init_par, init_err);
+            //ROOT::Minuit2::FunctionMinimum FCN_min = theMinimizer.Minimize(theFCN, init_par, init_err);
+            /*
+            std::cout << "Minimization finished" << std::endl;
+            std::cout << "minimum: " << FCN_min << std::endl;
+            std::cout << "chi2: " << FCN_min.Fval() << std::endl;
+            std::cout << "edm: " << FCN_min.Edm() << std::endl;
+            */
+
+
+            std::cout << "fval_after=" << fval_after << " for params_after[0]=" << params_after[0] << " params_after[1]=" << params_after[1] << std::endl;
+            std::cout << "fval_before=" << fval_before << std::endl;
+
+            results_x_xi_31.push_back(systematic_energy_offset);
+            results_y_xi_31.push_back(params_after.at(1));
+
+            results_x_A.push_back(systematic_energy_offset);
+            results_y_A.push_back(params_after.at(0));
+            
+            results_x_chi2_before.push_back(systematic_energy_offset);
+            results_y_chi2_before.push_back(fval_before);
+
+            results_x_chi2_after.push_back(systematic_energy_offset);
+            results_y_chi2_after.push_back(fval_after);
+
+            for(int i = 0; i < g_pg.file_params.size(); ++ i)
+            {
+                results_y_allparams.at(i).push_back(params_after.at(i));
+            }
+        }
+
+        TGraph *results_g_xi_31 = new TGraph(results_x_xi_31.size(), results_x_xi_31.data(), results_y_xi_31.data());
+        TGraph *results_g_A = new TGraph(results_x_A.size(), results_x_A.data(), results_y_A.data());
+        TGraph *results_g_chi2_before = new TGraph(results_x_chi2_before.size(), results_x_chi2_before.data(), results_y_chi2_before.data());
+        TGraph *results_g_chi2_after = new TGraph(results_x_chi2_after.size(), results_x_chi2_after.data(), results_y_chi2_after.data());
+
+        
+        for(int i = 0; i < g_pg.file_params.size(); ++ i)
+        {
+            std::cout << "i=" << i << std::endl;
+
+            TGraph *results_g_allparams =
+                new TGraph(results_x_xi_31.size(),
+                           results_x_xi_31.data(),
+                           results_y_allparams.at(i).data());
+
+            TString cname;
+            cname.Form("results_P%d", i);
+            std::cout << "cname=" << cname << std::endl;
+            results_c_allparams.push_back(new TCanvas(cname, cname));
+            results_g_allparams->Draw();
+        }
+
+
+        results_c_xi_31 = new TCanvas("results_xi_31", "results_xi_31");
+        results_g_xi_31->Draw();
+
+        results_c_A = new TCanvas("results_A", "results_A");
+        results_g_A->Draw();
+
+        results_c_chi2_before = new TCanvas("results_chi2_before", "results_chi2_before");
+        results_g_chi2_before->Draw();
+
+        results_c_chi2_after = new TCanvas("results_chi2_after", "results_chi2_after");
+        results_g_chi2_after->Draw();
+    }
+
+    g_mode_fake_data = g_mode_fake_data_restore_value;
+#endif
 
