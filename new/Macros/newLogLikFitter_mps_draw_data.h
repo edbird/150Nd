@@ -20,13 +20,13 @@ class mpsdrawdata
         , h_mps{nullptr}
         , n_param_1{0}, param_1_min{0.0}, param_1_max{0.0}
         , n_param_2{0}, param_2_min{0.0}, param_2_max{0.0}
-        , min_point{0.0, 0.0}
-        , min_point_fake_data{0.0, 0.0}
+        //, min_point{0.0, 0.0}
+        //, min_point_fake_data{0.0, 0.0}
         , enable_min_point_sysn(N_SYSTEMATICS, false)
         //, min_point_sysn_l(N_SYSTEMATICS, {0.0, 0.0})
         //, min_point_sysn_h(N_SYSTEMATICS, {0.0, 0.0})
-        , min_point_sysn_l(N_SYSTEMATICS)
-        , min_point_sysn_h(N_SYSTEMATICS)
+        //, min_point_sysn_l(N_SYSTEMATICS)
+        //, min_point_sysn_h(N_SYSTEMATICS)
         , file_read_mode_fake_data{true}
         , file_read_enable_sysall{true}
         , min{0.0}, min_x{0.0}, min_y{0.0}
@@ -147,6 +147,45 @@ class mpsdrawdata
         }
         got_n_param_1 = false;
         got_n_param_2 = false;
+
+
+
+
+        ///////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////
+
+        ///////////////////////////////////////////////////////////////////////
+        // read min points from file
+        ///////////////////////////////////////////////////////////////////////
+        
+        min_point_load("min_point_data_", min_point_data, min_point_data_err, min_point_data_fval);  
+        min_point_load("min_point_fake_", min_point_fake, min_point_fake_err, min_point_fake_fval);  
+        min_point_load("min_point_SYSALL_data_", min_point_data_SYSALL, min_point_data_SYSALL_err, min_point_data_SYSALL_fval);  
+        min_point_load("min_point_SYSALL_fake_", min_point_fake_SYSALL, min_point_fake_SYSALL_err, min_point_fake_SYSALL_fval);  
+        min_point_load("min_point_data__CH0", min_point_data_HSD_CH0, min_point_data_HSD_CH0_err, min_point_data_HSD_CH0_fval);  
+        min_point_load("min_point_data__HSD", min_point_data_HSD, min_point_data_HSD_err, min_point_data_HSD_fval);  
+        min_point_load("min_point_data__SSD", min_point_data_SSD, min_point_data_SSD_err, min_point_data_SSD_fval);  
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            TString fname_l;
+            fname_l.Form("min_point_fake_SYS%dL", i);
+            min_point_load(std::string(fname_l), min_point_fake_sysn_l[i], min_point_fake_sysn_l_err[i], min_point_fake_sysn_l_fval[i]);
+            TString fname_h;
+            fname_h.Form("min_point_fake_SYS%dH", i);
+            min_point_load(std::string(fname_h), min_point_fake_sysn_h[i], min_point_fake_sysn_h_err[i], min_point_fake_sysn_h_fval[i]);
+        }
+
+        ///////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////
+        
+
+
+
+
+
+
+
+
 
 
     #if 0
@@ -353,6 +392,20 @@ class mpsdrawdata
                 }
                 else if(token == "min_point")
                 {
+                    // ignore this
+                    ifs_resultsmatrix >> token;
+                    if(token == "]")
+                    {
+                        // read min point
+                        std::string dummy;
+                        ifs_resultsmatrix >> dummy >> dummy;
+                    }
+                    else
+                    {
+                        std::cout << "ERROR: EXPECTED \"]\"" << std::endl;
+                    }
+
+                    #if 0
                     ifs_resultsmatrix >> token;
                     if(token == "]")
                     {
@@ -372,9 +425,23 @@ class mpsdrawdata
                     {
                         std::cout << "ERROR: EXPECTED \"]\"" << std::endl;
                     }
+                    #endif
                 }
                 else if(token == "min_point_fake_data")
                 {
+                    ifs_resultsmatrix >> token;
+                    if(token == "]")
+                    {
+                        // read min point fakedata
+                        std::string dummy;
+                        ifs_resultsmatrix >> dummy >> dummy;
+                    }
+                    else
+                    {
+                        std::cout << "ERROR: EXPECTED \"]\"" << std::endl;
+                    }
+
+                    #if 0
                     ifs_resultsmatrix >> token;
                     if(token == "]")
                     {
@@ -394,9 +461,23 @@ class mpsdrawdata
                     {
                         std::cout << "ERROR: EXPECTED \"]\"" << std::endl;
                     }
+                    #endif
                 }
                 else if(token.substr(0, TOKEN1.size()) == TOKEN1)
                 {
+                    ifs_resultsmatrix >> token;
+                    if(token == "]")
+                    {
+                        // read min point fakedata
+                        std::string dummy;
+                        ifs_resultsmatrix >> dummy >> dummy;
+                    }
+                    else
+                    {
+                        std::cout << "ERROR: EXPECTED \"]\"" << std::endl;
+                    }
+
+                    #if 0
                     std::size_t find_pos = token.rfind("_"); // find last underscore position
                     std::string number_str = token.substr(TOKEN1.size(), find_pos - TOKEN1.size());
                     std::string underscore_to_end = token.substr(find_pos);
@@ -441,6 +522,7 @@ class mpsdrawdata
                     {
                         std::cout << "ERROR: EXPECTED \"]\"" << std::endl;
                     }
+                    #endif
                 }
                 else if(token == "n_param_1")
                 {
@@ -720,10 +802,10 @@ class mpsdrawdata
                 mark_min_point_sysn_h[i],
                 line_min_point_sysn_l[i],
                 line_min_point_sysn_h[i],
-                min_point,
-                min_point_fake_data,
-                min_point_sysn_l[i],
-                min_point_sysn_h[i],
+                min_point_data,
+                min_point_fake,
+                min_point_fake_sysn_l[i],
+                min_point_fake_sysn_h[i],
                 ENABLE_MIN_POINT_SYSn[i],
                 markerstylen[i], markercolorn[i], markersizen[i], markercolorn[i]
                 );
@@ -742,11 +824,11 @@ class mpsdrawdata
     TH2D *h_mps;
     int n_param_1; double param_1_min; double param_1_max;
     int n_param_2; double param_2_min; double param_2_max;
-    double min_point[2];
-    double min_point_fake_data[2];
+    //double min_point[2];
+    //double min_point_fake_data[2];
     std::vector<bool> enable_min_point_sysn;
-    std::vector<double[2]> min_point_sysn_l;
-    std::vector<double[2]> min_point_sysn_h;
+    //std::vector<double[2]> min_point_sysn_l;
+    //std::vector<double[2]> min_point_sysn_h;
     bool file_read_mode_fake_data;
     bool file_read_enable_sysall;
     double min; double min_x; double min_y;

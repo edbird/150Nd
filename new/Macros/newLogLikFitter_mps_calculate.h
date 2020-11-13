@@ -274,7 +274,7 @@ void newloglikfitter_mps_calculate
     }
     ofs_resultsmatrix_after << std::endl;
     
-
+#if 0
     // before 
     ofs_resultsmatrix_before << "[ min_point ] " << min_point[0] << " " << min_point[1] << std::endl;
     ofs_resultsmatrix_before << "[ min_point_fake_data ] " << min_point_fake_data[0] << " " << min_point_fake_data[1] << std::endl;
@@ -300,7 +300,7 @@ void newloglikfitter_mps_calculate
                                 << " " << min_point_sysn_h[i][0]
                                 << " " << min_point_sysn_h[i][1] << std::endl;
     }
-
+#endif
 
     // before
     ofs_resultsmatrix_before << "[ n_param_1 ] " << n_param_1 << " " << param_1_min << " " << param_1_max << std::endl;

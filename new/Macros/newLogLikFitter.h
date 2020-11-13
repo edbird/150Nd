@@ -586,22 +586,41 @@ void V_ENABLE_SYS_stack_pop()
 // systematic: SYS1
 // h = high
 // l = low
-double min_point[2] = {0.0, 0.0}; // minimum point found, all parameter fit
-double min_point_fval = 0.0;
-double min_point_fake_data[2] = {0.0, 0.0};
-double min_point_fake_data_fval = 0.0;
 
-double min_point_SYSALL[2] = {0.0, 0.0}; // minimum point found, all parameter fit SYSALL
-double min_point_SYSALL_fval = 0.0;
-double min_point_fake_data_SYSALL[2] = {0.0, 0.0};
-double min_point_fake_data_SYSALL_fval = 0.0;
+// min point data, xi free
+double min_point_data[2] = {0.0, 0.0};
+double min_point_data_fval = 0.0;
+double min_point_data_err[2] = {0.0, 0.0};
 
-double min_point_CH0[2] = {0.0, 0.0}; // minimum point found, all parameter fit, CHANNEL=0
-double min_point_CH0_fval = 0.0;
-double min_point_HSD[2] = {0.0, 0.0}; // minimum point found, all parameter fit, CHANNEL=0
-double min_point_HSD_fval = 0.0;
-double min_point_SSD[2] = {0.0, 0.0}; // minimum point found, all parameter fit, CHANNEL=0
-double min_point_SSD_fval = 0.0;
+// min point fake xi free
+double min_point_fake[2] = {0.0, 0.0};
+double min_point_fake_fval = 0.0;
+double min_point_fake_err[2] = {0.0, 0.0};
+
+// min point data with systematics, xi free
+double min_point_data_SYSALL[2] = {0.0, 0.0};
+double min_point_data_SYSALL_fval = 0.0;
+double min_point_data_SYSALL_err[2] = {0.0, 0.0};
+
+// min point fake with systematics, xi free
+double min_point_fake_SYSALL[2] = {0.0, 0.0};
+double min_point_fake_SYSALL_fval = 0.0;
+double min_point_fake_SYSALL_err[2] = {0.0, 0.0};
+
+// min point data, xi=HSD, total electron energy
+double min_point_data_HSD_CH0[2] = {0.0, 0.0};
+double min_point_data_HSD_CH0_fval = 0.0;
+double min_point_data_HSD_CH0_err[2] = {0.0, 0.0};
+
+// min point data, xi=HSD
+double min_point_data_HSD[2] = {0.0, 0.0};
+double min_point_data_HSD_fval = 0.0;
+double min_point_data_HSD_err[2] = {0.0, 0.0};
+
+// min point data, xi=SSD
+double min_point_data_SSD[2] = {0.0, 0.0};
+double min_point_data_SSD_fval = 0.0;
+double min_point_data_SSD_err[2] = {0.0, 0.0};
 
 // +- 0.1 MeV
 // +- 1.2 % scale
@@ -609,7 +628,21 @@ double min_point_SSD_fval = 0.0;
 // +- 0.50 % enrichment
 // +- 3 keV
 
-double min_point_sysn_h[N_SYSTEMATICS][2] =
+double min_point_fake_sysn_h[N_SYSTEMATICS][2] =
+{
+    {0.0, 0.0},
+    {0.0, 0.0},
+    {0.0, 0.0},
+    {0.0, 0.0},
+    {0.0, 0.0},
+    {0.0, 0.0},
+    {0.0, 0.0},
+    {0.0, 0.0},
+    {0.0, 0.0},
+    {0.0, 0.0},
+    {0.0, 0.0}
+};
+double min_point_fake_sysn_h_err[N_SYSTEMATICS][2] =
 {
     {0.0, 0.0},
     {0.0, 0.0},
@@ -624,12 +657,26 @@ double min_point_sysn_h[N_SYSTEMATICS][2] =
     {0.0, 0.0}
 };
 
-double min_point_sysn_h_fval[N_SYSTEMATICS] =
+double min_point_fake_sysn_h_fval[N_SYSTEMATICS] =
 {
     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
 };
 
-double min_point_sysn_l[N_SYSTEMATICS][2] =
+double min_point_fake_sysn_l[N_SYSTEMATICS][2] =
+{
+    {0.0, 0.0},
+    {0.0, 0.0},
+    {0.0, 0.0},
+    {0.0, 0.0},
+    {0.0, 0.0},
+    {0.0, 0.0},
+    {0.0, 0.0},
+    {0.0, 0.0},
+    {0.0, 0.0},
+    {0.0, 0.0},
+    {0.0, 0.0}
+};
+double min_point_fake_sysn_l_err[N_SYSTEMATICS][2] =
 {
     {0.0, 0.0},
     {0.0, 0.0},
@@ -644,10 +691,47 @@ double min_point_sysn_l[N_SYSTEMATICS][2] =
     {0.0, 0.0}
 };
 
-double min_point_sysn_l_fval[N_SYSTEMATICS] =
+double min_point_fake_sysn_l_fval[N_SYSTEMATICS] =
 {
     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
 };
+
+
+void min_point_save(
+    const std::string &min_point_fname,
+    double *const min_point,
+    double *const min_point_err,
+    const double &min_point_fval)
+{
+    std::ofstream ofs(min_point_fname);
+    ofs << min_point[0] << " " << min_point[1] << std::endl;
+    ofs << min_point_fval << std::endl;
+    ofs << min_point_err[0] << " " << min_point_err[1] << std::endl;
+    ofs.close();
+}
+
+
+int min_point_load(
+    const std::string &min_point_fname,
+    double *const min_point,
+    double *const min_point_err,
+    double &min_point_fval)
+{
+    int ret = 0;
+    std::ifstream ifs(min_point_fname);
+    if(ifs.is_open())
+    {
+        ifs >> min_point[0] >> min_point[1];
+        ifs >> min_point_fval;
+        ifs >> min_point_err[0] >> min_point_err[1];
+        ifs.close();
+    }
+    else
+    {
+        ret = -1;
+    }
+    return ret;
+}
 
 
 ///////////////////////////////////////////////////////////////////////////////

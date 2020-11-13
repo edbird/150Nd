@@ -92,10 +92,10 @@ void newloglikfitter_mps_draw_helper_colz
         double min = mps_draw_data_sysnone.min;
         double min_x = mps_draw_data_sysnone.min_x;
         double min_y = mps_draw_data_sysnone.min_y;
-        double min_point[2] = {mps_draw_data_sysnone.min_point[0],
-                               mps_draw_data_sysnone.min_point[1]};
-        double min_point_fake_data[2] = {mps_draw_data_sysnone.min_point_fake_data[0],
-                               mps_draw_data_sysnone.min_point_fake_data[1]};
+        //double min_point[2] = {mps_draw_data_sysnone.min_point[0],
+        //                       mps_draw_data_sysnone.min_point[1]};
+        //double min_point_fake_data[2] = {mps_draw_data_sysnone.min_point_fake_data[0],
+        //                       mps_draw_data_sysnone.min_point_fake_data[1]};
         double param_1_min = mps_draw_data_sysnone.param_1_min;
         double param_1_max = mps_draw_data_sysnone.param_1_max;
         double param_2_min = mps_draw_data_sysnone.param_2_min;
@@ -160,6 +160,8 @@ void newloglikfitter_mps_draw_helper_colz
         //TLine *lineYc = new TLine(min_x, param_2_min, min_x, param_2_max);
         TLine *lineXc = nullptr; //new TLine(param_1_min, min_point[1], param_1_max, min_point[1]);
         TLine *lineYc = nullptr; //new TLine(min_point[0], param_2_min, min_point[0], param_2_max);
+        TLine *lineXc_SYSALL = nullptr;
+        TLine *lineYc_SYSALL = nullptr;
         //lineHSD->SetLineColor(kWhite);
         //lineSSD->SetLineColor(kWhite);
         //lineY->SetLineColor(kWhite);
@@ -174,22 +176,22 @@ void newloglikfitter_mps_draw_helper_colz
         Int_t min_iy = h_mps_sysall->GetXaxis()->FindBin(min_y);
         Int_t ix_0 = h_mps_sysall->GetXaxis()->FindBin(0.0);
         Int_t iy_1 = h_mps_sysall->GetXaxis()->FindBin(1.0);
-        if(std::abs(0.0 - min_point[0]) > 1.0e-2)
+        if(std::abs(0.0 - min_point_data[0]) > 1.0e-2)
         {
             lineHSD->Draw();
         }
-        if(std::abs(0.296 - min_point[0]) > 1.0e-2)
+        if(std::abs(0.296 - min_point_data[0]) > 1.0e-2)
         {
             lineSSD->Draw();
         }
-        if(std::abs(1.0 - min_point[1]) > 1.0e-2)
+        if(std::abs(1.0 - min_point_data[1]) > 1.0e-2)
         {
             lineY->Draw();
         }
         if(mps_draw_data_sysnone.mode_fake_data_flag == false)
         {
-            lineXc = new TLine(param_1_min, min_point[1], param_1_max, min_point[1]);
-            lineYc = new TLine(min_point[0], param_2_min, min_point[0], param_2_max);
+            lineXc = new TLine(param_1_min, min_point_data[1], param_1_max, min_point_data[1]);
+            lineYc = new TLine(min_point_data[0], param_2_min, min_point_data[0], param_2_max);
             lineXc->SetLineColorAlpha(kMagenta, 1.0);
             lineYc->SetLineColorAlpha(kMagenta, 1.0);
             lineXc->SetLineWidth(2.0);
@@ -200,8 +202,8 @@ void newloglikfitter_mps_draw_helper_colz
         }
         else
         {
-            lineXc = new TLine(param_1_min, min_point_fake_data[1], param_1_max, min_point_fake_data[1]);
-            lineYc = new TLine(min_point_fake_data[0], param_2_min, min_point_fake_data[0], param_2_max);
+            lineXc = new TLine(param_1_min, min_point_fake[1], param_1_max, min_point_fake[1]);
+            lineYc = new TLine(min_point_fake[0], param_2_min, min_point_fake[0], param_2_max);
             lineXc->SetLineColorAlpha(kBlue, 1.0);
             lineYc->SetLineColorAlpha(kBlue, 1.0);
             lineXc->SetLineWidth(2.0);
@@ -209,6 +211,21 @@ void newloglikfitter_mps_draw_helper_colz
 
             lineXc->Draw();
             lineYc->Draw();
+        }
+        if(mps_draw_data_sysall.mode_fake_data_flag == false)
+        {
+        }
+        else
+        {
+            lineXc_SYSALL = new TLine(param_1_min, min_point_data_SYSALL[1], param_1_max, min_point_data_SYSALL[1]);
+            lineYc_SYSALL = new TLine(min_point_data_SYSALL[0], param_2_min, min_point_data_SYSALL[0], param_2_max);
+            lineXc_SYSALL->SetLineColorAlpha(kGreen, 1.0);
+            lineYc_SYSALL->SetLineColorAlpha(kGreen, 1.0);
+            lineXc_SYSALL->SetLineWidth(2.0);
+            lineYc_SYSALL->SetLineWidth(2.0);
+
+            lineXc_SYSALL->Draw();
+            lineYc_SYSALL->Draw();
         }
 
         // draw sysnone contour
@@ -234,12 +251,16 @@ void newloglikfitter_mps_draw_helper_colz
             if(ENABLE_MIN_POINT_SYSn[i] == true)
             {
                 std::cout << "MIN_POINT: i=" << i << " enabled" << std::endl;
-                if((mps_draw_data_sysall.min_point_sysn_l[i][0] != 0.0) &&
-                   (mps_draw_data_sysall.min_point_sysn_l[i][1] != 0.0))
+                //if((mps_draw_data_sysall.min_point_sysn_l[i][0] != 0.0) &&
+                //   (mps_draw_data_sysall.min_point_sysn_l[i][1] != 0.0))
+                if((min_point_fake_sysn_l[i][0] != 0.0) &&
+                   (min_point_fake_sysn_l[i][1] != 0.0))
                 {
                     std::cout << "draw! (l) "
-                              << mps_draw_data_sysall.min_point_sysn_l[i][0] << " "
-                              << mps_draw_data_sysall.min_point_sysn_l[i][1]
+                              //<< mps_draw_data_sysall.min_point_sysn_l[i][0] << " "
+                              //<< mps_draw_data_sysall.min_point_sysn_l[i][1]
+                              << min_point_fake_sysn_l[i][0] << " "
+                              << min_point_fake_sysn_l[i][1]
                               << std::endl;
 //                    mps_draw_data_sysall.mark_min_point_sysn_l[i]->SetMarkerColor(kRed);
                     mps_draw_data_sysall.mark_min_point_sysn_l[i]->Draw();
@@ -249,12 +270,16 @@ void newloglikfitter_mps_draw_helper_colz
                     }
                 }
 
-                if((mps_draw_data_sysall.min_point_sysn_h[i][0] != 0.0) &&
-                   (mps_draw_data_sysall.min_point_sysn_h[i][1] != 0.0))
+                //if((mps_draw_data_sysall.min_point_sysn_h[i][0] != 0.0) &&
+                //   (mps_draw_data_sysall.min_point_sysn_h[i][1] != 0.0))
+                if((min_point_fake_sysn_h[i][0] != 0.0) &&
+                   (min_point_fake_sysn_h[i][1] != 0.0))
                 {
                     std::cout << "draw! (h) "
-                              << mps_draw_data_sysall.min_point_sysn_h[i][0] << " "
-                              << mps_draw_data_sysall.min_point_sysn_h[i][1]
+                              //<< mps_draw_data_sysall.min_point_sysn_h[i][0] << " "
+                              //<< mps_draw_data_sysall.min_point_sysn_h[i][1]
+                              << min_point_fake_sysn_h[i][0] << " "
+                              << min_point_fake_sysn_h[i][1]
                               << std::endl;
 //                    mps_draw_data_sysall.mark_min_point_sysn_h[i]->SetMarkerColor(kRed);
                     mps_draw_data_sysall.mark_min_point_sysn_h[i]->Draw();
@@ -424,10 +449,10 @@ void newloglikfitter_mps_draw_helper
         double min = mps_draw_data_sysnone.min;
         double min_x = mps_draw_data_sysnone.min_x;
         double min_y = mps_draw_data_sysnone.min_y;
-        double min_point[2] = {mps_draw_data_sysnone.min_point[0],
-                               mps_draw_data_sysnone.min_point[1]};
-        double min_point_fake_data[2] = {mps_draw_data_sysnone.min_point_fake_data[0],
-                               mps_draw_data_sysnone.min_point_fake_data[1]};
+        //double min_point[2] = {mps_draw_data_sysnone.min_point[0],
+        //                       mps_draw_data_sysnone.min_point[1]};
+        //double min_point_fake_data[2] = {mps_draw_data_sysnone.min_point_fake_data[0],
+        //                       mps_draw_data_sysnone.min_point_fake_data[1]};
         double param_1_min = mps_draw_data_sysnone.param_1_min;
         double param_1_max = mps_draw_data_sysnone.param_1_max;
         double param_2_min = mps_draw_data_sysnone.param_2_min;
@@ -492,6 +517,8 @@ void newloglikfitter_mps_draw_helper
         //TLine *lineYc = new TLine(min_x, param_2_min, min_x, param_2_max);
         TLine *lineXc = nullptr;
         TLine *lineYc = nullptr;
+        TLine *lineXc_SYSALL = nullptr;
+        TLine *lineYc_SYSALL = nullptr;
         //lineHSD->SetLineColor(kWhite);
         //lineSSD->SetLineColor(kWhite);
         //lineY->SetLineColor(kWhite);
@@ -504,22 +531,22 @@ void newloglikfitter_mps_draw_helper
         Int_t min_iy = h_mps_sysall->GetXaxis()->FindBin(min_y);
         Int_t ix_0 = h_mps_sysall->GetXaxis()->FindBin(0.0);
         Int_t iy_1 = h_mps_sysall->GetXaxis()->FindBin(1.0);
-        if(std::abs(0.0 - min_point[0]) > 1.0e-2)
+        if(std::abs(0.0 - min_point_data[0]) > 1.0e-2)
         {
             lineHSD->Draw();
         }
-        if(std::abs(0.296 - min_point[0]) > 1.0e-2)
+        if(std::abs(0.296 - min_point_data[0]) > 1.0e-2)
         {
             lineSSD->Draw();
         }
-        if(std::abs(1.0 - min_point[1]) > 1.0e-2)
+        if(std::abs(1.0 - min_point_data[1]) > 1.0e-2)
         {
             lineY->Draw();
         }
         if(mps_draw_data_sysnone.mode_fake_data_flag == false)
         {
-            lineXc = new TLine(param_1_min, min_point[1], param_1_max, min_point[1]);
-            lineYc = new TLine(min_point[0], param_2_min, min_point[0], param_2_max);
+            lineXc = new TLine(param_1_min, min_point_data[1], param_1_max, min_point_data[1]);
+            lineYc = new TLine(min_point_data[0], param_2_min, min_point_data[0], param_2_max);
             lineXc->SetLineColorAlpha(kMagenta, 1.0);
             lineYc->SetLineColorAlpha(kMagenta, 1.0);
             lineXc->SetLineWidth(2.0);
@@ -530,8 +557,8 @@ void newloglikfitter_mps_draw_helper
         }
         else
         {
-            lineXc = new TLine(param_1_min, min_point_fake_data[1], param_1_max, min_point_fake_data[1]);
-            lineYc = new TLine(min_point_fake_data[0], param_2_min, min_point_fake_data[0], param_2_max);
+            lineXc = new TLine(param_1_min, min_point_fake[1], param_1_max, min_point_fake[1]);
+            lineYc = new TLine(min_point_fake[0], param_2_min, min_point_fake[0], param_2_max);
             lineXc->SetLineColorAlpha(kBlue, 1.0);
             lineYc->SetLineColorAlpha(kBlue, 1.0);
             lineXc->SetLineWidth(2.0);
@@ -539,6 +566,21 @@ void newloglikfitter_mps_draw_helper
 
             lineXc->Draw();
             lineYc->Draw();
+        }
+        if(mps_draw_data_sysall.mode_fake_data_flag == false)
+        {
+        }
+        else
+        {
+            lineXc_SYSALL = new TLine(param_1_min, min_point_data_SYSALL[1], param_1_max, min_point_data_SYSALL[1]);
+            lineYc_SYSALL = new TLine(min_point_data_SYSALL[0], param_2_min, min_point_data_SYSALL[0], param_2_max);
+            lineXc_SYSALL->SetLineColorAlpha(kGreen, 1.0);
+            lineYc_SYSALL->SetLineColorAlpha(kGreen, 1.0);
+            lineXc_SYSALL->SetLineWidth(2.0);
+            lineYc_SYSALL->SetLineWidth(2.0);
+
+            lineXc_SYSALL->Draw();
+            lineYc_SYSALL->Draw();
         }
 
         // draw sysall contour
@@ -564,12 +606,16 @@ void newloglikfitter_mps_draw_helper
             if(ENABLE_MIN_POINT_SYSn[i] == true)
             {
                 std::cout << "MIN_POINT: i=" << i << " enabled" << std::endl;
-                if((mps_draw_data_sysall.min_point_sysn_l[i][0] != 0.0) &&
-                   (mps_draw_data_sysall.min_point_sysn_l[i][1] != 0.0))
+                //if((mps_draw_data_sysall.min_point_sysn_l[i][0] != 0.0) &&
+                //   (mps_draw_data_sysall.min_point_sysn_l[i][1] != 0.0))
+                if((min_point_fake_sysn_l[i][0] != 0.0) &&
+                   (min_point_fake_sysn_l[i][1] != 0.0))
                 {
                     std::cout << "draw! (l) "
-                              << mps_draw_data_sysall.min_point_sysn_l[i][0] << " "
-                              << mps_draw_data_sysall.min_point_sysn_l[i][1]
+                              //<< mps_draw_data_sysall.min_point_sysn_l[i][0] << " "
+                              //<< mps_draw_data_sysall.min_point_sysn_l[i][1]
+                              << min_point_fake_sysn_l[i][0] << " "
+                              << min_point_fake_sysn_l[i][1]
                               << std::endl;
 //                    mps_draw_data_sysall.mark_min_point_sysn_l[i]->SetMarkerColor(kRed);
                     mps_draw_data_sysall.mark_min_point_sysn_l[i]->Draw();
@@ -579,12 +625,16 @@ void newloglikfitter_mps_draw_helper
                     }
                 }
 
-                if((mps_draw_data_sysall.min_point_sysn_h[i][0] != 0.0) &&
-                   (mps_draw_data_sysall.min_point_sysn_h[i][1] != 0.0))
+                //if((mps_draw_data_sysall.min_point_sysn_h[i][0] != 0.0) &&
+                //   (mps_draw_data_sysall.min_point_sysn_h[i][1] != 0.0))
+                if((min_point_fake_sysn_h[i][0] != 0.0) &&
+                   (min_point_fake_sysn_h[i][1] != 0.0))
                 {
                     std::cout << "draw! (h) "
-                              << mps_draw_data_sysall.min_point_sysn_h[i][0] << " "
-                              << mps_draw_data_sysall.min_point_sysn_h[i][1]
+                              //<< mps_draw_data_sysall.min_point_sysn_h[i][0] << " "
+                              //<< mps_draw_data_sysall.min_point_sysn_h[i][1]
+                              << min_point_fake_sysn_h[i][0] << " "
+                              << min_point_fake_sysn_h[i][1]
                               << std::endl;
 //                    mps_draw_data_sysall.mark_min_point_sysn_h[i]->SetMarkerColor(kRed);
                     mps_draw_data_sysall.mark_min_point_sysn_h[i]->Draw();

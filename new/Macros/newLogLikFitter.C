@@ -70,9 +70,10 @@
 #include "newLogLikFitter_mps_aux.h"
 #include "newLogLikFitter_mps_draw.h"
 #include "newLogLikFitter_mps_calculate.h"
-#include "newLogLikFitter_chisquaretest.h"
+//#include "newLogLikFitter_chisquaretest.h"
 #include "newLogLikFitter_test.h"
-#include "newLogLikFitter_preMPSfitdriver.h"
+//#include "newLogLikFitter_preMPSfitdriver.h"
+#include "newLogLikFitter_min_point_helper.h"
 
 
 
@@ -1174,6 +1175,7 @@ void loadFiles(int i)
     // reset systematics
     gSystematics.reset();
     //rebuild_fake_data_systematics(xi_31_SSD, xi_31_baseline);
+    ND150_FAKEDATA_SCALE_FACTOR = 1.15;
     rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
 
 
@@ -1620,507 +1622,455 @@ void loadFiles(int i)
 
 
 
+    // argumnets:
+    // CHANNELMODE, SYS_EN, MODE_FAKE, N_FREE, FIX_XI, XI_VAL,
+    // min_point, _err, _fval
+    // min_point_fname, draw_fname, draw_odir
 
     ///////////////////////////////////////////////////////////////////////////
     // HSD fixed xi_31 = HSD fit
     // CHANNEL 0 VERSION
     ///////////////////////////////////////////////////////////////////////////
-
-    if(1)// || (MODE_PARALLEL == 0))
-    {
-        channel_enable_1D[0] = 1;
-        channel_enable_1D[1] = 0;
-
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = false;
-
-        std::string min_point_fname = "min_point_";
-        std::string min_point_fname_append;
-        if(g_mode_fake_data == true)
-        {
-            min_point_fname_append += "fake_";
-        }
-        else if(g_mode_fake_data == false)
-        {
-            min_point_fname_append += "data_";
-        }
-        min_point_fname += min_point_fname_append + "_CH0";
-        std::ifstream ifs_min_point(min_point_fname);
-
-        if(ifs_min_point.is_open())
-        {
-            std::cout << "loading min point from file " << min_point_fname << std::endl;
-            ifs_min_point >> min_point_CH0[0] >> min_point_CH0[1];
-            ifs_min_point >> min_point_CH0_fval;
-            ifs_min_point.close();
-        }
-        else
-        {
-            recalculate_V_PHYS_SYS = true;
-
-            // assuming that xi31 and 150Nd amplitude are free
-            // this may break if the parameter_names.lst file is changed
-            gNumberFreeParams = 1;
-
-            // create minimizer
-            ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
-            ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
-            MinimizeFCNAxialVector theFCN;
-
-            // initialize fit
-            //fitBackgrounds_init(theParameterState, theMinimizer, AdjustActs, AdjustActs_Err);
-            const int xi_31_param_number = g_pg.get_xi_31_ext_param_number();
-            const double xi_31_value = g_pg.file_params.at(xi_31_param_number).paramInitValue;
-            const double xi_31_error = g_pg.file_params.at(xi_31_param_number).paramInitError;
-            std::cout << "xi_31_param_number=" << xi_31_param_number
-                      << " xi_31=" << xi_31_value << " +- " << xi_31_error << std::endl;
-            fitBackgrounds_init(theParameterStateBefore, theMinimizer, xi_31_value, xi_31_error);
-
-            // fix xi_31 parameter
-            TString i_str;
-            i_str.Form("%i", 1);
-            TString minuit_param_number_str;
-            minuit_param_number_str.Form("%i", 1);
-            TString minuit_param_name = "_" + i_str + "_" + minuit_param_number_str + "_";
-            theParameterStateBefore.Fix(std::string(minuit_param_name));
-            theParameterStateBefore.SetValue(std::string(minuit_param_name), 0.0); // HSD
-
-            // get parameters and chi2 value before fit
-            std::vector<double> params_before = theParameterStateBefore.Params();
-            std::vector<double> param_errs_before = theParameterStateBefore.Errors();
-            double fval_before = theFCN.operator()(params_before);
-            //int ndf = theFCN.ndf - theParameterStateBefore.VariableParameters();
-            int nch = theFCN.nch;
-            //int nfp = g_pg.get_number_free_params();
-            int nfp = gNumberFreeParams;
-            int ndf = nch - nfp;
-
-            // draw before fit
-            draw_input_data drawinputdata;
-            drawinputdata.chi2 = fval_before;
-            drawinputdata.nch = nch;
-            drawinputdata.nfp = nfp;
-            drawinputdata.serial_dir = "HSD_CH0";
-            drawinputdata.saveas_filename = "HSD_CH0_data_before";
-            drawinputdata.saveas_png = true;
-           
-            draw(drawinputdata,
-                 params_before,
-                 param_errs_before);
-            
-            // exec fit
-            // this will fit backgrounds and the 150Nd amplitude parameter
-            // but xi_31 is fixed
-            ROOT::Minuit2::FunctionMinimum FCN_min =
-                fitBackgrounds_exec(
-                    theParameterStateBefore,
-                    theMinimizer,
-                    theFCN);
-
-            // get result
-            ROOT::Minuit2::MnUserParameterState theParameterStateAfter = FCN_min.UserParameters();
-            std::vector<double> params_after = theParameterStateAfter.Params();
-            std::vector<double> param_errs_after = theParameterStateAfter.Errors();
-
-            double fval_after = theFCN.operator()(params_after);
-            //ndf = theFCN.ndf - theParameterStateAfter.VariableParameters();
-            nch = theFCN.nch;
-            //nfp = g_pg.get_number_free_params();
-            nfp = gNumberFreeParams;
-            ndf = nch - nfp;
-
-            // draw result
-            drawinputdata.chi2 = fval_after;
-            drawinputdata.nch = nch;
-            drawinputdata.nfp = nfp;
-            drawinputdata.saveas_filename = "HSD_CH0_data_after";
-           
-            draw(drawinputdata,
-                 params_after,
-                 param_errs_after);
-
-            theParameterStateBefore.Release(std::string(minuit_param_name));
-            /*
-            newLogLikFitter_preMPSfitdriver(
-                std::string("All Parameter Fit: NEMO3 Data"),
-                "xifree_",
-                "_data",
-                "xifree",
-                min_point,
-                min_point_fval);
-                */
-
-            min_point_CH0[0] = params_after.at(1);
-            min_point_CH0[1] = params_after.at(0);
-            min_point_CH0_fval = fval_after;
-
-            std::cout << "min_point_CH0: " << min_point_CH0[0] << " " << min_point_CH0[1] << std::endl;
-
-            std::ofstream ofs_min_point(min_point_fname);
-            ofs_min_point << min_point_CH0[0] << " " << min_point_CH0[1] << std::endl;
-            ofs_min_point << min_point_CH0_fval << std::endl;
-            ofs_min_point.close();
-
-            std::cout << "HSD Fit: NEMO3 Data (CH0)" << std::endl;
-            gSystematics_print();
-
-            std::cout << "Result: " << std::endl;
-            std::cout << "fval_before=" << fval_before << std::endl;
-            std::cout << "fval_after=" << fval_after
-                      << " for params_after[0]=" << params_after[0]
-                      << " +- " << param_errs_after[0]
-                      << " params_after[1]=" << params_after[1]
-                      << " +- " << param_errs_after[1]
-                      << std::endl;
-            std::cout << std::endl;
-        }
-
-        V_ENABLE_SYS_stack_pop();
-        g_mode_fake_data = restore_g_mode_fake_data;
-
-        channel_enable_1D[0] = 0;
-        channel_enable_1D[1] = 1;
-    }
-
-
-
-
-
-
+    min_point_helper("CH0", false, false, 1, true, 0.0,
+        min_point_data_HSD_CH0, min_point_data_HSD_CH0_err, min_point_data_HSD_CH0_fval,
+        "min_point_data_HSD_CH0", "HSD_CH0_data", "HSD_CH0");
 
     ///////////////////////////////////////////////////////////////////////////
     // HSD fixed xi_31 = HSD fit
     ///////////////////////////////////////////////////////////////////////////
-    
-    if(1)// || (MODE_PARALLEL == 0))
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = false;
-
-        std::string min_point_fname = "min_point_";
-        std::string min_point_fname_append;
-        if(g_mode_fake_data == true)
-        {
-            min_point_fname_append += "fake_";
-        }
-        else if(g_mode_fake_data == false)
-        {
-            min_point_fname_append += "data_";
-        }
-        min_point_fname += min_point_fname_append + "_HSD";
-        std::ifstream ifs_min_point(min_point_fname);
-
-        if(ifs_min_point.is_open())
-        {
-            std::cout << "loading min point from file " << min_point_fname << std::endl;
-            ifs_min_point >> min_point_HSD[0] >> min_point_HSD[1];
-            ifs_min_point >> min_point_HSD_fval;
-            ifs_min_point.close();
-        }
-        else
-        {
-            recalculate_V_PHYS_SYS = true;
-
-            // assuming that xi31 and 150Nd amplitude are free
-            // this may break if the parameter_names.lst file is changed
-            gNumberFreeParams = 1;
-
-            // create minimizer
-            ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
-            ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
-            MinimizeFCNAxialVector theFCN;
-
-            // initialize fit
-            //fitBackgrounds_init(theParameterState, theMinimizer, AdjustActs, AdjustActs_Err);
-            const int xi_31_param_number = g_pg.get_xi_31_ext_param_number();
-            const double xi_31_value = g_pg.file_params.at(xi_31_param_number).paramInitValue;
-            const double xi_31_error = g_pg.file_params.at(xi_31_param_number).paramInitError;
-            std::cout << "xi_31_param_number=" << xi_31_param_number
-                      << " xi_31=" << xi_31_value << " +- " << xi_31_error << std::endl;
-            fitBackgrounds_init(theParameterStateBefore, theMinimizer, xi_31_value, xi_31_error);
-
-            // fix xi_31 parameter
-            TString i_str;
-            i_str.Form("%i", 1);
-            TString minuit_param_number_str;
-            minuit_param_number_str.Form("%i", 1);
-            TString minuit_param_name = "_" + i_str + "_" + minuit_param_number_str + "_";
-            theParameterStateBefore.Fix(std::string(minuit_param_name));
-            theParameterStateBefore.SetValue(std::string(minuit_param_name), 0.0); // HSD
-
-            // get parameters and chi2 value before fit
-            std::vector<double> params_before = theParameterStateBefore.Params();
-            std::vector<double> param_errs_before = theParameterStateBefore.Errors();
-            double fval_before = theFCN.operator()(params_before);
-            //int ndf = theFCN.ndf - theParameterStateBefore.VariableParameters();
-            int nch = theFCN.nch;
-            //int nfp = g_pg.get_number_free_params();
-            int nfp = gNumberFreeParams;
-            int ndf = nch - nfp;
-
-            // draw before fit
-            draw_input_data drawinputdata;
-            drawinputdata.chi2 = fval_before;
-            drawinputdata.nch = nch;
-            drawinputdata.nfp = nfp;
-            drawinputdata.serial_dir = "HSD";
-            drawinputdata.saveas_filename = "HSD_data_before";
-            drawinputdata.saveas_png = true;
-           
-            draw(drawinputdata,
-                 params_before,
-                 param_errs_before);
-            
-            // exec fit
-            // this will fit backgrounds and the 150Nd amplitude parameter
-            // but xi_31 is fixed
-            ROOT::Minuit2::FunctionMinimum FCN_min =
-                fitBackgrounds_exec(
-                    theParameterStateBefore,
-                    theMinimizer,
-                    theFCN);
-
-            // get result
-            ROOT::Minuit2::MnUserParameterState theParameterStateAfter = FCN_min.UserParameters();
-            std::vector<double> params_after = theParameterStateAfter.Params();
-            std::vector<double> param_errs_after = theParameterStateAfter.Errors();
-
-            double fval_after = theFCN.operator()(params_after);
-            //ndf = theFCN.ndf - theParameterStateAfter.VariableParameters();
-            nch = theFCN.nch;
-            //nfp = g_pg.get_number_free_params();
-            nfp = gNumberFreeParams;
-            ndf = nch - nfp;
-
-            // draw result
-            drawinputdata.chi2 = fval_after;
-            drawinputdata.nch = nch;
-            drawinputdata.nfp = nfp;
-            drawinputdata.saveas_filename = "HSD_data_after";
-           
-            draw(drawinputdata,
-                 params_after,
-                 param_errs_after);
-
-            theParameterStateBefore.Release(std::string(minuit_param_name));
-            /*
-            newLogLikFitter_preMPSfitdriver(
-                std::string("All Parameter Fit: NEMO3 Data"),
-                "xifree_",
-                "_data",
-                "xifree",
-                min_point,
-                min_point_fval);
-                */
-            
-            min_point_HSD[0] = params_after.at(1);
-            min_point_HSD[1] = params_after.at(0);
-            min_point_HSD_fval = fval_after;
-
-            std::cout << "min_point_HSD: " << min_point_HSD[0] << " " << min_point_HSD[1] << std::endl;
-
-            std::ofstream ofs_min_point(min_point_fname);
-            ofs_min_point << min_point_HSD[0] << " " << min_point_HSD[1] << std::endl;
-            ofs_min_point << min_point_HSD_fval << std::endl;
-            ofs_min_point.close();
-
-            std::cout << "HSD Fit: NEMO3 Data" << std::endl;
-            gSystematics_print();
-
-            std::cout << "Result: " << std::endl;
-            std::cout << "fval_before=" << fval_before << std::endl;
-            std::cout << "fval_after=" << fval_after
-                      << " for params_after[0]=" << params_after[0]
-                      << " +- " << param_errs_after[0]
-                      << " params_after[1]=" << params_after[1]
-                      << " +- " << param_errs_after[1]
-                      << std::endl;
-            std::cout << std::endl;
-        }
-
-        V_ENABLE_SYS_stack_pop();
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
-
+    min_point_helper("CH1", false, false, 1, true, 0.0,
+        min_point_data_HSD, min_point_data_HSD_err, min_point_data_HSD_fval,
+        "min_point_data_HSD", "HSD_data", "HSD");
 
     ///////////////////////////////////////////////////////////////////////////
     // SSD fixed xi_31 = SSD fit
     ///////////////////////////////////////////////////////////////////////////
+    min_point_helper("CH1", false, false, 1, true, 0.296,
+        min_point_data_SSD, min_point_data_SSD_err, min_point_data_SSD_fval,
+        "min_point_data_SSD", "SSD_data", "SSD");
 
-    // do fit for SSD
-    // TODO: this block doesn't really make sense, unless we fit
-    // for xi_31 = SSD with xi_31 fixed
-    // do not do this in parallel mode
-    if(1)// || (MODE_PARALLEL == 0))
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Data
+    // Systematics disabled
+    ///////////////////////////////////////////////////////////////////////////
+    min_point_helper("CH1", false, false, 2, false, -1000.0,
+        min_point_data, min_point_data_err, min_point_data_fval,
+        "min_point_data", "xifree_data", "xifree");
 
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = false;
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Data
+    // Systematics enabled
+    ///////////////////////////////////////////////////////////////////////////
+    min_point_helper("CH1", true, false, 2, false, -1000.0,
+        min_point_data_SYSALL, min_point_data_SYSALL_err, min_point_data_SYSALL_fval,
+        "min_point_data", "xifree_data", "xifree");
 
-        std::string min_point_fname = "min_point_";
-        std::string min_point_fname_append;
-        if(g_mode_fake_data == true)
-        {
-            min_point_fname_append += "fake_";
-        }
-        else if(g_mode_fake_data == false)
-        {
-            min_point_fname_append += "data_";
-        }
-        min_point_fname += min_point_fname_append + "_SSD";
-        std::ifstream ifs_min_point(min_point_fname);
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Systematics disabled
+    ///////////////////////////////////////////////////////////////////////////
+    gSystematics.reset();
+    ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
-        if(ifs_min_point.is_open())
-        {
-            std::cout << "loading min point from file " << min_point_fname << std::endl;
-            ifs_min_point >> min_point_SSD[0] >> min_point_SSD[1];
-            ifs_min_point >> min_point_SSD_fval;
-            ifs_min_point.close();
-        }
-        else
-        {
-            recalculate_V_PHYS_SYS = true;
+    min_point_helper("CH1", false, true, 2, false, -1000.0,
+        min_point_fake, min_point_fake_err, min_point_fake_fval,
+        "min_point_fake", "xifree_fake", "xifree");
 
-            // assuming that xi31 and 150Nd amplitude are free
-            // this may break if the parameter_names.lst file is changed
-            gNumberFreeParams = 1;
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Systematics enabled
+    ///////////////////////////////////////////////////////////////////////////
+    gSystematics.reset();
+    ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
-            // create minimizer
-            ROOT::Minuit2::MnUserParameterState theParameterStateBefore;
-            ROOT::Minuit2::VariableMetricMinimizer theMinimizer;
-            MinimizeFCNAxialVector theFCN;
+    min_point_helper("CH1", true, true, 2, false, -1000.0,
+        min_point_fake_SYSALL, min_point_fake_SYSALL_err, min_point_fake_SYSALL_fval,
+        "min_point_fake", "xifree_fake", "xifree");
 
-            // initialize fit
-            //fitBackgrounds_init(theParameterState, theMinimizer, AdjustActs, AdjustActs_Err);
-            const int xi_31_param_number = g_pg.get_xi_31_ext_param_number();
-            const double xi_31_value = g_pg.file_params.at(xi_31_param_number).paramInitValue;
-            const double xi_31_error = g_pg.file_params.at(xi_31_param_number).paramInitError;
-            std::cout << "xi_31_param_number=" << xi_31_param_number
-                      << " xi_31=" << xi_31_value << " +- " << xi_31_error << std::endl;
-            fitBackgrounds_init(theParameterStateBefore, theMinimizer, xi_31_value, xi_31_error);
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Constant Energy Offset
+    // Low Systematic
+    ///////////////////////////////////////////////////////////////////////////
+    gSystematics.reset();
+    gSystematics.systematic_energy_offset = -0.1;
+    ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
-            // fix xi_31 parameter
-            TString i_str;
-            i_str.Form("%i", 1);
-            TString minuit_param_number_str;
-            minuit_param_number_str.Form("%i", 1);
-            TString minuit_param_name = "_" + i_str + "_" + minuit_param_number_str + "_";
-            theParameterStateBefore.Fix(std::string(minuit_param_name));
-            theParameterStateBefore.SetValue(std::string(minuit_param_name), 0.296); // SSD
+    min_point_helper("CH1", true, true, 2, false, -1000.0,
+        min_point_fake_sysn_l[0], min_point_fake_sysn_l_err[0], min_point_fake_sysn_l_fval[0],
+        "min_point_fake_SYS0L", "xifree_fake_SYS0L", "xifree");
 
-            // get parameters and chi2 value before fit
-            std::vector<double> params_before = theParameterStateBefore.Params();
-            std::vector<double> param_errs_before = theParameterStateBefore.Errors();
-            double fval_before = theFCN.operator()(params_before);
-            //int ndf = theFCN.ndf - theParameterStateBefore.VariableParameters();
-            int nch = theFCN.nch;
-            //int nfp = g_pg.get_number_free_params();
-            int nfp = gNumberFreeParams;
-            int ndf = nch - nfp;
 
-            // draw before fit
-            draw_input_data drawinputdata;
-            drawinputdata.chi2 = fval_before;
-            drawinputdata.nch = nch;
-            drawinputdata.nfp = nfp;
-            drawinputdata.serial_dir = "SSD";
-            drawinputdata.saveas_filename = "SSD_data_before";
-            drawinputdata.saveas_png = true;
-           
-            draw(drawinputdata,
-                 params_before,
-                 param_errs_before);
-            
-            // exec fit
-            // this will fit backgrounds and the 150Nd amplitude parameter
-            // but xi_31 is fixed
-            ROOT::Minuit2::FunctionMinimum FCN_min =
-                fitBackgrounds_exec(
-                    theParameterStateBefore,
-                    theMinimizer,
-                    theFCN);
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Constant Energy Offset
+    // High Systematic
+    ///////////////////////////////////////////////////////////////////////////
+    gSystematics.reset();
+    gSystematics.systematic_energy_offset = +0.1;
+    ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
-            // get result
-            ROOT::Minuit2::MnUserParameterState theParameterStateAfter = FCN_min.UserParameters();
-            std::vector<double> params_after = theParameterStateAfter.Params();
-            std::vector<double> param_errs_after = theParameterStateAfter.Errors();
+    min_point_helper("CH1", true, true, 2, false, -1000.0,
+        min_point_fake_sysn_h[0], min_point_fake_sysn_h_err[0], min_point_fake_sysn_h_fval[0],
+        "min_point_fake_SYS0H", "xifree_fake_SYS0H", "xifree");
 
-            double fval_after = theFCN.operator()(params_after);
-            //ndf = theFCN.ndf - theParameterStateAfter.VariableParameters();
-            nch = theFCN.nch;
-            //nfp = g_pg.get_number_free_params();
-            nfp = gNumberFreeParams;
-            ndf = nch - nfp;
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Energy Scale Multiplier
+    // Low Systematic
+    ///////////////////////////////////////////////////////////////////////////
+    gSystematics.reset();
+    gSystematics.systematic_energy_scale = -0.012;
+    ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
-            // draw result
-            drawinputdata.chi2 = fval_after;
-            drawinputdata.nch = nch;
-            drawinputdata.saveas_filename = "SSD_data_after";
-           
-            draw(drawinputdata,
-                 params_after,
-                 param_errs_after);
+    min_point_helper("CH1", true, true, 2, false, -1000.0,
+        min_point_fake_sysn_l[1], min_point_fake_sysn_l_err[1], min_point_fake_sysn_l_fval[1],
+        "min_point_fake_SYS1L", "xifree_fake_SYS1L", "xifree");
 
-            theParameterStateBefore.Release(std::string(minuit_param_name));
-            /*
-            newLogLikFitter_preMPSfitdriver(
-                std::string("All Parameter Fit: NEMO3 Data"),
-                "xifree_",
-                "_data",
-                "xifree",
-                min_point,
-                min_point_fval);
-                */
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Energy Scale Multiplier
+    // High Systematic
+    ///////////////////////////////////////////////////////////////////////////
+    gSystematics.reset();
+    gSystematics.systematic_energy_scale = +0.012;
+    ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
-            min_point_SSD[0] = params_after.at(1);
-            min_point_SSD[1] = params_after.at(0);
-            min_point_SSD_fval = fval_after;
+    min_point_helper("CH1", true, true, 2, false, -1000.0,
+        min_point_fake_sysn_h[1], min_point_fake_sysn_h_err[1], min_point_fake_sysn_h_fval[1],
+        "min_point_fake_SYS1H", "xifree_fake_SYS1H", "xifree");
 
-            std::cout << "min_point_SSD: " << min_point_SSD[0] << " " << min_point_SSD[1] << std::endl;
 
-            std::ofstream ofs_min_point(min_point_fname);
-            ofs_min_point << min_point_SSD[0] << " " << min_point_SSD[1] << std::endl;
-            ofs_min_point << min_point_SSD_fval << std::endl;
-            ofs_min_point.close();
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Efficiency
+    // Low Systematic
+    ///////////////////////////////////////////////////////////////////////////
+    gSystematics.reset();
+    gSystematics.systematic_efficiency = -5.55e-02;
+    ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
-            std::cout << "SSD Fit: NEMO3 Data" << std::endl;
-            gSystematics_print();
+    min_point_helper("CH1", true, true, 2, false, -1000.0,
+        min_point_fake_sysn_l[2], min_point_fake_sysn_l_err[2], min_point_fake_sysn_l_fval[2],
+        "min_point_fake_SYS2L", "xifree_fake_SYS2L", "xifree");
 
-            std::cout << "Result: " << std::endl;
-            std::cout << "fval_before=" << fval_before << std::endl;
-            std::cout << "fval_after=" << fval_after
-                      << " for params_after[0]=" << params_after[0]
-                      << " +- " << param_errs_after[0]
-                      << " params_after[1]=" << params_after[1]
-                      << " +- " << param_errs_after[1]
-                      << std::endl;
-            std::cout << std::endl;
-        }
 
-        V_ENABLE_SYS_stack_pop();
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Efficiency
+    // High Systematic
+    ///////////////////////////////////////////////////////////////////////////
+    gSystematics.reset();
+    gSystematics.systematic_efficiency = +5.55e-02;
+    ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+
+    min_point_helper("CH1", true, true, 2, false, -1000.0,
+        min_point_fake_sysn_h[2], min_point_fake_sysn_h_err[2], min_point_fake_sysn_h_fval[2],
+        "min_point_fake_SYS2H", "xifree_fake_SYS2H", "xifree");
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Enrichment
+    // Low Systematic
+    ///////////////////////////////////////////////////////////////////////////
+    gSystematics.reset();
+    gSystematics.systematic_enrichment = -0.5e-02;
+    ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+
+    min_point_helper("CH1", true, true, 2, false, -1000.0,
+        min_point_fake_sysn_l[3], min_point_fake_sysn_l_err[3], min_point_fake_sysn_l_fval[3],
+        "min_point_fake_SYS3L", "xifree_fake_SYS3L", "xifree");
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Enrichment
+    // High Systematic
+    ///////////////////////////////////////////////////////////////////////////
+    gSystematics.reset();
+    gSystematics.systematic_enrichment = +0.5e-02;
+    ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+
+    min_point_helper("CH1", true, true, 2, false, -1000.0,
+        min_point_fake_sysn_h[3], min_point_fake_sysn_h_err[3], min_point_fake_sysn_h_fval[3],
+        "min_point_fake_SYS3H", "xifree_fake_SYS3H", "xifree");
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Constant Energy Offset Small
+    // Low Systematic
+    ///////////////////////////////////////////////////////////////////////////
+    gSystematics.reset();
+    gSystematics.systematic_energy_offsetsmall = -3.0e-3;
+    ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+
+    min_point_helper("CH1", true, true, 2, false, -1000.0,
+        min_point_fake_sysn_l[4], min_point_fake_sysn_l_err[4], min_point_fake_sysn_l_fval[4],
+        "min_point_fake_SYS4L", "xifree_fake_SYS4L", "xifree");
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Constant Energy Offset Small
+    // High Systematic
+    ///////////////////////////////////////////////////////////////////////////
+    gSystematics.reset();
+    gSystematics.systematic_energy_offsetsmall = +3.0e-3;
+    ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+
+    min_point_helper("CH1", true, true, 2, false, -1000.0,
+        min_point_fake_sysn_h[4], min_point_fake_sysn_h_err[4], min_point_fake_sysn_h_fval[4],
+        "min_point_fake_SYS4H", "xifree_fake_SYS4H", "xifree");
+
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Foil Thickness
+    // Low Systematic
+    ///////////////////////////////////////////////////////////////////////////
+    gSystematics.reset();
+    gSystematics.systematic_foil_thickness_virtual = -1;
+    ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+
+    min_point_helper("CH1", true, true, 2, false, -1000.0,
+        min_point_fake_sysn_l[5], min_point_fake_sysn_l_err[5], min_point_fake_sysn_l_fval[5],
+        "min_point_fake_SYS5L", "xifree_fake_SYS5L", "xifree");
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Foil Thickness
+    // High Systematic
+    ///////////////////////////////////////////////////////////////////////////
+    gSystematics.reset();
+    gSystematics.systematic_foil_thickness_virtual = +1;
+    ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+
+    min_point_helper("CH1", true, true, 2, false, -1000.0,
+        min_point_fake_sysn_h[5], min_point_fake_sysn_h_err[5], min_point_fake_sysn_h_fval[5],
+        "min_point_fake_SYS5H", "xifree_fake_SYS5H", "xifree");
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // dEdX
+    // Low Systematic
+    ///////////////////////////////////////////////////////////////////////////
+    gSystematics.reset();
+    gSystematics.systematic_dEdX_virtual = -1;
+    ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+
+    min_point_helper("CH1", true, true, 2, false, -1000.0,
+        min_point_fake_sysn_l[6], min_point_fake_sysn_l_err[6], min_point_fake_sysn_l_fval[6],
+        "min_point_fake_SYS6L", "xifree_fake_SYS6L", "xifree");
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // dEdX
+    // High Systematic
+    ///////////////////////////////////////////////////////////////////////////
+    gSystematics.reset();
+    gSystematics.systematic_dEdX_virtual = +1;
+    ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+
+    min_point_helper("CH1", true, true, 2, false, -1000.0,
+        min_point_fake_sysn_h[6], min_point_fake_sysn_h_err[6], min_point_fake_sysn_h_fval[6],
+        "min_point_fake_SYS6H", "xifree_fake_SYS6H", "xifree");
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Bremsstrahlung
+    // Low Systematic
+    ///////////////////////////////////////////////////////////////////////////
+    gSystematics.reset();
+    gSystematics.systematic_brem_virtual = -1;
+    ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+
+    min_point_helper("CH1", true, true, 2, false, -1000.0,
+        min_point_fake_sysn_l[7], min_point_fake_sysn_l_err[7], min_point_fake_sysn_l_fval[7],
+        "min_point_fake_SYS7L", "xifree_fake_SYS7L", "xifree");
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Bremsstrahlung
+    // High Systematic
+    ///////////////////////////////////////////////////////////////////////////
+    gSystematics.reset();
+    gSystematics.systematic_brem_virtual = +1;
+    ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+
+    min_point_helper("CH1", true, true, 2, false, -1000.0,
+        min_point_fake_sysn_h[7], min_point_fake_sysn_h_err[7], min_point_fake_sysn_h_fval[7],
+        "min_point_fake_SYS7H", "xifree_fake_SYS7H", "xifree");
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Foil Thickness (nominal)
+    // Low Systematic
+    ///////////////////////////////////////////////////////////////////////////
+    gSystematics.reset();
+    gSystematics.systematic_foil_thickness_nominal = -1;
+    ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+
+    min_point_helper("CH1", true, true, 2, false, -1000.0,
+        min_point_fake_sysn_l[8], min_point_fake_sysn_l_err[8], min_point_fake_sysn_l_fval[8],
+        "min_point_fake_SYS8L", "xifree_fake_SYS8L", "xifree");
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Foil Thickness (nominal)
+    // High Systematic
+    ///////////////////////////////////////////////////////////////////////////
+    gSystematics.reset();
+    gSystematics.systematic_foil_thickness_nominal = +1;
+    ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+
+    min_point_helper("CH1", true, true, 2, false, -1000.0,
+        min_point_fake_sysn_h[8], min_point_fake_sysn_h_err[8], min_point_fake_sysn_h_fval[8],
+        "min_point_fake_SYS8H", "xifree_fake_SYS8H", "xifree");
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // dEdX (nominal)
+    // Low Systematic
+    ///////////////////////////////////////////////////////////////////////////
+    gSystematics.reset();
+    gSystematics.systematic_dEdX_nominal = -1;
+    ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+
+    min_point_helper("CH1", true, true, 2, false, -1000.0,
+        min_point_fake_sysn_l[9], min_point_fake_sysn_l_err[9], min_point_fake_sysn_l_fval[9],
+        "min_point_fake_SYS9L", "xifree_fake_SYS9L", "xifree");
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // dEdX (nominal)
+    // High Systematic
+    ///////////////////////////////////////////////////////////////////////////
+    gSystematics.reset();
+    gSystematics.systematic_dEdX_nominal = +1;
+    ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+
+    min_point_helper("CH1", true, true, 2, false, -1000.0,
+        min_point_fake_sysn_h[9], min_point_fake_sysn_h_err[9], min_point_fake_sysn_h_fval[9],
+        "min_point_fake_SYS9H", "xifree_fake_SYS9H", "xifree");
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Bremsstrahlung (nominal)
+    // Low Systematic
+    ///////////////////////////////////////////////////////////////////////////
+    gSystematics.reset();
+    gSystematics.systematic_brem_nominal = -1;
+    ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+
+    min_point_helper("CH1", true, true, 2, false, -1000.0,
+        min_point_fake_sysn_l[10], min_point_fake_sysn_l_err[10], min_point_fake_sysn_l_fval[10],
+        "min_point_fake_SYS10L", "xifree_fake_SYS10L", "xifree");
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // All Parameter Fit
+    // Fake Data
+    // Bremsstrahlung (nominal)
+    // High Systematic
+    ///////////////////////////////////////////////////////////////////////////
+    gSystematics.reset();
+    gSystematics.systematic_brem_nominal = +1;
+    ND150_FAKEDATA_SCALE_FACTOR = 1.15;
+    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
+
+    min_point_helper("CH1", true, true, 2, false, -1000.0,
+        min_point_fake_sysn_h[10], min_point_fake_sysn_h_err[10], min_point_fake_sysn_h_fval[10],
+        "min_point_fake_SYS10H", "xifree_fake_SYS10H", "xifree");
+
+
+    gSystematics.reset();
+    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
+
 
 
 
@@ -2162,1918 +2112,12 @@ void loadFiles(int i)
 
 
 
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Data
-    // Systematics Disabled
-    ///////////////////////////////////////////////////////////////////////////
-
-    // do not do this in parallel mode
-    if(1 && true) // || (MODE_PARALLEL == 0))
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = false;
-    
-        std::string min_point_fname = "min_point_";
-        std::string min_point_fname_append;
-        if(g_mode_fake_data == true)
-        {
-            min_point_fname_append += "fake_";
-        }
-        else if(g_mode_fake_data == false)
-        {
-            min_point_fname_append += "data_";
-        }
-        min_point_fname += min_point_fname_append;
-        std::ifstream ifs_min_point(min_point_fname);
-
-        if(ifs_min_point.is_open())
-        {
-            std::cout << "loading min point from file " << min_point_fname << std::endl;
-            ifs_min_point >> min_point[0] >> min_point[1];
-            ifs_min_point >> min_point_fval;
-            ifs_min_point.close();
-        }
-        else
-        {
-            recalculate_V_PHYS_SYS = true;
-
-            newLogLikFitter_preMPSfitdriver(
-                std::string("All Parameter Fit: NEMO3 Data"),
-                "xifree_",
-                "_data",
-                "xifree",
-                min_point,
-                min_point_fval);
-            std::cout << "min_point: " << min_point[0] << " " << min_point[1] << std::endl;
-
-            std::ofstream ofs_min_point(min_point_fname);
-            ofs_min_point << min_point[0] << " " << min_point[1] << std::endl;
-            ofs_min_point << min_point_fval << std::endl;
-            ofs_min_point.close();
-        }
-
-        V_ENABLE_SYS_stack_pop();
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Systematics Enabled
-    ///////////////////////////////////////////////////////////////////////////
-
-    // do not do this in parallel mode
-    if(1 && true) // || (MODE_PARALLEL == 0))
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = true;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-        //    V_ENABLE_SYSn[i] = false;
-            std::cout << "V_ENABLE_SYSn[" << i << "]=" << V_ENABLE_SYSn[i] << std::endl;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = false;
-    
-        std::string min_point_fname = "min_point_SYSALL_";
-        std::string min_point_fname_append;
-        if(g_mode_fake_data == true)
-        {
-            min_point_fname_append += "fake_";
-        }
-        else if(g_mode_fake_data == false)
-        {
-            min_point_fname_append += "data_";
-        }
-        min_point_fname += min_point_fname_append;
-        std::ifstream ifs_min_point(min_point_fname);
-
-        if(ifs_min_point.is_open())
-        {
-            std::cout << "loading min point from file " << min_point_fname << std::endl;
-            ifs_min_point >> min_point_SYSALL[0] >> min_point_SYSALL[1];
-            ifs_min_point >> min_point_SYSALL_fval;
-            ifs_min_point.close();
-        }
-        else
-        {
-            recalculate_V_PHYS_SYS = true;
-
-            newLogLikFitter_preMPSfitdriver(
-                std::string("All Parameter Fit: NEMO3 Data SYSALL"),
-                "xifree_",
-                "_data_SYSALL",
-                "xifree",
-                min_point_SYSALL,
-                min_point_SYSALL_fval);
-            std::cout << "min_point_SYSALL: " << min_point_SYSALL[0] << " " << min_point_SYSALL[1] << std::endl;
-
-            std::ofstream ofs_min_point(min_point_fname);
-            ofs_min_point << min_point_SYSALL[0] << " " << min_point_SYSALL[1] << std::endl;
-            ofs_min_point << min_point_SYSALL_fval << std::endl;
-            ofs_min_point.close();
-        }
-
-        V_ENABLE_SYS_stack_pop();
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-    const bool ENABLE_MIN_POINT_FIT = true;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Fake Data
-    // All systematics
-    ///////////////////////////////////////////////////////////////////////////
-    if(1 && ENABLE_MIN_POINT_FIT)
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = true;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            //V_ENABLE_SYSn[i] = true;
-            std::cout << "V_ENABLE_SYSn[" << i << "]=" << V_ENABLE_SYSn[i] << std::endl;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = true;
-    
-        std::string min_point_fname = "min_point_SYSALL_";
-        std::string min_point_fname_append;
-        if(g_mode_fake_data == true)
-        {
-            min_point_fname_append += "fake_";
-        }
-        else if(g_mode_fake_data == false)
-        {
-            min_point_fname_append += "data_";
-        }
-        min_point_fname += min_point_fname_append;
-        std::ifstream ifs_min_point(min_point_fname);
-
-        if(ifs_min_point.is_open())
-        {
-            std::cout << "loading min point from file " << min_point_fname << std::endl;
-            ifs_min_point >> min_point_fake_data_SYSALL[0] >> min_point_fake_data_SYSALL[1];
-            ifs_min_point >> min_point_fake_data_SYSALL_fval;
-            ifs_min_point.close();
-        }
-        else
-        {
-            recalculate_V_PHYS_SYS = true;
-
-            // set gSystematic parameters
-            gSystematics.reset();
-
-            // rebuild fake data if g_mode_fake_data == true
-            // only do this in relevant function blocks
-
-            //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itself
-            //rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itself
-            //rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // want to check if the fitter can fit itself to itself
-            // just check the output looks sensible
-            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
-
-            // call helper function
-            newLogLikFitter_preMPSfitdriver(
-                std::string("Systematics Fit: Fake Data SYSALL"),
-                "xifree_",
-                "_fake_data_SYSALL",
-                "xifree",
-                min_point_fake_data_SYSALL,
-                min_point_fake_data_SYSALL_fval);
-            std::cout << "min_point (fake SYSALL): " << min_point_fake_data_SYSALL[0] << " " << min_point_fake_data_SYSALL[1] << std::endl;
-
-            std::ofstream ofs_min_point(min_point_fname);
-            ofs_min_point << min_point_fake_data_SYSALL[0] << " " << min_point_fake_data_SYSALL[1] << std::endl;
-            ofs_min_point << min_point_fake_data_SYSALL_fval << std::endl;
-            ofs_min_point.close();
-        }
-
-        V_ENABLE_SYS_stack_pop();
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
-
-
     ///////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
 
 
 
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Fake Data
-    // No Systematics
-    ///////////////////////////////////////////////////////////////////////////
-    if(1 && ENABLE_MIN_POINT_FIT)
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = true;
-    
-        std::string min_point_fname = "min_point_";
-        std::string min_point_fname_append;
-        if(g_mode_fake_data == true)
-        {
-            min_point_fname_append += "fake_";
-        }
-        else if(g_mode_fake_data == false)
-        {
-            min_point_fname_append += "data_";
-        }
-        min_point_fname += min_point_fname_append;
-        std::ifstream ifs_min_point(min_point_fname);
-
-        if(ifs_min_point.is_open())
-        {
-            std::cout << "loading min point from file " << min_point_fname << std::endl;
-            ifs_min_point >> min_point_fake_data[0] >> min_point_fake_data[1];
-            ifs_min_point >> min_point_fake_data_fval;
-            ifs_min_point.close();
-        }
-        else
-        {
-            recalculate_V_PHYS_SYS = true;
-
-            // set gSystematic parameters
-            gSystematics.reset();
-
-            // rebuild fake data if g_mode_fake_data == true
-            // only do this in relevant function blocks
-
-            //rebuild_fake_data_systematics(0.296, xi_31_baseline); // want to check if the fitter can fit itself to itself
-            //rebuild_fake_data_systematics(0.0, xi_31_baseline); // want to check if the fitter can fit itself to itself
-            //rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // want to check if the fitter can fit itself to itself
-            // just check the output looks sensible
-            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
-
-            // call helper function
-            newLogLikFitter_preMPSfitdriver(
-                std::string("Systematics Fit: Fake Data"),
-                "xifree_",
-                "_fake_data",
-                "xifree",
-                min_point_fake_data,
-                min_point_fake_data_fval);
-            std::cout << "min_point (fake): " << min_point_fake_data[0] << " " << min_point_fake_data[1] << std::endl;
-
-            std::ofstream ofs_min_point(min_point_fname);
-            ofs_min_point << min_point_fake_data[0] << " " << min_point_fake_data[1] << std::endl;
-            ofs_min_point << min_point_fake_data_fval << std::endl;
-            ofs_min_point.close();
-        }
-
-        V_ENABLE_SYS_stack_pop();
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Fake Data
-    // Constant Energy Offset
-    // Low Systematic
-    ///////////////////////////////////////////////////////////////////////////
-    if(1 && ENABLE_MIN_POINT_FIT)
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = true;
-
-        std::string min_point_fname = "min_point_";
-        std::string min_point_fname_append;
-        if(g_mode_fake_data == true)
-        {
-            min_point_fname_append += "fake_";
-        }
-        else if(g_mode_fake_data == false)
-        {
-            min_point_fname_append += "data_";
-        }
-        min_point_fname_append += "SYS0L";
-        min_point_fname += min_point_fname_append;
-        std::ifstream ifs_min_point(min_point_fname);
-
-        if(ifs_min_point.is_open())
-        {
-            std::cout << "loading min point from file " << min_point_fname << std::endl;
-            ifs_min_point >> min_point_sysn_l[0][0] >> min_point_sysn_l[0][1];
-            ifs_min_point >> min_point_sysn_l_fval[0];
-            ifs_min_point.close();
-        }
-        else
-        {
-            recalculate_V_PHYS_SYS = true;
-
-            // set gSystematic parameters
-            gSystematics.reset();
-            gSystematics.systematic_energy_offset = -0.1;
-            //rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
-
-            // call helper function
-            newLogLikFitter_preMPSfitdriver(
-                std::string("Systematics Fit: Fake Data"),
-                "xifree_",
-                "_fake_data_SYS0L",
-                "xifree",
-                min_point_sysn_l[0],
-                min_point_sysn_l_fval[0]);
-            std::cout << "min_point (sys0 L): " << min_point_sysn_l[0][0] << " " << min_point_sysn_l[0][1] << std::endl;
-
-            std::ofstream ofs_min_point(min_point_fname);
-            ofs_min_point << min_point_sysn_l[0][0] << " " << min_point_sysn_l[0][1] << std::endl;
-            ofs_min_point << min_point_sysn_l_fval[0] << std::endl;
-            ofs_min_point.close();
-        } 
-
-        V_ENABLE_SYS_stack_pop();
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Fake Data
-    // Constant Energy Offset
-    // High Systematic
-    ///////////////////////////////////////////////////////////////////////////
-    if(1 && ENABLE_MIN_POINT_FIT)
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = true;
-
-        std::string min_point_fname = "min_point_";
-        std::string min_point_fname_append;
-        if(g_mode_fake_data == true)
-        {
-            min_point_fname_append += "fake_";
-        }
-        else if(g_mode_fake_data == false)
-        {
-            min_point_fname_append += "data_";
-        }
-        min_point_fname_append += "SYS0H";
-        min_point_fname += min_point_fname_append;
-        std::ifstream ifs_min_point(min_point_fname);
-
-        if(ifs_min_point.is_open())
-        {
-            std::cout << "loading min point from file " << min_point_fname << std::endl;
-            ifs_min_point >> min_point_sysn_h[0][0] >> min_point_sysn_h[0][1];
-            ifs_min_point >> min_point_sysn_h_fval[0];
-            ifs_min_point.close();
-        }
-        else
-        {
-            recalculate_V_PHYS_SYS = true;
-
-            // set gSystematic parameters
-            gSystematics.reset();
-            gSystematics.systematic_energy_offset = +0.1;
-            //rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
-
-            // call helper function
-            newLogLikFitter_preMPSfitdriver(
-                std::string("Systematics Fit: Fake Data"),
-                "xifree_",
-                "_fake_data_SYS0H",
-                "xifree",
-                min_point_sysn_h[0],
-                min_point_sysn_h_fval[0]);
-            std::cout << "min_point (sys0 H): " << min_point_sysn_h[0][0] << " " << min_point_sysn_h[0][1] << std::endl;
-
-            std::ofstream ofs_min_point(min_point_fname);
-            ofs_min_point << min_point_sysn_h[0][0] << " " << min_point_sysn_h[0][1] << std::endl;
-            ofs_min_point << min_point_sysn_h_fval[0] << std::endl;
-            ofs_min_point.close();
-        } 
-    
-        V_ENABLE_SYS_stack_pop();
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Fake Data
-    // Energy Scale Multiplier
-    // Low Systematic
-    ///////////////////////////////////////////////////////////////////////////
-    if(1 && ENABLE_MIN_POINT_FIT)
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = true;
-
-        std::string min_point_fname = "min_point_";
-        std::string min_point_fname_append;
-        if(g_mode_fake_data == true)
-        {
-            min_point_fname_append += "fake_";
-        }
-        else if(g_mode_fake_data == false)
-        {
-            min_point_fname_append += "data_";
-        }
-        min_point_fname_append += "SYS1L";
-        min_point_fname += min_point_fname_append;
-        std::ifstream ifs_min_point(min_point_fname);
-
-        if(ifs_min_point.is_open())
-        {
-            std::cout << "loading min point from file " << min_point_fname << std::endl;
-            ifs_min_point >> min_point_sysn_l[1][0] >> min_point_sysn_l[1][1];
-            ifs_min_point >> min_point_sysn_l_fval[1];
-            ifs_min_point.close();
-        }
-        else
-        {
-            recalculate_V_PHYS_SYS = true;
-
-            // set gSystematic parameters
-            gSystematics.reset();
-            gSystematics.systematic_energy_scale = -0.012;
-            //rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
-
-            // call helper function
-            newLogLikFitter_preMPSfitdriver(
-                std::string("Systematics Fit: Fake Data"),
-                "xifree_",
-                "_fake_data_SYS1L",
-                "xifree",
-                min_point_sysn_l[1],
-                min_point_sysn_l_fval[1]);
-            std::cout << "min_point (sys1 L): " << min_point_sysn_l[1][0] << " " << min_point_sysn_l[1][1] << std::endl;
-
-            std::ofstream ofs_min_point(min_point_fname);
-            ofs_min_point << min_point_sysn_l[1][0] << " " << min_point_sysn_l[1][1] << std::endl;
-            ofs_min_point << min_point_sysn_l_fval[1] << std::endl;
-            ofs_min_point.close();
-        } 
-    
-        V_ENABLE_SYS_stack_pop();
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Fake Data
-    // Energy Scale Multiplier
-    // High Systematic
-    ///////////////////////////////////////////////////////////////////////////
-    if(1 && ENABLE_MIN_POINT_FIT)
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = true;
-
-        std::string min_point_fname = "min_point_";
-        std::string min_point_fname_append;
-        if(g_mode_fake_data == true)
-        {
-            min_point_fname_append += "fake_";
-        }
-        else if(g_mode_fake_data == false)
-        {
-            min_point_fname_append += "data_";
-        }
-        min_point_fname_append += "SYS1H";
-        min_point_fname += min_point_fname_append;
-        std::ifstream ifs_min_point(min_point_fname);
-
-        if(ifs_min_point.is_open())
-        {
-            std::cout << "loading min point from file " << min_point_fname << std::endl;
-            ifs_min_point >> min_point_sysn_h[1][0] >> min_point_sysn_h[1][1];
-            ifs_min_point >> min_point_sysn_h_fval[1];
-            ifs_min_point.close();
-        }
-        else
-        {
-            recalculate_V_PHYS_SYS = true;
-
-            // set gSystematic parameters
-            gSystematics.reset();
-            gSystematics.systematic_energy_scale = +0.012;
-            //rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
-
-            // call helper function
-            newLogLikFitter_preMPSfitdriver(
-                std::string("Systematics Fit: Fake Data"),
-                "xifree_",
-                "_fake_data_SYS1H",
-                "xifree",
-                min_point_sysn_h[1],
-                min_point_sysn_h_fval[1]);
-            std::cout << "min_point (sys1 H): " << min_point_sysn_h[1][0] << " " << min_point_sysn_h[1][1] << std::endl;
-
-            std::ofstream ofs_min_point(min_point_fname);
-            ofs_min_point << min_point_sysn_h[1][0] << " " << min_point_sysn_h[1][1] << std::endl;
-            ofs_min_point << min_point_sysn_h_fval[1] << std::endl;
-            ofs_min_point.close();
-        }
-
-        V_ENABLE_SYS_stack_pop();
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Fake Data
-    // Efficiency
-    // Low Systematic
-    ///////////////////////////////////////////////////////////////////////////
-
-    if(1 && ENABLE_MIN_POINT_FIT)
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = true;
-
-        std::string min_point_fname = "min_point_";
-        std::string min_point_fname_append;
-        if(g_mode_fake_data == true)
-        {
-            min_point_fname_append += "fake_";
-        }
-        else if(g_mode_fake_data == false)
-        {
-            min_point_fname_append += "data_";
-        }
-        min_point_fname_append += "SYS2L";
-        min_point_fname += min_point_fname_append;
-        std::ifstream ifs_min_point(min_point_fname);
-
-        if(ifs_min_point.is_open())
-        {
-            std::cout << "loading min point from file " << min_point_fname << std::endl;
-            ifs_min_point >> min_point_sysn_l[2][0] >> min_point_sysn_l[2][1];
-            ifs_min_point >> min_point_sysn_l_fval[2];
-            ifs_min_point.close();
-        }
-        else
-        {
-            recalculate_V_PHYS_SYS = true;
-
-            // set gSystematic parameters
-            gSystematics.reset();
-            gSystematics.systematic_efficiency = -5.55e-02;
-            //rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
-
-            // call helper function
-            newLogLikFitter_preMPSfitdriver(
-                std::string("Systematics Fit: Fake Data"),
-                "xifree_",
-                "_fake_data_SYS2L",
-                "xifree",
-                min_point_sysn_l[2],
-                min_point_sysn_l_fval[2]);
-            std::cout << "min_point (sys2 L): " << min_point_sysn_l[2][0] << " " << min_point_sysn_l[2][1] << std::endl;
-
-            std::ofstream ofs_min_point(min_point_fname);
-            ofs_min_point << min_point_sysn_l[2][0] << " " << min_point_sysn_l[2][1] << std::endl;
-            ofs_min_point << min_point_sysn_l_fval[2] << std::endl;
-            ofs_min_point.close();
-        } 
-
-        V_ENABLE_SYS_stack_pop();
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Fake Data
-    // Efficiency
-    // High Systematic
-    ///////////////////////////////////////////////////////////////////////////
-
-    if(1 && ENABLE_MIN_POINT_FIT)
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = true;
-
-        std::string min_point_fname = "min_point_";
-        std::string min_point_fname_append;
-        if(g_mode_fake_data == true)
-        {
-            min_point_fname_append += "fake_";
-        }
-        else if(g_mode_fake_data == false)
-        {
-            min_point_fname_append += "data_";
-        }
-        min_point_fname_append += "SYS2H";
-        min_point_fname += min_point_fname_append;
-        std::ifstream ifs_min_point(min_point_fname);
-
-        if(ifs_min_point.is_open())
-        {
-            std::cout << "loading min point from file " << min_point_fname << std::endl;
-            ifs_min_point >> min_point_sysn_h[2][0] >> min_point_sysn_h[2][1];
-            ifs_min_point >> min_point_sysn_h_fval[2];
-            ifs_min_point.close();
-        }
-        else
-        {
-            recalculate_V_PHYS_SYS = true;
-
-            // set gSystematic parameters
-            gSystematics.reset();
-            gSystematics.systematic_efficiency = +5.55e-02;
-            //rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
-
-            // call helper function
-            newLogLikFitter_preMPSfitdriver(
-                std::string("Systematics Fit: Fake Data"),
-                "xifree_",
-                "_fake_data_SYS2H",
-                "xifree",
-                min_point_sysn_h[2],
-                min_point_sysn_h_fval[2]);
-            std::cout << "min_point (sys2 H): " << min_point_sysn_h[2][0] << " " << min_point_sysn_h[2][1] << std::endl;
-
-            std::ofstream ofs_min_point(min_point_fname);
-            ofs_min_point << min_point_sysn_h[2][0] << " " << min_point_sysn_h[2][1] << std::endl;
-            ofs_min_point << min_point_sysn_h_fval[2] << std::endl;
-            ofs_min_point.close();
-        }
-
-        V_ENABLE_SYS_stack_pop();
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Fake Data
-    // Enrichment
-    // Low Systematic
-    ///////////////////////////////////////////////////////////////////////////
-
-    if(1 && ENABLE_MIN_POINT_FIT)
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = true;
-
-        std::string min_point_fname = "min_point_";
-        std::string min_point_fname_append;
-        if(g_mode_fake_data == true)
-        {
-            min_point_fname_append += "fake_";
-        }
-        else if(g_mode_fake_data == false)
-        {
-            min_point_fname_append += "data_";
-        }
-        min_point_fname_append += "SYS3L";
-        min_point_fname += min_point_fname_append;
-        std::ifstream ifs_min_point(min_point_fname);
-
-        if(ifs_min_point.is_open())
-        {
-            std::cout << "loading min point from file " << min_point_fname << std::endl;
-            ifs_min_point >> min_point_sysn_l[3][0] >> min_point_sysn_l[3][1];
-            ifs_min_point >> min_point_sysn_l_fval[3];
-            ifs_min_point.close();
-        }
-        else
-        {
-            recalculate_V_PHYS_SYS = true;
-
-            // set gSystematic parameters
-            gSystematics.reset();
-            gSystematics.systematic_enrichment = -0.5e-02;
-//            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
-
-            // call helper function
-            newLogLikFitter_preMPSfitdriver(
-                std::string("Systematics Fit: Fake Data"),
-                "xifree_",
-                "_fake_data_SYS3L",
-                "xifree",
-                min_point_sysn_l[3],
-                min_point_sysn_l_fval[3]);
-            std::cout << "min_point (sys3 L): " << min_point_sysn_l[3][0] << " " << min_point_sysn_l[3][1] << std::endl;
-
-            std::ofstream ofs_min_point(min_point_fname);
-            ofs_min_point << min_point_sysn_l[3][0] << " " << min_point_sysn_l[3][1] << std::endl;
-            ofs_min_point << min_point_sysn_l_fval[3] << std::endl;
-            ofs_min_point.close();
-        } 
-    
-        V_ENABLE_SYS_stack_pop();
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Fake Data
-    // Enrichment
-    // High Systematic
-    ///////////////////////////////////////////////////////////////////////////
-
-    if(1 && ENABLE_MIN_POINT_FIT)
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = true;
-
-        std::string min_point_fname = "min_point_";
-        std::string min_point_fname_append;
-        if(g_mode_fake_data == true)
-        {
-            min_point_fname_append += "fake_";
-        }
-        else if(g_mode_fake_data == false)
-        {
-            min_point_fname_append += "data_";
-        }
-        min_point_fname_append += "SYS3H";
-        min_point_fname += min_point_fname_append;
-        std::ifstream ifs_min_point(min_point_fname);
-
-        if(ifs_min_point.is_open())
-        {
-            std::cout << "loading min point from file " << min_point_fname << std::endl;
-            ifs_min_point >> min_point_sysn_h[3][0] >> min_point_sysn_h[3][1];
-            ifs_min_point >> min_point_sysn_h_fval[3];
-            ifs_min_point.close();
-        }
-        else
-        {
-            recalculate_V_PHYS_SYS = true;
-
-            // set gSystematic parameters
-            gSystematics.reset();
-            gSystematics.systematic_enrichment = +0.5e-02;
-//            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
-
-            // call helper function
-            newLogLikFitter_preMPSfitdriver(
-                std::string("Systematics Fit: Fake Data"),
-                "xifree_",
-                "_fake_data_SYS3H",
-                "xifree",
-                min_point_sysn_h[3],
-                min_point_sysn_h_fval[3]);
-            std::cout << "min_point (sys3 H): " << min_point_sysn_h[3][0] << " " << min_point_sysn_h[3][1] << std::endl;
-
-            std::ofstream ofs_min_point(min_point_fname);
-            ofs_min_point << min_point_sysn_h[3][0] << " " << min_point_sysn_h[3][1] << std::endl;
-            ofs_min_point << min_point_sysn_h_fval[3] << std::endl;
-            ofs_min_point.close();
-        } 
-    
-        V_ENABLE_SYS_stack_pop();
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Fake Data
-    // Constant Energy Offset Small
-    // Low Systematic
-    ///////////////////////////////////////////////////////////////////////////
-    if(1 && ENABLE_MIN_POINT_FIT)
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = true;
-
-        std::string min_point_fname = "min_point_";
-        std::string min_point_fname_append;
-        if(g_mode_fake_data == true)
-        {
-            min_point_fname_append += "fake_";
-        }
-        else if(g_mode_fake_data == false)
-        {
-            min_point_fname_append += "data_";
-        }
-        min_point_fname_append += "SYS4L";
-        min_point_fname += min_point_fname_append;
-        std::ifstream ifs_min_point(min_point_fname);
-
-        if(ifs_min_point.is_open())
-        {
-            std::cout << "loading min point from file " << min_point_fname << std::endl;
-            ifs_min_point >> min_point_sysn_l[4][0] >> min_point_sysn_l[4][1];
-            ifs_min_point >> min_point_sysn_l_fval[4];
-            ifs_min_point.close();
-        }
-        else
-        {
-            recalculate_V_PHYS_SYS = true;
-
-            // set gSystematic parameters
-            gSystematics.reset();
-            gSystematics.systematic_energy_offsetsmall = -3.0e-3;
-//            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
-
-            // call helper function
-            newLogLikFitter_preMPSfitdriver(
-                std::string("Systematics Fit: Fake Data"),
-                "xifree_",
-                "_fake_data_SYS4L",
-                "xifree",
-                min_point_sysn_l[4],
-                min_point_sysn_l_fval[4]);
-            std::cout << "min_point (sys4 L): " << min_point_sysn_l[4][0] << " " << min_point_sysn_l[4][1] << std::endl;
-
-            std::ofstream ofs_min_point(min_point_fname);
-            ofs_min_point << min_point_sysn_l[4][0] << " " << min_point_sysn_l[4][1] << std::endl;
-            ofs_min_point << min_point_sysn_l_fval[4] << std::endl;
-            ofs_min_point.close();
-        } 
-    
-        V_ENABLE_SYS_stack_pop();
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Fake Data
-    // Constant Energy Offset Small
-    // High Systematic
-    ///////////////////////////////////////////////////////////////////////////
-    if(1 && ENABLE_MIN_POINT_FIT)
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = true;
-
-        std::string min_point_fname = "min_point_";
-        std::string min_point_fname_append;
-        if(g_mode_fake_data == true)
-        {
-            min_point_fname_append += "fake_";
-        }
-        else if(g_mode_fake_data == false)
-        {
-            min_point_fname_append += "data_";
-        }
-        min_point_fname_append += "SYS4H";
-        min_point_fname += min_point_fname_append;
-        std::ifstream ifs_min_point(min_point_fname);
-
-        if(ifs_min_point.is_open())
-        {
-            std::cout << "loading min point from file " << min_point_fname << std::endl;
-            ifs_min_point >> min_point_sysn_h[4][0] >> min_point_sysn_h[4][1];
-            ifs_min_point >> min_point_sysn_h_fval[4];
-            ifs_min_point.close();
-        }
-        else
-        {
-            recalculate_V_PHYS_SYS = true;
-
-            // set gSystematic parameters
-            gSystematics.reset();
-            gSystematics.systematic_energy_offsetsmall = +3.0e-3;
-//            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
-
-            // call helper function
-            newLogLikFitter_preMPSfitdriver(
-                std::string("Systematics Fit: Fake Data"),
-                "xifree_",
-                "_fake_data_SYS4H",
-                "xifree",
-                min_point_sysn_h[4],
-                min_point_sysn_h_fval[4]);
-            std::cout << "min_point (sys4 H): " << min_point_sysn_h[4][0] << " " << min_point_sysn_h[4][1] << std::endl;
-
-            std::ofstream ofs_min_point(min_point_fname);
-            ofs_min_point << min_point_sysn_h[4][0] << " " << min_point_sysn_h[4][1] << std::endl;
-            ofs_min_point << min_point_sysn_h_fval[4] << std::endl;
-            ofs_min_point.close();
-        }
-
-        V_ENABLE_SYS_stack_pop();
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
-
-
-
-
-
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Fake Data
-    // Foil Thickness
-    // Low Systematic
-    ///////////////////////////////////////////////////////////////////////////
-    if(1 && ENABLE_MIN_POINT_FIT)
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = true;
-
-        std::string min_point_fname = "min_point_";
-        std::string min_point_fname_append;
-        if(g_mode_fake_data == true)
-        {
-            min_point_fname_append += "fake_";
-        }
-        else if(g_mode_fake_data == false)
-        {
-            min_point_fname_append += "data_";
-        }
-        min_point_fname_append += "SYS5L";
-        min_point_fname += min_point_fname_append;
-        std::ifstream ifs_min_point(min_point_fname);
-
-        if(ifs_min_point.is_open())
-        {
-            std::cout << "loading min point from file " << min_point_fname << std::endl;
-            ifs_min_point >> min_point_sysn_l[5][0] >> min_point_sysn_l[5][1];
-            ifs_min_point >> min_point_sysn_l_fval[5];
-            ifs_min_point.close();
-        }
-        else
-        {
-            recalculate_V_PHYS_SYS = true;
-
-            // set gSystematic parameters
-            gSystematics.reset();
-            gSystematics.systematic_foil_thickness_virtual = -1;
-//            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
-
-            // call helper function
-            newLogLikFitter_preMPSfitdriver(
-                std::string("Systematics Fit: Fake Data"),
-                "xifree_",
-                "_fake_data_SYS5L",
-                "xifree",
-                min_point_sysn_l[5],
-                min_point_sysn_l_fval[5]);
-            std::cout << "min_point (sys5 L): " << min_point_sysn_l[5][0] << " " << min_point_sysn_l[5][1] << std::endl;
-
-            std::ofstream ofs_min_point(min_point_fname);
-            ofs_min_point << min_point_sysn_l[5][0] << " " << min_point_sysn_l[5][1] << std::endl;
-            ofs_min_point << min_point_sysn_l_fval[5] << std::endl;
-            ofs_min_point.close();
-        } 
-    
-        V_ENABLE_SYS_stack_pop();
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Fake Data
-    // Foil Thickness
-    // High Systematic
-    ///////////////////////////////////////////////////////////////////////////
-    if(1 && ENABLE_MIN_POINT_FIT)
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = true;
-
-        std::string min_point_fname = "min_point_";
-        std::string min_point_fname_append;
-        if(g_mode_fake_data == true)
-        {
-            min_point_fname_append += "fake_";
-        }
-        else if(g_mode_fake_data == false)
-        {
-            min_point_fname_append += "data_";
-        }
-        min_point_fname_append += "SYS5H";
-        min_point_fname += min_point_fname_append;
-        std::ifstream ifs_min_point(min_point_fname);
-
-        if(ifs_min_point.is_open())
-        {
-            std::cout << "loading min point from file " << min_point_fname << std::endl;
-            ifs_min_point >> min_point_sysn_h[5][0] >> min_point_sysn_h[5][1];
-            ifs_min_point >> min_point_sysn_h_fval[5];
-            ifs_min_point.close();
-        }
-        else
-        {
-            recalculate_V_PHYS_SYS = true;
-
-            // set gSystematic parameters
-            gSystematics.reset();
-            gSystematics.systematic_foil_thickness_virtual = +1;
-//            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
-
-            // call helper function
-            newLogLikFitter_preMPSfitdriver(
-                std::string("Systematics Fit: Fake Data"),
-                "xifree_",
-                "_fake_data_SYS5H",
-                "xifree",
-                min_point_sysn_h[5],
-                min_point_sysn_h_fval[5]);
-            std::cout << "min_point (sys5 H): " << min_point_sysn_h[5][0] << " " << min_point_sysn_h[5][1] << std::endl;
-
-            std::ofstream ofs_min_point(min_point_fname);
-            ofs_min_point << min_point_sysn_h[5][0] << " " << min_point_sysn_h[5][1] << std::endl;
-            ofs_min_point << min_point_sysn_h_fval[5] << std::endl;
-            ofs_min_point.close();
-        }
-
-        V_ENABLE_SYS_stack_pop();
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Fake Data
-    // dEdX
-    // Low Systematic
-    ///////////////////////////////////////////////////////////////////////////
-    if(1 && ENABLE_MIN_POINT_FIT)
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = true;
-
-        std::string min_point_fname = "min_point_";
-        std::string min_point_fname_append;
-        if(g_mode_fake_data == true)
-        {
-            min_point_fname_append += "fake_";
-        }
-        else if(g_mode_fake_data == false)
-        {
-            min_point_fname_append += "data_";
-        }
-        min_point_fname_append += "SYS6L";
-        min_point_fname += min_point_fname_append;
-        std::ifstream ifs_min_point(min_point_fname);
-
-        if(ifs_min_point.is_open())
-        {
-            std::cout << "loading min point from file " << min_point_fname << std::endl;
-            ifs_min_point >> min_point_sysn_l[6][0] >> min_point_sysn_l[6][1];
-            ifs_min_point >> min_point_sysn_l_fval[6];
-            ifs_min_point.close();
-        }
-        else
-        {
-            recalculate_V_PHYS_SYS = true;
-
-            // set gSystematic parameters
-            gSystematics.reset();
-            gSystematics.systematic_dEdX_virtual = -1;
-//            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
-
-            // call helper function
-            newLogLikFitter_preMPSfitdriver(
-                std::string("Systematics Fit: Fake Data"),
-                "xifree_",
-                "_fake_data_SYS6L",
-                "xifree",
-                min_point_sysn_l[6],
-                min_point_sysn_l_fval[6]);
-            std::cout << "min_point (sys6 L): " << min_point_sysn_l[6][0] << " " << min_point_sysn_l[6][1] << std::endl;
-
-            std::ofstream ofs_min_point(min_point_fname);
-            ofs_min_point << min_point_sysn_l[6][0] << " " << min_point_sysn_l[6][1] << std::endl;
-            ofs_min_point << min_point_sysn_l_fval[6] << std::endl;
-            ofs_min_point.close();
-        } 
-    
-        V_ENABLE_SYS_stack_pop();
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Fake Data
-    // dEdX
-    // High Systematic
-    ///////////////////////////////////////////////////////////////////////////
-    if(1 && ENABLE_MIN_POINT_FIT)
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = true;
-
-        std::string min_point_fname = "min_point_";
-        std::string min_point_fname_append;
-        if(g_mode_fake_data == true)
-        {
-            min_point_fname_append += "fake_";
-        }
-        else if(g_mode_fake_data == false)
-        {
-            min_point_fname_append += "data_";
-        }
-        min_point_fname_append += "SYS6H";
-        min_point_fname += min_point_fname_append;
-        std::ifstream ifs_min_point(min_point_fname);
-
-        if(ifs_min_point.is_open())
-        {
-            std::cout << "loading min point from file " << min_point_fname << std::endl;
-            ifs_min_point >> min_point_sysn_h[6][0] >> min_point_sysn_h[6][1];
-            ifs_min_point >> min_point_sysn_h_fval[6];
-            ifs_min_point.close();
-        }
-        else
-        {
-            recalculate_V_PHYS_SYS = true;
-
-            // set gSystematic parameters
-            gSystematics.reset();
-            gSystematics.systematic_dEdX_virtual = +1;
-//            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
-
-            // call helper function
-            newLogLikFitter_preMPSfitdriver(
-                std::string("Systematics Fit: Fake Data"),
-                "xifree_",
-                "_fake_data_SYS6H",
-                "xifree",
-                min_point_sysn_h[6],
-                min_point_sysn_h_fval[6]);
-            std::cout << "min_point (sys6 H): " << min_point_sysn_h[6][0] << " " << min_point_sysn_h[6][1] << std::endl;
-
-            std::ofstream ofs_min_point(min_point_fname);
-            ofs_min_point << min_point_sysn_h[6][0] << " " << min_point_sysn_h[6][1] << std::endl;
-            ofs_min_point << min_point_sysn_h_fval[6] << std::endl;
-            ofs_min_point.close();
-        }
-
-        V_ENABLE_SYS_stack_pop();
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Fake Data
-    // Bremsstrahlung
-    // Low Systematic
-    ///////////////////////////////////////////////////////////////////////////
-    if(1 && ENABLE_MIN_POINT_FIT)
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = true;
-
-        std::string min_point_fname = "min_point_";
-        std::string min_point_fname_append;
-        if(g_mode_fake_data == true)
-        {
-            min_point_fname_append += "fake_";
-        }
-        else if(g_mode_fake_data == false)
-        {
-            min_point_fname_append += "data_";
-        }
-        min_point_fname_append += "SYS7L";
-        min_point_fname += min_point_fname_append;
-        std::ifstream ifs_min_point(min_point_fname);
-
-        if(ifs_min_point.is_open())
-        {
-            std::cout << "loading min point from file " << min_point_fname << std::endl;
-            ifs_min_point >> min_point_sysn_l[7][0] >> min_point_sysn_l[7][1];
-            ifs_min_point >> min_point_sysn_l_fval[7];
-            ifs_min_point.close();
-        }
-        else
-        {
-            recalculate_V_PHYS_SYS = true;
-
-            // set gSystematic parameters
-            gSystematics.reset();
-            gSystematics.systematic_brem_virtual = -1;
-//            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
-
-            // call helper function
-            newLogLikFitter_preMPSfitdriver(
-                std::string("Systematics Fit: Fake Data"),
-                "xifree_",
-                "_fake_data_SYS7L",
-                "xifree",
-                min_point_sysn_l[7],
-                min_point_sysn_l_fval[7]);
-            std::cout << "min_point (sys7 L): " << min_point_sysn_l[7][0] << " " << min_point_sysn_l[7][1] << std::endl;
-
-            std::ofstream ofs_min_point(min_point_fname);
-            ofs_min_point << min_point_sysn_l[7][0] << " " << min_point_sysn_l[7][1] << std::endl;
-            ofs_min_point << min_point_sysn_l_fval[7] << std::endl;
-            ofs_min_point.close();
-        } 
-    
-        V_ENABLE_SYS_stack_pop();
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Fake Data
-    // Bremsstrahlung
-    // High Systematic
-    ///////////////////////////////////////////////////////////////////////////
-    if(1 && ENABLE_MIN_POINT_FIT)
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = true;
-
-        std::string min_point_fname = "min_point_";
-        std::string min_point_fname_append;
-        if(g_mode_fake_data == true)
-        {
-            min_point_fname_append += "fake_";
-        }
-        else if(g_mode_fake_data == false)
-        {
-            min_point_fname_append += "data_";
-        }
-        min_point_fname_append += "SYS7H";
-        min_point_fname += min_point_fname_append;
-        std::ifstream ifs_min_point(min_point_fname);
-
-        if(ifs_min_point.is_open())
-        {
-            std::cout << "loading min point from file " << min_point_fname << std::endl;
-            ifs_min_point >> min_point_sysn_h[7][0] >> min_point_sysn_h[7][1];
-            ifs_min_point >> min_point_sysn_h_fval[7];
-            ifs_min_point.close();
-        }
-        else
-        {
-            recalculate_V_PHYS_SYS = true;
-
-            // set gSystematic parameters
-            gSystematics.reset();
-            gSystematics.systematic_brem_virtual = +1;
-//            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
-
-            // call helper function
-            newLogLikFitter_preMPSfitdriver(
-                std::string("Systematics Fit: Fake Data"),
-                "xifree_",
-                "_fake_data_SYS7H",
-                "xifree",
-                min_point_sysn_h[7],
-                min_point_sysn_h_fval[7]);
-            std::cout << "min_point (sys7 H): " << min_point_sysn_h[7][0] << " " << min_point_sysn_h[7][1] << std::endl;
-
-            std::ofstream ofs_min_point(min_point_fname);
-            ofs_min_point << min_point_sysn_h[7][0] << " " << min_point_sysn_h[7][1] << std::endl;
-            ofs_min_point << min_point_sysn_h_fval[7] << std::endl;
-            ofs_min_point.close();
-        }
-
-        V_ENABLE_SYS_stack_pop();
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
-
-
-
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Fake Data
-    // Foil Thickness (nominal)
-    // Low Systematic
-    ///////////////////////////////////////////////////////////////////////////
-    if(1 && ENABLE_MIN_POINT_FIT)
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = true;
-
-        std::string min_point_fname = "min_point_";
-        std::string min_point_fname_append;
-        if(g_mode_fake_data == true)
-        {
-            min_point_fname_append += "fake_";
-        }
-        else if(g_mode_fake_data == false)
-        {
-            min_point_fname_append += "data_";
-        }
-        min_point_fname_append += "SYS8L";
-        min_point_fname += min_point_fname_append;
-        std::ifstream ifs_min_point(min_point_fname);
-
-        if(ifs_min_point.is_open())
-        {
-            std::cout << "loading min point from file " << min_point_fname << std::endl;
-            ifs_min_point >> min_point_sysn_l[8][0] >> min_point_sysn_l[8][1];
-            ifs_min_point >> min_point_sysn_l_fval[8];
-            ifs_min_point.close();
-        }
-        else
-        {
-            recalculate_V_PHYS_SYS = true;
-
-            // set gSystematic parameters
-            gSystematics.reset();
-            gSystematics.systematic_foil_thickness_nominal = -1;
-//            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
-
-            // call helper function
-            newLogLikFitter_preMPSfitdriver(
-                std::string("Systematics Fit: Fake Data"),
-                "xifree_",
-                "_fake_data_SYS8L",
-                "xifree",
-                min_point_sysn_l[8],
-                min_point_sysn_l_fval[8]);
-            std::cout << "min_point (sys8 L): " << min_point_sysn_l[8][0] << " " << min_point_sysn_l[8][1] << std::endl;
-
-            std::ofstream ofs_min_point(min_point_fname);
-            ofs_min_point << min_point_sysn_l[8][0] << " " << min_point_sysn_l[8][1] << std::endl;
-            ofs_min_point << min_point_sysn_l_fval[8] << std::endl;
-            ofs_min_point.close();
-        } 
-    
-        V_ENABLE_SYS_stack_pop();
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Fake Data
-    // Foil Thickness (nominal)
-    // High Systematic
-    ///////////////////////////////////////////////////////////////////////////
-    if(1 && ENABLE_MIN_POINT_FIT)
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = true;
-
-        std::string min_point_fname = "min_point_";
-        std::string min_point_fname_append;
-        if(g_mode_fake_data == true)
-        {
-            min_point_fname_append += "fake_";
-        }
-        else if(g_mode_fake_data == false)
-        {
-            min_point_fname_append += "data_";
-        }
-        min_point_fname_append += "SYS8H";
-        min_point_fname += min_point_fname_append;
-        std::ifstream ifs_min_point(min_point_fname);
-
-        if(ifs_min_point.is_open())
-        {
-            std::cout << "loading min point from file " << min_point_fname << std::endl;
-            ifs_min_point >> min_point_sysn_h[8][0] >> min_point_sysn_h[8][1];
-            ifs_min_point >> min_point_sysn_h_fval[8];
-            ifs_min_point.close();
-        }
-        else
-        {
-            recalculate_V_PHYS_SYS = true;
-
-            // set gSystematic parameters
-            gSystematics.reset();
-            gSystematics.systematic_foil_thickness_nominal = +1;
-//            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
-
-            // call helper function
-            newLogLikFitter_preMPSfitdriver(
-                std::string("Systematics Fit: Fake Data"),
-                "xifree_",
-                "_fake_data_SYS8H",
-                "xifree",
-                min_point_sysn_h[8],
-                min_point_sysn_h_fval[8]);
-            std::cout << "min_point (sys8 H): " << min_point_sysn_h[8][0] << " " << min_point_sysn_h[8][1] << std::endl;
-
-            std::ofstream ofs_min_point(min_point_fname);
-            ofs_min_point << min_point_sysn_h[8][0] << " " << min_point_sysn_h[8][1] << std::endl;
-            ofs_min_point << min_point_sysn_h_fval[8] << std::endl;
-            ofs_min_point.close();
-        }
-
-        V_ENABLE_SYS_stack_pop();
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Fake Data
-    // dEdX (nominal)
-    // Low Systematic
-    ///////////////////////////////////////////////////////////////////////////
-    if(1 && ENABLE_MIN_POINT_FIT)
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = true;
-
-        std::string min_point_fname = "min_point_";
-        std::string min_point_fname_append;
-        if(g_mode_fake_data == true)
-        {
-            min_point_fname_append += "fake_";
-        }
-        else if(g_mode_fake_data == false)
-        {
-            min_point_fname_append += "data_";
-        }
-        min_point_fname_append += "SYS9L";
-        min_point_fname += min_point_fname_append;
-        std::ifstream ifs_min_point(min_point_fname);
-
-        if(ifs_min_point.is_open())
-        {
-            std::cout << "loading min point from file " << min_point_fname << std::endl;
-            ifs_min_point >> min_point_sysn_l[9][0] >> min_point_sysn_l[9][1];
-            ifs_min_point >> min_point_sysn_l_fval[9];
-            ifs_min_point.close();
-        }
-        else
-        {
-            recalculate_V_PHYS_SYS = true;
-
-            // set gSystematic parameters
-            gSystematics.reset();
-            gSystematics.systematic_dEdX_nominal = -1;
-//            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
-
-            // call helper function
-            newLogLikFitter_preMPSfitdriver(
-                std::string("Systematics Fit: Fake Data"),
-                "xifree_",
-                "_fake_data_SYS9L",
-                "xifree",
-                min_point_sysn_l[9],
-                min_point_sysn_l_fval[9]);
-            std::cout << "min_point (sys9 L): " << min_point_sysn_l[9][0] << " " << min_point_sysn_l[9][1] << std::endl;
-
-            std::ofstream ofs_min_point(min_point_fname);
-            ofs_min_point << min_point_sysn_l[9][0] << " " << min_point_sysn_l[9][1] << std::endl;
-            ofs_min_point << min_point_sysn_l_fval[9] << std::endl;
-            ofs_min_point.close();
-        } 
-    
-        V_ENABLE_SYS_stack_pop();
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Fake Data
-    // dEdX (nominal)
-    // High Systematic
-    ///////////////////////////////////////////////////////////////////////////
-    if(1 && ENABLE_MIN_POINT_FIT)
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = true;
-
-        std::string min_point_fname = "min_point_";
-        std::string min_point_fname_append;
-        if(g_mode_fake_data == true)
-        {
-            min_point_fname_append += "fake_";
-        }
-        else if(g_mode_fake_data == false)
-        {
-            min_point_fname_append += "data_";
-        }
-        min_point_fname_append += "SYS9H";
-        min_point_fname += min_point_fname_append;
-        std::ifstream ifs_min_point(min_point_fname);
-
-        if(ifs_min_point.is_open())
-        {
-            std::cout << "loading min point from file " << min_point_fname << std::endl;
-            ifs_min_point >> min_point_sysn_h[9][0] >> min_point_sysn_h[9][1];
-            ifs_min_point >> min_point_sysn_h_fval[9];
-            ifs_min_point.close();
-        }
-        else
-        {
-            recalculate_V_PHYS_SYS = true;
-
-            // set gSystematic parameters
-            gSystematics.reset();
-            gSystematics.systematic_dEdX_nominal = +1;
-//            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
-
-            // call helper function
-            newLogLikFitter_preMPSfitdriver(
-                std::string("Systematics Fit: Fake Data"),
-                "xifree_",
-                "_fake_data_SYS9H",
-                "xifree",
-                min_point_sysn_h[9],
-                min_point_sysn_h_fval[9]);
-            std::cout << "min_point (sys9 H): " << min_point_sysn_h[9][0] << " " << min_point_sysn_h[9][1] << std::endl;
-
-            std::ofstream ofs_min_point(min_point_fname);
-            ofs_min_point << min_point_sysn_h[9][0] << " " << min_point_sysn_h[9][1] << std::endl;
-            ofs_min_point << min_point_sysn_h_fval[9] << std::endl;
-            ofs_min_point.close();
-        }
-
-        V_ENABLE_SYS_stack_pop();
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Fake Data
-    // Bremsstrahlung (nominal)
-    // Low Systematic
-    ///////////////////////////////////////////////////////////////////////////
-    if(1 && ENABLE_MIN_POINT_FIT)
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = true;
-
-        std::string min_point_fname = "min_point_";
-        std::string min_point_fname_append;
-        if(g_mode_fake_data == true)
-        {
-            min_point_fname_append += "fake_";
-        }
-        else if(g_mode_fake_data == false)
-        {
-            min_point_fname_append += "data_";
-        }
-        min_point_fname_append += "SYS10L";
-        min_point_fname += min_point_fname_append;
-        std::ifstream ifs_min_point(min_point_fname);
-
-        if(ifs_min_point.is_open())
-        {
-            std::cout << "loading min point from file " << min_point_fname << std::endl;
-            ifs_min_point >> min_point_sysn_l[10][0] >> min_point_sysn_l[10][1];
-            ifs_min_point >> min_point_sysn_l_fval[10];
-            ifs_min_point.close();
-        }
-        else
-        {
-            recalculate_V_PHYS_SYS = true;
-
-            // set gSystematic parameters
-            gSystematics.reset();
-            gSystematics.systematic_brem_nominal = -1;
-//            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
-
-            // call helper function
-            newLogLikFitter_preMPSfitdriver(
-                std::string("Systematics Fit: Fake Data"),
-                "xifree_",
-                "_fake_data_SYS10L",
-                "xifree",
-                min_point_sysn_l[10],
-                min_point_sysn_l_fval[10]);
-            std::cout << "min_point (sys10 L): " << min_point_sysn_l[10][0] << " " << min_point_sysn_l[10][1] << std::endl;
-
-            std::ofstream ofs_min_point(min_point_fname);
-            ofs_min_point << min_point_sysn_l[10][0] << " " << min_point_sysn_l[10][1] << std::endl;
-            ofs_min_point << min_point_sysn_l_fval[10] << std::endl;
-            ofs_min_point.close();
-        } 
-    
-        V_ENABLE_SYS_stack_pop();
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // All Parameter Fit
-    // Fake Data
-    // Bremsstrahlung (nominal)
-    // High Systematic
-    ///////////////////////////////////////////////////////////////////////////
-    if(1 && ENABLE_MIN_POINT_FIT)
-    {
-        V_ENABLE_SYS_stack_push();
-        V_ENABLE_SYSALL = false;
-        for(int i = 0; i < N_SYSTEMATICS; ++ i)
-        {
-            V_ENABLE_SYSn[i] = false;
-        }
-
-        bool restore_g_mode_fake_data = g_mode_fake_data;
-        g_mode_fake_data = true;
-
-        std::string min_point_fname = "min_point_";
-        std::string min_point_fname_append;
-        if(g_mode_fake_data == true)
-        {
-            min_point_fname_append += "fake_";
-        }
-        else if(g_mode_fake_data == false)
-        {
-            min_point_fname_append += "data_";
-        }
-        min_point_fname_append += "SYS10H";
-        min_point_fname += min_point_fname_append;
-        std::ifstream ifs_min_point(min_point_fname);
-
-        if(ifs_min_point.is_open())
-        {
-            std::cout << "loading min point from file " << min_point_fname << std::endl;
-            ifs_min_point >> min_point_sysn_h[10][0] >> min_point_sysn_h[10][1];
-            ifs_min_point >> min_point_sysn_h_fval[10];
-            ifs_min_point.close();
-        }
-        else
-        {
-            recalculate_V_PHYS_SYS = true;
-
-            // set gSystematic parameters
-            gSystematics.reset();
-            gSystematics.systematic_brem_nominal = +1;
-//            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-            ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-            rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline); // check SYSALL contour about xi31=0.7, A_150Nd=1/1.25 point(s)
-            ND150_FAKEDATA_SCALE_FACTOR = 1.0;
-
-            // call helper function
-            newLogLikFitter_preMPSfitdriver(
-                std::string("Systematics Fit: Fake Data"),
-                "xifree_",
-                "_fake_data_SYS10H",
-                "xifree",
-                min_point_sysn_h[10],
-                min_point_sysn_h_fval[10]);
-            std::cout << "min_point (sys10 H): " << min_point_sysn_h[10][0] << " " << min_point_sysn_h[10][1] << std::endl;
-
-            std::ofstream ofs_min_point(min_point_fname);
-            ofs_min_point << min_point_sysn_h[10][0] << " " << min_point_sysn_h[10][1] << std::endl;
-            ofs_min_point << min_point_sysn_h_fval[10] << std::endl;
-            ofs_min_point.close();
-        }
-
-        V_ENABLE_SYS_stack_pop();
-        g_mode_fake_data = restore_g_mode_fake_data;
-    }
 
 
 
