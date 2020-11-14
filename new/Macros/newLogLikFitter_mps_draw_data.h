@@ -158,13 +158,13 @@ class mpsdrawdata
         // read min points from file
         ///////////////////////////////////////////////////////////////////////
         
-        min_point_load("min_point_data_", min_point_data, min_point_data_err, min_point_data_fval);  
-        min_point_load("min_point_fake_", min_point_fake, min_point_fake_err, min_point_fake_fval);  
-        min_point_load("min_point_SYSALL_data_", min_point_data_SYSALL, min_point_data_SYSALL_err, min_point_data_SYSALL_fval);  
-        min_point_load("min_point_SYSALL_fake_", min_point_fake_SYSALL, min_point_fake_SYSALL_err, min_point_fake_SYSALL_fval);  
-        min_point_load("min_point_data__CH0", min_point_data_HSD_CH0, min_point_data_HSD_CH0_err, min_point_data_HSD_CH0_fval);  
-        min_point_load("min_point_data__HSD", min_point_data_HSD, min_point_data_HSD_err, min_point_data_HSD_fval);  
-        min_point_load("min_point_data__SSD", min_point_data_SSD, min_point_data_SSD_err, min_point_data_SSD_fval);  
+        min_point_load("min_point_data", min_point_data, min_point_data_err, min_point_data_fval);  
+        min_point_load("min_point_fake", min_point_fake, min_point_fake_err, min_point_fake_fval);  
+        min_point_load("min_point_SYSALL_data", min_point_data_SYSALL, min_point_data_SYSALL_err, min_point_data_SYSALL_fval);  
+        min_point_load("min_point_SYSALL_fake", min_point_fake_SYSALL, min_point_fake_SYSALL_err, min_point_fake_SYSALL_fval);  
+        min_point_load("min_point_data_HSD_CH0", min_point_data_HSD_CH0, min_point_data_HSD_CH0_err, min_point_data_HSD_CH0_fval);  
+        min_point_load("min_point_data_HSD", min_point_data_HSD, min_point_data_HSD_err, min_point_data_HSD_fval);  
+        min_point_load("min_point_data_SSD", min_point_data_SSD, min_point_data_SSD_err, min_point_data_SSD_fval);  
         for(int i = 0; i < N_SYSTEMATICS; ++ i)
         {
             TString fname_l;
@@ -174,6 +174,21 @@ class mpsdrawdata
             fname_h.Form("min_point_fake_SYS%dH", i);
             min_point_load(std::string(fname_h), min_point_fake_sysn_h[i], min_point_fake_sysn_h_err[i], min_point_fake_sysn_h_fval[i]);
         }
+
+        std::cout << "min_point_data=" << min_point_data[0] << " " << min_point_data[1] << std::endl;
+        std::cout << "min_point_fake=" << min_point_fake[0] << " " << min_point_fake[1] << std::endl;
+        std::cout << "min_point_SYSALL_data=" << min_point_data_SYSALL[0] << " " << min_point_data_SYSALL[1] << std::endl;
+        std::cout << "min_point_SYSALL_fake=" << min_point_fake_SYSALL[0] << " " << min_point_fake_SYSALL[1] << std::endl;
+        std::cout << "min_point_data_CH0=" << min_point_data_HSD_CH0[0] << " " << min_point_data_HSD_CH0[1] << std::endl;
+        std::cout << "min_point_data_HSD=" << min_point_data_HSD[0] << " " << min_point_data_HSD[1] << std::endl;
+        std::cout << "min_point_data_SSD=" << min_point_data_SSD[0] << " " << min_point_data_SSD[1] << std::endl;
+        for(int i = 0; i < N_SYSTEMATICS; ++ i)
+        {
+            std::cout << "min_point_fake_SYS" << i << "L=" << min_point_fake_sysn_l[i][0] << " " << min_point_fake_sysn_l[i][1] << std::endl;
+            std::cout << "min_point_fake_SYS" << i << "H=" << min_point_fake_sysn_h[i][0] << " " << min_point_fake_sysn_h[i][1] << std::endl;
+        }
+
+        std::cin.get();
 
         ///////////////////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////
