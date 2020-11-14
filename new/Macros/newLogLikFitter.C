@@ -1633,21 +1633,24 @@ void loadFiles(int i)
     ///////////////////////////////////////////////////////////////////////////
     min_point_helper("CH0", false, false, 1, true, 0.0,
         min_point_data_HSD_CH0, min_point_data_HSD_CH0_err, min_point_data_HSD_CH0_fval,
-        "min_point_data_HSD_CH0", "HSD_CH0_data", "HSD_CH0");
+        "min_point_data_HSD_CH0", "HSD_CH0_data", "HSD_CH0",
+        xi_31_systematics_reweight_value);
 
     ///////////////////////////////////////////////////////////////////////////
     // HSD fixed xi_31 = HSD fit
     ///////////////////////////////////////////////////////////////////////////
     min_point_helper("CH1", false, false, 1, true, 0.0,
         min_point_data_HSD, min_point_data_HSD_err, min_point_data_HSD_fval,
-        "min_point_data_HSD", "HSD_data", "HSD");
+        "min_point_data_HSD", "HSD_data", "HSD",
+        xi_31_systematics_reweight_value);
 
     ///////////////////////////////////////////////////////////////////////////
     // SSD fixed xi_31 = SSD fit
     ///////////////////////////////////////////////////////////////////////////
     min_point_helper("CH1", false, false, 1, true, 0.296,
         min_point_data_SSD, min_point_data_SSD_err, min_point_data_SSD_fval,
-        "min_point_data_SSD", "SSD_data", "SSD");
+        "min_point_data_SSD", "SSD_data", "SSD",
+        xi_31_systematics_reweight_value);
 
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit
@@ -1656,7 +1659,8 @@ void loadFiles(int i)
     ///////////////////////////////////////////////////////////////////////////
     min_point_helper("CH1", false, false, 2, false, -1000.0,
         min_point_data, min_point_data_err, min_point_data_fval,
-        "min_point_data", "xifree_data", "xifree");
+        "min_point_data", "xifree_data", "xifree",
+        xi_31_systematics_reweight_value);
 
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit
@@ -1665,7 +1669,8 @@ void loadFiles(int i)
     ///////////////////////////////////////////////////////////////////////////
     min_point_helper("CH1", true, false, 2, false, -1000.0,
         min_point_data_SYSALL, min_point_data_SYSALL_err, min_point_data_SYSALL_fval,
-        "min_point_data", "xifree_data", "xifree");
+        "min_point_data_SYSALL", "xifree_data_SYSALL", "xifree",
+        xi_31_systematics_reweight_value);
 
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit
@@ -1674,12 +1679,13 @@ void loadFiles(int i)
     ///////////////////////////////////////////////////////////////////////////
     gSystematics.reset();
     ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
     min_point_helper("CH1", false, true, 2, false, -1000.0,
         min_point_fake, min_point_fake_err, min_point_fake_fval,
-        "min_point_fake", "xifree_fake", "xifree");
+        "min_point_fake", "xifree_fake", "xifree",
+        xi_31_systematics_reweight_value);
+
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit
@@ -1688,12 +1694,13 @@ void loadFiles(int i)
     ///////////////////////////////////////////////////////////////////////////
     gSystematics.reset();
     ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
     min_point_helper("CH1", true, true, 2, false, -1000.0,
         min_point_fake_SYSALL, min_point_fake_SYSALL_err, min_point_fake_SYSALL_fval,
-        "min_point_fake", "xifree_fake", "xifree");
+        "min_point_fake_SYSALL", "xifree_fake_SYSALL", "xifree",
+        xi_31_systematics_reweight_value);
+
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit
@@ -1704,12 +1711,13 @@ void loadFiles(int i)
     gSystematics.reset();
     gSystematics.systematic_energy_offset = -0.1;
     ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
-    min_point_helper("CH1", true, true, 2, false, -1000.0,
+    min_point_helper("CH1", false, true, 2, false, -1000.0,
         min_point_fake_sysn_l[0], min_point_fake_sysn_l_err[0], min_point_fake_sysn_l_fval[0],
-        "min_point_fake_SYS0L", "xifree_fake_SYS0L", "xifree");
+        "min_point_fake_SYS0L", "xifree_fake_SYS0L", "xifree",
+        xi_31_systematics_reweight_value);
+
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -1721,12 +1729,13 @@ void loadFiles(int i)
     gSystematics.reset();
     gSystematics.systematic_energy_offset = +0.1;
     ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
-    min_point_helper("CH1", true, true, 2, false, -1000.0,
+    min_point_helper("CH1", false, true, 2, false, -1000.0,
         min_point_fake_sysn_h[0], min_point_fake_sysn_h_err[0], min_point_fake_sysn_h_fval[0],
-        "min_point_fake_SYS0H", "xifree_fake_SYS0H", "xifree");
+        "min_point_fake_SYS0H", "xifree_fake_SYS0H", "xifree",
+        xi_31_systematics_reweight_value);
+
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit
@@ -1737,12 +1746,13 @@ void loadFiles(int i)
     gSystematics.reset();
     gSystematics.systematic_energy_scale = -0.012;
     ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
-    min_point_helper("CH1", true, true, 2, false, -1000.0,
+    min_point_helper("CH1", false, true, 2, false, -1000.0,
         min_point_fake_sysn_l[1], min_point_fake_sysn_l_err[1], min_point_fake_sysn_l_fval[1],
-        "min_point_fake_SYS1L", "xifree_fake_SYS1L", "xifree");
+        "min_point_fake_SYS1L", "xifree_fake_SYS1L", "xifree",
+        xi_31_systematics_reweight_value);
+
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit
@@ -1753,13 +1763,13 @@ void loadFiles(int i)
     gSystematics.reset();
     gSystematics.systematic_energy_scale = +0.012;
     ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
-    min_point_helper("CH1", true, true, 2, false, -1000.0,
+    min_point_helper("CH1", false, true, 2, false, -1000.0,
         min_point_fake_sysn_h[1], min_point_fake_sysn_h_err[1], min_point_fake_sysn_h_fval[1],
-        "min_point_fake_SYS1H", "xifree_fake_SYS1H", "xifree");
+        "min_point_fake_SYS1H", "xifree_fake_SYS1H", "xifree",
+        xi_31_systematics_reweight_value);
 
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit
@@ -1770,13 +1780,13 @@ void loadFiles(int i)
     gSystematics.reset();
     gSystematics.systematic_efficiency = -5.55e-02;
     ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
-    min_point_helper("CH1", true, true, 2, false, -1000.0,
+    min_point_helper("CH1", false, true, 2, false, -1000.0,
         min_point_fake_sysn_l[2], min_point_fake_sysn_l_err[2], min_point_fake_sysn_l_fval[2],
-        "min_point_fake_SYS2L", "xifree_fake_SYS2L", "xifree");
+        "min_point_fake_SYS2L", "xifree_fake_SYS2L", "xifree",
+        xi_31_systematics_reweight_value);
 
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit
@@ -1787,13 +1797,13 @@ void loadFiles(int i)
     gSystematics.reset();
     gSystematics.systematic_efficiency = +5.55e-02;
     ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
-    min_point_helper("CH1", true, true, 2, false, -1000.0,
+    min_point_helper("CH1", false, true, 2, false, -1000.0,
         min_point_fake_sysn_h[2], min_point_fake_sysn_h_err[2], min_point_fake_sysn_h_fval[2],
-        "min_point_fake_SYS2H", "xifree_fake_SYS2H", "xifree");
+        "min_point_fake_SYS2H", "xifree_fake_SYS2H", "xifree",
+        xi_31_systematics_reweight_value);
 
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit
@@ -1804,13 +1814,13 @@ void loadFiles(int i)
     gSystematics.reset();
     gSystematics.systematic_enrichment = -0.5e-02;
     ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
-    min_point_helper("CH1", true, true, 2, false, -1000.0,
+    min_point_helper("CH1", false, true, 2, false, -1000.0,
         min_point_fake_sysn_l[3], min_point_fake_sysn_l_err[3], min_point_fake_sysn_l_fval[3],
-        "min_point_fake_SYS3L", "xifree_fake_SYS3L", "xifree");
+        "min_point_fake_SYS3L", "xifree_fake_SYS3L", "xifree",
+        xi_31_systematics_reweight_value);
 
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit
@@ -1821,13 +1831,13 @@ void loadFiles(int i)
     gSystematics.reset();
     gSystematics.systematic_enrichment = +0.5e-02;
     ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
-    min_point_helper("CH1", true, true, 2, false, -1000.0,
+    min_point_helper("CH1", false, true, 2, false, -1000.0,
         min_point_fake_sysn_h[3], min_point_fake_sysn_h_err[3], min_point_fake_sysn_h_fval[3],
-        "min_point_fake_SYS3H", "xifree_fake_SYS3H", "xifree");
-
+        "min_point_fake_SYS3H", "xifree_fake_SYS3H", "xifree",
+        xi_31_systematics_reweight_value);
+    
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit
@@ -1838,13 +1848,13 @@ void loadFiles(int i)
     gSystematics.reset();
     gSystematics.systematic_energy_offsetsmall = -3.0e-3;
     ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
-    min_point_helper("CH1", true, true, 2, false, -1000.0,
+    min_point_helper("CH1", false, true, 2, false, -1000.0,
         min_point_fake_sysn_l[4], min_point_fake_sysn_l_err[4], min_point_fake_sysn_l_fval[4],
-        "min_point_fake_SYS4L", "xifree_fake_SYS4L", "xifree");
+        "min_point_fake_SYS4L", "xifree_fake_SYS4L", "xifree",
+        xi_31_systematics_reweight_value);
 
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit
@@ -1855,14 +1865,13 @@ void loadFiles(int i)
     gSystematics.reset();
     gSystematics.systematic_energy_offsetsmall = +3.0e-3;
     ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
-    min_point_helper("CH1", true, true, 2, false, -1000.0,
+    min_point_helper("CH1", false, true, 2, false, -1000.0,
         min_point_fake_sysn_h[4], min_point_fake_sysn_h_err[4], min_point_fake_sysn_h_fval[4],
-        "min_point_fake_SYS4H", "xifree_fake_SYS4H", "xifree");
+        "min_point_fake_SYS4H", "xifree_fake_SYS4H", "xifree",
+        xi_31_systematics_reweight_value);
 
-
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit
@@ -1873,13 +1882,13 @@ void loadFiles(int i)
     gSystematics.reset();
     gSystematics.systematic_foil_thickness_virtual = -1;
     ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
-    min_point_helper("CH1", true, true, 2, false, -1000.0,
+    min_point_helper("CH1", false, true, 2, false, -1000.0,
         min_point_fake_sysn_l[5], min_point_fake_sysn_l_err[5], min_point_fake_sysn_l_fval[5],
-        "min_point_fake_SYS5L", "xifree_fake_SYS5L", "xifree");
+        "min_point_fake_SYS5L", "xifree_fake_SYS5L", "xifree",
+        xi_31_systematics_reweight_value);
 
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit
@@ -1890,13 +1899,13 @@ void loadFiles(int i)
     gSystematics.reset();
     gSystematics.systematic_foil_thickness_virtual = +1;
     ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
-    min_point_helper("CH1", true, true, 2, false, -1000.0,
+    min_point_helper("CH1", false, true, 2, false, -1000.0,
         min_point_fake_sysn_h[5], min_point_fake_sysn_h_err[5], min_point_fake_sysn_h_fval[5],
-        "min_point_fake_SYS5H", "xifree_fake_SYS5H", "xifree");
+        "min_point_fake_SYS5H", "xifree_fake_SYS5H", "xifree",
+        xi_31_systematics_reweight_value);
 
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit
@@ -1907,13 +1916,13 @@ void loadFiles(int i)
     gSystematics.reset();
     gSystematics.systematic_dEdX_virtual = -1;
     ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
-    min_point_helper("CH1", true, true, 2, false, -1000.0,
+    min_point_helper("CH1", false, true, 2, false, -1000.0,
         min_point_fake_sysn_l[6], min_point_fake_sysn_l_err[6], min_point_fake_sysn_l_fval[6],
-        "min_point_fake_SYS6L", "xifree_fake_SYS6L", "xifree");
+        "min_point_fake_SYS6L", "xifree_fake_SYS6L", "xifree",
+        xi_31_systematics_reweight_value);
 
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit
@@ -1924,13 +1933,13 @@ void loadFiles(int i)
     gSystematics.reset();
     gSystematics.systematic_dEdX_virtual = +1;
     ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
-    min_point_helper("CH1", true, true, 2, false, -1000.0,
+    min_point_helper("CH1", false, true, 2, false, -1000.0,
         min_point_fake_sysn_h[6], min_point_fake_sysn_h_err[6], min_point_fake_sysn_h_fval[6],
-        "min_point_fake_SYS6H", "xifree_fake_SYS6H", "xifree");
-
+        "min_point_fake_SYS6H", "xifree_fake_SYS6H", "xifree",
+        xi_31_systematics_reweight_value);
+    
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit
@@ -1941,13 +1950,13 @@ void loadFiles(int i)
     gSystematics.reset();
     gSystematics.systematic_brem_virtual = -1;
     ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
-    min_point_helper("CH1", true, true, 2, false, -1000.0,
+    min_point_helper("CH1", false, true, 2, false, -1000.0,
         min_point_fake_sysn_l[7], min_point_fake_sysn_l_err[7], min_point_fake_sysn_l_fval[7],
-        "min_point_fake_SYS7L", "xifree_fake_SYS7L", "xifree");
+        "min_point_fake_SYS7L", "xifree_fake_SYS7L", "xifree",
+        xi_31_systematics_reweight_value);
 
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit
@@ -1958,13 +1967,13 @@ void loadFiles(int i)
     gSystematics.reset();
     gSystematics.systematic_brem_virtual = +1;
     ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
-    min_point_helper("CH1", true, true, 2, false, -1000.0,
+    min_point_helper("CH1", false, true, 2, false, -1000.0,
         min_point_fake_sysn_h[7], min_point_fake_sysn_h_err[7], min_point_fake_sysn_h_fval[7],
-        "min_point_fake_SYS7H", "xifree_fake_SYS7H", "xifree");
+        "min_point_fake_SYS7H", "xifree_fake_SYS7H", "xifree",
+        xi_31_systematics_reweight_value);
 
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit
@@ -1975,13 +1984,13 @@ void loadFiles(int i)
     gSystematics.reset();
     gSystematics.systematic_foil_thickness_nominal = -1;
     ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
-    min_point_helper("CH1", true, true, 2, false, -1000.0,
+    min_point_helper("CH1", false, true, 2, false, -1000.0,
         min_point_fake_sysn_l[8], min_point_fake_sysn_l_err[8], min_point_fake_sysn_l_fval[8],
-        "min_point_fake_SYS8L", "xifree_fake_SYS8L", "xifree");
+        "min_point_fake_SYS8L", "xifree_fake_SYS8L", "xifree",
+        xi_31_systematics_reweight_value);
 
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit
@@ -1992,13 +2001,13 @@ void loadFiles(int i)
     gSystematics.reset();
     gSystematics.systematic_foil_thickness_nominal = +1;
     ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
-    min_point_helper("CH1", true, true, 2, false, -1000.0,
+    min_point_helper("CH1", false, true, 2, false, -1000.0,
         min_point_fake_sysn_h[8], min_point_fake_sysn_h_err[8], min_point_fake_sysn_h_fval[8],
-        "min_point_fake_SYS8H", "xifree_fake_SYS8H", "xifree");
+        "min_point_fake_SYS8H", "xifree_fake_SYS8H", "xifree",
+        xi_31_systematics_reweight_value);
 
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit
@@ -2009,13 +2018,13 @@ void loadFiles(int i)
     gSystematics.reset();
     gSystematics.systematic_dEdX_nominal = -1;
     ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
-    min_point_helper("CH1", true, true, 2, false, -1000.0,
+    min_point_helper("CH1", false, true, 2, false, -1000.0,
         min_point_fake_sysn_l[9], min_point_fake_sysn_l_err[9], min_point_fake_sysn_l_fval[9],
-        "min_point_fake_SYS9L", "xifree_fake_SYS9L", "xifree");
+        "min_point_fake_SYS9L", "xifree_fake_SYS9L", "xifree",
+        xi_31_systematics_reweight_value);
 
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit
@@ -2026,13 +2035,13 @@ void loadFiles(int i)
     gSystematics.reset();
     gSystematics.systematic_dEdX_nominal = +1;
     ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
-    min_point_helper("CH1", true, true, 2, false, -1000.0,
+    min_point_helper("CH1", false, true, 2, false, -1000.0,
         min_point_fake_sysn_h[9], min_point_fake_sysn_h_err[9], min_point_fake_sysn_h_fval[9],
-        "min_point_fake_SYS9H", "xifree_fake_SYS9H", "xifree");
+        "min_point_fake_SYS9H", "xifree_fake_SYS9H", "xifree",
+        xi_31_systematics_reweight_value);
 
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit
@@ -2043,13 +2052,13 @@ void loadFiles(int i)
     gSystematics.reset();
     gSystematics.systematic_brem_nominal = -1;
     ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
-    min_point_helper("CH1", true, true, 2, false, -1000.0,
+    min_point_helper("CH1", false, true, 2, false, -1000.0,
         min_point_fake_sysn_l[10], min_point_fake_sysn_l_err[10], min_point_fake_sysn_l_fval[10],
-        "min_point_fake_SYS10L", "xifree_fake_SYS10L", "xifree");
+        "min_point_fake_SYS10L", "xifree_fake_SYS10L", "xifree",
+        xi_31_systematics_reweight_value);
 
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
     ///////////////////////////////////////////////////////////////////////////
     // All Parameter Fit
@@ -2060,13 +2069,13 @@ void loadFiles(int i)
     gSystematics.reset();
     gSystematics.systematic_brem_nominal = +1;
     ND150_FAKEDATA_SCALE_FACTOR = 1.15;
-    rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
-    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
-    min_point_helper("CH1", true, true, 2, false, -1000.0,
+    min_point_helper("CH1", false, true, 2, false, -1000.0,
         min_point_fake_sysn_h[10], min_point_fake_sysn_h_err[10], min_point_fake_sysn_h_fval[10],
-        "min_point_fake_SYS10H", "xifree_fake_SYS10H", "xifree");
+        "min_point_fake_SYS10H", "xifree_fake_SYS10H", "xifree",
+        xi_31_systematics_reweight_value);
 
+    ND150_FAKEDATA_SCALE_FACTOR = 1.0;
 
     gSystematics.reset();
     rebuild_fake_data_systematics(xi_31_systematics_reweight_value, xi_31_baseline);
