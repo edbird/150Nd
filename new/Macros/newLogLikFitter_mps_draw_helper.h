@@ -101,9 +101,19 @@ void newloglikfitter_mps_draw_helper_colz
         double param_2_min = mps_draw_data_sysnone.param_2_min;
         double param_2_max = mps_draw_data_sysnone.param_2_max;
 
-        double min_fval = mps_draw_data_sysnone.min_fval;
-        double min_fval_SYSALL = mps_draw_data_sysnone.min_fval_SYSALL;
-        std::cout << "min_fval=" << min_fval << std::endl;
+        double min_fval_SYSNONE = 0.0;
+        double min_fval_SYSALL = 0.0;
+        if(g_mode_fake_data == false)
+        {
+            min_fval_SYSNONE = min_point_data_fval;
+            min_fval_SYSALL = min_point_data_SYSALL_fval;
+        }
+        else
+        {
+            min_fval_SYSNONE = min_point_fake_fval;
+            min_fval_SYSALL = min_point_fake_SYSALL_fval;
+        }
+        std::cout << "min_fval_SYSNONE=" << min_fval_SYSNONE << std::endl;
         std::cout << "min_fval_SYSALL=" << min_fval_SYSALL << std::endl;
 
         h_mps_sysall->SetTitle("");
@@ -237,7 +247,7 @@ void newloglikfitter_mps_draw_helper_colz
         h_mps_sysnone_contour->SetLineColor(kGreen);
         //h_mps_sysnone_contour->SetLineColor(kGray);
         h_mps_sysnone_contour->SetLineWidth(2);
-        double clevels[3] = {min_fval + 2.30, min_fval + 4.61, min_fval + 9.21};
+        double clevels[3] = {min_fval_SYSNONE + 2.30, min_fval_SYSNONE + 4.61, min_fval_SYSNONE + 9.21};
         h_mps_sysnone_contour->SetContour(3, clevels);
         h_mps_sysnone_contour->Draw("cont3same");
 
@@ -458,9 +468,19 @@ void newloglikfitter_mps_draw_helper
         double param_2_min = mps_draw_data_sysnone.param_2_min;
         double param_2_max = mps_draw_data_sysnone.param_2_max;
 
-        double min_fval = mps_draw_data_sysnone.min_fval;
-        double min_fval_SYSALL = mps_draw_data_sysnone.min_fval_SYSALL;
-        std::cout << "min_fval=" << min_fval << std::endl;
+        double min_fval_SYSNONE = 0.0;
+        double min_fval_SYSALL = 0.0;
+        if(g_mode_fake_data == false)
+        {
+            min_fval_SYSNONE = min_point_data_fval;
+            min_fval_SYSALL = min_point_data_SYSALL_fval;
+        }
+        else
+        {
+            min_fval_SYSNONE = min_point_fake_fval;
+            min_fval_SYSALL = min_point_fake_SYSALL_fval;
+        }
+        std::cout << "min_fval_SYSNONE=" << min_fval_SYSNONE << std::endl;
         std::cout << "min_fval_SYSALL=" << min_fval_SYSALL << std::endl;
 
         h_mps_sysall->SetTitle("");
@@ -592,7 +612,7 @@ void newloglikfitter_mps_draw_helper
         //h_mps_sysnone_contour->SetLineColor(kGreen);
         h_mps_sysnone_contour->SetLineColor(kGray + 2);
         h_mps_sysnone_contour->SetLineWidth(2);
-        double clevels[3] = {min_fval + 2.30, min_fval + 4.61, min_fval + 9.21};
+        double clevels[3] = {min_fval_SYSNONE + 2.30, min_fval_SYSNONE + 4.61, min_fval_SYSNONE + 9.21};
         h_mps_sysnone_contour->SetContour(3, clevels);
         h_mps_sysnone_contour->Draw("cont3same");
 
