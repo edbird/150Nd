@@ -160,8 +160,8 @@ class mpsdrawdata
         
         min_point_load("min_point_data", min_point_data, min_point_data_err, min_point_data_fval);  
         min_point_load("min_point_fake", min_point_fake, min_point_fake_err, min_point_fake_fval);  
-        min_point_load("min_point_SYSALL_data", min_point_data_SYSALL, min_point_data_SYSALL_err, min_point_data_SYSALL_fval);  
-        min_point_load("min_point_SYSALL_fake", min_point_fake_SYSALL, min_point_fake_SYSALL_err, min_point_fake_SYSALL_fval);  
+        min_point_load("min_point_data_SYSALL", min_point_data_SYSALL, min_point_data_SYSALL_err, min_point_data_SYSALL_fval);  
+        min_point_load("min_point_fake_SYSALL", min_point_fake_SYSALL, min_point_fake_SYSALL_err, min_point_fake_SYSALL_fval);  
         min_point_load("min_point_data_HSD_CH0", min_point_data_HSD_CH0, min_point_data_HSD_CH0_err, min_point_data_HSD_CH0_fval);  
         min_point_load("min_point_data_HSD", min_point_data_HSD, min_point_data_HSD_err, min_point_data_HSD_fval);  
         min_point_load("min_point_data_SSD", min_point_data_SSD, min_point_data_SSD_err, min_point_data_SSD_fval);  
@@ -187,8 +187,6 @@ class mpsdrawdata
             std::cout << "min_point_fake_SYS" << i << "L=" << min_point_fake_sysn_l[i][0] << " " << min_point_fake_sysn_l[i][1] << std::endl;
             std::cout << "min_point_fake_SYS" << i << "H=" << min_point_fake_sysn_h[i][0] << " " << min_point_fake_sysn_h[i][1] << std::endl;
         }
-
-        std::cin.get();
 
         ///////////////////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////

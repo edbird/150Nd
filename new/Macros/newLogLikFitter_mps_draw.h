@@ -582,6 +582,7 @@ void newloglikfitter_mps_draw_systematics_colz
     std::cout << "c_fname=" << c_fname << std::endl;
     std::cout << "is the filename legal?" << std::endl;
     std::cout << "*****************************************************" << std::endl;
+    std::cin.get();
     c_mps_after->SaveAs(c_fname_png);
     c_mps_after->SaveAs(c_fname_pdf);
     c_mps_after->SaveAs(c_fname_eps);
